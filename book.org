@@ -1,0 +1,179 @@
+#+title: Functional Programming in Lean
+#+author: David Thrane Christiansen
+
+* Introduction
+
+Lean is an interactive theorem prover developed at Microsoft
+Research, based on dependent type theory. Dependent type theory unites
+the worlds of programs and proofs; thus, Lean is also a programming
+language. Lean is even implemented in itself.
+
+This book is about using Lean for programming, rather than for
+mathematics.
+
+** Getting Lean
+
+Before writing and running programs written in Lean, you'll need to
+set up Lean on your own computer. The Lean tooling consists of the
+following:
+
+ - =elan= :: manages the Lean compiler toolchains, similarly to =rustup=
+   or =ghcup=.
+ - =lake= :: builds Lean packages and their dependencies, similarly to
+   =cargo= or =cabal=.
+ - =lean= :: type checks and compiles individual Lean files as well as
+   providing information about files that currently being written
+   using LSP.
+
+** About the Book
+
+This book builds concepts linearly.
+
+Every chapter contains enough information to build and run example
+code, and there are always exercises that can be completed using only
+the information provided in the book so far.
+
+* Getting to Know Lean
+
+According to tradition, a programming language should be introduced by
+compiling and running a program that displays ="Hello, world!"= on the
+console. This simple program ensures that the language tooling is
+installed correctly and that the programmer is able to run the
+compiled code.
+
+Since the 1970s, however, programming has changed. Today, compilers
+are typically integrated into text editors, and the programming
+environment offers feedback as the program is written. Lean is no
+exception: it implements an extended version of the Language Server
+Protocol that allows it to communicate with a text editor and provide
+feedback as the user types.
+
+This chapter provides a short introduction to interacting with Lean in
+an editor, while [[Hello, World!]] describes how to use Lean traditionally
+from the command line in batch mode. Many languages offer a
+read-eval-print-loop (REPL), also known as an interactive toplevel, in
+which expressions or statements can be entered. The language then
+computes and displays the result of the user's input. Lean, on the
+other hand, integrates these features into the interaction with the
+editor, providing commands that cause the text editor to display
+feedback in the program.
+
+** Evaluating Expressions
+
+Lean is a pure functional programming language. Typical programs accomplish
+their computation by substituting for variables and then calculating
+the resulting value, rather than by sequentially mutating a shared
+heap. In fact, evaluating expressions /cannot/ have side effects at
+all.
+
+To evaluate an expression, write =#eval= before it in your editor,
+which will then report the result back. Typically, the result is found
+by putting the cursor or mouse pointer over =#eval=. For instance,
+
+#+BEGIN_SRC Lean
+#eval 1 + 2
+#+END_SRC
+
+yields the value =3=, and
+
+#+begin_src Lean
+#eval String.append "it is " (if 1 > 2 then "yes" else "no")
+#+end_src
+
+yields the value ="it is no"=.
+
+
+** Types
+
+Types classify programs based on the values that they can
+compute. Types serve a number of roles in a program:
+ 1. They allow the computer to make decisions about the in-memory
+    representation of a value.
+ 2. They allow programmers to communicate their intent to others,
+    serving as a lightweight specification for the inputs and outputs
+    of a function that the compiler can ensure the program adheres to.
+ 3. They prevent various potential mistakes, such as adding a number
+    to a string, and thus reduce the number of tests that are
+    necessary for a program.
+
+Every program in Lean must have a type. In particular, every
+expression must have a type before it can be evaluated. In the
+examples so far, Lean has been able to discover a type on its own, but
+it is sometimes necessary to provide one. This is done using the colon
+operator:
+
+#+BEGIN_SRC Lean
+#eval (1 + 2 : Nat)
+#+END_SRC
+
+Here, =Nat= is the type of /natural numbers/, arbitrary-precision
+unsigned integers. In Lean, =Nat= is the default type for non-negative
+integer literals. This default type is not always the best
+choice. Because =Nat= can't represent negative numbers, subtraction
+returns =0= when the answer would have otherwise been negative. For
+instance,
+
+#+BEGIN_SRC Lean
+#eval 1 - 2
+#+END_SRC
+
+evaluates to =0= rather than =-1=. To use a type that can represent
+the negative integers, provide a type:
+
+#+BEGIN_SRC Lean
+#eval (1 - 2 : Int)
+#+END_SRC
+
+With this type, the result is =-1=, as expected.
+
+To check the type of an expression without evaluating it, use =#check=
+instead of =#eval=. For instance:
+
+#+BEGIN_SRC Lean
+#check (1 - 2 : Int)
+#+END_SRC
+
+reports =1 - 2 : Int= without actually performing the subtraction.
+
+When a program can't be given a type, an error is returned from both
+=#check= and =#eval=. For instance:
+
+#+BEGIN_SRC Lean
+#check String.append "hello" [" ", "world"]
+#+END_SRC
+
+returns
+
+#+BEGIN_SRC Lean
+application type mismatch
+  String.append "hello" [" ", "world"]
+argument
+  [" ", "world"]
+has type
+  List String : Type
+but is expected to have type
+  String : Type
+#+END_SRC
+
+** Functions
+
+Key concepts:
+ - Interacting with Lean using tools like =#check= and =#eval=
+ - Arithmetic, natural numbers
+
+* Hello, World!
+
+Key concepts:
+
+ - Unit type, analogy to =void= in C-like languages
+ - Pure code vs IO
+ - =do=-notation for =IO= (explain in terms of building instructions
+   for the RTS, and make analogies from =>>== to callbacks)
+
+Exercises:
+
+ - Change the message of Hello World!
+
+
+In keeping with tradition, here is the "Hello World" program in Lean:
+
