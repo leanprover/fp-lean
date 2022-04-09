@@ -35,6 +35,12 @@ the information provided in the book so far.
 
 * Getting to Know Lean
 
+Key concepts:
+ - Interacting with Lean using tools like =#check= and =#eval=
+ - Arithmetic, natural numbers
+ - Functions
+ - Definitions, pattern matching, simply-typed datatypes and structures
+
 According to tradition, a programming language should be introduced by
 compiling and running a program that displays ="Hello, world!"= on the
 console. This simple program ensures that the language tooling is
@@ -157,9 +163,6 @@ but is expected to have type
 
 ** Functions
 
-Key concepts:
- - Interacting with Lean using tools like =#check= and =#eval=
- - Arithmetic, natural numbers
 
 * Hello, World!
 
