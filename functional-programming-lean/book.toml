@@ -1,6 +1,18 @@
 [book]
-authors = ["David Christiansen"]
+authors = ["David Thrane Christiansen"]
 language = "en"
 multilingual = false
 src = "src"
 title = "Functional Programming in Lean"
+
+[build]
+
+[preprocessor.leanexample]
+command = "python scripts/example.py"
+
+[output.html]
+
+[output.markdown]
+
+[output.epub]
+command = "python ../../scripts/one-markdown.py"

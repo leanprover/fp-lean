@@ -1,3 +1,5 @@
 # Summary
 
-- [Chapter 1](./chapter_1.md)
+- [Introduction](./introduction.md)
+- [Getting to Know Lean](./getting-to-know.md)
+  - [Evaluating Expressions](./getting-to-know/evaluating.md)
