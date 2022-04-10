@@ -45,8 +45,6 @@ def strln : IO Unit := do
 
 #check (1 - 2 : Int)
 
-#check String.append "hello" [" ", "world"]
-
 namespace RPN
 
   structure State where
