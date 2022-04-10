@@ -6,7 +6,7 @@ import subprocess
 
 def bump_headers(level, md):
     def new_header(old_header):
-        return old_header.group(1) + '#' * level
+        return old_header.group(1) + ('#' * level) + ' '
     # The space in the regexp is necessary to avoid rewriting #eval &c
     return re.sub(r'^(#+) ', new_header, md, flags=re.MULTILINE)
 
