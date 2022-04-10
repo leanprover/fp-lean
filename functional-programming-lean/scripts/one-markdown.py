@@ -42,7 +42,7 @@ def emit_pandoc_markdown(book):
             else:
                 filename = os.path.join(pandoc_dest, next_special() + '.md')
                 header = '# ' + ch['name'] + '{-}'
-                content = ch['content']
+                content = bump_headers(1, ch['content'])
 
             with open(filename, 'w') as f:
                 f.write(header)
@@ -58,8 +58,8 @@ def main():
     json_str = input()
     book_contents = json.loads(json_str)
     meta, output = emit_pandoc_markdown(book_contents)
-    subprocess.call(['pandoc', f'--metadata-file={meta}', '-o', 'book.epub'] + output)
-    subprocess.call(['pandoc', f'--metadata-file={meta}', '-o', 'book.pdf'] + output)
+    subprocess.call(['pandoc', '--top-level-division=chapter', f'--metadata-file={meta}', '-o', 'book.epub'] + output)
+    subprocess.call(['pandoc', '--top-level-division=chapter', f'--metadata-file={meta}', '-o', 'book.pdf'] + output)
 
 if __name__ == '__main__':
     main()
