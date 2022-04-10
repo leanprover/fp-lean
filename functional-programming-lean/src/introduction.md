@@ -16,7 +16,7 @@ following:
    or `ghcup`.
  * `lake` builds Lean packages and their dependencies, similarly to
    `cargo` or `cabal`.
- *`lean` type checks and compiles individual Lean files as well as
+ * `lean` type checks and compiles individual Lean files as well as
    providing information about files that currently being written
    using LSP.
 

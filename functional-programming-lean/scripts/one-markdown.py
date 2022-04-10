@@ -27,16 +27,27 @@ def emit_pandoc_markdown(book):
     if not os.path.exists(pandoc_dest):
         os.makedirs(pandoc_dest)
 
+    def next_special(counter=[0]):
+        counter[0] += 1
+        return f"s{counter[0]}"
+
     def emit_sections(sections):
         for s in sections:
             ch = s['Chapter']
-            filename = os.path.join(pandoc_dest, '-'.join(str(i) for i in ch['number']) + '.md')
-            header = ('#' * len(ch['number'])) + ' ' + ch['name']
+            # There is an assumption here that unnumbered sections live at the top level.
+            if ch['number'] is not None:
+                filename = os.path.join(pandoc_dest, '-'.join(str(i) for i in ch['number']) + '.md')
+                header = ('#' * len(ch['number'])) + ' ' + ch['name']
+                content = bump_headers(len(ch['number']), ch['content'])
+            else:
+                filename = os.path.join(pandoc_dest, next_special() + '.md')
+                header = '# ' + ch['name'] + '{-}'
+                content = ch['content']
 
             with open(filename, 'w') as f:
                 f.write(header)
                 f.write('\n\n')
-                f.write(bump_headers(len(ch['number']), ch['content']))
+                f.write(content)
                 f.write('\n')
             output_files.append(filename)
             emit_sections(ch['sub_items'])

@@ -8,9 +8,17 @@ import sys
 example_in_re = re.compile(r'\{\{#example_in\s+(?P<file>[^\s]+)\s+(?P<name>[^\s]+)\s*}}')
 example_out_re = re.compile(r'\{\{#example_out\s+(?P<file>[^\s]+)\s+(?P<name>[^\s]+)\s*}}')
 
-example_start_re = re.compile(r'bookExample\s+\{\{\{\s*(?P<name>[a-zA-Z0-9_]+)\s*\}\}\}')
+example_start_re = re.compile(r'bookExample\s+(type\s+)?\{\{\{\s*(?P<name>[a-zA-Z0-9_]+)\s*\}\}\}')
 example_middle_re = re.compile(r'===>')
 example_end_re = re.compile(r'end\s+bookExample')
+
+expect_start_re = re.compile(r'expect\s+(info|error)\s+\{\{\{\s*(?P<name>[a-zA-Z0-9_]+)\s*\}\}\}')
+expect_middle_re = re.compile(r'message')
+expect_end_re = re.compile(r'end\s+expect')
+
+
+def destring(string):
+    return string[1:-1].replace(r'\"', '\"').replace(r'\n', '\n').replace(r'\t', '\t')
 
 loaded_examples = {}
 
@@ -18,6 +26,7 @@ def load_examples(filename):
     if filename in loaded_examples:
         return loaded_examples[filename]
     else:
+        sort = None
         state = None
         current = None
         accum_start = ''
@@ -29,25 +38,53 @@ def load_examples(filename):
                     matches = example_start_re.search(line)
                     if matches:
                         state = 'start'
+                        sort = 'example'
                         current = matches.group('name')
                         accum_start = ''
-                elif state == 'start':
-                    matches = example_middle_re.search(line)
-                    if matches:
-                        state = 'end'
-                        accum_end = ''
-                    else:
-                        accum_start += line
-                elif state == 'end':
-                    matches = example_end_re.search(line)
-                    if matches:
-                        state = None
-                        examples[current] = (textwrap.dedent(accum_start.rstrip()), textwrap.dedent(accum_end.rstrip()))
+                    matches2 = expect_start_re.search(line)
+                    if matches2:
+                        state = 'start'
+                        sort = 'expect'
+                        current = matches2.group('name')
                         accum_start = ''
-                        accum_end = ''
-                        current = None
-                    else:
-                        accum_end += line
+                elif state == 'start':
+                    if sort == 'example':
+                        matches = example_middle_re.search(line)
+                        if matches:
+                            state = 'end'
+                            accum_end = ''
+                        else:
+                            accum_start += line
+                    elif sort == 'expect':
+                        matches = expect_middle_re.search(line)
+                        if matches:
+                            state = 'end'
+                            accum_end = ''
+                        else:
+                            accum_start += line
+                elif state == 'end':
+                    if sort == 'example':
+                        matches = example_end_re.search(line)
+                        if matches:
+                            state = None
+                            sort = None
+                            examples[current] = (textwrap.dedent(accum_start.rstrip()), textwrap.dedent(accum_end.rstrip()))
+                            accum_start = ''
+                            accum_end = ''
+                            current = None
+                        else:
+                            accum_end += line
+                    elif sort == 'expect':
+                        matches = expect_end_re.search(line)
+                        if matches:
+                            state = None
+                            sort = None
+                            examples[current] = (textwrap.dedent(accum_start.rstrip()), destring(textwrap.dedent(accum_end.rstrip())))
+                            accum_start = ''
+                            accum_end = ''
+                            current = None
+                        else:
+                            accum_end += line
         loaded_examples[filename] = examples
         return examples
 
@@ -83,7 +120,7 @@ def main():
         if sys.argv[1] == "supports":
             sys.exit(0)
     context, book_contents = json.load(sys.stdin)
-    print(json.dumps(rewrite_examples(context, book_contents), indent = 4))
+    print(json.dumps(rewrite_examples(context, book_contents)))
 
 if __name__ == '__main__':
     main()

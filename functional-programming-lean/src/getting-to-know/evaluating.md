@@ -1,5 +1,20 @@
-Aliquam erat volutpat.  Nunc eleifend leo vitae magna.  In id erat non orci commodo lobortis.  Proin neque massa, cursus ut, gravida ut, lobortis eget, lacus.  Sed diam.  Praesent fermentum tempor tellus.  Nullam tempus.  Mauris ac felis vel velit tristique imperdiet.  Donec at pede.  Etiam vel neque nec dui dignissim bibendum.  Vivamus id enim.  Phasellus neque orci, porta a, aliquet quis, semper a, massa.  Phasellus purus.  Pellentesque tristique imperdiet tortor.  Nam euismod tellus id erat.
+Lean is a pure functional programming language. Typical programs accomplish
+their computation by substituting for variables and then calculating
+the resulting value, rather than by sequentially mutating a shared
+heap. In fact, evaluating expressions _cannot_ have side effects at
+all.
 
-Pellentesque dapibus suscipit ligula.  Donec posuere augue in quam.  Etiam vel tortor sodales tellus ultricies commodo.  Suspendisse potenti.  Aenean in sem ac leo mollis blandit.  Donec neque quam, dignissim in, mollis nec, sagittis eu, wisi.  Phasellus lacus.  Etiam laoreet quam sed arcu.  Phasellus at dui in ligula mollis ultricies.  Integer placerat tristique nisl.  Praesent augue.  Fusce commodo.  Vestibulum convallis, lorem a tempus semper, dui dui euismod elit, vitae placerat urna tortor vitae lacus.  Nullam libero mauris, consequat quis, varius et, dictum id, arcu.  Mauris mollis tincidunt felis.  Aliquam feugiat tellus ut neque.  Nulla facilisis, risus a rhoncus fermentum, tellus tellus lacinia purus, et dictum nunc justo sit amet elit.
+To evaluate an expression, write `#eval` before it in your editor,
+which will then report the result back. Typically, the result is found
+by putting the cursor or mouse pointer over `#eval`. For instance,
 
+```Lean
+#eval {{#example_in Examples/Intro.lean three}}
+```
+yields the value `{{#example_out Examples/Intro.lean three}}`, and
 
+```Lean
+#eval {{#example_in Examples/Intro.lean stringAppend}}
+```
+
+yields the value `{{#example_out Examples/Intro.lean stringAppend}}`.
