@@ -12,7 +12,5 @@ command = "python scripts/example.py"
 
 [output.html]
 
-[output.markdown]
-
-[output.epub]
+[output.pandoc]
 command = "python ../../scripts/one-markdown.py"

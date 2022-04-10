@@ -1,5 +1,3 @@
-# Getting To Know Lean
-
 ```Lean
 #eval {{#example_in Examples/Intro.lean three}}
 ```

@@ -1,5 +1,3 @@
-# Introduction
-
 Lean is an interactive theorem prover developed at Microsoft
 Research, based on dependent type theory. Dependent type theory unites
 the worlds of programs and proofs; thus, Lean is also a programming
@@ -8,7 +6,7 @@ language. Lean is even implemented in itself.
 This book is about using Lean for programming, rather than for
 mathematics.
 
-## Getting Lean
+# Getting Lean
 
 Before writing and running programs written in Lean, you'll need to
 set up Lean on your own computer. The Lean tooling consists of the
@@ -22,7 +20,7 @@ following:
    providing information about files that currently being written
    using LSP.
 
-## About the Book
+# About the Book
 
 This book builds concepts linearly.
 
