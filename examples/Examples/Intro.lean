@@ -6,11 +6,46 @@ bookExample {{{ three }}}
   3
 end bookExample
 
+expect info {{{ orderOfOperations }}}
+  #eval 1 + 2 * 5
+message
+"11
+"
+end expect
+
+expect info {{{ orderOfOperationsWrong }}}
+  #eval (1 + 2) * 5
+message
+"15
+"
+end expect
+
+expect info {{{ stringAppendHello }}}
+  #eval String.append "Hello, " "Lean!"
+message
+"\"Hello, Lean!\"
+"
+end expect
+
+expect info {{{ stringAppendNested }}}
+  #eval String.append "great " (String.append "oak " "tree")
+message
+"\"great oak tree\"
+"
+end expect
+
 bookExample {{{ stringAppend }}}
   String.append "it is " (if 1 > 2 then "yes" else "no")
   ===>
   "it is no"
 end bookExample
+
+expect info {{{ stringAppendCond }}}
+  #eval 1 > 2
+  message
+"false
+"
+end expect
 
 bookExample {{{ onePlusTwoType }}}
   (1 + 2 : Nat)

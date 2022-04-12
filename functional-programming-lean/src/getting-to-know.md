@@ -12,7 +12,7 @@ Protocol that allows it to communicate with a text editor and provide
 feedback as the user types.
 
 This chapter provides a short introduction to interacting with Lean in
-an editor, while [[Hello, World!]] describes how to use Lean traditionally
+an editor, while [Hello, World!]() describes how to use Lean traditionally
 from the command line in batch mode. Many languages offer a
 read-eval-print-loop (REPL), also known as an interactive toplevel, in
 which expressions or statements can be entered. The language then
@@ -21,4 +21,7 @@ other hand, integrates these features into the interaction with the
 editor, providing commands that cause the text editor to display
 feedback in the program.
 
+It is best if you read this book with Lean open in your editor,
+following along and typing in each example. Please play with the
+examples, and see what happens!
 

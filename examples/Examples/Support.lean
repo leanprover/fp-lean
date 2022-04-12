@@ -119,7 +119,7 @@ elab_rules : command
           let newInfos := newMessages.filter fun m => m.severity == MessageSeverity.information
           let errStrings <- newInfos.mapM fun err => err.data.toString
           unless errStrings.contains desiredInfo do
-            throwError "The desired info {desiredInfo} was not found in\n{errStrings}"
+            throwError "The desired info {repr desiredInfo} was not found in\n{List.map repr errStrings}"
         finally
           set savedState
 
