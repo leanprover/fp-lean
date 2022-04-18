@@ -90,17 +90,23 @@ expression-oriented functional language, conditional expressions are
 most important. They are written using `if`, `then`, and `else`. For
 instance,
 ``` Lean
-{{#example_in Examples/Intro.lean stringAppend}}
+{{#example_eval Examples/Intro.lean stringAppend 0}}
 ```
 evaluates to
 ``` Lean
-{{#example_out Examples/Intro.lean stringAppend}}
+{{#example_eval Examples/Intro.lean stringAppend 1}}
 ```
-because
-``` Lean
-{{#example_in Examples/Intro.lean stringAppendCond}}
+which evaluates to
+```Lean
+{{#example_eval Examples/Intro.lean stringAppend 2}}
 ```
-evaluates to `{{#example_out Examples/Intro.lean stringAppendCond}}`.
+which finally evaluates to `{{#example_eval Examples/Intro.lean stringAppend 3}}`.
+
+For the sake of brevity, a series of evaluation steps like this will sometimes be written with arrows between them:
+```Lean
+{{#example_eval Examples/Intro.lean stringAppend}}
+```
+
 
 # Exercises
 

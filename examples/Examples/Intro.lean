@@ -34,11 +34,15 @@ message
 "
 end expect
 
-bookExample {{{ stringAppend }}}
+evaluation steps {{{ stringAppend }}}
   String.append "it is " (if 1 > 2 then "yes" else "no")
   ===>
+  String.append "it is " (if false then "yes" else "no")
+  ===>
+  String.append "it is " "no"
+  ===>
   "it is no"
-end bookExample
+end evaluation steps
 
 expect info {{{ stringAppendCond }}}
   #eval 1 > 2
@@ -83,4 +87,26 @@ has type
   List String : Type
 but is expected to have type
   String : Type"
+end expect
+
+
+book declaration {{{ hello }}}
+  def hello := "Hello"
+end book declaration
+
+bookExample {{{ helloNameVal }}}
+  hello
+  ===>
+  "Hello"
+end bookExample
+
+book declaration {{{ lean }}}
+  def lean : String := "Lean"
+end book declaration
+
+expect info {{{ helloLean }}}
+  #eval String.append hello (String.append " " lean)
+message
+"\"Hello Lean\"
+"
 end expect

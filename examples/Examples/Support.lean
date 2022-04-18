@@ -1,6 +1,18 @@
 import Lean
 import Lean.Message
 
+syntax withPosition("book" "declaration" "{{{" ws ident ws "}}}" colGt command "end" "book" "declaration") : command
+
+macro_rules
+  | `(book declaration {{{ $name:ident }}} $decl:command end book declaration) =>
+    pure decl
+
+book declaration {{{ foo }}}
+  def twentyFive : Nat := 25
+end book declaration
+
+#check twentyFive
+
 syntax withPosition("bookExample" "{{{" ws ident ws "}}}" colGt term:60 colGt "===>" colGt term:60 "end bookExample") : command
 
 elab_rules : command
@@ -128,3 +140,31 @@ expect info {{{ infoEx1 }}}
 message
   "1 + 2 : Nat"
 end expect
+
+
+syntax withPosition("evaluation" "steps" "{{{" ws ident ws "}}}" sepBy1(colGt term, "===>") "end" "evaluation" "steps"): command
+elab_rules : command
+  | `(evaluation steps {{{ $name }}} $[ $exprs ]===>* end evaluation steps) =>
+    open Lean.Elab.Command in
+    open Lean.Elab.Term in
+    open Lean in
+    open Lean.Meta in do
+      let mut current : Option Syntax := none
+      for item in exprs do
+        if let some v := current then
+          liftTermElabM `evaluationSteps do
+            let x <- elabTerm item none
+            let y <- elabTerm v none
+            synthesizeSyntheticMVarsNoPostponing
+            unless (← isDefEq x y) do
+              throwError "Example reduction step {y} ===> {x} is incorrect"
+        current := some item
+
+evaluation steps {{{ foo }}}
+  1 + 1 + 2
+  ===>
+  2 + 2
+  ===>
+  4
+end evaluation steps
+

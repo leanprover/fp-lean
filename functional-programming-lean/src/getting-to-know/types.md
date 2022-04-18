@@ -1,13 +1,19 @@
 Types classify programs based on the values that they can
 compute. Types serve a number of roles in a program:
+
  1. They allow the computer to make decisions about the in-memory
     representation of a value.
+
  2. They allow programmers to communicate their intent to others,
     serving as a lightweight specification for the inputs and outputs
     of a function that the compiler can ensure the program adheres to.
+
  3. They prevent various potential mistakes, such as adding a number
     to a string, and thus reduce the number of tests that are
     necessary for a program.
+    
+ 4. They help the Lean compiler automate the production of auxiliary
+    code that can save boilerplate.
 
 Every program in Lean must have a type. In particular, every
 expression must have a type before it can be evaluated. In the
@@ -56,9 +62,12 @@ When a program can't be given a type, an error is returned from both
 {{#example_in Examples/Intro.lean stringAppendList}}
 ```
 
-returns
+outputs
 
 ```
 {{#example_out Examples/Intro.lean stringAppendList}}
 ```
+
+because the second argument to ``String.append`` is expected to be a
+string, but a list of strings was provided instead.
 

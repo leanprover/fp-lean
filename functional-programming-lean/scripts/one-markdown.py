@@ -59,7 +59,7 @@ def main():
     book_contents = json.loads(json_str)
     meta, output = emit_pandoc_markdown(book_contents)
     subprocess.call(['pandoc', '--top-level-division=chapter', f'--metadata-file={meta}', '-o', 'book.epub'] + output)
-    subprocess.call(['pandoc', '--top-level-division=chapter', f'--metadata-file={meta}', '-o', 'book.pdf'] + output)
+    subprocess.call(['pandoc', '--top-level-division=chapter', f'--metadata-file={meta}', '-o', 'book.pdf', '--pdf-engine=xelatex'] + output)
 
 if __name__ == '__main__':
     main()
