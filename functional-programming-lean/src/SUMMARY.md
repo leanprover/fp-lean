@@ -6,5 +6,6 @@
   - [Evaluating Expressions](./getting-to-know/evaluating.md)
   - [Types](./getting-to-know/types.md)
   - [Functions and Definitions](./getting-to-know/functions-and-definitions.md)
-  - [Datatypes and Patterns]()
+  - [Structures](./getting-to-know/structures.md)
+  - [Datatypes, Patterns and Recursion](./getting-to-know/datatypes-and-patterns.md)
 - [Hello, World!]()

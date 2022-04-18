@@ -6,7 +6,7 @@ All contents are copyright (C) Microsoft Corporation.
 
 The book's build has been tested with:
 
-1. Lean 4 version nightly-2022-04-02
+1. Lean 4 version nightly-2022-04-18
 2. mdbook version 0.4.17
 3. Python 3.10.4
 4. Pandoc 2.14.0.3
