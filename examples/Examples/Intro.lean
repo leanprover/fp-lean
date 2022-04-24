@@ -44,9 +44,21 @@ evaluation steps {{{ stringAppend }}}
   "it is no"
 end evaluation steps
 
+expect error {{{ stringAppendReprFunction }}}
+  #eval String.append "it is "
+message
+"expression
+  String.append \"it is \"
+has type
+  String → String
+but instance
+  Lean.MetaEval (String → String)
+failed to be synthesized, this instance instructs Lean on how to display the resulting value, recall that any type implementing the `Repr` class also implements the `Lean.MetaEval` class"
+end expect
+
 expect info {{{ stringAppendCond }}}
   #eval 1 > 2
-  message
+message
 "false
 "
 end expect
@@ -171,6 +183,87 @@ evaluation steps {{{ joinStringsWithEx }}}
   "one, and another"
 end evaluation steps
 
+
+book declaration {{{ StringTypeDef }}}
+  def Str : Type := String
+end book declaration
+
+book declaration {{{ aStr }}}
+  def aStr : Str := "This is a string."
+end book declaration
+
+
+book declaration {{{ NaturalNumberTypeDef }}}
+  def NaturalNumber : Type := Nat
+end book declaration
+
+expect error {{{ thirtyEight }}}
+  def thirtyEight : NaturalNumber := 38
+message
+"failed to synthesize instance
+  OfNat NaturalNumber 38"
+end expect
+
+book declaration {{{ thirtyEightFixed }}}
+  def thirtyEight : NaturalNumber := (38 : Nat)
+end book declaration
+
+evaluation steps {{{ NaturalNumberDef }}}
+  NaturalNumber
+  ===>
+  Nat
+end evaluation steps
+
+expect info {{{ onePointTwo }}}
+  #check 1.2
+message
+  "1.2 : Float"
+end expect
+
+expect info {{{ negativeLots }}}
+  #check -454.2123215
+message
+  "-454.2123215 : Float"
+end expect
+
+expect info {{{ zeroPointZero }}}
+  #check 0.0
+message
+  "0.0 : Float"
+end expect
+
+expect info {{{ zeroNat }}}
+  #check 0
+message
+  "0 : Nat"
+end expect
+
+expect info {{{ zeroFloat }}}
+  #check (0 : Float)
+message
+  "0 : Float"
+end expect
+
+
+book declaration {{{ Point }}}
+  structure Point where
+    x : Float
+    y : Float
+  deriving Repr
+end book declaration
+
+book declaration {{{ origin }}}
+  def origin : Point := { x := 0.0, y := 0.0 }
+end book declaration
+
+expect info {{{ originEval }}}
+  #eval origin
+message
+"{ x := 0.000000, y := 0.000000 }
+"
+end expect
+
+namespace Oops
 book declaration {{{ Point }}}
   structure Point where
     x : Float
@@ -180,6 +273,19 @@ end book declaration
 book declaration {{{ origin }}}
   def origin : Point := { x := 0.0, y := 0.0 }
 end book declaration
+
+expect error {{{ PointNoRepr }}}
+  #eval origin
+message
+"expression
+  origin
+has type
+  Point
+but instance
+  Lean.MetaEval Point
+failed to be synthesized, this instance instructs Lean on how to display the resulting value, recall that any type implementing the `Repr` class also implements the `Lean.MetaEval` class"
+end expect
+end Oops
 
 expect error {{{ originNoType }}}
   #check { x := 0.0, y := 0.0 }
@@ -229,6 +335,54 @@ expect info {{{ originx }}}
 message
 "0.000000
 "
+end expect
+
+expect info {{{ originy }}}
+  #eval origin.y
+message
+"0.000000
+"
+end expect
+
+book declaration {{{ addPoints }}}
+  def addPoints (p1 : Point) (p2 : Point) : Point :=
+    { x := p1.x + p2.x, y := p1.y + p2.y }
+end book declaration
+
+expect info {{{ addPointsEx }}}
+  #eval addPoints { x := 1.5, y := 32 } { x := -8, y := 0.2 }
+message
+"{ x := -6.500000, y := 32.200000 }
+"
+end expect
+
+book declaration {{{ Point3D }}}
+  structure Point3D where
+    x : Float
+    y : Float
+    z : Float
+  deriving Repr
+end book declaration
+
+book declaration {{{ origin3D }}}
+  def origin3D : Point3D := { x := 0.0, y := 0.0, z := 0.0 }
+end book declaration
+
+
+namespace Ctor
+book declaration {{{ PointCtorName }}}
+  structure Point where
+    point ::
+    x : Float
+    y : Float
+  deriving Repr
+end book declaration
+end Ctor
+
+expect info {{{ checkPointMk }}}
+  #check Point.mk 1.5 2.8
+message
+  "{ x := 1.5, y := 2.8 } : Point"
 end expect
 
 expect info {{{ stringAppendDot }}}

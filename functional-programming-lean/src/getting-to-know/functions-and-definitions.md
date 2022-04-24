@@ -67,8 +67,50 @@ Behind the scenes, all functions actually expect precisely one argument. Functio
  * What is the type of `joinStringsWith ": "`? Check your answer with Lean.
  * Define a function `volume` with type `Nat → Nat → Nat → Nat` that computes the volume of a rectangular prism with the given height, width, and depth.
 
+# Defining Types
 
+Most typed programming languages have some means of defining aliases for types, such as C's `typedef`.
+In Lean, however, types are a first-class part of the language - they are expressions like any other.
+This means that definitions can refer to types just as well as they can refer to other values.
 
+For instance, if ``String`` is too much to type, a shorter abbreviation ``Str`` can be defined:
+```Lean
+{{#example_decl Examples/Intro.lean StringTypeDef}}
+```
+It is then possible to use ``Str`` as a definition's type instead of ``String``:
+```Lean
+{{#example_decl Examples/Intro.lean aStr}}
+```
+
+The reason this works is that types follow the same rules as the rest of Lean.
+Types are expressions, and in an expression, a defined name can be replaced with its definition.
+Because ``Str`` has been defined to mean ``String``, the definition of ``aStr`` makes sense.
+
+## Messages You May Meet
+
+Experimenting with using definitions for types is made more complicated by a feature of Lean that has not yet been introduced.
+If ``Nat`` is too short, a longer name ``NaturalNumber`` can be defined:
+```Lean
+{{#example_decl Examples/Intro.lean NaturalNumberTypeDef}}
+```
+However, using ``NaturalNumber`` as a definition's type instead of ``Nat`` does not have the expected effect.
+In particular, the definition:
+```Lean
+{{#example_in Examples/Intro.lean thirtyEight}}
+```
+results in the following error:
+```Lean error
+{{#example_out Examples/Intro.lean thirtyEight}}
+```
+
+This error occurs because Lean allows number literals to be _overloaded_.
+When it makes sense to do so, natural number literals can be used for new types, just as if those types were built in to the system.
+This is part of Lean's mission of making it convenient to represent mathematics, and different branches of mathematics use number notati
+on for very different purposes.
+The specific feature that allows this overloading does not replace defined names with their definitions before looking for overloading, which is what leads to the error message above.
+
+This can be worked around by providing the type `Nat` on the right-hand side of the definition, causing `Nat`'s overloading rules to be used for `38`.
+The definition is still type-correct because `{{#example_eval Examples/Intro.lean NaturalNumberDef 0}}` is the same type as `{{#example_eval Examples/Intro.lean NaturalNumberDef 1}}`—by definition!
 
 
 

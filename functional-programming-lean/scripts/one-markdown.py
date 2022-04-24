@@ -41,7 +41,7 @@ def emit_pandoc_markdown(book):
                 content = bump_headers(len(ch['number']), ch['content'])
             else:
                 filename = os.path.join(pandoc_dest, next_special() + '.md')
-                header = '# ' + ch['name'] + '{-}'
+                header = '# ' + ch['name'] + '{.unnumbered}'
                 content = bump_headers(1, ch['content'])
 
             with open(filename, 'w') as f:
@@ -58,8 +58,8 @@ def main():
     json_str = input()
     book_contents = json.loads(json_str)
     meta, output = emit_pandoc_markdown(book_contents)
-    subprocess.call(['pandoc', '--top-level-division=chapter', f'--metadata-file={meta}', '-o', 'book.epub'] + output)
-    subprocess.call(['pandoc', '--top-level-division=chapter', f'--metadata-file={meta}', '-o', 'book.pdf', '--pdf-engine=xelatex'] + output)
+    subprocess.call(['pandoc', '--top-level-division=chapter', f'--metadata-file={meta}', '-o', 'book.epub', '-f', 'commonmark_x', '--number-sections'] + output)
+    subprocess.call(['pandoc', '--top-level-division=chapter', f'--metadata-file={meta}', '-o', 'book.pdf', '--pdf-engine=xelatex', '-f', 'commonmark_x', '--toc', '--number-sections'] + output)
 
 if __name__ == '__main__':
     main()

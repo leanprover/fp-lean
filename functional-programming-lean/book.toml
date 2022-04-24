@@ -11,6 +11,9 @@ title = "Functional Programming in Lean"
 command = "python scripts/example.py"
 
 [output.html]
+additional-css = ["custom.css"]
 
 [output.pandoc]
 command = "python ../../scripts/one-markdown.py"
+
+[output.wordcount]

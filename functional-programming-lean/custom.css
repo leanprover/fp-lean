@@ -1,0 +1,18 @@
+code.info:before {
+  content: "🛈 ";
+  font-style: normal;
+}
+
+code.info {
+  font-style: italic;
+}
+
+
+code.error:before {
+  content: "⚠ ";
+  font-style: normal;
+}
+
+code.error {
+  color: #ff0000;
+}

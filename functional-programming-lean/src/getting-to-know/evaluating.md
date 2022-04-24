@@ -107,6 +107,20 @@ For the sake of brevity, a series of evaluation steps like this will sometimes b
 {{#example_eval Examples/Intro.lean stringAppend}}
 ```
 
+# Messages You May Meet
+
+Asking Lean to evaluate a function application that is missing an argument will lead to an error message.
+In particular, the example
+```Lean
+{{#example_in Examples/Intro.lean stringAppendReprFunction}}
+```
+yields a quite long error message:
+```Lean error
+{{#example_out Examples/Intro.lean stringAppendReprFunction}}
+```
+
+For now, this message usually means that a function is missing an argument.
+
 
 # Exercises
 
