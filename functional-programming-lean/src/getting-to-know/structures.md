@@ -145,10 +145,12 @@ To make programs more concise, Lean also allows the structure type annotation in
 # Behind the Scenes
 
 Behind the scenes, every structure has a _constructor_.
+Here, the term "constructor" may be a source of confusion.
 Unlike constructors in languages such as Java or Python, constructors in Lean are not arbitrary code to be run when a datatype is initialized.
 Instead, constructors simply gather the data to be stored in the newly-allocated data structure.
-It is not possible to provide a custom constructor that pre-processes data or rejects invalid arguments, though it is absolutely possible to define a function that does these things and then uses the datatype's constructor.
-Such a function is referred to as a _smart constructor_.
+It is not possible to provide a custom constructor that pre-processes data or rejects invalid arguments.
+This is really a case of the word "constructor" having different, but related, meanings in the two contexts.
+
 
 By default, the constructor for a structure named `S` is named `S.mk`.
 Here, `S` is a namespace qualifier, and `mk` is the name of the constructor itself.

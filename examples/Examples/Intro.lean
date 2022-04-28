@@ -410,4 +410,203 @@ book declaration {{{ Book }}}
     price : Float
 end book declaration
 
-#check Prod
+
+namespace Inductive
+
+book declaration {{{ Bool }}}
+  inductive Bool where
+    | false : Bool
+    | true : Bool
+end book declaration
+
+book declaration {{{ Nat }}}
+  inductive Nat where
+    | zero : Nat
+    | succ (n : Nat) : Nat
+end book declaration
+end Inductive
+
+evaluation steps {{{ four }}}
+  Nat.succ (Nat.succ (Nat.succ (Nat.succ Nat.zero)))
+  ===>
+  4
+end evaluation steps
+
+book declaration {{{ isZero }}}
+  def isZero (n : Nat) : Bool :=
+    match n with
+      | Nat.zero => true
+      | Nat.succ k => false
+end book declaration
+
+evaluation steps {{{ isZeroZeroSteps }}}
+  isZero Nat.zero
+  ===>
+  match Nat.zero with
+    | Nat.zero => true
+    | Nat.succ k => false
+  ===>
+  true
+end evaluation steps
+
+expect info {{{ isZeroZero }}}
+  #eval isZero 0
+message
+  "true
+"
+end expect
+
+evaluation steps {{{ isZeroFiveSteps }}}
+  isZero 5
+  ===>
+  isZero (Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ Nat.zero)))))
+  ===>
+  match Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ Nat.zero)))) with
+    | Nat.zero => true
+    | Nat.succ k => false
+  ===>
+  false
+end evaluation steps
+
+
+expect info {{{ isZeroFive }}}
+  #eval isZero 5
+message
+  "false
+"
+end expect
+
+book declaration {{{ pred }}}
+  def pred (n : Nat) : Nat :=
+    match n with
+      | Nat.zero => Nat.zero
+      | Nat.succ k => k
+end book declaration
+
+expect info {{{ predFive }}}
+  #eval pred 5
+message
+"4
+"
+end expect
+
+expect info {{{ predBig }}}
+  #eval pred 839
+message
+"838
+"
+end expect
+
+expect info {{{ predZero }}}
+  #eval pred 0
+message
+"0
+"
+end expect
+
+book declaration {{{ even }}}
+  def even (n : Nat) : Bool :=
+    match n with
+      | Nat.zero => true
+      | Nat.succ k => not (even k)
+end book declaration
+
+expect info
+  #eval even 2
+message
+"true
+"
+end expect
+
+expect info
+  #eval even 5
+message
+"false
+"
+end expect
+
+
+expect error {{{ evenLoops }}}
+  def evenLoops (n : Nat) : Bool :=
+    match n with
+      | Nat.zero => true
+      | Nat.succ k => not (evenLoops n)
+message
+"fail to show termination for
+  evenLoops
+with errors
+structural recursion cannot be used
+
+well-founded recursion cannot be used, 'evenLoops' does not take any (non-fixed) arguments"
+end expect
+
+book declaration {{{ plus }}}
+  def plus (n : Nat) (k : Nat) : Nat :=
+    match k with
+      | Nat.zero => n
+      | Nat.succ k' => Nat.succ (plus n k')
+end book declaration
+
+evaluation steps {{{ plusThreeTwo }}}
+  plus 3 2
+  ===>
+  plus 3 (Nat.succ (Nat.succ Nat.zero))
+  ===>
+  match Nat.succ (Nat.succ Nat.zero) with
+    | Nat.zero => 3
+    | Nat.succ k' => Nat.succ (plus 3 k')
+  ===>
+  Nat.succ (plus 3 (Nat.succ Nat.zero))
+  ===>
+  Nat.succ (match Nat.succ Nat.zero with
+    | Nat.zero => 3
+    | Nat.succ k' => Nat.succ (plus 3 k'))
+  ===>
+  Nat.succ (Nat.succ (plus 3 Nat.zero))
+  ===>
+  Nat.succ (Nat.succ (match Nat.zero with
+    | Nat.zero => 3
+    | Nat.succ k' => Nat.succ (plus 3 k')))
+  ===>
+  Nat.succ (Nat.succ 3)
+  ===>
+  5
+end evaluation steps
+
+book declaration {{{ times }}}
+  def times (n : Nat) (k : Nat) : Nat :=
+    match k with
+      | Nat.zero => Nat.zero
+      | Nat.succ k' => plus n (times n k')
+end book declaration
+
+#eval times 5 3
+
+book declaration {{{ minus }}}
+  def minus (n : Nat) (k : Nat) : Nat :=
+    match k with
+      | Nat.zero => n
+      | Nat.succ k' => pred (minus n k')
+end book declaration
+
+expect error {{{ div }}}
+  def div (n : Nat) (k : Nat) : Nat :=
+    if n < k
+      then 0
+      else Nat.succ (div (n - k) k)
+message
+"fail to show termination for
+  div
+with errors
+argument #1 was not used for structural recursion
+  failed to eliminate recursive application
+    div (n - k) k
+
+argument #2 was not used for structural recursion
+  failed to eliminate recursive application
+    div (n - k) k
+
+structural recursion cannot be used
+
+failed to prove termination, use `termination_by` to specify a well-founded relation"
+end expect
