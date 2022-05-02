@@ -5,7 +5,7 @@ For instance, an application might need to track user permissions, where some us
 A calculator has a number of binary operators, such as addition, subtraction, and multiplication.
 Structures do not provide an easy way to encode multiple choices.
 
-Similarly, while a structure is an excellent way to keep track of a fixed set of fields, many applications contain an arbitrary number of elements.
+Similarly, while a structure is an excellent way to keep track of a fixed set of fields, many applications require data that may contain an arbitrary number of elements.
 Most classic data structures, such as trees and lists, have a recursive structure, where the tail of a list is itself a list, or where the left and right branches of a binary tree are themselves binary trees.
 In the aforementioned calculator, the structure of expressions themselves is recursive.
 The summands in an addition expression may themselves be multiplication expressions, for instance.
@@ -42,10 +42,12 @@ The type `Nat` of non-negative integers is an inductive datatype:
 {{#example_decl Examples/Intro.lean Nat}}
 ```
 Here, `zero` represents 0, while `succ` represents the successor of some other number.
+The `Nat` mentioned in `succ`'s declaration is the very type `Nat` that is in the process of being defined.
 _Successor_ means "one greater than", so the successor of five is six and the successor of 32,185 is 32,186.
 Using this definition, `{{#example_eval Examples/Intro.lean four 1}}` is represented as `{{#example_eval Examples/Intro.lean four 0}}`.
 This definition is almost like the definition of `Bool` with slightly different names.
 The only real difference is that `succ` is followed by `(n : Nat)`, which specifies that the constructor `succ` takes an argument of type `Nat` which happens to be named `n`.
+The defined names `zero` and `succ` are in a namespace named after their type, so they must be referred to as `Nat.zero` and `Nat.succ`, respectively.
 Argument names may occur in Lean's error messages and in feedback provided when writing mathematical proofs.
 Lean also has an optional syntax for providing arguments by name.
 Generally, however, the choice of argument name is less important than the choice of a structure field name, as it does not form as large a part of the API.
@@ -130,7 +132,7 @@ And this `Nat` is the desired predecessor, so the result of the `Nat.succ` branc
 Definitions that refer to the name being defined are called _recursive definitions_.
 Inductive datatypes are allowed to be recursive; indeed, `Nat` is an example of such a datatype because `succ` demands another `Nat`.
 Recursive datatypes can represent arbitrarily large data, limited only by technical factors like available memory.
-Just as it would be impossible to write down one constructor for each `Nat` in the datatype definition, it is also impossible to write down a pattern match case for each possibility.
+Just as it would be impossible to write down one constructor for each natural number in the datatype definition, it is also impossible to write down a pattern match case for each possibility.
 
 Recursive datatypes are nicely complemented by recursive functions.
 A simple recursive function over `Nat` checks whether its argument is even.
@@ -144,13 +146,13 @@ This means that a number built with `succ` is even if its argument is not even.
 
 This pattern of thought is typical for writing recursive functions on `Nat`.
 First, identify what to do for `zero`.
-Then, determine how to transform a result for an arbitrary `Nat` into a result for its successor.
+Then, determine how to transform a result for an arbitrary `Nat` into a result for its successor, and apply this transformation to the result of the recursive call.
 This pattern is called _structural recursion_.
 
 Unlike many languages, Lean ensures by default that every recursive function will eventually reach a base case.
 From a programming perspective, this rules out accidental infinite loops.
 But this feature is especially important when proving theorems, where infinite loops cause major difficulties.
-A consequence of this is that Lean will not accept a version of `even` that attempts to invoke it recursively on the original number:
+A consequence of this is that Lean will not accept a version of `even` that attempts to invoke itself recursively on the original number:
 
 ```Lean
 {{#example_in Examples/Intro.lean evenLoops}}
@@ -166,6 +168,7 @@ To add the successor of _k_ to _n_, take the successor of the result of adding _
 ```Lean
 {{#example_decl Examples/Intro.lean plus}}
 ```
+In the definition of `plus`, the name `k'` is chosen to indicate that it is connected to, but not identical with, the argument `k`.
 For instance, walking through the evaluation of `{{#example_eval Examples/Intro.lean plusThreeTwo 0}}` yields the following steps:
 ```Lean
 {{#example_eval Examples/Intro.lean plusThreeTwo}}
@@ -188,9 +191,10 @@ Otherwise, the result is the successor of dividing the numerator minus the divis
 ```
 This program terminates for all inputs, as it always makes progress towards the base case.
 However, it is not structurally recursive, because it doesn't follow the pattern of finding a result for zero and transforming a result for a smaller `Nat` into a result for its successor.
-As a result, Lean rejects it with the following message:
+In particular, the recursive invocation of the function is applied to the result of another function call, rather than to an input constructor's argument.
+Thus, Lean rejects it with the following message:
 ```Lean error
 {{#example_out Examples/Intro.lean div}}
 ```
 This message means that `div` requires a manual proof of termination.
-This topic which will be explored in a later chapter.
+This topic will be explored in a later chapter.

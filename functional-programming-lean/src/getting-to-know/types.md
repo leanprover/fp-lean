@@ -4,7 +4,7 @@ compute. Types serve a number of roles in a program:
  1. They allow the computer to make decisions about the in-memory
     representation of a value.
 
- 2. They allow programmers to communicate their intent to others,
+ 2. They help programmers to communicate their intent to others,
     serving as a lightweight specification for the inputs and outputs
     of a function that the compiler can ensure the program adheres to.
 

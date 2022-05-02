@@ -24,7 +24,7 @@ Now that the names have been defined, they can be used, so
 {{#example_in Examples/Intro.lean helloLean}}
 ```
 outputs
-``` Lean
+``` Lean info
 {{#example_out Examples/Intro.lean helloLean}}
 ```
 
@@ -32,7 +32,7 @@ In Lean, defined names may only be used after their definitions.
 
 # Defining Functions
 
-There are a variety of ways to define functions. The simplest is to place the function's arguments before the definition's type. For instance, a function that adds one to its argument can be written:
+There are a variety of ways to define functions in Lean. The simplest is to place the function's arguments before the definition's type, separated by spaces. For instance, a function that adds one to its argument can be written:
 
 ```Lean
 {{#example_decl Examples/Intro.lean add1}}
@@ -55,11 +55,15 @@ When a defined function like `maximum` has been provided with its arguments, the
 {{#example_eval Examples/Intro.lean maximum_eval}}
 ```
 
-Expressions that evaluate to natural numbers, integers, and strings have types that say this (`Nat`, `Int`, and `String`, respectively). This is also true of functions. A function that accepts a `Nat` and returns a `Bool` has type `Nat → Bool`, and a function that accepts two `Nat`s and returns a `Nat` has type `Nat → Nat → Nat`. This arrow can also be written with an ASCII alternative arrow `->`, so the preceding function types can be written `Nat -> Bool` and `Nat -> Nat -> Nat`, respectively.
-Entering `{{#example_in Examples/Intro.lean add1type}}` yields `{{#example_out Examples/Intro.lean add1type}}`
-and `{{#example_in Examples/Intro.lean maximumType}}` yields `{{#example_out Examples/Intro.lean maximumType}}`.
+Expressions that evaluate to natural numbers, integers, and strings have types that say this (`Nat`, `Int`, and `String`, respectively). This is also true of functions. A function that accepts a `Nat` and returns a `Bool` has type `Nat → Bool`, and a function that accepts two `Nat`s and returns a `Nat` has type `Nat → Nat → Nat`. 
+Entering `{{#example_in Examples/Intro.lean add1type}}` yields `{{#example_out Examples/Intro.lean add1type}}` and `{{#example_in Examples/Intro.lean maximumType}}` yields `{{#example_out Examples/Intro.lean maximumType}}`.
+This arrow can also be written with an ASCII alternative arrow `->`, so the preceding function types can be written `Nat -> Bool` and `Nat -> Nat -> Nat`, respectively.
 
-Behind the scenes, all functions actually expect precisely one argument. Functions like `maximum` that seem to take more than one argument are in fact functions that take one argument and then return a new function. This new function takes the next argument, and the process continues until there are no more arguments. This can be seen by providing one argument to a multi-argument function: `{{#example_in Examples/Intro.lean maximum3Type}}` yields `{{#example_out Examples/Intro.lean maximum3Type}}` and `{{#example_in Examples/Intro.lean stringAppendHelloType}}` yields `{{#example_out Examples/Intro.lean stringAppendHelloType}}`.
+Behind the scenes, all functions actually expect precisely one argument.
+Functions like `maximum` that seem to take more than one argument are in fact functions that take one argument and then return a new function.
+This new function takes the next argument, and the process continues until there are no more arguments.
+This can be seen by providing one argument to a multiple-argument function: `{{#example_in Examples/Intro.lean maximum3Type}}` yields `{{#example_out Examples/Intro.lean maximum3Type}}` and `{{#example_in Examples/Intro.lean stringAppendHelloType}}` yields `{{#example_out Examples/Intro.lean stringAppendHelloType}}`.
+Using a function that returns a function to implement multiple-argument functions is called _currying_ after the mathematician Haskell Curry.
 
 ## Exercises
 
@@ -111,7 +115,17 @@ The specific feature that allows this overloading does not replace defined names
 
 This can be worked around by providing the type `Nat` on the right-hand side of the definition, causing `Nat`'s overloading rules to be used for `38`.
 The definition is still type-correct because `{{#example_eval Examples/Intro.lean NaturalNumberDef 0}}` is the same type as `{{#example_eval Examples/Intro.lean NaturalNumberDef 1}}`—by definition!
-
+Another way to work around the issue is to define the new name for `Nat` using `abbrev` instead of `def`.
+Definitions written using `abbrev` are always unfolded.
+For instance,
+```Lean
+{{#example_decl Examples/Intro.lean NTypeDef}}
+```
+and
+```Lean
+{{#example_decl Examples/Intro.lean thirtyNine}}
+```
+are accepted without issue.
 
 
 

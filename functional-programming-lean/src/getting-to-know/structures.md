@@ -2,7 +2,7 @@
 The first step in writing a program is usually to identify the problem domain's concepts, and then find suitable representations for them in code.
 Sometimes, a domain concept is a collection of other, simpler, concepts.
 In that case, it can be convenient to group these simpler components together into a single "package", which can then be given a meaningful name.
-In Lean, this is done using _structures_, which are analogous to `struct`s in C or Rust.
+In Lean, this is done using _structures_, which are analogous to `struct`s in C or Rust and `record`s in C#.
 
 Defining a structure introduces a completely new type to Lean that can't be reduced to any other type.
 This is useful because multiple structures might represent different concepts that nonetheless contain the same data.
@@ -28,7 +28,7 @@ Lean's floating-point number type is called `Float`, and floating-point numbers 
 ```Lean info
 {{#example_out Examples/Intro.lean zeroPointZero}}
 ```
-When floating point numbers are written with the decimal point, Lean will infer the type `Float`, while if they are written without it, then a type annotation may be necessary.
+When floating point numbers are written with the decimal point, Lean will infer the type `Float`. If they are written without it, then a type annotation may be necessary.
 ```Lean
 {{#example_in Examples/Intro.lean zeroNat}}
 ```
@@ -53,7 +53,8 @@ This is declared using the `structure` keyword.
 
 After this declaration, `Point` is a new structure type.
 The final line, which says `deriving Repr`, asks Lean to generate code to display values of type `Point`.
-This code is used by `#eval` to render the result of evaluation for human consumption, analogous to the `repr` functions in Python and Rust.
+This code is used by `#eval` to render the result of evaluation for consumption by programmers, analogous to the `repr` functions in Python and Rust.
+It is also possible to override the compiler's generated display code.
 
 The typical way to create a instance of a structure type is to provide values for all of its fields inside of curly braces.
 The origin of a Cartesian plane is where both `x` and `y` are both zero:
@@ -62,7 +63,7 @@ The origin of a Cartesian plane is where both `x` and `y` are both zero:
 {{#example_decl Examples/Intro.lean origin}}
 ```
 
-If the `deriving Repr` line in `Point`'s definition were omitted, then attempting `{{#example_in Examples/Intro.lean PointNoRepr}}` would yield an error:
+If the `deriving Repr` line in `Point`'s definition were omitted, then attempting `{{#example_in Examples/Intro.lean PointNoRepr}}` would yield an error similar to that which occurs when omitting a function's argument:
 ```Lean error
 {{#example_out Examples/Intro.lean PointNoRepr}}
 ```
@@ -91,7 +92,7 @@ This is done using dot notation, as in C, Python, or Rust.
 ```
 
 This can be used to define functions that take structures as arguments.
-For instance, addition of points is performed by adding the underlying points.
+For instance, addition of points is performed by adding the underlying coordinate values.
 It should be the case that `{{#example_in Examples/Intro.lean addPointsEx}}` yields
 ```Lean info
 {{#example_out Examples/Intro.lean addPointsEx}}
@@ -144,7 +145,7 @@ To make programs more concise, Lean also allows the structure type annotation in
 
 # Behind the Scenes
 
-Behind the scenes, every structure has a _constructor_.
+Every structure has a _constructor_.
 Here, the term "constructor" may be a source of confusion.
 Unlike constructors in languages such as Java or Python, constructors in Lean are not arbitrary code to be run when a datatype is initialized.
 Instead, constructors simply gather the data to be stored in the newly-allocated data structure.

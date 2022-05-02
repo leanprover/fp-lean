@@ -208,6 +208,15 @@ book declaration {{{ thirtyEightFixed }}}
   def thirtyEight : NaturalNumber := (38 : Nat)
 end book declaration
 
+book declaration {{{ NTypeDef }}}
+  abbrev N : Type := Nat
+end book declaration
+
+book declaration {{{ thirtyNine }}}
+  def thirtyNine : N := 39
+end book declaration
+
+
 evaluation steps {{{ NaturalNumberDef }}}
   NaturalNumber
   ===>
@@ -264,13 +273,11 @@ message
 end expect
 
 namespace Oops
-book declaration {{{ Point }}}
   structure Point where
     x : Float
     y : Float
-end book declaration
 
-book declaration {{{ origin }}}
+book declaration {{{ originNoRepr }}}
   def origin : Point := { x := 0.0, y := 0.0 }
 end book declaration
 
