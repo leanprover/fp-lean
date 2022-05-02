@@ -35,7 +35,7 @@ eval_middle_re = re.compile(r'===>')
 eval_end_re = re.compile(r'end\s+evaluation steps')
 
 def destring(string):
-    return string[1:-1].replace(r'\"', '\"').replace(r'\n', '\n').replace(r'\t', '\t')
+    return textwrap.dedent(string[1:-1].replace(r'\"', '\"').replace(r'\n', '\n').replace(r'\t', '\t').rstrip())
 
 loaded_examples = {}
 
