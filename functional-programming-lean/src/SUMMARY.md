@@ -8,5 +8,5 @@
   - [Functions and Definitions](./getting-to-know/functions-and-definitions.md)
   - [Structures](./getting-to-know/structures.md)
   - [Datatypes, Patterns and Recursion](./getting-to-know/datatypes-and-patterns.md)
-  - [Polymorphism](./getting-to-know/polymorphism.md)
+  - [Polymorphism]()
 - [Hello, World!]()
