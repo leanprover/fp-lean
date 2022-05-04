@@ -109,13 +109,16 @@ results in the following error:
 
 This error occurs because Lean allows number literals to be _overloaded_.
 When it makes sense to do so, natural number literals can be used for new types, just as if those types were built in to the system.
-This is part of Lean's mission of making it convenient to represent mathematics, and different branches of mathematics use number notati
-on for very different purposes.
-The specific feature that allows this overloading does not replace defined names with their definitions before looking for overloading, which is what leads to the error message above.
+This is part of Lean's mission of making it convenient to represent mathematics, and different branches of mathematics use number notation for very different purposes.
+The specific feature that allows this overloading does not replace all defined names with their definitions before looking for overloading, which is what leads to the error message above.
 
-This can be worked around by providing the type `Nat` on the right-hand side of the definition, causing `Nat`'s overloading rules to be used for `38`.
+One way to work around this limitation is by providing the type `Nat` on the right-hand side of the definition, causing `Nat`'s overloading rules to be used for `38`.
 The definition is still type-correct because `{{#example_eval Examples/Intro.lean NaturalNumberDef 0}}` is the same type as `{{#example_eval Examples/Intro.lean NaturalNumberDef 1}}`—by definition!
-Another way to work around the issue is to define the new name for `Nat` using `abbrev` instead of `def`.
+
+Another solution is to define an overloading for `NaturalNumber` that works equivalently to the one for `Nat`.
+This requires more advanced features of Lean, however.
+
+Finally, defining the new name for `Nat` using `abbrev` instead of `def` allows overloading resolution to replace the defined name with its definition.
 Definitions written using `abbrev` are always unfolded.
 For instance,
 ```Lean
@@ -127,5 +130,9 @@ and
 ```
 are accepted without issue.
 
+Behind the scenes, some definitions are internally marked as being unfoldable during during overload resolution, while others are not.
+Definitions that are to be unfolded are called _reducible_.
+Control over reducibility is essential to allow Lean to scale: fully unfolding all definitions can result in very large types that are slow for a machine to process and difficult for users to understand.
+Definitions produced with `abbrev` are marked as reducible.
 
 

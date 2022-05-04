@@ -1,8 +1,8 @@
 The most important thing to understand as a programmer learning Lean
 is how evaluation works. Evaluation is the process of finding the
 value of an expression, just as one does in arithmetic. For instance,
-the value of 15 - 6 is 9 and the value of 2 · (3 + 1) is 8.
-To find the value of the latter expression, 3 + 1 is first replaced by 4, yielding 2 · 4, which itself can be reduced to 8.
+the value of 15 - 6 is 9 and the value of 2 × (3 + 1) is 8.
+To find the value of the latter expression, 3 + 1 is first replaced by 4, yielding 2 × 4, which itself can be reduced to 8.
 Sometimes, mathematical expressions contain variables: the value of _x_ + 1 cannot be computed until we know what the value of _x_ is.
 In Lean, programs are first and foremost expressions, and the primary way to think about computation is as evaluating expressions to find their values.
 

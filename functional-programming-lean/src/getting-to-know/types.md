@@ -12,8 +12,12 @@ compute. Types serve a number of roles in a program:
     to a string, and thus reduce the number of tests that are
     necessary for a program.
     
- 4. They help the Lean compiler automate the production of auxiliary
-    code that can save boilerplate.
+ 4. They help the Lean compiler automate the production of auxiliary code that can save boilerplate.
+
+Lean's type system is unusually expressive.
+Types can encode strong specifications like "this sorting function returns a permutation of its input" and flexible specifications like "this function has different return types, depending on the value of its argument".
+The type system can even be used as a full-blown logic for proving mathematical theorems.
+This cutting-edge expressive power doesn't obviate the need for simpler types, however, and understanding these simpler types is a prerequisite for using the more advanced features.
 
 Every program in Lean must have a type. In particular, every
 expression must have a type before it can be evaluated. In the
@@ -25,12 +29,12 @@ operator:
 #eval {{#example_in Examples/Intro.lean onePlusTwoType}}
 ```
 
-Here, `Nat` is the type of _natural numbers_, arbitrary-precision
-unsigned integers. In Lean, `Nat` is the default type for non-negative
+Here, `Nat` is the type of _natural numbers_, which are arbitrary-precision unsigned integers.
+In Lean, `Nat` is the default type for non-negative
 integer literals. This default type is not always the best
 choice. Because `Nat` can't represent negative numbers, subtraction
-returns `0` when the answer would have otherwise been negative. For
-instance,
+returns `0` when the answer would have otherwise been negative. After
+all, there is no maximum `Nat` to underflow to! For instance,
 
 ```Lean
 #eval {{#example_in Examples/Intro.lean oneMinusTwo}}
@@ -38,7 +42,7 @@ instance,
 
 evaluates to `{{#example_out Examples/Intro.lean oneMinusTwo}}` rather
 than `-1`. To use a type that can represent the negative integers,
-provide a type:
+provide a it directly:
 
 ```Lean
 #eval {{#example_in Examples/Intro.lean oneMinusTwoInt}}
