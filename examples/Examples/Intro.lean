@@ -312,6 +312,37 @@ message
 "{ x := 0.0, y := 0.0 } : Point"
 end expect
 
+namespace Oops
+book declaration {{{ zeroXBad }}}
+  def zeroX (p : Point) : Point :=
+    { x := 0, y := p.y }
+end book declaration
+end Oops
+
+book declaration {{{ zeroX }}}
+  def zeroX (p : Point) : Point :=
+    { p with x := 0 }
+end book declaration
+
+book declaration {{{ fourAndThree }}}
+  def fourAndThree : Point :=
+    { x := 4.3, y := 3.4 }
+end book declaration
+
+expect info {{{ fourAndThreeEval }}}
+  #eval fourAndThree
+message
+  "{ x := 4.300000, y := 3.400000 }
+"
+end expect
+
+expect info {{{ zeroXFourAndThreeEval }}}
+  #eval zeroX fourAndThree
+message
+  "{ x := 0.000000, y := 3.400000 }
+"
+end expect
+
 expect info {{{ Pointmk }}}
   #check Point.mk
 message
@@ -617,3 +648,12 @@ structural recursion cannot be used
 
 failed to prove termination, use `termination_by` to specify a well-founded relation"
 end expect
+
+inductive Sign where
+  | pos
+  | neg
+
+def posOrNegThree (s : Sign) : match s with | Sign.pos => Nat | Sign.neg => Int :=
+  match s with
+  | Sign.pos => (3 : Nat)
+  | Sign.neg => (-3 : Int)

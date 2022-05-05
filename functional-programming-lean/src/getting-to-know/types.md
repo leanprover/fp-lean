@@ -30,11 +30,12 @@ operator:
 ```
 
 Here, `Nat` is the type of _natural numbers_, which are arbitrary-precision unsigned integers.
-In Lean, `Nat` is the default type for non-negative
-integer literals. This default type is not always the best
-choice. Because `Nat` can't represent negative numbers, subtraction
-returns `0` when the answer would have otherwise been negative. After
-all, there is no maximum `Nat` to underflow to! For instance,
+In Lean, `Nat` is the default type for non-negative integer literals.
+This default type is not always the best choice.
+In C, unsigned integers underflow to the largest representable numbers when subtraction would otherwise yield a result less than zero.
+`Nat`, however, can represent arbitrarily-large unsigned numbers, so there is no largest number to underflow to.
+Thus, subtraction on `Nat` returns `0` when the answer would have otherwise been negative.
+For instance,
 
 ```Lean
 #eval {{#example_in Examples/Intro.lean oneMinusTwo}}
