@@ -108,7 +108,6 @@ Similarly, the distance between two points, which is the square root of the sum 
 {{#example_decl Examples/Intro.lean distance}}
 ```
 
-
 Multiple structures may have fields with the same names.
 For instance, a three-dimensional point datatype may share the fields `x` and `y`, and be instantiated with the same field names:
 ```Lean
@@ -142,6 +141,61 @@ To make programs more concise, Lean also allows the structure type annotation in
 ```Lean info
 {{#example_out Examples/Intro.lean originWithAnnot2}}
 ```
+
+# Updating Structures
+
+Imagine a function `zeroX` that replaces the `x` field of a `Point` with `0.0`.
+In most programming language communities, this sentence would mean that the memory location pointed to by `x` was to be overwritten with a new value.
+However, Lean does not have mutable state.
+In functional programming communities, what is almost always meant by this kind of statement is that a fresh `Point` is allocated with the `x` field pointing to the new value, and all other fields pointing to the original values from the input.
+One way to write `zeroX` is to follow this description literally, filling out the new value for `x` and manually transferring `y`:
+```Lean
+{{#example_decl Examples/Intro.lean zeroXBad}}
+```
+This style of programming has drawbacks, however.
+First off, if a new field is added to a structure, then every site that updates any field at all must be updated, causing maintenance difficulties.
+Secondly, if the structure contains multiple fields with the same type, then there is a real risk of copy-paste coding leading to field contents being duplicated or switched.
+Finally, the program becomes long and bureaucratic.
+
+Lean provides a convenient syntax for replacing some fields in a structure while leaving the others alone.
+This is done by using the `with` keyword in a structure initialization.
+The source of unchanged fields occurs before the `with`, and the new fields occur after.
+For instance, `zeroX` can be written with only the new `x` value:
+
+```Lean
+{{#example_decl Examples/Intro.lean zeroX}}
+```
+
+Remember that this structure update syntax does not modify existing values—it creates new values that share some fields with old values.
+For instance, given the point `fourAndThree`:
+```Lean
+{{#example_decl Examples/Intro.lean fourAndThree}}
+```
+evaluating it, then evaluating an update of it using `zeroX`, then evaluating it again yields the original value:
+```Lean
+{{#example_in Examples/Intro.lean fourAndThreeEval}}
+```
+```Lean info
+{{#example_out Examples/Intro.lean fourAndThreeEval}}
+```
+```Lean
+{{#example_in Examples/Intro.lean zeroXFourAndThreeEval}}
+```
+```Lean info
+{{#example_out Examples/Intro.lean zeroXFourAndThreeEval}}
+```
+```Lean
+{{#example_in Examples/Intro.lean fourAndThreeEval}}
+```
+```Lean info
+{{#example_out Examples/Intro.lean fourAndThreeEval}}
+```
+
+One consequence of the fact that structure updates do not modify the original structure is that it becomes easier to reason about cases where the new value is computed from the old one.
+All references to the old structure continue to refer to the same field values in all of the new values provided.
+
+
+
 
 # Behind the Scenes
 
