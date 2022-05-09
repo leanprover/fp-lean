@@ -64,6 +64,7 @@ Functions like `maximum` that seem to take more than one argument are in fact fu
 This new function takes the next argument, and the process continues until there are no more arguments.
 This can be seen by providing one argument to a multiple-argument function: `{{#example_in Examples/Intro.lean maximum3Type}}` yields `{{#example_out Examples/Intro.lean maximum3Type}}` and `{{#example_in Examples/Intro.lean stringAppendHelloType}}` yields `{{#example_out Examples/Intro.lean stringAppendHelloType}}`.
 Using a function that returns a function to implement multiple-argument functions is called _currying_ after the mathematician Haskell Curry.
+Function arrows associate to the right, which means that `Nat → Nat → Nat` should be parenthesized `Nat → (Nat → Nat)`.
 
 ## Exercises
 

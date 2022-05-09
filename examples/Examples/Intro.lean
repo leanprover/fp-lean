@@ -649,6 +649,107 @@ structural recursion cannot be used
 failed to prove termination, use `termination_by` to specify a well-founded relation"
 end expect
 
+
+book declaration {{{ PPoint }}}
+  structure PPoint (α : Type) where
+    x : α
+    y : α
+  deriving Repr
+end book declaration
+
+#check (Nat : Type)
+#check (List String : Type)
+#check (PPoint Int : Type)
+
+
+book declaration {{{ natPoint }}}
+  def natOrigin : PPoint Nat :=
+    { x := Nat.zero, y := Nat.zero }
+end book declaration
+
+book declaration {{{ toPPoint }}}
+  def Point.toPPoint (p : Point) : PPoint Float :=
+    { x := p.x, y := p.y }
+end book declaration
+
+book declaration {{{ replaceX }}}
+  def replaceX (α : Type) (point : PPoint α) (newX : α) : PPoint α :=
+    { point with x := newX }
+end book declaration
+
+expect info {{{ replaceXT }}}
+  #check replaceX
+message
+  "replaceX : (α : Type) → PPoint α → α → PPoint α"
+end expect
+
+expect info {{{ replaceXNatT }}}
+  #check replaceX Nat
+message
+  "replaceX Nat : PPoint Nat → Nat → PPoint Nat"
+end expect
+
+expect info {{{ replaceXNatOriginT }}}
+  #check replaceX Nat natOrigin
+message
+  "replaceX Nat natOrigin : Nat → PPoint Nat"
+end expect
+
+expect info {{{ replaceXNatOriginFiveT }}}
+  #check replaceX Nat natOrigin 5
+message
+  "replaceX Nat natOrigin 5 : PPoint Nat"
+end expect
+
+expect info {{{ replaceXNatOriginFiveV }}}
+  #eval replaceX Nat natOrigin 5
+message
+"{ x := 5, y := 0 }
+"
+end expect
+
+book declaration {{{ primesUnder10 }}}
+  def primesUnder10 : List Nat := [2, 3, 5, 7]
+end book declaration
+
+namespace Oops
+book declaration {{{ List }}}
+  inductive List (α : Type) where
+    | nil : List α
+    | cons : α → List α → List α
+end book declaration
+end Oops
+
+book declaration {{{ explicitprimesUnder10 }}}
+  def explicitPrimesUnder10 : List Nat :=
+    List.cons 2 (List.cons 3 (List.cons 5 (List.cons 7 List.nil)))
+end book declaration
+
+namespace Ooops
+book declaration {{{ length }}}
+  def length (α : Type) (xs : List α) : Nat :=
+    match xs with
+      | List.nil => 0
+      | List.cons y ys => Nat.succ (length α ys)
+end book declaration
+end Ooops
+
+namespace Oooops
+book declaration {{{ length }}}
+  def length (α : Type) (xs : List α) : Nat :=
+    match xs with
+      | [] => 0
+      | y :: ys => Nat.succ (length α ys)
+end book declaration
+end Oooops
+
+
+inductive LinkedList : Type -> Type where
+  | nil : LinkedList α
+  | cons : α → LinkedList α → LinkedList α
+
+
+
 inductive Sign where
   | pos
   | neg
