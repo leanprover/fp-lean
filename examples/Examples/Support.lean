@@ -168,3 +168,53 @@ evaluation steps {{{ foo }}}
   4
 end evaluation steps
 
+
+def zipSameLength : List α → List β → OptionM (List (α × β))
+  | [], [] => some []
+  | x :: xs, y :: ys => do pure ((x, y) :: (← zipSameLength xs ys))
+  | _, _ => none
+
+def Lean.Name.last : Lean.Name -> Option String
+  | Lean.Name.str _ s _ => some s
+  | _ => none
+
+syntax "similar datatypes" ident ident : command
+elab_rules : command
+  | `(similar datatypes $C1:ident $C2:ident) =>
+    open Lean.Elab.Command in
+    open Lean.Environment in
+    open Lean in do
+      let e := (<- get).env
+      let t1 := C1.getId
+      let t2 := C2.getId
+      let i1 <- match (e.find? t1).get! with
+        | ConstantInfo.inductInfo i => pure i
+        | _ => throwError "Not an inductive type: {t1}"
+      let i2 <- match (e.find? t2).get! with
+        | ConstantInfo.inductInfo i => pure i
+        | _ => throwError "Not an inductive type: {t2}"
+      if i1.numParams != i2.numParams then throwError "Param count mismatch"
+      if i1.numIndices != i2.numIndices then throwError "Index count mismatch"
+      if i1.isRec != i1.isRec then throwError "Recursiveness mismatch"
+      let ctors <- match zipSameLength i1.ctors i2.ctors with
+        | some v => pure v
+        | none => throwError "Different number of constructors"
+      for (c1, c2) in ctors do
+        let (n1, n2) := (c1.last.get!, c2.last.get!)
+        if n1 != n2 then throwError "Constructor name mismatch: {n1} vs {n2}"
+        let ctor1 <- match (e.find? c1).get! with
+          | ConstantInfo.ctorInfo i => pure i
+          | _ => throwError "Not a constructor {c1}"
+        let ctor2 <- match (e.find? c2).get! with
+          | ConstantInfo.ctorInfo i => pure i
+          | _ => throwError "Not a constructor {c2}"
+        if ctor1.numFields != ctor2.numFields then throwError "Constructor field count mismatch for {n1}"
+
+
+namespace Foo
+  inductive List (α : Type) : Type where
+    | nil : List α
+    | cons : α -> List α -> List α
+end Foo
+
+similar datatypes List Foo.List

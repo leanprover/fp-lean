@@ -718,24 +718,69 @@ book declaration {{{ List }}}
     | nil : List α
     | cons : α → List α → List α
 end book declaration
-end Oops
 
-book declaration {{{ explicitprimesUnder10 }}}
+end Oops
+similar datatypes List Oops.List
+
+
+book declaration {{{ explicitPrimesUnder10 }}}
   def explicitPrimesUnder10 : List Nat :=
     List.cons 2 (List.cons 3 (List.cons 5 (List.cons 7 List.nil)))
 end book declaration
 
 namespace Ooops
-book declaration {{{ length }}}
+book declaration {{{ length1 }}}
   def length (α : Type) (xs : List α) : Nat :=
     match xs with
-      | List.nil => 0
+      | List.nil => Nat.zero
       | List.cons y ys => Nat.succ (length α ys)
 end book declaration
+
+evaluation steps {{{ length1EvalSummary }}}
+  length String ["Sourdough", "bread"]
+  ===>
+  length String (List.cons "Sourdough" (List.cons "bread" List.nil))
+  ===>
+  Nat.succ (length String (List.cons "bread" List.nil))
+  ===>
+  Nat.succ (Nat.succ (length String List.nil))
+  ===>
+  Nat.succ (Nat.succ Nat.zero)
+  ===>
+  2
+end evaluation steps
+
+evaluation steps {{{ length1Eval }}}
+  length String ["Sourdough", "bread"]
+  ===>
+  length String (List.cons "Sourdough" (List.cons "bread" List.nil))
+  ===>
+  match List.cons "Sourdough" (List.cons "bread" List.nil) with
+    | List.nil => Nat.zero
+    | List.cons y ys => Nat.succ (length String ys)
+  ===>
+  Nat.succ (length String (List.cons "bread" List.nil))
+  ===>
+  Nat.succ (match List.cons "bread" List.nil with
+    | List.nil => Nat.zero
+    | List.cons y ys => Nat.succ (length String ys))
+  ===>
+  Nat.succ (Nat.succ (length String List.nil))
+  ===>
+  Nat.succ (Nat.succ (match List.nil with
+    | List.nil => Nat.zero
+    | List.cons y ys => Nat.succ (length String ys)))
+  ===>
+  Nat.succ (Nat.succ Nat.zero)
+  ===>
+  2
+end evaluation steps
 end Ooops
 
+
+
 namespace Oooops
-book declaration {{{ length }}}
+book declaration {{{ length2 }}}
   def length (α : Type) (xs : List α) : Nat :=
     match xs with
       | [] => 0
@@ -744,17 +789,160 @@ end book declaration
 end Oooops
 
 
+namespace BetterPlicity
+book declaration {{{ replaceXImp }}}
+  def replaceX {α : Type} (point : PPoint α) (newX : α) : PPoint α :=
+    { point with x := newX }
+end book declaration
+
+expect info {{{ replaceXImpNat }}}
+  #eval replaceX natOrigin 5
+message
+"{ x := 5, y := 0 }
+"
+end expect
+
+expect info {{{ replaceXImpT }}}
+  #check replaceX
+message
+  "replaceX : PPoint ?m.10388 → ?m.10388 → PPoint ?m.10388"
+end expect
+
+book declaration {{{ lengthImp }}}
+  def length {α : Type} (xs : List α) : Nat :=
+    match xs with
+      | [] => 0
+      | y :: ys => Nat.succ (length ys)
+end book declaration
+
+expect info {{{ lengthImpPrimes }}}
+  #eval length primesUnder10
+message
+"4
+"
+end expect
+end BetterPlicity
+
+expect info {{{ lengthDotPrimes }}}
+  #eval primesUnder10.length
+message
+"4
+"
+end expect
+
+expect info {{{ lengthExpNat }}}
+  #check List.length (α := Int)
+message
+  "List.length : List Int → Nat"
+end expect
+
+def x := Unit
+-- Standard library copies without universe parameters
+namespace StdLibNoUni
+
+
+book declaration {{{ Option }}}
+  inductive Option (α : Type) : Type where
+    | none : Option α
+    | some (val : α) : Option α
+end book declaration
+
+structure Prod (α : Type) (β : Type) : Type where
+  fst : α
+  snd : β
+
+inductive Sum (α : Type) (β : Type) : Type where
+  | inl : α → Sum α β
+  | inr : β → Sum α β
+
+inductive Unit : Type where
+  | unit : Unit
+
+inductive Empty : Type where
+
+end StdLibNoUni
+
+similar datatypes Option StdLibNoUni.Option
+similar datatypes Prod StdLibNoUni.Prod
+similar datatypes Sum StdLibNoUni.Sum
+similar datatypes PUnit StdLibNoUni.Unit
+similar datatypes Empty StdLibNoUni.Empty
+
+namespace Floop
+
+
+book declaration {{{ headHuh }}}
+  def List.head? {α : Type} (xs : List α) : Option α :=
+    match xs with
+      | [] => none
+      | y :: _ => some y
+end book declaration
+
+expect info {{{ headSome }}}
+  #eval primesUnder10.head?
+message
+"some 2
+"
+end expect
+
+expect error {{{ headNoneBad }}}
+  #eval [].head?
+message
+"expression
+  _root_.List.head? []
+has type
+  Option ?m.12020
+but instance
+  Lean.MetaEval (Option ?m.12020)
+failed to be synthesized, this instance instructs Lean on how to display the resulting value, recall that any type implementing the `Repr` class also implements the `Lean.MetaEval` class"
+end expect
+
+
+expect info {{{ headNone }}}
+  #eval [].head? (α := Int)
+message
+"none
+"
+end expect
+
+
+
+def List.final? {α : Type} (xs : List α) : Option α :=
+  match xs with
+    | [] => none
+    | [y] => some y
+    | y1 :: y2 :: ys => final? (y2::ys)
+
+
+end Floop
+
+def findString (haystack : List String) (needle : String) : Option Int :=
+  match haystack with
+    | [] => none
+    | x :: xs =>
+      if needle == x
+        then some 0
+        else match findString xs needle with
+               | none => none
+               | some i => some (i + 1)
+
 inductive LinkedList : Type -> Type where
   | nil : LinkedList α
   | cons : α → LinkedList α → LinkedList α
 
-
+def List.findFirst? {α : Type} (xs : List α) (predicate : α → Bool) : Option α :=
+  match xs with
+    | [] => none
+    | y :: ys => if predicate y then some y else ys.findFirst? predicate
 
 inductive Sign where
   | pos
   | neg
 
+
 def posOrNegThree (s : Sign) : match s with | Sign.pos => Nat | Sign.neg => Int :=
   match s with
   | Sign.pos => (3 : Nat)
   | Sign.neg => (-3 : Int)
+
+

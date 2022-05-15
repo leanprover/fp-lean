@@ -94,8 +94,9 @@ Behind the scenes, `List` is an inductive datatype, defined like this:
 ```Lean
 {{#example_decl Examples/Intro.lean List}}
 ```
-The actual definition in the standard library is slightly different, because it uses features that have not yet been presented.
+The actual definition in the standard library is slightly different, because it uses features that have not yet been presented, but it is substantially similar.
 This definition says that `List` takes a single type as its argument, just as `PPoint` did.
+This type is the type of the entries stored in the list.
 According to the constructors, a `List α` can be built with either `nil` or `cons`.
 The constructor `nil` represents empty lists, and the constructor `cons` represents a single element in the linked list.
 The first argument to `cons` is the head of the list, and the second argument is its tail.
@@ -108,11 +109,142 @@ These two definitions are completely equivalent, but `primesUnder10` is much eas
 
 Functions that consume `List`s can be defined in much the same way as functions that consume `Nat`s.
 Indeed, one way to think of a linked list is as a `Nat` that has an extra data field dangling off each `succ` constructor.
+From this point of view, computing the length of a list is the process of replacing each `cons` with a `succ` and the final `nil` with a `zero`.
+Just as `replaceX` took the type of the fields of the point as an argument, `length` takes the type of the list's entries.
+For example, if the list contains strings, then the first argument is `String`: `{{#example_eval Examples/Intro.lean length1EvalSummary 0}}`.
+It should compute like this:
+```
+{{#example_eval Examples/Intro.lean length1EvalSummary}}
+```
+
+The definition of `length` is both polymorphic (because it takes the list entry type as an argument) and recursive (because it refers to itself).
+Generally, functions follow the shape of the data: recursive datatypes lead to recursive functions, and polymorphic datatypes lead to polymorphic functions.
+```Lean
+{{#example_decl Examples/Intro.lean length1}}
+```
+
+To make it easier to read functions on lists, the bracket notation `[]` can be used to pattern-match against `nil`, and an infix `::` can be used in place of `cons`:
+```Lean
+{{#example_decl Examples/Intro.lean length2}}
+```
+
+# Implicit Arguments
+
+Both `replaceX` and `length` are somewhat bureaucratic to use, because the type argument is typically uniquely determined by the later values.
+Indeed, in most languages, the compiler is perfectly capable of determining type arguments on its own, and only occaisionally needs help from users.
+This is also the case in Lean.
+Arguments can be declared _implicit_ by wrapping them in curly braces instead of parentheses when defining a function.
+For instance, a version of `replaceX` with an implicit type argument looks like this:
+```Lean
+{{#example_decl Examples/Intro.lean replaceXImp}}
+```
+It can be used with `natOrigin` without providing `Nat` explicitly, because Lean can _infer_ the value of `α` from the later arguments:
+```Lean
+{{#example_in Examples/Intro.lean replaceXImpNat}}
+```
+```Lean info
+{{#example_out Examples/Intro.lean replaceXImpNat}}
+```
+
+Similarly, `length` can be redefined to take the entry type implicitly:
+```Lean
+{{#example_decl Examples/Intro.lean lengthImp}}
+```
+This `length` function can be applied directly to `primesUnder10`:
+```Lean
+{{#example_in Examples/Intro.lean lengthImpPrimes}}
+```
+```Lean info
+{{#example_out Examples/Intro.lean lengthImpPrimes}}
+```
+
+In the standard library, Lean calls this function `List.length`, which means that the dot syntax that is used for structure field access can also be used to find the length of a list:
+```Lean
+{{#example_in Examples/Intro.lean lengthDotPrimes}}
+```
+```Lean info
+{{#example_out Examples/Intro.lean lengthDotPrimes}}
+```
 
 
+Just as C# and Java require type arguments to provided explicitly from time to time, Lean is not always capable of finding implicit arguments.
+In these cases, they can be provided using their names.
+For instance, a version of `List.length` that only works for lists of integers can be specified by setting `α` to `Int`:
+```Lean
+{{#example_in Examples/Intro.lean lengthExpNat}}
+```
+```Lean info
+{{#example_out Examples/Intro.lean lengthExpNat}}
+```
 
+# More Built-In Datatypes
+
+In addition to lists, Lean's standard library contains a number of other structures and inductive datatypes that can be used in a variety of contexts.
+
+## `Option`
+Not every list has a first entry—some lists are empty.
+Many operations on collections may fail to find what they are looking for.
+For instance, a function that finds the first entry in a list may not find any such entry.
+It must therefore have a way to signal that there was no first entry.
+
+Many languages have a `null` value that represents the absence of a value.
+Instead of equipping existing types with a special `null` value, Lean provides a datatype called `Option` that equips some other type with an indicator for missing values.
+For instance, a nullable `Int` is represented by `Option Int`, and a nullable list of strings is represented by the type `Option (List String)`.
+Introducing a new type to represent nullability means that the type system ensures that checks for `null` cannot be forgotten, because an `Option Int` can't be used in a context where an `Int` is expected.
+
+`Option` has two constructors, called `some` and `none`, that respectively represent the non-null and null versions of the underlying type.
+The non-null constructor, `some`, contains the underlying value, while `none` takes no arguments:
+```Lean
+{{#example_decl Examples/Intro.lean Option}}
+```
+
+To find the first entry in a list, if it exists, use `List.head?`.
+The question mark is part of the name.
+```Lean
+{{#example_decl Examples/Intro.lean headHuh}}
+```
+A Lean convention is to define operations that might fail in groups.
+For instance, `head` requires the caller to provide mathematical evidence that the list is not empty, `head?` returns an `Option`, `head!` crashes the program when passed an empty list, and `headD` takes a default value to return when the operation would otherwise fail.
+
+Because `head?` is defined in the `List` namespace, it can be used with accessor notation:
+```Lean
+{{#example_in Examples/Intro.lean headSome}}
+```
+```Lean info
+{{#example_out Examples/Intro.lean headSome}}
+```
+However, attempting to test it on the empty list leads to an error:
+```Lean
+{{#example_in Examples/Intro.lean headNoneBad}}
+```
+```Lean error
+{{#example_out Examples/Intro.lean headNoneBad}}
+```
+This is because Lean was unable to fully determine the expression's type.
+In Lean's output, `?m.XYZ` represents a part of a program that could not be inferred.
+In this case, Lean cannot find the code to convert an `Option` to a display string because the type inside the option is unknown.
+The type was unavailable because the empty list does not have any entries from which the type can be found.
+Explicitly providing a type allows Lean to proceed:
+```Lean
+{{#example_in Examples/Intro.lean headNone}}
+```
+```Lean info
+{{#example_out Examples/Intro.lean headNone}}
+```
+
+## `Prod`
+
+## `Sum`
+
+## Naming: Sums, Products, and Units
 
 # Messages You May Meet
 
+Metas
 
 Type : Type
+
+# Exercises
+
+ * Write a function to find the last entry in a list. It should return an `Option`.
+ * Write a function that finds the first entry in a list that satisfies a given predicate. Start the definition with `def List.findFirst? {α : Type} (xs : List α) (predicate : α → Bool) : Option α :=`
