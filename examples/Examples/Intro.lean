@@ -837,6 +837,14 @@ message
 end expect
 
 def x := Unit
+
+structure Iso (α : Type u) (β : Type u) : Type u where
+  into : α → β
+  outOf : β → α
+  comp1 : into ∘ outOf = id
+  comp2 : outOf ∘ into = id
+
+
 -- Standard library copies without universe parameters
 namespace StdLibNoUni
 
@@ -847,13 +855,29 @@ book declaration {{{ Option }}}
     | some (val : α) : Option α
 end book declaration
 
-structure Prod (α : Type) (β : Type) : Type where
-  fst : α
-  snd : β
 
-inductive Sum (α : Type) (β : Type) : Type where
-  | inl : α → Sum α β
-  | inr : β → Sum α β
+
+book declaration {{{ Prod }}}
+  structure Prod (α : Type) (β : Type) : Type where
+    fst : α
+    snd : β
+end book declaration
+
+-- Justify the claim in the text that Prod could be used instead of PPoint
+theorem iso_Prod_PPoint {α : Type} : Iso (Prod α α) (PPoint α) := by
+  constructor
+  case into => apply (fun prod => PPoint.mk prod.fst prod.snd)
+  case outOf => apply (fun point => Prod.mk point.x point.y)
+  case comp1 => funext _ <;> simp
+  case comp2 => funext _ <;> simp
+
+
+
+book declaration {{{ Sum }}}
+  inductive Sum (α : Type) (β : Type) : Type where
+    | inl : α → Sum α β
+    | inr : β → Sum α β
+end book declaration
 
 inductive Unit : Type where
   | unit : Unit
@@ -867,6 +891,8 @@ similar datatypes Prod StdLibNoUni.Prod
 similar datatypes Sum StdLibNoUni.Sum
 similar datatypes PUnit StdLibNoUni.Unit
 similar datatypes Empty StdLibNoUni.Empty
+
+
 
 namespace Floop
 
@@ -891,9 +917,9 @@ message
 "expression
   _root_.List.head? []
 has type
-  Option ?m.12020
+  Option ?m.13274
 but instance
-  Lean.MetaEval (Option ?m.12020)
+  Lean.MetaEval (Option ?m.13274)
 failed to be synthesized, this instance instructs Lean on how to display the resulting value, recall that any type implementing the `Repr` class also implements the `Lean.MetaEval` class"
 end expect
 
@@ -915,6 +941,38 @@ def List.final? {α : Type} (xs : List α) : Option α :=
 
 
 end Floop
+
+namespace StructNotation
+book declaration {{{ fivesStruct }}}
+  def fives : String × Int := { fst := "five", snd := 5 }
+end book declaration
+end StructNotation
+
+book declaration {{{ fives }}}
+  def fives : String × Int := ("five", 5)
+end book declaration
+
+example : StructNotation.fives = fives := by rfl
+
+
+namespace Nested
+book declaration {{{ sevensNested }}}
+  def sevens : String × (Int × Nat) := ("VII", (7, 4 + 3))
+end book declaration
+end Nested
+
+book declaration {{{ sevens }}}
+  def sevens : String × Int × Nat := ("VII", 7, 4 + 3)
+end book declaration
+
+-- Backing up that they are equivalent
+example : Nested.sevens = sevens := by rfl
+
+
+def Prod.swap {α β : Type} (pair : α × β) : β × α := (pair.snd, pair.fst)
+
+example : sevens.swap = ((7, 7), "VII") := by rfl
+
 
 def findString (haystack : List String) (needle : String) : Option Int :=
   match haystack with
@@ -946,3 +1004,127 @@ def posOrNegThree (s : Sign) : match s with | Sign.pos => Nat | Sign.neg => Int 
   | Sign.neg => (-3 : Int)
 
 
+
+def take (n : Nat) (xs : List α) : List α :=
+  match n, xs with
+    | _, [] => []
+    | Nat.zero, _ => []
+    | Nat.succ n', x :: xs => x :: take n' xs
+
+
+
+expect info {{{ takeThree }}}
+  #eval take 3 ["bolete", "oyster"]
+message
+"[\"bolete\", \"oyster\"]
+"
+end expect
+
+expect info {{{ takeOne }}}
+  #eval take 1 ["bolete", "oyster"]
+message
+"[\"bolete\"]
+"
+end expect
+
+
+-- sum notation
+example : (Sum α β) = (α ⊕ β) := by rfl
+
+#check Empty.rec
+
+def Exhausts (α : Type) (xs : List α) := (x : α) → x ∈ xs
+
+example : Exhausts (Bool × Unit) [(true, Unit.unit), (false, Unit.unit)] := by
+  intro ⟨ fst, snd ⟩
+  cases fst <;> cases snd <;> simp
+
+example : Exhausts (Bool ⊕ Unit) [Sum.inl true, Sum.inl false, Sum.inr Unit.unit] := by
+  intro x
+  cases x with
+  | inl y => cases y <;> simp
+  | inr y => cases y <;> simp
+
+example : Exhausts (Bool ⊕ Empty) [Sum.inl true, Sum.inl false] := by
+  intro x
+  cases x with
+  | inl y => cases y <;> repeat constructor
+  | inr y => cases y
+
+
+expect error {{{ TypeInType }}}
+  inductive MyType : Type where
+    | ctor : (α : Type) → α → MyType
+message
+  "(kernel) universe level of type_of(arg #1) of 'MyType.ctor' is too big for the corresponding inductive datatype"
+end expect
+
+
+expect error {{{ Positivity }}}
+  inductive MyType : Type where
+    | ctor : (MyType → Int) → MyType
+message
+  "(kernel) arg #1 of 'MyType.ctor' has a non positive occurrence of the datatypes being declared"
+end expect
+
+#eval if let Option.some x := Option.some 5 then x else 55
+
+
+namespace AutoImpl
+book declaration {{{ lengthImpAuto }}}
+  def length (xs : List α) : Nat :=
+    match xs with
+      | [] => 0
+      | y :: ys => Nat.succ (length ys)
+end book declaration
+
+end AutoImpl
+
+namespace MatchDef
+book declaration {{{ lengthMatchDef }}}
+  def length : List α → Nat
+    | [] => 0
+    | y :: ys => Nat.succ (length ys)
+end book declaration
+end MatchDef
+
+
+book declaration {{{ drop }}}
+  def drop : Nat → List α → List α
+    | Nat.zero, xs => xs
+    | _, [] => []
+    | Nat.succ n , x :: xs => drop n xs
+end book declaration
+
+
+
+book declaration {{{ fromOption }}}
+  def fromOption (default : α) : Option α → α
+    | none => default
+    | some x => x
+end book declaration
+
+
+expect info {{{ getD }}}
+  #eval (some "salmonberry").getD ""
+message
+"\"salmonberry\"
+"
+end expect
+
+expect info {{{ getDNone }}}
+  #eval none.getD ""
+message
+"\"\"
+"
+end expect
+
+
+
+book declaration {{{ unzip }}}
+  def unzip : List (α × β) → List α × List β
+    | [] => ([], [])
+    | (x, y) :: xys =>
+      let unzipped := unzip xys;
+      (x :: unzipped.fst, y :: unzipped.snd)
+end book declaration

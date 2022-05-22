@@ -9,4 +9,5 @@
   - [Structures](./getting-to-know/structures.md)
   - [Datatypes, Patterns and Recursion](./getting-to-know/datatypes-and-patterns.md)
   - [Polymorphism](./getting-to-know/polymorphism.md)
+  - [Additional Conveniences](./getting-to-know/conveniences.md)
 - [Hello, World!]()

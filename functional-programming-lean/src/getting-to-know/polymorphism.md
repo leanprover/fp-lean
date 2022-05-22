@@ -1,12 +1,4 @@
 
-
-Outline:
-
- * Simple polymorphic types a la ML, relate `Point` to `Prod`/`MProd`
- * Recursive functions over `List`, with pattern matching
- * User-defined polymorphic datatypes (in the ML-typable fragment)
- * `Unit`, `Option`, `Sum`
-
 Just as in most languages, types in Lean can take arguments.
 For instance, the type `List Nat` describes lists of natural numbers, `List String` describes lists of strings, and `List (List Point)` describes lists of lists of points.
 This is very similar to `List<Nat>`, `List<String>`, or `List<List<Point>>` in a language like C# or Java.
@@ -123,6 +115,9 @@ Generally, functions follow the shape of the data: recursive datatypes lead to r
 {{#example_decl Examples/Intro.lean length1}}
 ```
 
+Names such as `xs` and `ys` are conventionally used to stand for lists of unknown values.
+The `s` in the name indicates that they are plural, so they are pronounced "exes" and "whys" rather than "x s" and "y s".
+
 To make it easier to read functions on lists, the bracket notation `[]` can be used to pattern-match against `nil`, and an infix `::` can be used in place of `cons`:
 ```Lean
 {{#example_decl Examples/Intro.lean length2}}
@@ -234,17 +229,121 @@ Explicitly providing a type allows Lean to proceed:
 
 ## `Prod`
 
+The `Prod` structure is a generic way of joining two values together.
+For instance, a `Prod Nat String` contains a `Nat` and a `String`.
+In other words, `PPoint Nat` could be replaced by `Prod Nat Nat`.
+Many applications are best served by defining their own structures, even for simple cases like `Point`, because using domain terminology can make it easier to read the code.
+
+On the other hand, there are some cases where it is not worth the overhead of defining a new type.
+Additionally, some libraries are sufficiently generic that there is no more specific concept than "pair".
+Finally, the standard library contains a variety of convenience functions that make it easier to work with the built-in pair type.
+
+The standard pair structure is called `Prod`.
+```Lean
+{{#example_decl Examples/Intro.lean Prod}}
+```
+However, just as list values are typically built using square brackets and the double-colon operator, there is special syntax for the `Prod` type.
+In particular, `Prod α β` is typically written `α × β`, mirroring the usual notation for a Cartesian product of sets.
+Similarly, instead of requiring explicit structure notation, the usual mathematical notation for pairs is available for `Prod`.
+In other words, instead of writing:
+```Lean
+{{#example_decl Examples/Intro.lean fivesStruct}}
+```
+it suffices to write:
+```Lean
+{{#example_decl Examples/Intro.lean fives}}
+```
+Both notations are right-associative.
+This means that the following definitions are equivalent:
+```Lean
+{{#example_decl Examples/Intro.lean sevens}}
+
+{{#example_decl Examples/Intro.lean sevensNested}}
+```
+
 ## `Sum`
+
+The `Sum` datatype is a generic way of allowing a choice between values of two different types.
+For instance, a `Sum String Int` is either a `String` or an `Int`.
+Like `Prod`, `Sum` should be used either when writing very generic code, for a very small section of code where there is no sensible domain-specific type, or when the standard library contains useful functions.
+
+Values of type `Sum α β` are either the constructor `inl` applied to a value of type `α` or the constructor `inr` applied to a value of type `β`:
+```Lean
+{{#example_decl Examples/Intro.lean Sum}}
+```
+These names are abbreviations for "left injection" and "right injection", respectively.
+Just as the Cartesian product notation is used for `Prod`, a "circled plus" notation is used for `Sum`, so `α ⊕ β` is another way to write `Sum α β`.
+
+## `Unit`
+
+`Unit` is a type with just one argumentless constructor, called `unit`.
+In other words, it describes only a single value, which consists of said constructor applied to no arguments.
+On its own, `Unit` is not particularly useful.
+However, in polymorphic code, it can be used as a placeholder for data that will be inserted in a later stage of a program.
+For instance, a `List Unit` does not contain anything interesting, but it can express how many entries are expected, and they can be inserted later.
+Additionally, a function that takes `Unit` as an argument is a way to express a block of code that can be executed on-demand.
+
+The `Unit` type is similar to `void` in languages derived from C.
+In the C family, a function that returns `void` will return control to its caller, but it will not return any interesting value.
+By being an intentionally uninteresting value, `Unit` allows this to be expressed without requiring a special-purpose `void` feature in the type system.
+
+## `Empty`
+
+The `Empty` datatype has no constructors whatsoever.
+Thus, it indicates unreachable code, because no series of calls can ever terminate with a value at type `Empty`.
+
+`Empty` is not used nearly as often as `Unit`.
+However, it is useful in some specialized contexts.
+Many polymorphic datatypes do not use all of their type arguments in all of their constructors.
+For instance, `Sum.inl` and `Sum.inr` each use only one of `Sum`'s type arguments.
+Using `Empty` as one of the type arguments to `Sum` can rule out one of the constructors at a particular point in a program.
+This can allow generic code to be used in contexts that have additional restrictions.
 
 ## Naming: Sums, Products, and Units
 
+Generally speaking, types that offer multiple constructors are called _sum types_, while types whose single constructor takes multiple arguments are called _product types_.
+These terms are related to sums and products used in ordinary arithmetic.
+The relationship is easiest to see when the types involved contain a finite number of values.
+If `α` and `β` are types that contain _n_ and _k_ distinct values, respectively, then `α ⊕ β` contains _n_ + _k_ distinct values and `α × β` contains _n_ × _k_ distinct values.
+For instance, `Bool` has two values: `true` and `false`, and `Unit` has one value: `Unit.unit`.
+The product `Bool × Unit` has the two values `(true, Unit.unit)` and `(false, Unit.unit)`, and the sum `Bool ⊕ Unit` has the three values `Sum.inl true`, `Sum.inl false`, and `Sum.inr unit`.
+Similarly, 2 × 1 = 2, and 2 + 1 = 3.
+
+
+
 # Messages You May Meet
 
-Metas
+Not all definable structures or inductive types can have the type `Type`.
+In particular, if a constructor takes an arbitrary type as an argument, then the inductive type must have a different type.
+These errors usually state something about "universe levels".
+For example, for this inductive type:
+```Lean
+{{#example_in Examples/Intro.lean TypeInType}}
+```
+Lean gives the following error:
+```Lean error
+{{#example_out Examples/Intro.lean TypeInType}}
+```
+A later chapter describes why this is the case, and how to modify definitions to make them work.
+For now, try making the type an argument to the inductive type as a whole, rather than to the constructor.
 
-Type : Type
+Similarly, if a constructor's argument is a function that takes the datatype being defined as an argument, then the definition is rejected.
+For example:
+```Lean
+{{#example_in Examples/Intro.lean Positivity}}
+```
+yields the message:
+```Lean error
+{{#example_out Examples/Intro.lean Positivity}}
+```
+For technical reasons, allowing these datatypes could make it possible to undermine Lean's use as a logic.
 
 # Exercises
 
  * Write a function to find the last entry in a list. It should return an `Option`.
  * Write a function that finds the first entry in a list that satisfies a given predicate. Start the definition with `def List.findFirst? {α : Type} (xs : List α) (predicate : α → Bool) : Option α :=`
+ * Write a function `Prod.swap` that swaps the two fields in a pair. Start the definition with `def Prod.swap {α β : Type} (pair : α × β) : β × α :=` 
+ * Write a function `zip` that combines two lists into a list of pairs. The resulting list should be as long as the shortest input list. Start the definition with `def zip {α β : Type} (xs : List α) (ys : List β) : List (α × β) :=`.
+ * Write a polymorphic function `take` that returns the first _n_ entries in a list, where _n_ is a `Nat`. If the list contains fewer than `n` entries, then the resulting list should be the input list. `{{#example_in Examples/Intro.lean takeThree}}` should yield `{{#example_out Examples/Intro.lean takeThree}}`, and `{{#example_in Examples/Intro.lean takeOne}}` should yield `{{#example_out Examples/Intro.lean takeOne}}`.
+ * Write a function that distributes products over sums. In other words, it should have type `α × (β ⊕ γ) → (α × β) ⊕ (α × γ)`.
+ * Write a function that shows how 2 × _x_ = _x_ + _x_. It should have type `Bool × α → α ⊕ α`.
