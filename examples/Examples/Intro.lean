@@ -1120,11 +1120,109 @@ message
 end expect
 
 
+namespace BadUnzip
+book declaration {{{ unzipBad }}}
+  def unzip : List (α × β) → List α × List β
+    | [] => ([], [])
+    | (x, y) :: xys =>
+      (x :: (unzip xys).fst, y :: (unzip xys).snd)
+end book declaration
+end BadUnzip
 
 book declaration {{{ unzip }}}
+  def unzip : List (α × β) → List α × List β
+    | [] => ([], [])
+    | (x, y) :: xys =>
+      let unzipped : List α × List β := unzip xys;
+      (x :: unzipped.fst, y :: unzipped.snd)
+end book declaration
+
+def rev : List α → List α
+  | [] => []
+  | x :: xs => rev xs ++ [x]
+
+def reverse (xs : List α) : List α :=
+  let rec helper (acc : List α) : List α → List α
+    | [] => acc
+    | y :: ys => helper (y :: acc) ys;
+  helper [] xs
+
+
+namespace NT
+book declaration {{{ unzipNT }}}
   def unzip : List (α × β) → List α × List β
     | [] => ([], [])
     | (x, y) :: xys =>
       let unzipped := unzip xys;
       (x :: unzipped.fst, y :: unzipped.snd)
 end book declaration
+
+
+book declaration {{{ idA }}}
+  def id (x : α) : α := x
+end book declaration
+
+end NT
+
+namespace NRT
+book declaration {{{ unzipNRT }}}
+  def unzip (pairs : List (α × β)) :=
+    match pairs with
+    | [] => ([], [])
+    | (x, y) :: xys =>
+      let unzipped := unzip xys;
+      (x :: unzipped.fst, y :: unzipped.snd)
+end book declaration
+
+book declaration {{{ idB }}}
+  def id (x : α) := x
+end book declaration
+
+end NRT
+
+
+
+
+namespace ReallyNoTypes
+
+expect error {{{ identNoTypes }}}
+  def id x := x
+message
+"failed to infer binder type"
+end expect
+
+expect error {{{ unzipNoTypesAtAll }}}
+  def unzip pairs :=
+    match pairs with
+      | [] => ([], [])
+      | (x, y) :: xys =>
+        let unzipped := unzip xys;
+        (x :: unzipped.fst, y :: unzipped.snd)
+message
+"invalid match-expression, pattern contains metavariables
+  []"
+end expect
+end ReallyNoTypes
+
+
+expect info {{{ fourteenNat }}}
+  #check 14
+message
+"14 : Nat"
+end expect
+
+expect info {{{ fourteenInt }}}
+  #check (14 : Int)
+message
+"14 : Int"
+end expect
+
+namespace Match
+book declaration {{{ dropMatch }}}
+  def drop (n : Nat) (xs : List α) : List α :=
+    match n, xs with
+      | Nat.zero, ys => ys
+      | _, [] => []
+      | Nat.succ n , y :: ys => drop n ys
+end book declaration
+end Match
