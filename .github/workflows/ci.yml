@@ -64,10 +64,10 @@ jobs:
         mdbook build
 
     - name: Release bits if a new release tag is pushed
-      uses: softprops/action-gh-release@v1
+      uses: tsunematsu21/actions-publish-gh-pages@v1.0.2
       if: ${{ startsWith(github.ref, 'refs/tags/rel') }}
       with:
-        files: functional-programming-lean/book/html/**/*
-      env:
-        GITHUB_REPOSITORY: leanprover/functional_programming_in_lean/
-        GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
+        dir: functional-programming-lean/book/html
+        branch: gh-pages
+        repo: leanprover/functional_programming_in_lean/
+        token: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
