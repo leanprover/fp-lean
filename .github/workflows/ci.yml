@@ -1,0 +1,61 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.10.4
+    
+    - name: Setup elan toolchain on this build
+      run: |
+        curl -O --location https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh
+        chmod u+x elan-init.sh
+        ./elan-init.sh -y --default-toolchain none
+        
+    - name: Set elan paths
+      run: |
+        echo "$HOME/.elan/bin" >> $GITHUB_PATH
+
+    - name: Install lean toolchain for this build
+      run: |
+        cd examples
+        lean --version
+        
+    - name: Setup mdBook
+      uses: peaceiris/actions-mdbook@v1
+      with:
+        mdbook-version: '0.4.18'
+                
+    - name: install mdbook-wordcount
+      run: |
+        cargo install mdbook-wordcount
+
+    - name: Build example code
+      run: |
+        cd examples
+        lake build
+
+    - name: Build book
+      run: |
+        cd functional-programming-lean
+        mdbook build
+
