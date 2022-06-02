@@ -62,6 +62,12 @@ jobs:
       run: |
         cd functional-programming-lean
         mdbook build
+        
+    - name: pre-release bits on this site on every push to main.
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        publish_dir: functional-programming-lean/book/html
+        publish_branch: gh-pages
 
     - name: Release bits if a new release tag is pushed
       uses: peaceiris/actions-gh-pages@v3
