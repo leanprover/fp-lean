@@ -69,5 +69,5 @@ jobs:
       with:
         publish_dir: functional-programming-lean/book/html
         publish_branch: gh-pages
-        external_repository: leanprover/functional_programming_in_lean/
+        external_repository: leanprover/functional_programming_in_lean
         personal_token: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
