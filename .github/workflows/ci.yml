@@ -68,6 +68,7 @@ jobs:
       with:
         publish_dir: functional-programming-lean/book/html
         publish_branch: gh-pages
+        personal_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Release bits if a new release tag is pushed
       uses: peaceiris/actions-gh-pages@v3
