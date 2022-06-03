@@ -63,12 +63,12 @@ jobs:
         cd functional-programming-lean
         mdbook build
         
-    - name: pre-release bits on this site on every push to main.
-      uses: peaceiris/actions-gh-pages@v3
+    - name: Release preview zip if a new tag is pushed
+      uses: softprops/action-gh-release@v1
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
       with:
-        publish_dir: functional-programming-lean/book/html
-        publish_branch: gh-pages
-        personal_token: ${{ secrets.GITHUB_TOKEN }}
+        files: functional-programming-lean/book/html/**/*
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Release bits if a new release tag is pushed
       uses: peaceiris/actions-gh-pages@v3
