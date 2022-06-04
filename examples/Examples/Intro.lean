@@ -140,6 +140,18 @@ message
 "
 end expect
 
+expect error {{{ add1_string }}}
+  #check add1 "seven"
+message
+"application type mismatch
+  add1 \"seven\"
+argument
+  \"seven\"
+has type
+  String : Type
+but is expected to have type
+  Nat : Type"
+end expect
 
 book declaration {{{ maximum }}}
   def maximum (n : Nat) (k : Nat) : Nat :=
