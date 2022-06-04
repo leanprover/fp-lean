@@ -813,7 +813,7 @@ end expect
 expect info {{{ replaceXImpT }}}
   #check replaceX
 message
-  "replaceX : PPoint ?m.10388 → ?m.10388 → PPoint ?m.10388"
+  "replaceX : PPoint ?m.10097 → ?m.10097 → PPoint ?m.10097"
 end expect
 
 book declaration {{{ lengthImp }}}
@@ -925,9 +925,9 @@ message
 "expression
   _root_.List.head? []
 has type
-  Option ?m.13274
+  Option ?m.12980
 but instance
-  Lean.MetaEval (Option ?m.13274)
+  Lean.MetaEval (Option ?m.12980)
 failed to be synthesized, this instance instructs Lean on how to display the resulting value, recall that any type implementing the `Repr` class also implements the `Lean.MetaEval` class"
 end expect
 
@@ -1064,7 +1064,12 @@ expect error {{{ TypeInType }}}
   inductive MyType : Type where
     | ctor : (α : Type) → α → MyType
 message
-  "(kernel) universe level of type_of(arg #1) of 'MyType.ctor' is too big for the corresponding inductive datatype"
+"invalid universe level in constructor 'MyType.ctor', parameter 'α' has type
+  Type
+at universe level
+  2
+it must be smaller than or equal to the inductive datatype universe level
+  1"
 end expect
 
 
