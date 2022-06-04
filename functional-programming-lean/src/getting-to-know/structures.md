@@ -107,6 +107,14 @@ Similarly, the distance between two points, which is the square root of the sum 
 ```Lean
 {{#example_decl Examples/Intro.lean distance}}
 ```
+For example, the distance between (1, 2) and (5, -1) is 5:
+```Lean
+{{#example_in examples/Intro.lean evalDistance}}
+```
+```Lean info
+{{#example_out examples/Intro.lean evalDistance}}
+```
+
 
 Multiple structures may have fields with the same names.
 For instance, a three-dimensional point datatype may share the fields `x` and `y`, and be instantiated with the same field names:
