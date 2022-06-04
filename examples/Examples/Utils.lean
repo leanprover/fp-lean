@@ -10,7 +10,7 @@ def Char.digit? (char : Char) : Option Nat :=
 def trim (str : String) : String :=
   String.mk ((str.data.dropWhile Char.isWhitespace).reverse.dropWhile Char.isWhitespace).reverse
 
-def lookup [BEq k] : (key : k) -> (options : List (k × v)) -> Option v
+def lookup [BEq k] : k -> (options : List (k × v)) -> Option v
   | key, [] => none
   | key, (key', v) :: options =>
     if key == key'
@@ -29,6 +29,6 @@ def stringToNat (str : String) : Option Nat := Id.run <| do
 def stringToInt (str : String) : Option Int :=
   match str.data with
     | [] => none
-    | '+'::ds => OptionM.run do pure (Int.ofNat (<- stringToNat { data := ds }))
-    | '-'::ds => OptionM.run do pure (Int.negOfNat (<- stringToNat { data := ds }))
-    | other => Int.ofNat <$> stringToNat str
+    | '+'::ds => do pure (Int.ofNat (<- stringToNat { data := ds }))
+    | '-'::ds => do pure (Int.negOfNat (<- stringToNat { data := ds }))
+    | _ => Int.ofNat <$> stringToNat str

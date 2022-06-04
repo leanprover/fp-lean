@@ -178,7 +178,7 @@ evaluation steps {{{ foo }}}
 end evaluation steps
 
 
-def zipSameLength : List α → List β → OptionM (List (α × β))
+def zipSameLength : List α → List β → Option (List (α × β))
   | [], [] => some []
   | x :: xs, y :: ys => do pure ((x, y) :: (← zipSameLength xs ys))
   | _, _ => none

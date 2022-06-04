@@ -813,7 +813,7 @@ end expect
 expect info {{{ replaceXImpT }}}
   #check replaceX
 message
-  "replaceX : PPoint ?m.10097 → ?m.10097 → PPoint ?m.10097"
+  "replaceX : PPoint ?m.10165 → ?m.10165 → PPoint ?m.10165"
 end expect
 
 book declaration {{{ lengthImp }}}
@@ -925,9 +925,9 @@ message
 "expression
   _root_.List.head? []
 has type
-  Option ?m.12980
+  Option ?m.13533
 but instance
-  Lean.MetaEval (Option ?m.12980)
+  Lean.MetaEval (Option ?m.13533)
 failed to be synthesized, this instance instructs Lean on how to display the resulting value, recall that any type implementing the `Repr` class also implements the `Lean.MetaEval` class"
 end expect
 
