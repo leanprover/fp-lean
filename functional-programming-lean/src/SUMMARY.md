@@ -1,5 +1,6 @@
 # Functional Programming in Lean
 
+[Functional Programming in Lean](./title.md)
 [Introduction](./introduction.md)
 
 - [Getting to Know Lean](./getting-to-know.md)
