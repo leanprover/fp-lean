@@ -22,7 +22,7 @@ example_end_re = re.compile(r'end\s+bookExample')
 
 # Regexps for definitions etc
 example_decl_start_re = re.compile(r'book\s+declaration\s+\{\{\{\s*(?P<name>[a-zA-Z0-9_]+)\s*\}\}\}')
-example_decl_end_re = re.compile(r'end\s+book\s+declaration')
+example_decl_end_re = re.compile(r'stop\s+book\s+declaration')
 
 # Regexps for expected info/errors
 expect_start_re = re.compile(r'expect\s+(info|error)\s+\{\{\{\s*(?P<name>[a-zA-Z0-9_]+)\s*\}\}\}')

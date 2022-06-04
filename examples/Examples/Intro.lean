@@ -104,7 +104,7 @@ end expect
 
 book declaration {{{ hello }}}
   def hello := "Hello"
-end book declaration
+stop book declaration
 
 bookExample {{{ helloNameVal }}}
   hello
@@ -114,7 +114,7 @@ end bookExample
 
 book declaration {{{ lean }}}
   def lean : String := "Lean"
-end book declaration
+stop book declaration
 
 expect info {{{ helloLean }}}
   #eval String.append hello (String.append " " lean)
@@ -125,7 +125,7 @@ end expect
 
 book declaration {{{ add1 }}}
   def add1 (n : Nat) : Nat := n + 1
-end book declaration
+stop book declaration
 
 expect info {{{ add1type }}}
   #check add1
@@ -144,7 +144,7 @@ end expect
 book declaration {{{ maximum }}}
   def maximum (n : Nat) (k : Nat) : Nat :=
     if n < k then k else n
-end book declaration
+stop book declaration
 
 expect info {{{ maximumType }}}
   #check maximum
@@ -186,16 +186,16 @@ end evaluation steps
 
 book declaration {{{ StringTypeDef }}}
   def Str : Type := String
-end book declaration
+stop book declaration
 
 book declaration {{{ aStr }}}
   def aStr : Str := "This is a string."
-end book declaration
+stop book declaration
 
 
 book declaration {{{ NaturalNumberTypeDef }}}
   def NaturalNumber : Type := Nat
-end book declaration
+stop book declaration
 
 expect error {{{ thirtyEight }}}
   def thirtyEight : NaturalNumber := 38
@@ -206,15 +206,15 @@ end expect
 
 book declaration {{{ thirtyEightFixed }}}
   def thirtyEight : NaturalNumber := (38 : Nat)
-end book declaration
+stop book declaration
 
 book declaration {{{ NTypeDef }}}
   abbrev N : Type := Nat
-end book declaration
+stop book declaration
 
 book declaration {{{ thirtyNine }}}
   def thirtyNine : N := 39
-end book declaration
+stop book declaration
 
 
 evaluation steps {{{ NaturalNumberDef }}}
@@ -259,11 +259,11 @@ book declaration {{{ Point }}}
     x : Float
     y : Float
   deriving Repr
-end book declaration
+stop book declaration
 
 book declaration {{{ origin }}}
   def origin : Point := { x := 0.0, y := 0.0 }
-end book declaration
+stop book declaration
 
 expect info {{{ originEval }}}
   #eval origin
@@ -279,7 +279,7 @@ namespace Oops
 
 book declaration {{{ originNoRepr }}}
   def origin : Point := { x := 0.0, y := 0.0 }
-end book declaration
+stop book declaration
 
 expect error {{{ PointNoRepr }}}
   #eval origin
@@ -316,18 +316,18 @@ namespace Oops
 book declaration {{{ zeroXBad }}}
   def zeroX (p : Point) : Point :=
     { x := 0, y := p.y }
-end book declaration
+stop book declaration
 end Oops
 
 book declaration {{{ zeroX }}}
   def zeroX (p : Point) : Point :=
     { p with x := 0 }
-end book declaration
+stop book declaration
 
 book declaration {{{ fourAndThree }}}
   def fourAndThree : Point :=
     { x := 4.3, y := 3.4 }
-end book declaration
+stop book declaration
 
 expect info {{{ fourAndThreeEval }}}
   #eval fourAndThree
@@ -385,7 +385,7 @@ end expect
 book declaration {{{ addPoints }}}
   def addPoints (p1 : Point) (p2 : Point) : Point :=
     { x := p1.x + p2.x, y := p1.y + p2.y }
-end book declaration
+stop book declaration
 
 expect info {{{ addPointsEx }}}
   #eval addPoints { x := 1.5, y := 32 } { x := -8, y := 0.2 }
@@ -400,11 +400,11 @@ book declaration {{{ Point3D }}}
     y : Float
     z : Float
   deriving Repr
-end book declaration
+stop book declaration
 
 book declaration {{{ origin3D }}}
   def origin3D : Point3D := { x := 0.0, y := 0.0, z := 0.0 }
-end book declaration
+stop book declaration
 
 
 namespace Ctor
@@ -414,7 +414,7 @@ book declaration {{{ PointCtorName }}}
     x : Float
     y : Float
   deriving Repr
-end book declaration
+stop book declaration
 end Ctor
 
 expect info {{{ checkPointMk }}}
@@ -433,20 +433,20 @@ end expect
 book declaration {{{ distance }}}
   def distance (p1 : Point) (p2 : Point) : Float :=
     Float.sqrt ((p2.x - p1.x) ^ 2.0) + ((p2.y - p1.y) ^ 2.0)
-end book declaration
+stop book declaration
 
 book declaration {{{ Hamster }}}
   structure Hamster where
     name : String
     fluffy : Bool
-end book declaration
+stop book declaration
 
 book declaration {{{ Book }}}
   structure Book where
     title : String
     author : String
     price : Float
-end book declaration
+stop book declaration
 
 
 namespace Inductive
@@ -455,13 +455,13 @@ book declaration {{{ Bool }}}
   inductive Bool where
     | false : Bool
     | true : Bool
-end book declaration
+stop book declaration
 
 book declaration {{{ Nat }}}
   inductive Nat where
     | zero : Nat
     | succ (n : Nat) : Nat
-end book declaration
+stop book declaration
 end Inductive
 
 evaluation steps {{{ four }}}
@@ -475,7 +475,7 @@ book declaration {{{ isZero }}}
     match n with
       | Nat.zero => true
       | Nat.succ k => false
-end book declaration
+stop book declaration
 
 evaluation steps {{{ isZeroZeroSteps }}}
   isZero Nat.zero
@@ -519,7 +519,7 @@ book declaration {{{ pred }}}
     match n with
       | Nat.zero => Nat.zero
       | Nat.succ k => k
-end book declaration
+stop book declaration
 
 expect info {{{ predFive }}}
   #eval pred 5
@@ -547,7 +547,7 @@ book declaration {{{ even }}}
     match n with
       | Nat.zero => true
       | Nat.succ k => not (even k)
-end book declaration
+stop book declaration
 
 expect info
   #eval even 2
@@ -583,7 +583,7 @@ book declaration {{{ plus }}}
     match k with
       | Nat.zero => n
       | Nat.succ k' => Nat.succ (plus n k')
-end book declaration
+stop book declaration
 
 evaluation steps {{{ plusThreeTwo }}}
   plus 3 2
@@ -616,7 +616,7 @@ book declaration {{{ times }}}
     match k with
       | Nat.zero => Nat.zero
       | Nat.succ k' => plus n (times n k')
-end book declaration
+stop book declaration
 
 #eval times 5 3
 
@@ -625,7 +625,7 @@ book declaration {{{ minus }}}
     match k with
       | Nat.zero => n
       | Nat.succ k' => pred (minus n k')
-end book declaration
+stop book declaration
 
 expect error {{{ div }}}
   def div (n : Nat) (k : Nat) : Nat :=
@@ -655,7 +655,7 @@ book declaration {{{ PPoint }}}
     x : α
     y : α
   deriving Repr
-end book declaration
+stop book declaration
 
 #check (Nat : Type)
 #check (List String : Type)
@@ -665,17 +665,17 @@ end book declaration
 book declaration {{{ natPoint }}}
   def natOrigin : PPoint Nat :=
     { x := Nat.zero, y := Nat.zero }
-end book declaration
+stop book declaration
 
 book declaration {{{ toPPoint }}}
   def Point.toPPoint (p : Point) : PPoint Float :=
     { x := p.x, y := p.y }
-end book declaration
+stop book declaration
 
 book declaration {{{ replaceX }}}
   def replaceX (α : Type) (point : PPoint α) (newX : α) : PPoint α :=
     { point with x := newX }
-end book declaration
+stop book declaration
 
 expect info {{{ replaceXT }}}
   #check replaceX
@@ -710,14 +710,14 @@ end expect
 
 book declaration {{{ primesUnder10 }}}
   def primesUnder10 : List Nat := [2, 3, 5, 7]
-end book declaration
+stop book declaration
 
 namespace Oops
 book declaration {{{ List }}}
   inductive List (α : Type) where
     | nil : List α
     | cons : α → List α → List α
-end book declaration
+stop book declaration
 
 end Oops
 similar datatypes List Oops.List
@@ -726,7 +726,7 @@ similar datatypes List Oops.List
 book declaration {{{ explicitPrimesUnder10 }}}
   def explicitPrimesUnder10 : List Nat :=
     List.cons 2 (List.cons 3 (List.cons 5 (List.cons 7 List.nil)))
-end book declaration
+stop book declaration
 
 namespace Ooops
 book declaration {{{ length1 }}}
@@ -734,7 +734,7 @@ book declaration {{{ length1 }}}
     match xs with
       | List.nil => Nat.zero
       | List.cons y ys => Nat.succ (length α ys)
-end book declaration
+stop book declaration
 
 evaluation steps {{{ length1EvalSummary }}}
   length String ["Sourdough", "bread"]
@@ -785,7 +785,7 @@ book declaration {{{ length2 }}}
     match xs with
       | [] => 0
       | y :: ys => Nat.succ (length α ys)
-end book declaration
+stop book declaration
 end Oooops
 
 
@@ -793,7 +793,7 @@ namespace BetterPlicity
 book declaration {{{ replaceXImp }}}
   def replaceX {α : Type} (point : PPoint α) (newX : α) : PPoint α :=
     { point with x := newX }
-end book declaration
+stop book declaration
 
 expect info {{{ replaceXImpNat }}}
   #eval replaceX natOrigin 5
@@ -813,7 +813,7 @@ book declaration {{{ lengthImp }}}
     match xs with
       | [] => 0
       | y :: ys => Nat.succ (length ys)
-end book declaration
+stop book declaration
 
 expect info {{{ lengthImpPrimes }}}
   #eval length primesUnder10
@@ -853,7 +853,7 @@ book declaration {{{ Option }}}
   inductive Option (α : Type) : Type where
     | none : Option α
     | some (val : α) : Option α
-end book declaration
+stop book declaration
 
 
 
@@ -861,7 +861,7 @@ book declaration {{{ Prod }}}
   structure Prod (α : Type) (β : Type) : Type where
     fst : α
     snd : β
-end book declaration
+stop book declaration
 
 -- Justify the claim in the text that Prod could be used instead of PPoint
 theorem iso_Prod_PPoint {α : Type} : Iso (Prod α α) (PPoint α) := by
@@ -877,7 +877,7 @@ book declaration {{{ Sum }}}
   inductive Sum (α : Type) (β : Type) : Type where
     | inl : α → Sum α β
     | inr : β → Sum α β
-end book declaration
+stop book declaration
 
 inductive Unit : Type where
   | unit : Unit
@@ -902,7 +902,7 @@ book declaration {{{ headHuh }}}
     match xs with
       | [] => none
       | y :: _ => some y
-end book declaration
+stop book declaration
 
 expect info {{{ headSome }}}
   #eval primesUnder10.head?
@@ -945,12 +945,12 @@ end Floop
 namespace StructNotation
 book declaration {{{ fivesStruct }}}
   def fives : String × Int := { fst := "five", snd := 5 }
-end book declaration
+stop book declaration
 end StructNotation
 
 book declaration {{{ fives }}}
   def fives : String × Int := ("five", 5)
-end book declaration
+stop book declaration
 
 example : StructNotation.fives = fives := by rfl
 
@@ -958,12 +958,12 @@ example : StructNotation.fives = fives := by rfl
 namespace Nested
 book declaration {{{ sevensNested }}}
   def sevens : String × (Int × Nat) := ("VII", (7, 4 + 3))
-end book declaration
+stop book declaration
 end Nested
 
 book declaration {{{ sevens }}}
   def sevens : String × Int × Nat := ("VII", 7, 4 + 3)
-end book declaration
+stop book declaration
 
 -- Backing up that they are equivalent
 example : Nested.sevens = sevens := by rfl
@@ -1076,7 +1076,7 @@ book declaration {{{ lengthImpAuto }}}
     match xs with
       | [] => 0
       | y :: ys => Nat.succ (length ys)
-end book declaration
+stop book declaration
 
 end AutoImpl
 
@@ -1085,7 +1085,7 @@ book declaration {{{ lengthMatchDef }}}
   def length : List α → Nat
     | [] => 0
     | y :: ys => Nat.succ (length ys)
-end book declaration
+stop book declaration
 end MatchDef
 
 
@@ -1094,7 +1094,7 @@ book declaration {{{ drop }}}
     | Nat.zero, xs => xs
     | _, [] => []
     | Nat.succ n , x :: xs => drop n xs
-end book declaration
+stop book declaration
 
 
 
@@ -1102,7 +1102,7 @@ book declaration {{{ fromOption }}}
   def fromOption (default : α) : Option α → α
     | none => default
     | some x => x
-end book declaration
+stop book declaration
 
 
 expect info {{{ getD }}}
@@ -1126,7 +1126,7 @@ book declaration {{{ unzipBad }}}
     | [] => ([], [])
     | (x, y) :: xys =>
       (x :: (unzip xys).fst, y :: (unzip xys).snd)
-end book declaration
+stop book declaration
 end BadUnzip
 
 book declaration {{{ unzip }}}
@@ -1135,7 +1135,7 @@ book declaration {{{ unzip }}}
     | (x, y) :: xys =>
       let unzipped : List α × List β := unzip xys;
       (x :: unzipped.fst, y :: unzipped.snd)
-end book declaration
+stop book declaration
 
 def rev : List α → List α
   | [] => []
@@ -1155,12 +1155,12 @@ book declaration {{{ unzipNT }}}
     | (x, y) :: xys =>
       let unzipped := unzip xys;
       (x :: unzipped.fst, y :: unzipped.snd)
-end book declaration
+stop book declaration
 
 
 book declaration {{{ idA }}}
   def id (x : α) : α := x
-end book declaration
+stop book declaration
 
 end NT
 
@@ -1172,11 +1172,11 @@ book declaration {{{ unzipNRT }}}
     | (x, y) :: xys =>
       let unzipped := unzip xys;
       (x :: unzipped.fst, y :: unzipped.snd)
-end book declaration
+stop book declaration
 
 book declaration {{{ idB }}}
   def id (x : α) := x
-end book declaration
+stop book declaration
 
 end NRT
 
@@ -1224,5 +1224,103 @@ book declaration {{{ dropMatch }}}
       | Nat.zero, ys => ys
       | _, [] => []
       | Nat.succ n , y :: ys => drop n ys
-end book declaration
+stop book declaration
 end Match
+
+
+evaluation steps {{{ incrSteps }}}
+  fun x => x + 1
+  ===>
+  (· + 1)
+  ===>
+  Nat.succ
+end evaluation steps
+
+expect info {{{ incr }}}
+  #check fun x => x + 1
+message
+  "fun x => x + 1 : Nat → Nat"
+end expect
+
+expect info {{{ incrInt }}}
+  #check fun (x : Int) => x + 1
+message
+  "fun x => x + 1 : Int → Int"
+end expect
+
+expect info {{{ identLambda }}}
+  #check fun {α : Type} (x : α) => x
+message
+  "fun {α} x => x : {α : Type} → α → α"
+end expect
+
+
+expect info {{{ predHuh }}}
+  #check fun
+    | Nat.zero => none
+    | Nat.succ n => some n
+message
+"fun x =>
+  match x with
+  | Nat.zero => none
+  | Nat.succ n => some n : Nat → Option Nat"
+end expect
+
+
+book declaration {{{ doubleLambda }}}
+  def double : Nat → Nat := fun
+    | Nat.zero => Nat.zero
+    | Nat.succ k => double k + 2
+stop book declaration
+
+
+evaluation steps {{{ funPair }}}
+  (· + 5, 3)
+end evaluation steps
+
+evaluation steps {{{ pairFun }}}
+  ((· + 5), 3)
+end evaluation steps
+
+
+evaluation steps {{{ twoDots }}}
+  (· , ·) 1 2
+  ===>
+  (1, ·) 2
+  ===>
+  (1, 2)
+end evaluation steps
+
+
+book declaration {{{ NatDouble }}}
+  def Nat.double (x : Nat) : Nat := x + x
+stop book declaration
+
+
+
+expect info {{{ NatDoubleFour }}}
+  #eval (4 : Nat).double
+message
+ "8
+"
+end expect
+
+book declaration {{{ NewNamespace }}}
+  namespace NewNamespace
+  def triple (x : Nat) : Nat := 3 * x
+  def quadruple (x : Nat) : Nat := 2 * x + 2 * x
+  end NewNamespace
+stop book declaration
+
+
+expect info {{{ tripleNamespace }}}
+  #check NewNamespace.triple
+message
+  "NewNamespace.triple : Nat → Nat"
+end expect
+
+expect info {{{ quadrupleNamespace }}}
+  #check NewNamespace.quadruple
+message
+  "NewNamespace.quadruple : Nat → Nat"
+end expect

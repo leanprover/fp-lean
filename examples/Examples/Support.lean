@@ -1,17 +1,26 @@
 import Lean
 import Lean.Message
 
-syntax withPosition("book" "declaration" "{{{" ws ident ws "}}}" colGt command "end" "book" "declaration") : command
+syntax withPosition("book" "declaration" "{{{" ws ident ws "}}}" (command*) "stop" "book" "declaration") : command
 
-macro_rules
-  | `(book declaration {{{ $name:ident }}} $decl:command end book declaration) =>
-    pure decl
+elab_rules : command
+  | `(book declaration {{{ $name:ident }}} $decls* stop book declaration) => do
+    for decl in decls do
+      Lean.Elab.Command.elabCommand decl
 
 book declaration {{{ foo }}}
   def twentyFive : Nat := 25
-end book declaration
+stop book declaration
 
 #check twentyFive
+
+book declaration {{{ foo }}}
+  namespace MyNamespaceIsGreat
+  def twentyFive : Nat := 25
+  end MyNamespaceIsGreat
+stop book declaration
+
+#check MyNamespaceIsGreat.twentyFive
 
 syntax withPosition("bookExample" "{{{" ws ident ws "}}}" colGt term:60 colGt "===>" colGt term:60 "end bookExample") : command
 

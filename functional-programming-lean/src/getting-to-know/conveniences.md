@@ -1,4 +1,4 @@
-Intro here
+Lean contains a number of convenience features that make programs much more concise.
 
 # Automatic Implicit Arguments
 
@@ -171,9 +171,92 @@ Here is a version of `drop` that uses simultaneous matching:
 {{#example_decl Examples/Intro.lean dropMatch}}
 ```
 
-# Lambda
+# Anonymous Functions
+
+Functions in Lean need not be defined at the top level.
+As expressions, functions are produced with the `fun` syntax.
+Function expressions begin with the keyword `fun`, followed by one or more arguments, which are separated from the return expression using `=>`.
+For instance, a function that adds one to a number can be written:
+```Lean
+{{#example_in Examples/Intro.lean incr}}
+```
+```Lean info
+{{#example_out Examples/Intro.lean incr}}
+```
+Type annotations are written the same way as on `def`, using parentheses and colons:
+```Lean
+{{#example_in Examples/Intro.lean incrInt}}
+```
+```Lean info
+{{#example_out Examples/Intro.lean incrInt}}
+```
+Similarly, implicit arguments may be written with curly braces:
+```Lean
+{{#example_in Examples/Intro.lean identLambda}}
+```
+```Lean info
+{{#example_out Examples/Intro.lean identLambda}}
+```
+This style of anonymous function expression is often referred to as a _lambda expression_, because the typical notation used in mathematical descriptions of programming languages uses the Greek letter λ (lambda) where Lean has the keyword `fun`.
+
+Anonymous functions also support the multiple-pattern style used in `def`.
+For instance, a function that returns the predecessor of a natural number if it exists can be written:
+```Lean
+{{#example_in Examples/Intro.lean predHuh}}
+```
+```Lean info
+{{#example_out Examples/Intro.lean predHuh}}
+```
+Note that Lean's own description of the function has a named argument and a `match` expression.
+Many of Lean's convenient syntactic shorthands are expanded to simpler syntax behind the scenes, and the abstraction sometimes leaks.
+
+Definitions using `def` that take arguments may be rewritten as function expressions.
+For instance, a function that doubles its argument can be written as follows:
+```Lean
+{{#example_decl Examples/Intro.lean doubleLambda}}
+```
+
+When an anonymous function is very simple, like `{{#example_eval Examples/Intro.lean incrSteps 0}}`, the syntax for creating the function can be fairly verbose.
+In that particular example, six non-whitespace characters are used to introduce the function, and its body consists of only three non-whitespace characters.
+For these simple cases, Lean provides a shorthand.
+In an expression surrounded by parentheses, a centered dot character `·` can stand for an argument, and the expression inside the parentheses becomes the function's body.
+That particular function can also be written `{{#example_eval Examples/Intro.lean incrSteps 1}}`.
+
+The centered dot always creates a function out of the _closest_ surrounding set of parentheses.
+For instance, `{{#example_eval Examples/Intro.lean funPair 0}}` is a function that returns a pair of numbers, while `{{#example_eval Examples/Intro.lean pairFun 0}}` is a pair of a function and a number.
+If multiple dots are used, then they become arguments from left to right.
+For instance,
+`{{#example_eval Examples/Intro.lean twoDots}}`
 
 # Namespaces
+
+Each name in Lean occurs in a _namespace_, which is a collection of names.
+Names are placed in namespaces using `.`, so `List.map` is the name `map` in the `List` namespace.
+Names in different namespaces do not conflict with each other, even if they are otherwise identical.
+This means that `List.map` and `Array.map` are different names.
+
+Names can be directly defined within a namespace.
+For instance, the name `double` can be defined in the `Nat` namespace:
+```Lean
+{{#example_decl Examples/Intro.lean NatDouble}}
+```
+Because `Nat` is also the name of a type, dot notation is available to call `Nat.double` on expressions with type `Nat`:
+```Lean
+{{#example_in Examples/Intro.lean NatDoubleFour}}
+```
+```Lean info
+{{#example_out Examples/Intro.lean NatDoubleFour}}
+```
+
+In addition to defining names directly in a namespace, a sequence of declarations can be placed in a namespace using the `namespace` and `end` commands.
+For instance, this defines `triple` and `quadruple` in the namespace `NewNamespace`:
+```Lean
+{{#example_decl Examples/Intro.lean NewNamespace}}
+```
+
+Namespaces may be _opened_, which allows the names in them to be used without explicitly writing the namespace and the dot.
+
+
 
 # Sections and Variables
 

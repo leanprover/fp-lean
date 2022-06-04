@@ -19,7 +19,7 @@
 (defun fp-lean-decl (name)
   "Use a book declaration called NAME."
   (interactive "MName: ")
-  (fp-lean--wrap (format "book declaration {{{ %s }}}" name) "end book declaration"))
+  (fp-lean--wrap (format "book declaration {{{ %s }}}" name) "stop book declaration"))
 
 (defun fp-lean-info (name)
   "Expect info named NAME."
