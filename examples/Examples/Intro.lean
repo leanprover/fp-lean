@@ -432,8 +432,16 @@ end expect
 
 book declaration {{{ distance }}}
   def distance (p1 : Point) (p2 : Point) : Float :=
-    Float.sqrt ((p2.x - p1.x) ^ 2.0) + ((p2.y - p1.y) ^ 2.0)
+    Float.sqrt (((p2.x - p1.x) ^ 2.0) + ((p2.y - p1.y) ^ 2.0))
 stop book declaration
+
+expect info {{{ evalDistance }}}
+  #eval distance { x := 1.0, y := 2.0 } { x := 5.0, y := -1.0 }
+message
+ "5.000000
+"
+end expect
+
 
 book declaration {{{ Hamster }}}
   structure Hamster where
