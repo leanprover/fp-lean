@@ -451,6 +451,7 @@ end book declaration
 
 book declaration {{{ Book }}}
   structure Book where
+    makeBook ::
     title : String
     author : String
     price : Float
