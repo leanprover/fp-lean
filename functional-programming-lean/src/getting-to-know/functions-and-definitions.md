@@ -27,8 +27,12 @@ outputs
 ``` Lean info
 {{#example_out Examples/Intro.lean helloLean}}
 ```
-
 In Lean, defined names may only be used after their definitions.
+
+In many languages, definitions of functions use a different syntax than definitions of other values.
+For instance, Python function definitions begin with the `def` keyword, while other definitions are defined with an equals sign.
+In Lean, functions are defined using the same `def` keyword as other values.
+Nonetheless, definitions such as `hello` introduce names that refer _directly_ to their values, rather than to zero-argument functions that return equivalent results each time they are called.
 
 # Defining Functions
 
