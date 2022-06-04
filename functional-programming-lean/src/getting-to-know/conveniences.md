@@ -149,7 +149,7 @@ With argument and type annotations, it looks like this:
 ```
 Lean is capable of determining the return type on its own:
 ```Lean
-{{#example_decl Examples/Intro.lean idA}}
+{{#example_decl Examples/Intro.lean idB}}
 ```
 Omitting the argument type, however, causes an error:
 ```Lean
