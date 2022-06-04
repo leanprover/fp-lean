@@ -1350,3 +1350,35 @@ expect info {{{ quadrupleNamespace }}}
 message
   "NewNamespace.quadruple : Nat → Nat"
 end expect
+
+
+book declaration {{{ quadrupleOpenDef }}}
+  def timesTwelve (x : Nat) :=
+    open NewNamespace in
+    quadruple (triple x)
+stop book declaration
+
+example : timesTwelve 2 = 24 := by rfl
+
+expect info {{{ quadrupleNamespaceOpen }}}
+  open NewNamespace in
+  #check quadruple
+message
+  "quadruple : Nat → Nat"
+end expect
+
+
+
+expect info {{{ interpolation }}}
+  #eval s!"three fives is {NewNamespace.triple 5}"
+message
+"\"three fives is 15\"
+"
+end expect
+
+expect error {{{ interpolationOops }}}
+  #check s!"three fives is {NewNamespace.triple}"
+message
+"failed to synthesize instance
+  ToString (Nat → Nat)"
+end expect

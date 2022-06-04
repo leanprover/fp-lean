@@ -253,16 +253,66 @@ For instance, this defines `triple` and `quadruple` in the namespace `NewNamespa
 ```Lean
 {{#example_decl Examples/Intro.lean NewNamespace}}
 ```
+To refer to them, prefix their names with `NewNamespace.`:
+```Lean
+{{#example_in Examples/Intro.lean tripleNamespace}}
+```
+```Lean info
+{{#example_out Examples/Intro.lean tripleNamespace}}
+```
+```Lean
+{{#example_in Examples/Intro.lean quadrupleNamespace}}
+```
+```Lean info
+{{#example_out Examples/Intro.lean quadrupleNamespace}}
+```
 
-Namespaces may be _opened_, which allows the names in them to be used without explicitly writing the namespace and the dot.
-
-
-
-# Sections and Variables
+Namespaces may be _opened_, which allows the names in them to be used without explicit qualification.
+Writing `open MyNamespace in` before an expression causes the contents of `MyNamespace` to be available in the expression.
+For example, `timesTwelve` uses both `quadruple` and `triple` after opening `NewNamespace`:
+```Lean
+{{#example_decl Examples/Intro.lean quadrupleOpenDef}}
+```
+Namespaces can also be opened prior to a command.
+This allows all parts of the command to refer to the contents of the namespace, rather than just a single expression.
+To do this, place the `open ... in` prior to the command.
+```Lean
+{{#example_in Examples/Intro.lean quadrupleNamespaceOpen}}
+```
+```Lean info
+{{#example_out Examples/Intro.lean quadrupleNamespaceOpen}}
+```
+Finally, namespaces may be opened for _all_ following commands.
+To do this, simply omit the `in`.
 
 # if let
 
 # Positional Structure Arguments
 
+
+
 # String Interpolation
+
+In Lean, prefixing a string with `s!` triggers _interpolation_, where expressions contained in curly braces inside the string are replaced with their values.
+This is similar to `f`-strings in Python and `$`-prefixed strings in C#.
+For instance,
+```Lean
+{{#example_in Examples/Intro.lean interpolation}}
+```
+yields the output
+```Lean info
+{{#example_out Examples/Intro.lean interpolation}}
+```
+
+Not all expressions can be interpolated into a string.
+For instance, attempting to interpolate a function results in an error.
+```Lean
+{{#example_in Examples/Intro.lean interpolationOops}}
+```
+yields the output
+```Lean info
+{{#example_out Examples/Intro.lean interpolationOops}}
+```
+This is because there is no standard way to convert functions into strings.
+The Lean compiler maintains a table that describes how to convert values of various types into strings, and the message `failed to synthesize instance` means that the Lean compiler didn't find an entry in this table for the given type.
 
