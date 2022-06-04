@@ -109,10 +109,10 @@ Similarly, the distance between two points, which is the square root of the sum 
 ```
 For example, the distance between (1, 2) and (5, -1) is 5:
 ```Lean
-{{#example_in examples/Intro.lean evalDistance}}
+{{#example_in Examples/Intro.lean evalDistance}}
 ```
 ```Lean info
-{{#example_out examples/Intro.lean evalDistance}}
+{{#example_out Examples/Intro.lean evalDistance}}
 ```
 
 
