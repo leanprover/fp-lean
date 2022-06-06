@@ -82,6 +82,13 @@ For instance, `let` can be used in `unzip` like this:
 ```
 The biggest difference between `let` and `def` is that recursive `let` definitions must be explicitly indicated by writing `let rec`.
 
+Local definitions with `let` may also use pattern matching when one pattern is enough to match all cases of a datatype.
+In the case of `unzip`, the result of the recursive call is a pair.
+Because pairs have only a single constructor, the name `unzipped` can be replaced with a pair pattern:
+```Lean
+{{#example_decl Examples/Intro.lean unzipPat}}
+```
+Judicious use of patterns with `let` can make code easier to read.
 
 # Type Inference
 
@@ -286,6 +293,23 @@ Finally, namespaces may be opened for _all_ following commands.
 To do this, simply omit the `in`.
 
 # if let
+
+When consuming values that have a sum type, it is often the case that only a single constructor is of interest.
+For instance, given this type that represents a subset of Markdown inline elements:
+```Lean
+{{#example_decl Examples/Intro.lean Inline}}
+```
+a function that recognizes string elements and extracts their contents can be written:
+```Lean
+{{#example_decl Examples/Intro.lean inlineStringHuhMatch}}
+```
+An alternative way of writing this function's body uses `if` together with `let`:
+```Lean
+{{#example_decl Examples/Intro.lean inlineStringHuh}}
+```
+This is very much like the pattern-matching `let` syntax.
+The difference is that it can be used with sum types, because a fallback is provided in the `else` case.
+In some contexts, using `if let` instead of `match` can make code easier to read.
 
 # Positional Structure Arguments
 

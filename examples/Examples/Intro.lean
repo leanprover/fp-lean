@@ -1163,6 +1163,16 @@ book declaration {{{ unzip }}}
       (x :: unzipped.fst, y :: unzipped.snd)
 stop book declaration
 
+namespace WithPattern
+book declaration {{{ unzipPat }}}
+  def unzip : List (α × β) → List α × List β
+    | [] => ([], [])
+    | (x, y) :: xys =>
+      let (xs, ys) : List α × List β := unzip xys;
+      (x :: xs, y :: ys)
+stop book declaration
+end WithPattern
+
 def rev : List α → List α
   | [] => []
   | x :: xs => rev xs ++ [x]
@@ -1382,3 +1392,32 @@ message
 "failed to synthesize instance
   ToString (Nat → Nat)"
 end expect
+
+
+book declaration {{{ Inline }}}
+  inductive Inline : Type where
+    | lineBreak
+    | string : String → Inline
+    | emph : Inline → Inline
+    | strong : Inline → Inline
+stop book declaration
+
+namespace WithMatch
+book declaration {{{ inlineStringHuhMatch }}}
+  def Inline.string? (inline : Inline) : Option String :=
+    match inline with
+      | Inline.string s => some s
+      | _ => none
+stop book declaration
+end WithMatch
+
+
+
+book declaration {{{ inlineStringHuh }}}
+  def Inline.string? (inline : Inline) : Option String :=
+    if let Inline.string s := inline
+      then some s
+      else none
+stop book declaration
+
+example : WithMatch.Inline.string? = Inline.string? := by rfl
