@@ -1421,3 +1421,33 @@ book declaration {{{ inlineStringHuh }}}
 stop book declaration
 
 example : WithMatch.Inline.string? = Inline.string? := by rfl
+
+bookExample : Point {{{ pointCtor }}}
+  Point.mk 1 2
+  ===>
+  { x := 1, y := 2 }
+end bookExample
+
+bookExample : Point {{{ pointBraces }}}
+  { x := 1, y := 2 }
+  ===>
+  Point.mk 1 2
+end bookExample
+
+bookExample : Point {{{ pointPos }}}
+  ⟨1, 2⟩
+  ===>
+  Point.mk 1 2
+end bookExample
+
+bookExample type {{{ swapLambda }}}
+  fun (point : Point) => { x := point.y, y := point.x : Point}
+  ===>
+  (Point → Point)
+end bookExample
+
+bookExample : Int → Int {{{ subOneDots }}}
+  (· - 1)
+  ===>
+  fun x => x - 1
+end bookExample

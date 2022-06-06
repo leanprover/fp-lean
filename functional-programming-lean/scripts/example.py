@@ -16,7 +16,7 @@ example_eval_many_re = re.compile(r'\{\{#example_eval\s+(?P<file>[^\s]+)\s+(?P<n
 example_decl_re = re.compile(r'\{\{#example_decl\s+(?P<file>[^\s]+)\s+(?P<name>[^\s]+)\s*\}\}')
 
 # Regexps for book examples
-example_start_re = re.compile(r'bookExample\s+(type\s+)?\{\{\{\s*(?P<name>[a-zA-Z0-9_]+)\s*\}\}\}')
+example_start_re = re.compile(r'bookExample\s+(type\s+)?(:[^{]+)?\{\{\{\s*(?P<name>[a-zA-Z0-9_]+)\s*\}\}\}')
 example_middle_re = re.compile(r'===>')
 example_end_re = re.compile(r'end\s+bookExample')
 

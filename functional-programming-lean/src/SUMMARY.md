@@ -11,4 +11,5 @@
   - [Datatypes, Patterns and Recursion](./getting-to-know/datatypes-and-patterns.md)
   - [Polymorphism](./getting-to-know/polymorphism.md)
   - [Additional Conveniences](./getting-to-know/conveniences.md)
+  - [Summary](./getting-to-know/summary.md)
 - [Hello, World!]()

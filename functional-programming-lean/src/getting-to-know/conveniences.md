@@ -313,7 +313,16 @@ In some contexts, using `if let` instead of `match` can make code easier to read
 
 # Positional Structure Arguments
 
+The [section on structures](structures.md) presents two ways of constructing structures:
+ 1. The constructor can be called directly, as in `{{#example_in Examples/Intro.lean pointCtor}}`.
+ 2. Brace notation can be used, as in `{{#example_in Examples/Intro.lean pointBraces}}`.
 
+In some contexts, it can be convenient to pass arguments positionally, rather than by name, but without naming the constructor directly.
+For instance, defining a variety of similar structure types can help keep domain concepts separate, but the natural way to read the code may treat each of them as being essentially a tuple.
+In these contexts, the arguments can be enclosed in angle brackets `⟨` and `⟩`.
+A `Point` can be written `{{#example_in Examples/Intro.lean pointPos}}`.
+Be careful!
+Even though they look like the less-than sign `<` and greater-than sign `>`, these brackets are different.
 
 # String Interpolation
 
@@ -339,4 +348,5 @@ yields the output
 ```
 This is because there is no standard way to convert functions into strings.
 The Lean compiler maintains a table that describes how to convert values of various types into strings, and the message `failed to synthesize instance` means that the Lean compiler didn't find an entry in this table for the given type.
+
 

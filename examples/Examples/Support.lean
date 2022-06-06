@@ -35,6 +35,21 @@ elab_rules : command
       unless (← isDefEq x y) do
         throwError "Expected {y}, but got {← reduce x}"
 
+syntax withPosition("bookExample" ":" term "{{{" ws ident ws "}}}" colGt term:60 colGt "===>" colGt term:60 "end bookExample") : command
+
+elab_rules : command
+  | `(bookExample : $type:term {{{ $name:ident }}} $x:term ===> $y:term end bookExample) =>
+    open Lean.Elab.Command in
+    open Lean.Elab.Term in
+    open Lean.Meta in liftTermElabM `bookExample do
+      let t ← elabTerm type none
+      let x ← elabTerm x (some t)
+      let y ← elabTerm y (some t)
+      synthesizeSyntheticMVarsNoPostponing
+      unless (← isDefEq x y) do
+        throwError "Expected {y}, but got {← reduce x}"
+
+
 bookExample {{{ one }}}
   1
   ===>
