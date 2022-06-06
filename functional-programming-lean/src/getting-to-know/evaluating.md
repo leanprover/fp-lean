@@ -1,3 +1,5 @@
+# Evaluating Expressions
+
 The most important thing to understand as a programmer learning Lean
 is how evaluation works. Evaluation is the process of finding the
 value of an expression, just as one does in arithmetic. For instance,
@@ -105,7 +107,7 @@ For the sake of brevity, a series of evaluation steps like this will sometimes b
 {{#example_eval Examples/Intro.lean stringAppend}}
 ```
 
-# Messages You May Meet
+## Messages You May Meet
 
 Asking Lean to evaluate a function application that is missing an argument will lead to an error message.
 In particular, the example
@@ -121,7 +123,7 @@ This message occurs because Lean functions that are applied to only some of thei
 Lean cannot display functions to users, and thus returns an error when asked to do so.
 
 
-# Exercises
+## Exercises
 
 What are the values of the following expressions? Work them out by hand,
 then enter them into Lean to check your work.

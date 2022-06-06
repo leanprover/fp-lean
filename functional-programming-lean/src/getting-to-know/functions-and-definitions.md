@@ -1,3 +1,5 @@
+# Functions and Definitions
+
 In Lean, definitions are introduced using the `def` keyword. For instance, to define the name `{{#example_in Examples/Intro.lean helloNameVal}}` to refer to the string `{{#example_out Examples/Intro.lean helloNameVal}}`, write:
 
 ```Lean
@@ -34,7 +36,7 @@ For instance, Python function definitions begin with the `def` keyword, while ot
 In Lean, functions are defined using the same `def` keyword as other values.
 Nonetheless, definitions such as `hello` introduce names that refer _directly_ to their values, rather than to zero-argument functions that return equivalent results each time they are called.
 
-# Defining Functions
+## Defining Functions
 
 There are a variety of ways to define functions in Lean. The simplest is to place the function's arguments before the definition's type, separated by spaces. For instance, a function that adds one to its argument can be written:
 
@@ -70,13 +72,13 @@ This can be seen by providing one argument to a multiple-argument function: `{{#
 Using a function that returns a function to implement multiple-argument functions is called _currying_ after the mathematician Haskell Curry.
 Function arrows associate to the right, which means that `Nat → Nat → Nat` should be parenthesized `Nat → (Nat → Nat)`.
 
-## Exercises
+### Exercises
 
  * Define the function `joinStringsWith` with type `String -> String -> String -> String` that creates a new string by placing its first argument between its second and third arguments. `{{#example_eval Examples/Intro.lean joinStringsWithEx 0}}` should evaluate to `{{#example_eval Examples/Intro.lean joinStringsWithEx 1}}`.
  * What is the type of `joinStringsWith ": "`? Check your answer with Lean.
  * Define a function `volume` with type `Nat → Nat → Nat → Nat` that computes the volume of a rectangular prism with the given height, width, and depth.
 
-# Defining Types
+## Defining Types
 
 Most typed programming languages have some means of defining aliases for types, such as C's `typedef`.
 In Lean, however, types are a first-class part of the language - they are expressions like any other.
@@ -95,7 +97,7 @@ The reason this works is that types follow the same rules as the rest of Lean.
 Types are expressions, and in an expression, a defined name can be replaced with its definition.
 Because ``Str`` has been defined to mean ``String``, the definition of ``aStr`` makes sense.
 
-## Messages You May Meet
+### Messages You May Meet
 
 Experimenting with using definitions for types is made more complicated by a feature of Lean that has not yet been introduced.
 If ``Nat`` is too short, a longer name ``NaturalNumber`` can be defined:

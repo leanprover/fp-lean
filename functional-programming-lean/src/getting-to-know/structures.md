@@ -1,3 +1,4 @@
+# Structures
 
 The first step in writing a program is usually to identify the problem domain's concepts, and then find suitable representations for them in code.
 Sometimes, a domain concept is a collection of other, simpler, concepts.
@@ -150,7 +151,7 @@ To make programs more concise, Lean also allows the structure type annotation in
 {{#example_out Examples/Intro.lean originWithAnnot2}}
 ```
 
-# Updating Structures
+## Updating Structures
 
 Imagine a function `zeroX` that replaces the `x` field of a `Point` with `0.0`.
 In most programming language communities, this sentence would mean that the memory location pointed to by `x` was to be overwritten with a new value.
@@ -205,7 +206,7 @@ All references to the old structure continue to refer to the same field values i
 
 
 
-# Behind the Scenes
+## Behind the Scenes
 
 Every structure has a _constructor_.
 Here, the term "constructor" may be a source of confusion.
@@ -274,7 +275,7 @@ For instance, `String.append` can be invoked from a string with accessor notatio
 ```
 
 
-# Exercises
+## Exercises
 
  * Define a structure named `RectangularPrism` that contains the height, width, and depth of a rectangular prism, each as a `Float`.
  * Define a function named `volume : RectangularPrism → Float` that computes the volume of a rectangular prism.

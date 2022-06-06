@@ -1,3 +1,5 @@
+# Types
+
 Types classify programs based on the values that they can
 compute. Types serve a number of roles in a program:
 

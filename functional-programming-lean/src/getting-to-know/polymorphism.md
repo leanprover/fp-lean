@@ -1,3 +1,4 @@
+# Polymorphism
 
 Just as in most languages, types in Lean can take arguments.
 For instance, the type `List Nat` describes lists of natural numbers, `List String` describes lists of strings, and `List (List Point)` describes lists of lists of points.
@@ -73,7 +74,7 @@ The fact that the type of the whole function application expression was determin
 {{#example_out Examples/Intro.lean replaceXNatOriginFiveV}}
 ```
 
-# Linked Lists
+## Linked Lists
 
 Lean's standard library includes a canonical linked list datatype, called `List`, and special syntax that makes it more convenient to use.
 Lists are written in square brackets.
@@ -123,7 +124,7 @@ To make it easier to read functions on lists, the bracket notation `[]` can be u
 {{#example_decl Examples/Intro.lean length2}}
 ```
 
-# Implicit Arguments
+## Implicit Arguments
 
 Both `replaceX` and `length` are somewhat bureaucratic to use, because the type argument is typically uniquely determined by the later values.
 Indeed, in most languages, the compiler is perfectly capable of determining type arguments on its own, and only occaisionally needs help from users.
@@ -172,11 +173,11 @@ For instance, a version of `List.length` that only works for lists of integers c
 {{#example_out Examples/Intro.lean lengthExpNat}}
 ```
 
-# More Built-In Datatypes
+## More Built-In Datatypes
 
 In addition to lists, Lean's standard library contains a number of other structures and inductive datatypes that can be used in a variety of contexts.
 
-## `Option`
+### `Option`
 Not every list has a first entry—some lists are empty.
 Many operations on collections may fail to find what they are looking for.
 For instance, a function that finds the first entry in a list may not find any such entry.
@@ -231,7 +232,7 @@ Explicitly providing a type allows Lean to proceed:
 {{#example_out Examples/Intro.lean headNone}}
 ```
 
-## `Prod`
+### `Prod`
 
 The `Prod` structure is a generic way of joining two values together.
 For instance, a `Prod Nat String` contains a `Nat` and a `String`.
@@ -265,7 +266,7 @@ This means that the following definitions are equivalent:
 {{#example_decl Examples/Intro.lean sevensNested}}
 ```
 
-## `Sum`
+### `Sum`
 
 The `Sum` datatype is a generic way of allowing a choice between values of two different types.
 For instance, a `Sum String Int` is either a `String` or an `Int`.
@@ -278,7 +279,7 @@ Values of type `Sum α β` are either the constructor `inl` applied to a value o
 These names are abbreviations for "left injection" and "right injection", respectively.
 Just as the Cartesian product notation is used for `Prod`, a "circled plus" notation is used for `Sum`, so `α ⊕ β` is another way to write `Sum α β`.
 
-## `Unit`
+### `Unit`
 
 `Unit` is a type with just one argumentless constructor, called `unit`.
 In other words, it describes only a single value, which consists of said constructor applied to no arguments.
@@ -291,7 +292,7 @@ The `Unit` type is similar to `void` in languages derived from C.
 In the C family, a function that returns `void` will return control to its caller, but it will not return any interesting value.
 By being an intentionally uninteresting value, `Unit` allows this to be expressed without requiring a special-purpose `void` feature in the type system.
 
-## `Empty`
+### `Empty`
 
 The `Empty` datatype has no constructors whatsoever.
 Thus, it indicates unreachable code, because no series of calls can ever terminate with a value at type `Empty`.
@@ -303,7 +304,7 @@ For instance, `Sum.inl` and `Sum.inr` each use only one of `Sum`'s type argument
 Using `Empty` as one of the type arguments to `Sum` can rule out one of the constructors at a particular point in a program.
 This can allow generic code to be used in contexts that have additional restrictions.
 
-## Naming: Sums, Products, and Units
+### Naming: Sums, Products, and Units
 
 Generally speaking, types that offer multiple constructors are called _sum types_, while types whose single constructor takes multiple arguments are called _product types_.
 These terms are related to sums and products used in ordinary arithmetic.
@@ -315,7 +316,7 @@ Similarly, 2 × 1 = 2, and 2 + 1 = 3.
 
 
 
-# Messages You May Meet
+## Messages You May Meet
 
 Not all definable structures or inductive types can have the type `Type`.
 In particular, if a constructor takes an arbitrary type as an argument, then the inductive type must have a different type.
@@ -342,7 +343,7 @@ yields the message:
 ```
 For technical reasons, allowing these datatypes could make it possible to undermine Lean's use as a logic.
 
-# Exercises
+## Exercises
 
  * Write a function to find the last entry in a list. It should return an `Option`.
  * Write a function that finds the first entry in a list that satisfies a given predicate. Start the definition with `def List.findFirst? {α : Type} (xs : List α) (predicate : α → Bool) : Option α :=`

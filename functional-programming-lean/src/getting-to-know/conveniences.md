@@ -1,6 +1,8 @@
+# Additional Conveniences
+
 Lean contains a number of convenience features that make programs much more concise.
 
-# Automatic Implicit Arguments
+## Automatic Implicit Arguments
 
 When writing polymorphic functions in Lean, it is typically not necessary to list all the implicit arguments.
 Instead, they can simply be mentioned.
@@ -15,7 +17,7 @@ can be written without `{α : Type}`:
 ```
 This can greatly simplify highly polymorphic definitions that take many implicit arguments.
 
-# Pattern-Matching Definitions
+## Pattern-Matching Definitions
 
 When defining functions with `def`, it is quite common to name an argument and then immediately use it with pattern matching.
 For instance, in `length`, the argument `xs` is used only in `match`.
@@ -54,7 +56,7 @@ This function is called `Option.getD` in the standard library, and can be called
 {{#example_out Examples/Intro.lean getDNone}}
 ```
 
-# Local Definitions
+## Local Definitions
 
 It is often useful to name intermediate steps in a computation.
 In many cases, intermediate values represent useful concepts all on their own, and naming them explicitly can make the program easier to read.
@@ -90,7 +92,7 @@ Because pairs have only a single constructor, the name `unzipped` can be replace
 ```
 Judicious use of patterns with `let` can make code easier to read.
 
-# Type Inference
+## Type Inference
 
 In many situations, Lean can automatically determine an expression's type.
 In these cases, explicit types may be omitted from both top-level definitions (with `def`) and local definitions (with `let`).
@@ -169,7 +171,7 @@ Omitting the argument type, however, causes an error:
 In general, messages that say something like "failed to infer" or that mention metavariables are often a sign that more type annotations are necessary.
 Especially while still learning Lean, it is useful to write down many types.
 
-# Simultaneous Matching
+## Simultaneous Matching
 
 Pattern-matching expressions, just like pattern-matching definitions, can match on multiple values at once.
 Both the expressions to be inspected and the patterns that they match against are written with commas between them, similarly to the syntax used for definitions.
@@ -178,7 +180,7 @@ Here is a version of `drop` that uses simultaneous matching:
 {{#example_decl Examples/Intro.lean dropMatch}}
 ```
 
-# Anonymous Functions
+## Anonymous Functions
 
 Functions in Lean need not be defined at the top level.
 As expressions, functions are produced with the `fun` syntax.
@@ -235,7 +237,7 @@ If multiple dots are used, then they become arguments from left to right.
 For instance,
 `{{#example_eval Examples/Intro.lean twoDots}}`
 
-# Namespaces
+## Namespaces
 
 Each name in Lean occurs in a _namespace_, which is a collection of names.
 Names are placed in namespaces using `.`, so `List.map` is the name `map` in the `List` namespace.
@@ -292,7 +294,7 @@ To do this, place the `open ... in` prior to the command.
 Finally, namespaces may be opened for _all_ following commands.
 To do this, simply omit the `in`.
 
-# if let
+## if let
 
 When consuming values that have a sum type, it is often the case that only a single constructor is of interest.
 For instance, given this type that represents a subset of Markdown inline elements:
@@ -311,7 +313,7 @@ This is very much like the pattern-matching `let` syntax.
 The difference is that it can be used with sum types, because a fallback is provided in the `else` case.
 In some contexts, using `if let` instead of `match` can make code easier to read.
 
-# Positional Structure Arguments
+## Positional Structure Arguments
 
 The [section on structures](structures.md) presents two ways of constructing structures:
  1. The constructor can be called directly, as in `{{#example_in Examples/Intro.lean pointCtor}}`.
@@ -324,7 +326,7 @@ A `Point` can be written `{{#example_in Examples/Intro.lean pointPos}}`.
 Be careful!
 Even though they look like the less-than sign `<` and greater-than sign `>`, these brackets are different.
 
-# String Interpolation
+## String Interpolation
 
 In Lean, prefixing a string with `s!` triggers _interpolation_, where expressions contained in curly braces inside the string are replaced with their values.
 This is similar to `f`-strings in Python and `$`-prefixed strings in C#.

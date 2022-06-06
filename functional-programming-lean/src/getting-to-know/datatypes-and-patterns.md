@@ -1,3 +1,4 @@
+# Datatypes and Patterns
 
 Structures enable multiple independent pieces of data to be combined into a coherent whole that is represented by a brand new type.
 Many domain concepts, however, can't be naturally represented as structures.
@@ -66,7 +67,7 @@ class Succ : Nat {
 Just as in the `Bool` example above, this defines more types than the Lean equivalent.
 Additionally, this example highlights how Lean datatype constructors are much more like subclasses of an abstract class than they are like constructors in C# or Java, as the constructor shown here contains initialization code to be executed.
 
-# Pattern Matching
+## Pattern Matching
 
 In many languages, these kinds of data are consumed by first using an instance-of operator to check which subclass has been received and then reading the values of the fields that are available in the given subclass.
 The instance-of check determines which code to run, ensuring that the data needed by this code is available, while the fields themselves provide the data.
@@ -127,7 +128,7 @@ And this `Nat` is the desired predecessor, so the result of the `Nat.succ` branc
 ```
 
 
-# Recursive Functions
+## Recursive Functions
 
 Definitions that refer to the name being defined are called _recursive definitions_.
 Inductive datatypes are allowed to be recursive; indeed, `Nat` is an example of such a datatype because `succ` demands another `Nat`.
