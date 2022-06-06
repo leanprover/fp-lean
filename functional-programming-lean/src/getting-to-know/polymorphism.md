@@ -195,6 +195,9 @@ The non-null constructor, `some`, contains the underlying value, while `none` ta
 
 To find the first entry in a list, if it exists, use `List.head?`.
 The question mark is part of the name.
+In the definition of `List.head?`, an underscore is used to represent the tail of the list.
+In patterns, underscores match anything at all, but do not introduce variables to refer to the matched data.
+Using underscores instead of names is a way to clearly communicate to readers that part of the input is ignored.
 ```Lean
 {{#example_decl Examples/Intro.lean headHuh}}
 ```
