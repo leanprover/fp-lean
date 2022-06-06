@@ -1,6 +1,6 @@
-This chapter introduced the core ideas of programming with Lean.
+# Summary
 
-# Evaluating Expressions
+## Evaluating Expressions
 
 In Lean, computation occurs when expressions are evaluated.
 This follows the usual rules of mathematical expressions: sub-expressions are replaced by their values following the usual order of operations, until the entire expression has become a value.
@@ -10,7 +10,7 @@ Once they have been given a value, variables never change.
 Similarly to mathematics but unlike most programming languages, Lean variables are simply placeholders for values, rather than addresses to which new values can be written.
 Variables' values may come from global definitions with `def`, local definitions with `let`, as named arguments to functions, or from pattern matching.
 
-# Functions
+## Functions
 
 Functions in Lean are first-class values, meaning that they can be passed as arguments to other functions, saved in variables, and used like any other value.
 Every Lean function takes exactly one argument.
@@ -25,7 +25,7 @@ There are three primary ways of creating functions:
    For instance, a function that subtracts one from its argument can be written as `{{#example_in Examples/Intro.lean subOneDots}}` instead of as `{{#example_out Examples/Intro.lean subOneDots}}`.
 3. Functions can be defined using `def` or `let` by adding an argument list or by using pattern-matching notation.
 
-# Types
+## Types
 
 Lean checks that every expression has a type.
 Types, such as `Int`, `Point`, `{α : Type} → Nat → α → List α`, and `Option (String ⊕ (Nat × String))`, describe the values that may eventually be found for an expression.
@@ -46,8 +46,9 @@ Some functions or datatypes take other types as arguments.
 They are called _polymorphic_.
 Polymorphism allows programs such as a one that calculates the length of a list without caring what type the entries in the list have.
 Because types are first class in Lean, polymorphism does not require any special syntax, so types are passed just like other arguments.
+Giving an argument a name in a function type allows later types to mention that argument, and the type of applying that function to an argument is found by replacing the argument's name with the argument's value.
 
-# Structures and Inductive Types
+## Structures and Inductive Types
 
 Brand new datatypes can be introduced to Lean using the `structure` or `inductive` features.
 These new types are not considered to be equivalent to any other type, even if their definitions are otherwise identical.
@@ -58,10 +59,16 @@ Typically, `structure` is used to introduce a product type (that is, a type with
 Datatypes defined with `structure` are provided with one accessor function for each of the constructor's arguments.
 Both structures and inductive datatypes may be consumed with pattern matching, which uses a syntax similar to that used to call constructors in order to examine their contents.
 
-# Recursion
+## Recursion
 
 A definition is recursive when the name being defined is used in the definition itself.
+Because Lean is an interactive theorem prover in addition to being a programming language, there are certain restrictions placed on recursive definitions.
+In Lean's logical side, circular definitions could lead to logical inconsistency.
 
-Termination and well-foundedness
+In order to ensure that recursive definitions do not undermine the logical side of Lean, Lean must be able to prove that all recursive functions terminate, no matter what arguments they are called with.
+In practice, this means either that recursive calls are all performed on a structurally-smaller piece of the input, which ensures that there is always progress towards a base case, or that users must provide some other evidence that the function always terminates.
+Similarly, recursive inductive types are not allowed to have a constructor that takes a function _from_ the type as an argument.
 
-Recursive types and positivity
+
+
+
