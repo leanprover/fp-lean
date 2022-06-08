@@ -8,6 +8,10 @@ This version of the text is written for Lean version `4.0.0-nightly-2022-06-04`,
 
 ## Release history
 
+### July, 2022
+
+The second public release completes the first chapter.
+
 ### June, 2022
 
 This was the first public release, consisting of an introduction and part of the first chapter.
