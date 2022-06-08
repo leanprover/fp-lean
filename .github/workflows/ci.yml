@@ -47,7 +47,7 @@ jobs:
     - name: Setup mdBook
       uses: peaceiris/actions-mdbook@v1
       with:
-        mdbook-version: '0.4.18'
+        mdbook-version: '0.4.17'
 
     - name: Install mdbook-wordcount
       uses: baptiste0928/cargo-install@v1
