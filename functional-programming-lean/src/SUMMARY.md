@@ -12,4 +12,6 @@
   - [Polymorphism](./getting-to-know/polymorphism.md)
   - [Additional Conveniences](./getting-to-know/conveniences.md)
   - [Summary](./getting-to-know/summary.md)
-- [Hello, World!]()
+- [Hello, World!](./hello-world.md)
+  - [Running a Program](./hello-world/running-a-program.md)
+  - [Starting a Project](./hello-world/starting-a-project.md)
