@@ -1,5 +1,5 @@
 FROM fedora:latest
-RUN dnf install -y git
+RUN dnf install -y git expect
 COPY . /lean-book
 WORKDIR /lean-book/cmdline
 RUN curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf > elan-init.sh

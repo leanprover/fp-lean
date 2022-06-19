@@ -9,7 +9,7 @@ import sys
 def eprint(val):
     print(val, file=sys.stderr)
 
-command_re = re.compile(r'\{\{#command\s+\{(?P<dir>[^}]+)\}\s*\{(?P<container>[^}]+)\}\s*\{(?P<command>[^}]+)\}\s*\}\}')
+command_re = re.compile(r'\{\{#command\s+\{(?P<dir>[^}]+)\}\s*\{(?P<container>[^}]+)\}\s*\{(?P<command>[^}]+)\}\s*(\{(?P<show>[^}]+)\}\s*)?\}\}')
 command_out_re = re.compile(r'\{\{#command_out\s+\{(?P<container>[^}]+)\}\s*\{(?P<command>[^}]+)\}\s*\}\}')
 
 
@@ -51,6 +51,7 @@ class ContainerContext:
             self.ensure_container(container)
             directory = found.group('dir')
             command = found.group('command')
+            show = found.group('show')
             try:
                 val = subprocess.run(["podman", "exec", "-w", f"/lean-book/{directory}", container] + shlex.split(command), check=True, capture_output=True)
             except subprocess.CalledProcessError as e:
@@ -62,7 +63,10 @@ class ContainerContext:
 
             if container not in self.outputs: self.outputs[container] = {}
             self.outputs[container][command] = val.stdout.decode('utf-8')
-            return command
+            if show is None:
+                return command
+            else:
+                return show
 
         return rewrite
 
