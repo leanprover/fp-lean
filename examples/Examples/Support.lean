@@ -89,7 +89,6 @@ def nats : (min : Nat) -> (howMany : Nat) -> List Nat
 
 def Std.PersistentArray.getN! [Inhabited α] (arr : Std.PersistentArray α) (howMany : Nat) : List α := nats 0 howMany |> List.map (fun i => arr.get! i)
 
-
 syntax withPosition("expect" "error" "{{{" ws ident ws "}}}" colGt command "message" str "end" "expect") : command
 syntax withPosition("expect" "error" colGt command "message" str "end" "expect") : command
 
@@ -130,7 +129,6 @@ but is expected to have type
   Nat : Type"
 end expect
 
-
 syntax withPosition("expect" "info" "{{{" ws ident ws "}}}" colGt command "message" str "end" "expect") : command
 syntax withPosition("expect" "info" colGt command "message" str "end" "expect") : command
 
@@ -165,6 +163,22 @@ message
   "1 + 2 : Nat"
 end expect
 
+syntax withPosition("expect" "eval" "info" "{{{" ws ident ws "}}}" colGt term "message" str "end" "expect") : command
+syntax withPosition("expect" "eval" "info" colGt term "message" str "end" "expect") : command
+
+macro_rules
+  | `(expect eval info {{{ $name:ident }}} $expr:term message $msg:str end expect) =>
+    `(expect info {{{ $name }}} #eval ($expr) message $msg end expect)
+  | `(expect eval info $expr:term message $msg:str end expect) =>
+    `(expect info #eval ($expr) message $msg end expect)
+
+expect eval info {{{ foo }}}
+  IO.println "hej" >>= fun _ => IO.println "med dig"
+message
+"hej
+med dig
+"
+end expect
 
 syntax withPosition("evaluation" "steps" "{{{" ws ident ws "}}}" sepBy1(colGt term, "===>") "end" "evaluation" "steps"): command
 elab_rules : command
@@ -192,6 +206,30 @@ evaluation steps {{{ foo }}}
   4
 end evaluation steps
 
+syntax withPosition("evaluation" "steps" ":" term "{{{" ws ident ws "}}}" sepBy1(colGt term, "===>") "end" "evaluation" "steps"): command
+elab_rules : command
+  | `(evaluation steps : $ty {{{ $name }}} $[ $exprs ]===>* end evaluation steps) =>
+    open Lean.Elab.Command in
+    open Lean.Elab.Term in
+    open Lean in
+    open Lean.Meta in do
+      let expected <- liftTermElabM `evaluationSteps (elabTerm ty none)
+      let mut current : Option Syntax := none
+      for item in exprs do
+        if let some v := current then
+          liftTermElabM `evaluationSteps do
+            let x <- elabTerm item (some expected)
+            let y <- elabTerm v (some expected)
+            synthesizeSyntheticMVarsNoPostponing
+            unless (← isDefEq x y) do
+              throwError "Example reduction step {y} ===> {x} is incorrect\n----------\n\t {(← whnf y)}\n ≠\n\t {(← whnf x)}\n----------\n\t {(← reduceAll y)}\n ≠\n\t {(← reduceAll x)}"
+        current := some item
+
+evaluation steps : IO Unit {{{ thingy }}}
+  let x := 5; IO.println s!"{x}"
+  ===>
+  IO.println "5"
+end evaluation steps
 
 def zipSameLength : List α → List β → Option (List (α × β))
   | [], [] => some []

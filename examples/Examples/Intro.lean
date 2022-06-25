@@ -913,6 +913,11 @@ similar datatypes Sum StdLibNoUni.Sum
 similar datatypes PUnit StdLibNoUni.Unit
 similar datatypes Empty StdLibNoUni.Empty
 
+bookExample type {{{ unitParens }}}
+  ()
+  ===>
+  Unit
+end bookExample
 
 
 namespace Floop

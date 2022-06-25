@@ -25,12 +25,12 @@ example_decl_start_re = re.compile(r'book\s+declaration\s+\{\{\{\s*(?P<name>[a-z
 example_decl_end_re = re.compile(r'stop\s+book\s+declaration')
 
 # Regexps for expected info/errors
-expect_start_re = re.compile(r'expect\s+(info|error)\s+\{\{\{\s*(?P<name>[a-zA-Z0-9_]+)\s*\}\}\}')
+expect_start_re = re.compile(r'expect\s+(eval\s+)?(info|error)\s+\{\{\{\s*(?P<name>[a-zA-Z0-9_]+)\s*\}\}\}')
 expect_middle_re = re.compile(r'message')
 expect_end_re = re.compile(r'end\s+expect')
 
 # Regexps for evaluation sequences
-eval_start_re = re.compile(r'evaluation\s+steps\s+\{\{\{\s*(?P<name>[a-zA-Z0-9_]+)\s*\}\}\}')
+eval_start_re = re.compile(r'evaluation\s+steps\s+(:[^{]+)?\{\{\{\s*(?P<name>[a-zA-Z0-9_]+)\s*\}\}\}')
 eval_middle_re = re.compile(r'===>')
 eval_end_re = re.compile(r'end\s+evaluation steps')
 

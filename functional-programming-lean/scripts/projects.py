@@ -43,7 +43,8 @@ class ContainerContext:
                 eprint(e.stderr)
 
                 raise e
-            self.containers.add(name)
+            finally:
+                self.containers.add(name)
 
     def rewrite_command(self, project_root):
         def rewrite(found):

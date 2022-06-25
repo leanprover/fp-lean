@@ -291,6 +291,7 @@ Additionally, a function that takes `Unit` as an argument is a way to express a 
 The `Unit` type is similar to `void` in languages derived from C.
 In the C family, a function that returns `void` will return control to its caller, but it will not return any interesting value.
 By being an intentionally uninteresting value, `Unit` allows this to be expressed without requiring a special-purpose `void` feature in the type system.
+Unit's constructor can be written as empty parentheses: `{{#example_in Examples/Intro.lean unitParens}} : {{#example_out Examples/Intro.lean unitParens}}`.
 
 ### `Empty`
 

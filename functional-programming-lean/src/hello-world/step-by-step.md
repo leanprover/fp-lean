@@ -55,10 +55,25 @@ The resulting line (`"David\n"`) is associated with `input`, where `\n` is the n
 The next line, `{{#include ../../../examples/hello-name/HelloName.lean:line5}}`, is a `let` statement that uses `:=` instead of `←`.
 This means that the expression will be evaluated, but the result need not be an `IO` action and will not be executed.
 In this case, `String.dropRightWhile` takes a string and a predicate over characters and returns a new string from which all the characters that satisfy the predicate have been removed.
-In this case, all whitespace characters (including the newline) are removed from the right side of the input string, resulting in `"David"`, which is associated with `name` for the remainder of the block.
+For example,
+```Lean
+{{#example_in Examples/HelloWorld.lean dropBang}}
+```
+yields
+```Lean info
+{{#example_out Examples/HelloWorld.lean dropBang}}
+```
+and
+```Lean
+{{#example_in Examples/HelloWorld.lean dropNonLetter}}
+```
+yields
+```Lean info
+{{#example_out Examples/HelloWorld.lean dropNonLetter}}
+```
+in which all non-letter characters have been removed from the right side of the string.
+In the current line of the program, whitespace characters (including the newline) are removed from the right side of the input string, resulting in `"David"`, which is associated with `name` for the remainder of the block.
 In a `do` block, `let` statements that use `:=` are essentially the same as `let` expressions in ordinary Lean code, with the only difference being that the local name is available in any number of statements rather than just in one expression.
-
-**TODO** - show some examples of the function `dropRightWhile`
 
 
 
@@ -72,6 +87,81 @@ The string argument to `putStrLn` is constructed via string interpolation, yield
 Because this statement is an expression, it is evaluated to yield an `IO` action that will print this string with a newline to standard output.
 Once the expression has been evaluated, the resulting `IO` action is executed, resulting in the greeting.
 
-## TODO
+## `IO` Actions as Values
 
- * List of IO actions - show when they are executed!
+In the above description, it can be difficult to see why the distinction between evaluating expressions and executing `IO` actions is necessary.
+After all, each action is executed immediately after it is produced.
+Why not simply carry out the effects during evaluation, as is done in other languages?
+
+The answer is twofold.
+First off, separating evaluation from execution allows execution to be "turned off", resulting in programs that more closely match mathematical reasoning.
+Secondly, not all `IO` actions need be executed at the time that they come into existence.
+The ability to mention an action without carrying it out allows ordinary functions to be used as control structures.
+
+For instance, the function `twice` takes an `IO` action as its argument, returning a new action that will execute the first one twice.
+```Lean
+{{#example_decl Examples/HelloWorld.lean twice}}
+```
+For instance, executing
+```Lean
+{{#example_in Examples/HelloWorld.lean twiceShy}}
+```
+results in
+```Lean info
+{{#example_out Examples/HelloWorld.lean twiceShy}}
+```
+being printed.
+This can be generalized to a version that runs the underlying action any number of times:
+```Lean
+{{#example_decl Examples/HelloWorld.lean nTimes}}
+```
+In the base case for `Nat.zero`, the result is `pure ()`.
+The function `pure` creates an `IO` action that does nothing, but returns `pure`'s argument, which in this case is the constructor for `Unit`.
+As an action that does nothing and returns nothing interesting, `pure ()` is at the same time utterly boring and very useful.
+In the recursive step, a `do` block is used to create an action that first executes `action` and then executes the result of the recursive call.
+Executing `{{#example_in Examples/HelloWorld.lean nTimes3}}` causes the following output:
+```Lean info
+{{#example_out Examples/HelloWorld.lean nTimes3}}
+```
+
+In addition to using functions as control structures, the fact that `IO` actions are first-class values means that they can be saved in data structures for later execution.
+For instance, the function `countdown` takes a `Nat` and returns a list of unexecuted `IO` actions, one for each `Nat`:
+```Lean
+{{#example_decl Examples/HelloWorld.lean countdown}}
+```
+This function has no side effects, and does not print anything.
+For example, it can be applied to an argument, and the length of the resulting list of actions can be checked:
+```Lean
+{{#example_decl Examples/HelloWorld.lean from5}}
+```
+This list contains six elements (one for each number, plus a `"Blast off!"` action for zero):
+```Lean
+{{#example_in Examples/HelloWorld.lean from5length}}
+```
+```Lean info
+{{#example_out Examples/HelloWorld.lean from5length}}
+```
+
+The function `runActions` takes a list of actions and constructs a single action that runs them all in order:
+```Lean
+{{#example_decl Examples/HelloWorld.lean runActions}}
+```
+It's structure is essentially the same as that of `nTimes`, except instead of having one action that is executed for each `Nat.succ`, the action under each `List.cons` is to be executed.
+Similarly, `runActions` does not itself run the actions.
+It creates a new action that will run them, and that action must be placed in a position where it will be executed as a part of `main`:
+```Lean
+{{#example_decl Examples/HelloWorld.lean main}}
+```
+Running this program results in the following output:
+```Lean info
+{{#example_out Examples/HelloWorld.lean countdown5}}
+```
+
+What happens when this program is run?
+The first step is to evaluate `main`. That occurs as follows:
+```Lean
+{{#example_eval Examples/HelloWorld.lean evalMain}}
+```
+The resulting `IO` action is a `do` block.
+Each step of the `do` block is then executed, one at a time, yielding the expected output.
+The final step, `pure ()`, does not have any effects, and it is only present because the definition of `runActions` needs a base case.
