@@ -17,7 +17,7 @@ example_decl_re = re.compile(r'\{\{#example_decl\s+(?P<file>[^\s]+)\s+(?P<name>[
 
 # Regexps for book examples
 example_start_re = re.compile(r'bookExample\s+(type\s+)?(:[^{]+)?\{\{\{\s*(?P<name>[a-zA-Z0-9_]+)\s*\}\}\}')
-example_middle_re = re.compile(r'===>')
+example_middle_re = re.compile(r'===>|<===')
 example_end_re = re.compile(r'end\s+bookExample')
 
 # Regexps for definitions etc
