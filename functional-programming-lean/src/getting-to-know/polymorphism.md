@@ -5,9 +5,10 @@ For instance, the type `List Nat` describes lists of natural numbers, `List Stri
 This is very similar to `List<Nat>`, `List<String>`, or `List<List<Point>>` in a language like C# or Java.
 Just as Lean uses a space to pass an argument to a function, it uses a space to pass an argument to a type.
 
-In functional programming, the term _polymorphism_ typically refers to datatypes and definitions that can be instantiated at multiple types.
+In functional programming, the term _polymorphism_ typically refers to datatypes and definitions that take types as arguments.
 This is different from the object-oriented programming community, where the term typically refers to subclasses that may override some behavior of their superclass.
 In this book, "polymorphism" always refers to the first sense of the word.
+These type arguments can be used in the datatype or definition, which allows the same datatype or definition to be used with any type that results from replacing the arguments' names with some other types.
 
 The `Point` structure requires that both the `x` and `y` fields are `Float`s.
 There is, however, nothing about points that require a specific representation for each coordinate.
