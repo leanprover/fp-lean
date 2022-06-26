@@ -196,6 +196,14 @@ The non-null constructor, `some`, contains the underlying value, while `none` ta
 {{#example_decl Examples/Intro.lean Option}}
 ```
 
+The `Option` type is very similar to nullable types in languages like C# and Kotlin, but it is not identical.
+In these languages, if a type (say, `Boolean`) always refers to actual values of the type (`true` and `false`), the type `Boolean?` or `Nullable<Boolean>` additionally admits the `null` value.
+Tracking this in the type system is very useful: the type checker and other tooling can help programmers remember to check for null, and APIs that explicitly describe nullability through type signatures are more informative than ones that don't.
+However, these nullable types differ from Lean's `Option` in one very important way, which is that they don't allow multiple layers of optionality.
+`{{#example_out Examples/Intro.lean nullThree}}` can be constructed with `{{#example_in Examples/Intro.lean nullOne}}`, `{{#example_in Examples/Intro.lean nullTwo}}`, or `{{#example_in Examples/Intro.lean nullThree}}`.
+C#, on the other hand, forbids multiple layers of nullability by only allowing `?` to be added to non-nullable types, while Kotlin treats `T??` as being equivalent to `T?`.
+This subtle difference is rarely relevant in practice, but it can matter from time to time.
+
 To find the first entry in a list, if it exists, use `List.head?`.
 The question mark is part of the name.
 In the definition of `List.head?`, an underscore is used to represent the tail of the list.

@@ -82,6 +82,16 @@ bookExample type {{{ three }}}
   Nat
 end bookExample
 
+syntax withPosition("bookExample" "type" "{{{" ws ident ws "}}}" colGt term:60 colGt "<===" colGt term:60 "end bookExample") : command
+
+elab_rules : command
+  | `(bookExample type {{{ $name:ident }}} $x:term <=== $y:term end bookExample) =>
+    open Lean.Elab.Command in
+    open Lean.Elab.Term in
+    open Lean.Meta in liftTermElabM `bookExample do
+      let y ← elabTerm y none
+      let _ ← elabTerm x (some y)
+      synthesizeSyntheticMVarsNoPostponing
 
 def nats : (min : Nat) -> (howMany : Nat) -> List Nat
   | n, Nat.zero => [n]

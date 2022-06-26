@@ -915,6 +915,25 @@ similar datatypes Empty StdLibNoUni.Empty
 
 
 
+bookExample type {{{ nullOne }}}
+  none
+  ===>
+  Option (Option Int)
+end bookExample
+
+bookExample type {{{ nullTwo }}}
+  some none
+  ===>
+  Option (Option Int)
+end bookExample
+
+bookExample type {{{ nullThree }}}
+  some (some 360)
+  <===
+  Option (Option Int)
+end bookExample
+
+
 namespace Floop
 
 
@@ -938,9 +957,9 @@ message
 "expression
   _root_.List.head? []
 has type
-  Option ?m.13533
+  Option ?m.13561
 but instance
-  Lean.MetaEval (Option ?m.13533)
+  Lean.MetaEval (Option ?m.13561)
 failed to be synthesized, this instance instructs Lean on how to display the resulting value, recall that any type implementing the `Repr` class also implements the `Lean.MetaEval` class"
 end expect
 
