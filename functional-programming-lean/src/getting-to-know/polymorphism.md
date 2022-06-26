@@ -249,9 +249,10 @@ The standard pair structure is called `Prod`.
 ```Lean
 {{#example_decl Examples/Intro.lean Prod}}
 ```
-However, just as list values are typically built using square brackets and the double-colon operator, there is special syntax for the `Prod` type.
-In particular, `Prod α β` is typically written `α × β`, mirroring the usual notation for a Cartesian product of sets.
-Similarly, instead of requiring explicit structure notation, the usual mathematical notation for pairs is available for `Prod`.
+Lists are used so frequently that there is special syntax to make them more readable.
+For the same reason, both the product type and its constructor have special syntax.
+The type `Prod α β` is typically written `α × β`, mirroring the usual notation for a Cartesian product of sets.
+Similarly, the usual mathematical notation for pairs is available for `Prod`.
 In other words, instead of writing:
 ```Lean
 {{#example_decl Examples/Intro.lean fivesStruct}}
@@ -260,6 +261,7 @@ it suffices to write:
 ```Lean
 {{#example_decl Examples/Intro.lean fives}}
 ```
+
 Both notations are right-associative.
 This means that the following definitions are equivalent:
 ```Lean
@@ -267,6 +269,7 @@ This means that the following definitions are equivalent:
 
 {{#example_decl Examples/Intro.lean sevensNested}}
 ```
+In other words, all products of more than two types, and their corresponding constructors, are actually nested products and nested pairs behind the scenes.
 
 ### `Sum`
 
