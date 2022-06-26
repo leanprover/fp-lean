@@ -1,7 +1,7 @@
 # Starting a Project
 
 As a program written in Lean becomes more serious, an ahead-of-time compiler-based workflow that results in an executable becomes more attractive.
-The standard Lean build tool is called `lake`, and it is configured in Lean.
+The standard Lean build tool is called Lake (short for "Lean Make"), and it is configured in Lean.
 Just as Lean contains a special-purpose language for writing programs with effects (the `do` language), Lake contains a special-purpose for configuring builds.
 These languages are referred to as _embedded domain-specific languages_ (or sometimes _domain-specific embedded languages_, abbreviated EDSL or DSEL).
 The are _domain-specific_ in the sense that they are used for a particular purpose, with concepts from some sub-domain, and they are typically not suitable for general-purpose programming.
@@ -10,7 +10,7 @@ While Lean contains rich facilities for creating EDSLs, they are beyond the scop
 
 ## First steps
 
-To get started with a project that uses `lake`, run the command `{{#command {first-lake} {lake} {lake new greeting} }}` in a directory that does not already contain a file or directory called `greeting`.
+To get started with a project that uses Lake, the command `{{#command {first-lake} {lake} {lake new greeting} }}` in a directory that does not already contain a file or directory called `greeting`.
 This creates a directory called `greeting` that contains the following files:
 
  * `Main.lean` is the file in which the Lean compiler will look for the `main` action.
@@ -40,4 +40,15 @@ To build the package, run the command `{{#command {first-lake/greeting} {lake} {
 After a number of build commands scroll by, the resulting binary has been placed in `build/bin`.
 Running `{{#command {first-lake/greeting} {lake} {./build/bin/greeting} }}` results in `{{#command_out {lake} {./build/bin/greeting} }}`.
 
-## 
+## Lakefiles
+
+A `lakefile.lean` describes a _package_, which is a coherent collection of Lean code for distribution, analogous to an `npm` or `nuget` package or a Rust crate.
+A package may contain any number of libraries or executables.
+While the [documentation for Lake](https://github.com/leanprover/lake#readme) describes the available options in a lakefile, it makes use of a number of Lean features that have not yet been described here.
+
+The initial Lakefile consists of three items:
+
+
+## Imports
+
+
