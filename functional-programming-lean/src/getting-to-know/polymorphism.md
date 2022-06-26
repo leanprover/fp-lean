@@ -25,7 +25,8 @@ Just like `List`, `PPoint` can be used by providing a specific type as its argum
 {{#example_decl Examples/Intro.lean natPoint}}
 ```
 In this example, both fields are expected to be `Nat`s.
-Just as a function is called by replacing its argument variables with its argument values, providing `PPoint` with the type `Nat` as an argument yields a structure in which the fields `x` and `y` should have the type `Nat`, because the argument name `α` has been replaced by the argument type `Nat`.
+Just as a function is called by replacing its argument variables with its argument values, providing `PPoint` with the type `Nat` as an argument yields a structure in which the fields `x` and `y` have the type `Nat`, because the argument name `α` has been replaced by the argument type `Nat`.
+Because types are ordinary expressions in Lean, passing arguments to polymorphic types (like `PPoint`) doesn't require any special syntax.
 
 Definitions may also take types as arguments, which makes them polymorphic.
 While some languages have separate notations for type arguments and other arguments, Lean uses a single uniform notation for all arguments.
