@@ -94,7 +94,7 @@ Judicious use of patterns with `let` can make code easier to read, compared to w
 The biggest difference between `let` and `def` is that recursive `let` definitions must be explicitly indicated by writing `let rec`.
 For instance, one way to reverse a list involves a recursive helper function, as in this definition:
 ```Lean
-{{#example_decl Examples/Intro.lean rev}}
+{{#example_decl Examples/Intro.lean reverse}}
 ```
 The helper function walks down the input list, moving one entry at a time over to `soFar`.
 When it reaches the end of the input list, `soFar` contains a reversed version of the input.
@@ -128,7 +128,7 @@ The more explicit a program is about its types, the more informative the error m
 This is especially important in a language like Lean that has a very expressive type system.
 Thirdly, explicit types make it easier to write the program in the first place.
 The type is a specification, and the compiler's feedback can be a helpful tool in writing a program that meets the specification.
-Finally, Lean's type reconstruction is a best-effort system.
+Finally, Lean's type inference is a best-effort system.
 Because Lean's type system is so expressive, there is no "best" or most general type to find for all expressions.
 This means that even if you get a type, there's no guarantee that it's the _right_ type for a given application.
 For instance, `14` can be a `Nat` or an `Int`:
@@ -155,7 +155,7 @@ leads to a message about the `match` expression:
 {{#example_out Examples/Intro.lean unzipNoTypesAtAll}}
 ```
 This is because `match` needs to know the type of the value being inspected, but that type was not available.
-A "metavariable" is an unknown part of a program, written `?m.XYZ` in error messages—they are described in the [section on Polymorphism](getting-to-know/polymorphism.md).
+A "metavariable" is an unknown part of a program, written `?m.XYZ` in error messages—they are described in the [section on Polymorphism](polymorphism.md).
 In this program, the type annotation on the argument is required.
 
 Even some very simple programs require type annotations.
