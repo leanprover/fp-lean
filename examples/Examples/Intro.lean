@@ -1251,6 +1251,14 @@ book declaration {{{ unzip }}}
       (x :: unzipped.fst, y :: unzipped.snd)
 stop book declaration
 
+book declaration {{{ reverse }}}
+def reverse (xs : List α) : List α :=
+  let rec helper : List α → List α → List α
+    | [], soFar => soFar
+    | y :: ys, soFar => helper ys (y :: soFar);
+  helper xs []
+stop book declaration
+
 namespace WithPattern
 book declaration {{{ unzipPat }}}
   def unzip : List (α × β) → List α × List β
@@ -1261,15 +1269,6 @@ book declaration {{{ unzipPat }}}
 stop book declaration
 end WithPattern
 
-def rev : List α → List α
-  | [] => []
-  | x :: xs => rev xs ++ [x]
-
-def reverse (xs : List α) : List α :=
-  let rec helper (acc : List α) : List α → List α
-    | [] => acc
-    | y :: ys => helper (y :: acc) ys;
-  helper [] xs
 
 
 namespace NT
