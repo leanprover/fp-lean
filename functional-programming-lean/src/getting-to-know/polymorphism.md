@@ -129,7 +129,7 @@ To make it easier to read functions on lists, the bracket notation `[]` can be u
 ## Implicit Arguments
 
 Both `replaceX` and `length` are somewhat bureaucratic to use, because the type argument is typically uniquely determined by the later values.
-Indeed, in most languages, the compiler is perfectly capable of determining type arguments on its own, and only occaisionally needs help from users.
+Indeed, in most languages, the compiler is perfectly capable of determining type arguments on its own, and only occasionally needs help from users.
 This is also the case in Lean.
 Arguments can be declared _implicit_ by wrapping them in curly braces instead of parentheses when defining a function.
 For instance, a version of `replaceX` with an implicit type argument looks like this:
@@ -205,15 +205,16 @@ C#, on the other hand, forbids multiple layers of nullability by only allowing `
 This subtle difference is rarely relevant in practice, but it can matter from time to time.
 
 To find the first entry in a list, if it exists, use `List.head?`.
-The question mark is part of the name.
+The question mark is part of the name, and is not related to the use of question marks to indicate nullable types in C# or Kotlin.
 In the definition of `List.head?`, an underscore is used to represent the tail of the list.
 In patterns, underscores match anything at all, but do not introduce variables to refer to the matched data.
 Using underscores instead of names is a way to clearly communicate to readers that part of the input is ignored.
 ```Lean
 {{#example_decl Examples/Intro.lean headHuh}}
 ```
-A Lean convention is to define operations that might fail in groups.
-For instance, `head` requires the caller to provide mathematical evidence that the list is not empty, `head?` returns an `Option`, `head!` crashes the program when passed an empty list, and `headD` takes a default value to return when the operation would otherwise fail.
+A Lean naming convention is to define operations that might fail in groups using the suffixes `?` for a version that returns an `Option`, `!` for a version that crashes when provided with invalid input, and `D` for a version that returns a default value when the operation would otherwise fail.
+For instance, `head` requires the caller to provide mathematical evidence that the list is not empty, `head?` returns an `Option`, `head!` crashes the program when passed an empty list, and `headD` takes a default value to return in case the list is empty.
+The question mark and exclamation mark are part of the name, not special syntax, as Lean's naming rules are more liberal than many languages.
 
 Because `head?` is defined in the `List` namespace, it can be used with accessor notation:
 ```Lean
@@ -244,9 +245,10 @@ Explicitly providing a type allows Lean to proceed:
 
 ### `Prod`
 
-The `Prod` structure is a generic way of joining two values together.
+The `Prod` structure, short for "Product", is a generic way of joining two values together.
 For instance, a `Prod Nat String` contains a `Nat` and a `String`.
 In other words, `PPoint Nat` could be replaced by `Prod Nat Nat`.
+`Prod` is very much like C#'s tuples, the `Pair` and `Triple` types in Kotlin, and `tuple` in C++.
 Many applications are best served by defining their own structures, even for simple cases like `Point`, because using domain terminology can make it easier to read the code.
 
 On the other hand, there are some cases where it is not worth the overhead of defining a new type.
@@ -279,6 +281,8 @@ This means that the following definitions are equivalent:
 ```
 In other words, all products of more than two types, and their corresponding constructors, are actually nested products and nested pairs behind the scenes.
 
+
+
 ### `Sum`
 
 The `Sum` datatype is a generic way of allowing a choice between values of two different types.
@@ -291,15 +295,44 @@ Values of type `Sum α β` are either the constructor `inl` applied to a value o
 ```
 These names are abbreviations for "left injection" and "right injection", respectively.
 Just as the Cartesian product notation is used for `Prod`, a "circled plus" notation is used for `Sum`, so `α ⊕ β` is another way to write `Sum α β`.
+There is no special syntax for `Sum.inl` and `Sum.inr`.
+
+For instance, if pet names can either be dog names or cat names, then a type for them can be introduced as a sum of strings:
+```Lean
+{{#example_decl Examples/Intro.lean PetName}}
+```
+In a real program, it would usually be better to define a custom inductive datatype for this purpose with informative constructor names.
+Here, `Sum.inl` is to be used for dog names, and `Sum.inr` is to be used for cat names.
+These constructors can be used to write a list of animal names:
+```Lean
+{{#example_decl Examples/Intro.lean animals}}
+```
+Pattern matching can be used to distinguish between the two constructors.
+For instance, a function that counts the number of dogs in a list of animal names (that is, the number of `Sum.inl` constructors) looks like this:
+```Lean
+{{#example_decl Examples/Intro.lean howManyDogs}}
+```
+As expected, `{{#example_in Examples/Intro.lean dogCount}}` yields `{{#example_out Examples/Intro.lean dogCount}}`.
 
 ### `Unit`
 
 `Unit` is a type with just one argumentless constructor, called `unit`.
-In other words, it describes only a single value, which consists of said constructor applied to no arguments.
+In other words, it describes only a single value, which consists of said constructor applied to no arguments whatsoever.
+`Unit` is defined as follows:
+```Lean
+{{#example_decl Examples/Intro.lean Unit}}
+```
+
 On its own, `Unit` is not particularly useful.
-However, in polymorphic code, it can be used as a placeholder for data that will be inserted in a later stage of a program.
-For instance, a `List Unit` does not contain anything interesting, but it can express how many entries are expected, and they can be inserted later.
-Additionally, a function that takes `Unit` as an argument is a way to express a block of code that can be executed on-demand.
+However, in polymorphic code, it can be used as a placeholder for data that is missing.
+For instance, the following inductive datatype represents arithmetic expressions:
+```Lean
+{{#example_decl Examples/Intro.lean ArithExpr}}
+```
+The type argument `ann` stands for annotations, and each constructor is annotated.
+Expressions coming from a parser might be annotated with source locations, so a return type of `ArithExpr SourcePos` ensures that the parser put a `SourcePos` at each subexpression.
+Expressions that don't come from the parser, however, will not have source locations, so their type can be `ArithExpr Unit`.
+Additionally, because all Lean functions have arguments, zero-argument functions in other languages can be represented as functions that take a `Unit` argument.
 
 The `Unit` type is similar to `void` in languages derived from C.
 In the C family, a function that returns `void` will return control to its caller, but it will not return any interesting value.
@@ -327,8 +360,6 @@ For instance, `Bool` has two values: `true` and `false`, and `Unit` has one valu
 The product `Bool × Unit` has the two values `(true, Unit.unit)` and `(false, Unit.unit)`, and the sum `Bool ⊕ Unit` has the three values `Sum.inl true`, `Sum.inl false`, and `Sum.inr unit`.
 Similarly, 2 × 1 = 2, and 2 + 1 = 3.
 
-
-
 ## Messages You May Meet
 
 Not all definable structures or inductive types can have the type `Type`.
@@ -354,7 +385,25 @@ yields the message:
 ```Lean error
 {{#example_out Examples/Intro.lean Positivity}}
 ```
-For technical reasons, allowing these datatypes could make it possible to undermine Lean's use as a logic.
+For technical reasons, allowing these datatypes could make it possible to undermine Lean's internal logic, making it unsuitable for use as a theorem prover.
+
+Forgetting an argument to an inductive type can also yield a confusing message.
+For instance, the argument `α` is not passed to `MyType` in `ctor`'s type:
+```Lean
+{{#example_in Examples/Intro.lean MissingTypeArg}}
+```
+Lean replies with the following error:
+```Lean error
+{{#example_out Examples/Intro.lean MissingTypeArg}}
+```
+This error occurs because Lean contains an extensible set of rules for "punning" between different types, which allows convenient mathematical notation such as using a type that represents an algebraic structure in a context where its carrier set is expected.
+The error message is saying that `MyType`'s type, which is `Type → Type`, has no such rules.
+The same message can appear when type arguments are omitted in other contexts, such as in a type signature for a definition:
+```Lean
+{{#example_decl Examples/Intro.lean MyTypeDef}}
+
+{{#example_in Examples/Intro.lean MissingTypeArg2}}
+```
 
 ## Exercises
 
@@ -363,5 +412,5 @@ For technical reasons, allowing these datatypes could make it possible to underm
  * Write a function `Prod.swap` that swaps the two fields in a pair. Start the definition with `def Prod.swap {α β : Type} (pair : α × β) : β × α :=` 
  * Write a function `zip` that combines two lists into a list of pairs. The resulting list should be as long as the shortest input list. Start the definition with `def zip {α β : Type} (xs : List α) (ys : List β) : List (α × β) :=`.
  * Write a polymorphic function `take` that returns the first _n_ entries in a list, where _n_ is a `Nat`. If the list contains fewer than `n` entries, then the resulting list should be the input list. `{{#example_in Examples/Intro.lean takeThree}}` should yield `{{#example_out Examples/Intro.lean takeThree}}`, and `{{#example_in Examples/Intro.lean takeOne}}` should yield `{{#example_out Examples/Intro.lean takeOne}}`.
- * Write a function that distributes products over sums. In other words, it should have type `α × (β ⊕ γ) → (α × β) ⊕ (α × γ)`.
- * Write a function that shows how 2 × _x_ = _x_ + _x_. It should have type `Bool × α → α ⊕ α`.
+ * Using the analogy between types and arithmetic, write a function that distributes products over sums. In other words, it should have type `α × (β ⊕ γ) → (α × β) ⊕ (α × γ)`.
+ * Using the analogy between types and arithmetic, write a function that turns multiplication by two into a sum. In other words, it should have type `Bool × α → α ⊕ α`.
