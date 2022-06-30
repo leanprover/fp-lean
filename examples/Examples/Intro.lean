@@ -900,8 +900,10 @@ book declaration {{{ Sum }}}
     | inr : β → Sum α β
 stop book declaration
 
-inductive Unit : Type where
-  | unit : Unit
+book declaration {{{ Unit }}}
+  inductive Unit : Type where
+    | unit : Unit
+stop book declaration
 
 inductive Empty : Type where
 
@@ -913,12 +915,44 @@ similar datatypes Sum StdLibNoUni.Sum
 similar datatypes PUnit StdLibNoUni.Unit
 similar datatypes Empty StdLibNoUni.Empty
 
+book declaration {{{ PetName }}}
+  def PetName : Type := String ⊕ String
+stop book declaration
+
+book declaration {{{ animals }}}
+  def animals : List PetName :=
+    [Sum.inl "Spot", Sum.inr "Tiger", Sum.inl "Fifi", Sum.inl "Rex", Sum.inr "Floof"]
+stop book declaration
+
+book declaration {{{ howManyDogs }}}
+  def howManyDogs (pets : List PetName) : Nat :=
+    match pets with
+      | [] => 0
+      | Sum.inl _ :: morePets => howManyDogs morePets + 1
+      | Sum.inr _ :: morePets => howManyDogs morePets
+stop book declaration
+
+expect info {{{ dogCount }}}
+  #eval howManyDogs animals
+message
+"3
+"
+end expect
+
 bookExample type {{{ unitParens }}}
   ()
   ===>
   Unit
 end bookExample
 
+
+book declaration {{{ ArithExpr }}}
+  inductive ArithExpr (ann : Type) : Type where
+    | int : ann → Int → ArithExpr ann
+    | plus : ann → ArithExpr ann → ArithExpr ann → ArithExpr ann
+    | minus : ann → ArithExpr ann → ArithExpr ann → ArithExpr ann
+    | times : ann → ArithExpr ann → ArithExpr ann → ArithExpr ann
+stop book declaration
 
 bookExample type {{{ nullOne }}}
   none
@@ -962,9 +996,9 @@ message
 "expression
   _root_.List.head? []
 has type
-  Option ?m.13561
+  Option ?m.15683
 but instance
-  Lean.MetaEval (Option ?m.13561)
+  Lean.MetaEval (Option ?m.15683)
 failed to be synthesized, this instance instructs Lean on how to display the resulting value, recall that any type implementing the `Repr` class also implements the `Lean.MetaEval` class"
 end expect
 
@@ -1119,6 +1153,36 @@ end expect
 
 #eval if let Option.some x := Option.some 5 then x else 55
 
+expect error {{{ MissingTypeArg }}}
+  inductive MyType (α : Type) : Type where
+    | ctor : α → MyType
+message
+"type expected
+failed to synthesize instance
+  CoeSort (Type → Type) ?m.19869"
+end expect
+
+book declaration {{{ MyTypeDef }}}
+  inductive MyType (α : Type) : Type where
+    | ctor : α → MyType α
+stop book declaration
+
+expect error {{{ MissingTypeArg2 }}}
+  def ofFive : MyType := ctor 5
+message
+"type expected
+failed to synthesize instance
+  CoeSort (Type → Type) ?m.20110"
+end expect
+
+-- Example solution
+def zip {α β : Type} (xs : List α) (ys : List β) : List (α × β) :=
+  match xs with
+    | [] => []
+    | x :: xs' =>
+      match ys with
+        | [] => []
+        | y :: ys' => (x, y) :: zip xs' ys'
 
 namespace AutoImpl
 book declaration {{{ lengthImpAuto }}}
