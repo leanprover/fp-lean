@@ -82,7 +82,6 @@ For instance, `let` can be used in `unzip` like this:
 ```Lean
 {{#example_decl Examples/Intro.lean unzip}}
 ```
-The biggest difference between `let` and `def` is that recursive `let` definitions must be explicitly indicated by writing `let rec`.
 
 Local definitions with `let` may also use pattern matching when one pattern is enough to match all cases of a datatype.
 In the case of `unzip`, the result of the recursive call is a pair.
@@ -90,7 +89,16 @@ Because pairs have only a single constructor, the name `unzipped` can be replace
 ```Lean
 {{#example_decl Examples/Intro.lean unzipPat}}
 ```
-Judicious use of patterns with `let` can make code easier to read.
+Judicious use of patterns with `let` can make code easier to read, compared to writing the accessor calls by hand.
+
+The biggest difference between `let` and `def` is that recursive `let` definitions must be explicitly indicated by writing `let rec`.
+For instance, one way to reverse a list involves a recursive helper function, as in this definition:
+```Lean
+{{#example_decl Examples/Intro.lean rev}}
+```
+The helper function walks down the input list, moving one entry at a time over to `soFar`.
+When it reaches the end of the input list, `soFar` contains a reversed version of the input.
+
 
 ## Type Inference
 
@@ -98,7 +106,7 @@ In many situations, Lean can automatically determine an expression's type.
 In these cases, explicit types may be omitted from both top-level definitions (with `def`) and local definitions (with `let`).
 For instance, the recursive call to `unzip` does not need an annotation:
 ```Lean
-{{#example_decl Examples/Intro.lean unzip}}
+{{#example_decl Examples/Intro.lean unzipNT}}
 ```
 
 As a rule of thumb, omitting the types of literal values (like strings and numbers) usually works, although Lean may pick a type for literal numbers that is more specific than the intended type.
