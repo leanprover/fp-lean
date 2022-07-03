@@ -189,6 +189,40 @@ Here is a version of `drop` that uses simultaneous matching:
 {{#example_decl Examples/Intro.lean dropMatch}}
 ```
 
+## Natural Number Patterns
+
+In the section on [datatypes and patterns](datatypes-and-patterns.md), `even` was defined like this:
+```Lean
+{{#example_decl Examples/Intro.lean even}}
+```
+Just as there is special syntax to make pattern matching lists more readable than using `List.cons` and `List.nil` directly, natural numbers can be matched using literal numbers and `+`.
+For instance, `even` can also be defined like this:
+```Lean
+{{#example_decl Examples/Intro.lean evenFancy}}
+```
+
+In this notation, the arguments to the `+` pattern serve different roles.
+Behind the scenes, the left argument (`n` above) becomes an argument to some number of `Nat.succ` patterns, and the right argument (`1` above) determines how many `Nat.succ`s to wrap around the pattern.
+The explicit patterns in `halve`, which divides a `Nat` by two and drops the remainder:
+```Lean
+{{#example_decl Examples/Intro.lean explicitHalve}}
+```
+can be replaced by numeric literals and `+`:
+```Lean
+{{#example_decl Examples/Intro.lean halve}}
+```
+Behind the scenes, both definitions are completely equivalent.
+
+When using this syntax, the second argument to `+` should always be a literal `Nat`.
+Even though addition is commutative, flipping the arguments in a pattern can result in errors like the following:
+```Lean
+{{#example_in Examples/Intro.lean halveFlippedPat}}
+```
+```Lean error
+{{#example_out Examples/Intro.lean halveFlippedPat}}
+```
+This restriction enables Lean to transform all uses of the `+` notation in a pattern into uses of the underlying `Nat.succ`, keeping the language simpler behind the scenes.
+
 ## Anonymous Functions
 
 Functions in Lean need not be defined at the top level.

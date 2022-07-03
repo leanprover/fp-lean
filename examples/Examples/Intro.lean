@@ -1347,6 +1347,44 @@ book declaration {{{ dropMatch }}}
       | _, [] => []
       | Nat.succ n , y :: ys => drop n ys
 stop book declaration
+
+book declaration {{{ evenFancy }}}
+  def even : Nat → Bool
+    | 0 => true
+    | n + 1 => not (even n)
+stop book declaration
+
+namespace Explicit
+book declaration {{{ explicitHalve }}}
+  def halve : Nat → Nat
+    | Nat.zero => 0
+    | Nat.succ Nat.zero => 0
+    | Nat.succ (Nat.succ n) => halve n + 1
+stop book declaration
+end Explicit
+
+
+book declaration {{{ halve }}}
+def halve : Nat → Nat
+  | 0 => 0
+  | 1 => 0
+  | n + 2 => halve n + 1
+stop book declaration
+
+example : Explicit.halve = halve := by rfl
+
+namespace Oops
+expect error {{{ halveFlippedPat }}}
+  def halve : Nat → Nat
+    | 0 => 0
+    | 1 => 0
+    | 2 + n => halve n + 1
+message
+"invalid patterns, `n` is an explicit pattern variable, but it only occurs in positions that are inaccessible to pattern matching
+  .(Nat.add 2 n)"
+end expect
+end Oops
+
 end Match
 
 
@@ -1379,20 +1417,20 @@ end expect
 
 expect info {{{ predHuh }}}
   #check fun
-    | Nat.zero => none
-    | Nat.succ n => some n
+    | 0 => none
+    | n + 1 => some n
 message
 "fun x =>
   match x with
-  | Nat.zero => none
+  | 0 => none
   | Nat.succ n => some n : Nat → Option Nat"
 end expect
 
 
 book declaration {{{ doubleLambda }}}
   def double : Nat → Nat := fun
-    | Nat.zero => Nat.zero
-    | Nat.succ k => double k + 2
+    | 0 => Nat.zero
+    | k + 1 => double k + 2
 stop book declaration
 
 
@@ -1545,7 +1583,7 @@ end bookExample
 expect error {{{ pointPosEvalNoType }}}
   #eval ⟨1, 2⟩
 message
-"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.25544"
+"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.26360"
 end expect
 
 expect info {{{ pointPosWithType }}}
