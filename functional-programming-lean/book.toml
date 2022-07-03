@@ -13,6 +13,9 @@ command = "python scripts/example.py"
 [preprocessor.commands]
 command = "python scripts/projects.py"
 
+[preprocessor.leanversion]
+command = "python scripts/lean-version.py"
+
 
 [output.html]
 additional-css = ["custom.css"]
