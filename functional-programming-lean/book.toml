@@ -10,6 +10,9 @@ title = "Functional Programming in Lean"
 [preprocessor.leanexample]
 command = "python scripts/example.py"
 
+[preprocessor.leanversion]
+command = "python scripts/lean-version.py"
+
 [output.html]
 additional-css = ["custom.css"]
 
