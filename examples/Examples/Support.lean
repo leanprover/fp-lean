@@ -6,7 +6,7 @@ syntax withPosition("book" "declaration" "{{{" ws ident ws "}}}" (command*) "sto
 elab_rules : command
   | `(book declaration {{{ $name:ident }}} $decls* stop book declaration) => do
     for decl in decls do
-      Lean.Elab.Command.elabCommand decl
+      Lean.Elab.Command.elabCommand decl.raw
 
 book declaration {{{ foo }}}
   def twentyFive : Nat := 25
@@ -114,20 +114,18 @@ elab_rules : command
     open Lean in
     open Lean.Meta in do
       let savedState <- get
-      match msg.isStrLit? with
-      | none => throwError "Desired message must be a string, but got {msg}"
-      | some desiredError => do
-        try
-          elabCommand cmd
-          let afterState <- get
-          let lengthDifference := afterState.messages.msgs.size - savedState.messages.msgs.size
-          let newMessages := afterState.messages.msgs.getN! lengthDifference
-          let newErrors := newMessages.filter fun m => m.severity == MessageSeverity.error
-          let errStrings <- newErrors.mapM fun err => err.data.toString
-          unless errStrings.contains desiredError do
-            throwError "The desired error {desiredError} was not found in\n{errStrings}"
-        finally
-          set savedState
+      let desiredError := msg.getString
+      try
+        elabCommand cmd
+        let afterState <- get
+        let lengthDifference := afterState.messages.msgs.size - savedState.messages.msgs.size
+        let newMessages := afterState.messages.msgs.getN! lengthDifference
+        let newErrors := newMessages.filter fun m => m.severity == MessageSeverity.error
+        let errStrings <- newErrors.mapM fun err => err.data.toString
+        unless errStrings.contains desiredError do
+          throwError "The desired error {desiredError} was not found in\n{errStrings}"
+      finally
+        set savedState
 
 expect error {{{ errorEx1 }}}
   def x : Nat := "I am not a Nat"
@@ -154,20 +152,18 @@ elab_rules : command
     open Lean in
     open Lean.Meta in do
       let savedState <- get
-      match msg.isStrLit? with
-      | none => throwError "Desired message must be a string, but got {msg}"
-      | some desiredInfo => do
-        try
-          elabCommand cmd
-          let afterState <- get
-          let lengthDifference := afterState.messages.msgs.size - savedState.messages.msgs.size
-          let newMessages := afterState.messages.msgs.getN! lengthDifference
-          let newInfos := newMessages.filter fun m => m.severity == MessageSeverity.information
-          let errStrings <- newInfos.mapM fun err => err.data.toString
-          unless errStrings.contains desiredInfo do
-            throwError "The desired info {repr desiredInfo} was not found in\n{List.map repr errStrings}"
-        finally
-          set savedState
+      let desiredInfo := msg.getString
+      try
+        elabCommand cmd
+        let afterState <- get
+        let lengthDifference := afterState.messages.msgs.size - savedState.messages.msgs.size
+        let newMessages := afterState.messages.msgs.getN! lengthDifference
+        let newInfos := newMessages.filter fun m => m.severity == MessageSeverity.information
+        let errStrings <- newInfos.mapM fun err => err.data.toString
+        unless errStrings.contains desiredInfo do
+          throwError "The desired info {repr desiredInfo} was not found in\n{List.map repr errStrings}"
+      finally
+        set savedState
 
 expect info {{{ infoEx1 }}}
   #check 1 + 2
@@ -187,12 +183,12 @@ elab_rules : command
       for item in exprs do
         if let some v := current then
           liftTermElabM `evaluationSteps do
-            let x <- elabTerm item none
+            let x <- elabTerm item.raw none
             let y <- elabTerm v none
             synthesizeSyntheticMVarsNoPostponing
             unless (← isDefEq x y) do
               throwError "Example reduction step {y} ===> {x} is incorrect"
-        current := some item
+        current := some item.raw
 
 evaluation steps {{{ foo }}}
   1 + 1 + 2
@@ -202,6 +198,30 @@ evaluation steps {{{ foo }}}
   4
 end evaluation steps
 
+syntax withPosition("evaluation" "steps" ":" term "{{{" ws ident ws "}}}" sepBy1(colGt term, "===>") "end" "evaluation" "steps"): command
+elab_rules : command
+  | `(evaluation steps : $ty {{{ $name }}} $[ $exprs ]===>* end evaluation steps) =>
+    open Lean.Elab.Command in
+    open Lean.Elab.Term in
+    open Lean in
+    open Lean.Meta in do
+      let expected <- liftTermElabM `evaluationSteps (elabTerm ty none)
+      let mut current : Option Syntax := none
+      for item in exprs do
+        if let some v := current then
+          liftTermElabM `evaluationSteps do
+            let x <- elabTerm item.raw (some expected)
+            let y <- elabTerm v (some expected)
+            synthesizeSyntheticMVarsNoPostponing
+            unless (← isDefEq x y) do
+              throwError "Example reduction step {y} ===> {x} is incorrect\n----------\n\t {(← whnf y)}\n ≠\n\t {(← whnf x)}\n----------\n\t {(← reduceAll y)}\n ≠\n\t {(← reduceAll x)}"
+        current := some item.raw
+
+evaluation steps : IO Unit {{{ thingy }}}
+  let x := 5; IO.println s!"{x}"
+  ===>
+  IO.println "5"
+end evaluation steps
 
 def zipSameLength : List α → List β → Option (List (α × β))
   | [], [] => some []

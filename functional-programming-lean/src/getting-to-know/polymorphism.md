@@ -229,12 +229,14 @@ However, attempting to test it on the empty list leads to an error:
 ```
 ```Lean error
 {{#example_out Examples/Intro.lean headNoneBad}}
+
+{{#example_out Examples/Intro.lean headNoneBad2}}
 ```
 This is because Lean was unable to fully determine the expression's type.
+In particular, it could neither find the implicit type argument to `List.head?`, nor could it find the implicit type argument to `List.nil`.
 In Lean's output, `?m.XYZ` represents a part of a program that could not be inferred.
-These unknown parts are called _metavariables_ in some error messages.
-In this case, Lean cannot find the code to convert an `Option` to a display string because the type inside the option is unknown.
-The type was unavailable because the empty list does not have any entries from which the type can be found.
+These unknown parts are called _metavariables_, and they occur in some error messages.
+In order to evaluate an expression, Lean needs to be able to find its type, and the type was unavailable because the empty list does not have any entries from which the type can be found.
 Explicitly providing a type allows Lean to proceed:
 ```Lean
 {{#example_in Examples/Intro.lean headNone}}
@@ -242,6 +244,8 @@ Explicitly providing a type allows Lean to proceed:
 ```Lean info
 {{#example_out Examples/Intro.lean headNone}}
 ```
+The error message provides a useful clue.
+Both parts of the message use the _same_ metavariable to describe the missing implicit argument, which means that Lean has determined that the two missing pieces will share a solution, even though it was unable to determine the actual value of the solution.
 
 ### `Prod`
 

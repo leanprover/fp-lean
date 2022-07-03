@@ -994,13 +994,19 @@ end expect
 expect error {{{ headNoneBad }}}
   #eval [].head?
 message
-"expression
-  _root_.List.head? []
-has type
-  Option ?m.15683
-but instance
-  Lean.MetaEval (Option ?m.15683)
-failed to be synthesized, this instance instructs Lean on how to display the resulting value, recall that any type implementing the `Repr` class also implements the `Lean.MetaEval` class"
+"don't know how to synthesize implicit argument
+  @List.nil ?m.15683
+context:
+⊢ Type ?u.15680"
+end expect
+
+expect error {{{ headNoneBad2 }}}
+  #eval [].head?
+message
+"don't know how to synthesize implicit argument
+  @_root_.List.head? ?m.15683 []
+context:
+⊢ Type ?u.15680"
 end expect
 
 
@@ -1160,7 +1166,7 @@ expect error {{{ MissingTypeArg }}}
 message
 "type expected
 failed to synthesize instance
-  CoeSort (Type → Type) ?m.19869"
+  CoeSort (Type → Type) ?m.19870"
 end expect
 
 book declaration {{{ MyTypeDef }}}
@@ -1173,7 +1179,7 @@ expect error {{{ MissingTypeArg2 }}}
 message
 "type expected
 failed to synthesize instance
-  CoeSort (Type → Type) ?m.20110"
+  CoeSort (Type → Type) ?m.20111"
 end expect
 
 -- Example solution
@@ -1583,7 +1589,7 @@ end bookExample
 expect error {{{ pointPosEvalNoType }}}
   #eval ⟨1, 2⟩
 message
-"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.26360"
+"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.26361"
 end expect
 
 expect info {{{ pointPosWithType }}}
