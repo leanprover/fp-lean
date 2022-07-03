@@ -155,7 +155,9 @@ end expect
 
 book declaration {{{ maximum }}}
   def maximum (n : Nat) (k : Nat) : Nat :=
-    if n < k then k else n
+    if n < k then
+      k
+    else n
 stop book declaration
 
 expect info {{{ maximumType }}}
@@ -650,9 +652,9 @@ stop book declaration
 
 expect error {{{ div }}}
   def div (n : Nat) (k : Nat) : Nat :=
-    if n < k
-      then 0
-      else Nat.succ (div (n - k) k)
+    if n < k then
+      0
+    else Nat.succ (div (n - k) k)
 message
 "fail to show termination for
   div
@@ -1056,11 +1058,11 @@ def findString (haystack : List String) (needle : String) : Option Int :=
   match haystack with
     | [] => none
     | x :: xs =>
-      if needle == x
-        then some 0
-        else match findString xs needle with
-               | none => none
-               | some i => some (i + 1)
+      if needle == x then
+        some 0
+      else match findString xs needle with
+             | none => none
+             | some i => some (i + 1)
 
 inductive LinkedList : Type -> Type where
   | nil : LinkedList α
@@ -1514,9 +1516,9 @@ end WithMatch
 
 book declaration {{{ inlineStringHuh }}}
   def Inline.string? (inline : Inline) : Option String :=
-    if let Inline.string s := inline
-      then some s
-      else none
+    if let Inline.string s := inline then
+      some s
+    else none
 stop book declaration
 
 example : WithMatch.Inline.string? = Inline.string? := by rfl
