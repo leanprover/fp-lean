@@ -58,7 +58,9 @@ Constructors in Lean are not the same as constructors in object-oriented languag
 
 Typically, `structure` is used to introduce a product type (that is, a type with just one constructor that takes any number of arguments), while `inductive` is used to introduce a sum type (that is, a type with many distinct constructors).
 Datatypes defined with `structure` are provided with one accessor function for each of the constructor's arguments.
-Both structures and inductive datatypes may be consumed with pattern matching, which uses a syntax similar to that used to call constructors in order to examine their contents.
+Both structures and inductive datatypes may be consumed with pattern matching, which exposes the values stored inside of constructors using a subset of the syntax used to call said constructors.
+Pattern matching means that knowing how to create a value implies knowing how to consume it.
+
 
 ## Recursion
 
