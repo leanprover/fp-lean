@@ -1247,7 +1247,7 @@ book declaration {{{ unzip }}}
   def unzip : List (α × β) → List α × List β
     | [] => ([], [])
     | (x, y) :: xys =>
-      let unzipped : List α × List β := unzip xys;
+      let unzipped : List α × List β := unzip xys
       (x :: unzipped.fst, y :: unzipped.snd)
 stop book declaration
 
@@ -1255,7 +1255,7 @@ book declaration {{{ reverse }}}
 def reverse (xs : List α) : List α :=
   let rec helper : List α → List α → List α
     | [], soFar => soFar
-    | y :: ys, soFar => helper ys (y :: soFar);
+    | y :: ys, soFar => helper ys (y :: soFar)
   helper xs []
 stop book declaration
 
@@ -1264,19 +1264,17 @@ book declaration {{{ unzipPat }}}
   def unzip : List (α × β) → List α × List β
     | [] => ([], [])
     | (x, y) :: xys =>
-      let (xs, ys) : List α × List β := unzip xys;
+      let (xs, ys) : List α × List β := unzip xys
       (x :: xs, y :: ys)
 stop book declaration
 end WithPattern
-
-
 
 namespace NT
 book declaration {{{ unzipNT }}}
   def unzip : List (α × β) → List α × List β
     | [] => ([], [])
     | (x, y) :: xys =>
-      let unzipped := unzip xys;
+      let unzipped := unzip xys
       (x :: unzipped.fst, y :: unzipped.snd)
 stop book declaration
 
@@ -1293,7 +1291,7 @@ book declaration {{{ unzipNRT }}}
     match pairs with
     | [] => ([], [])
     | (x, y) :: xys =>
-      let unzipped := unzip xys;
+      let unzipped := unzip xys
       (x :: unzipped.fst, y :: unzipped.snd)
 stop book declaration
 
@@ -1319,7 +1317,7 @@ expect error {{{ unzipNoTypesAtAll }}}
     match pairs with
       | [] => ([], [])
       | (x, y) :: xys =>
-        let unzipped := unzip xys;
+        let unzipped := unzip xys
         (x :: unzipped.fst, y :: unzipped.snd)
 message
 "invalid match-expression, pattern contains metavariables
@@ -1414,6 +1412,21 @@ evaluation steps {{{ twoDots }}}
   (1, 2)
 end evaluation steps
 
+
+expect info {{{ applyLambda }}}
+  #eval (fun x => x + x) 5
+message
+"10
+"
+end expect
+
+
+expect info {{{ applyCdot }}}
+  #eval (· * 2) 5
+message
+"10
+"
+end expect
 
 book declaration {{{ NatDouble }}}
   def Nat.double (x : Nat) : Nat := x + x
@@ -1526,6 +1539,21 @@ bookExample : Point {{{ pointPos }}}
   ===>
   Point.mk 1 2
 end bookExample
+
+
+expect error {{{ pointPosEvalNoType }}}
+  #eval ⟨1, 2⟩
+message
+"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.25544"
+end expect
+
+expect info {{{ pointPosWithType }}}
+  #eval (⟨1, 2⟩ : Point)
+message
+  "{ x := 1.000000, y := 2.000000 }
+"
+end expect
+
 
 bookExample type {{{ swapLambda }}}
   fun (point : Point) => { x := point.y, y := point.x : Point}

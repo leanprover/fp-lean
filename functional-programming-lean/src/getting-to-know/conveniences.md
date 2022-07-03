@@ -77,11 +77,12 @@ However, both recursive calls will have the same result, so there is no reason t
 
 In Lean, the result of the recursive call can be named, and thus saved, using `let`.
 Local definitions with `let` resemble top-level definitions with `def`: it takes a name to be locally defined, arguments if desired, a type signature, and then a body following `:=`.
-A semicolon is used after the local definition.
+After the local definition, the expression in which the local definition is available (called the _body_ of the `let`-expression) must be on a new line, starting at a column in the file that is less than or equal to that of the `let` keyword.
 For instance, `let` can be used in `unzip` like this:
 ```Lean
 {{#example_decl Examples/Intro.lean unzip}}
 ```
+To `let` on a single line, separate the local definition from the body with a semicolon.
 
 Local definitions with `let` may also use pattern matching when one pattern is enough to match all cases of a datatype.
 In the case of `unzip`, the result of the recursive call is a pair.
@@ -245,6 +246,16 @@ If multiple dots are used, then they become arguments from left to right.
 For instance,
 `{{#example_eval Examples/Intro.lean twoDots}}`
 
+Anonymous functions can be applied in precisely the same way as functions defined using `def` or `let`.
+The command `{{#example_in Examples/Intro.lean applyLambda}}` results in:
+```Lean info
+{{#example_out Examples/Intro.lean applyLambda}}
+```
+while `{{#example_in Examples/Intro.lean applyCdot}}` results in:
+```Lean info
+{{#example_out Examples/Intro.lean applyCdot}}
+```
+
 ## Namespaces
 
 Each name in Lean occurs in a _namespace_, which is a collection of names.
@@ -299,8 +310,8 @@ To do this, place the `open ... in` prior to the command.
 ```Lean info
 {{#example_out Examples/Intro.lean quadrupleNamespaceOpen}}
 ```
-Finally, namespaces may be opened for _all_ following commands.
-To do this, simply omit the `in`.
+Finally, namespaces may be opened for _all_ following commands for the rest of the file.
+To do this, simply omit the `in` from a top-level usage of `open`.
 
 ## if let
 
@@ -334,6 +345,18 @@ A `Point` can be written `{{#example_in Examples/Intro.lean pointPos}}`.
 Be careful!
 Even though they look like the less-than sign `<` and greater-than sign `>`, these brackets are different.
 
+Just as with the brace notation for named constructor arguments, this positional syntax can only be used in a context where Lean can determine the structure's type, either from a type annotation or from other type information in the program.
+For instance, `{{#example_in Examples/Intro.lean pointPosEvalNoType}}` yields the following error:
+```Lean error
+{{#example_out Examples/Intro.lean pointPosEvalNoType}}
+```
+The metavariable in the error is because there is no type information available.
+Adding an annotation, such as in `{{#example_in Examples/Intro.lean pointPosEvalNoType}}`, solves the problem:
+```Lean info
+{{#example_out Examples/Intro.lean pointPosEvalNoType}}
+```
+
+
 ## String Interpolation
 
 In Lean, prefixing a string with `s!` triggers _interpolation_, where expressions contained in curly braces inside the string are replaced with their values.
@@ -358,5 +381,4 @@ yields the output
 ```
 This is because there is no standard way to convert functions into strings.
 The Lean compiler maintains a table that describes how to convert values of various types into strings, and the message `failed to synthesize instance` means that the Lean compiler didn't find an entry in this table for the given type.
-
-
+This uses the same language feature as the `deriving Repr` syntax that was described in the [section on structures](structures.md).
