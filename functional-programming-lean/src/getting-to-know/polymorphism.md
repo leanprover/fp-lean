@@ -29,10 +29,9 @@ Just as a function is called by replacing its argument variables with its argume
 Because types are ordinary expressions in Lean, passing arguments to polymorphic types (like `PPoint`) doesn't require any special syntax.
 
 Definitions may also take types as arguments, which makes them polymorphic.
-While some languages have separate notations for type arguments and other arguments, Lean uses a single uniform notation for all arguments.
 The function `replaceX` replaces the `x` field of a `PPoint` with a new value.
 In order to allow `replaceX` to work with _any_ polymorphic point, it must be polymorphic itself.
-This is achieved by having its first argument be the type of the point's fields, and later arguments refer back to the first argument's name.
+This is achieved by having its first argument be the type of the point's fields, with later arguments referring back to the first argument's name.
 ```Lean
 {{#example_decl Examples/Intro.lean replaceX}}
 ```
@@ -75,6 +74,20 @@ The fact that the type of the whole function application expression was determin
 ```Lean info
 {{#example_out Examples/Intro.lean replaceXNatOriginFiveV}}
 ```
+
+Polymorphic functions work by taking a named type argument and having later types refer to the argument's name.
+However, there's nothing special about type arguments that allows them to be named.
+Given a datatype that represents positive or negative signs:
+```Lean
+{{#example_decl Examples/Intro.lean Sign}}
+```
+it is possible to write a function whose argument is a sign.
+If the argument is positive, the function returns a `Nat`, while if it's negative, it returns an `Int`:
+```Lean
+{{#example_decl Examples/Intro.lean posOrNegThree}}
+```
+Because types are first class and can be computed using the ordinary rules of the Lean language, they can be computed by pattern-matching against a datatype.
+When Lean is checking this function, it uses the fact that the function's body pattern-matches to run the same pattern in the type, showing that `Nat` is the expected type for the `pos` case and that `Int` is the expected type for the `neg` case.
 
 ## Linked Lists
 
@@ -223,7 +236,7 @@ Because `head?` is defined in the `List` namespace, it can be used with accessor
 ```Lean info
 {{#example_out Examples/Intro.lean headSome}}
 ```
-However, attempting to test it on the empty list leads to an error:
+However, attempting to test it on the empty list leads to two errors:
 ```Lean
 {{#example_in Examples/Intro.lean headNoneBad}}
 ```
@@ -244,8 +257,8 @@ Explicitly providing a type allows Lean to proceed:
 ```Lean info
 {{#example_out Examples/Intro.lean headNone}}
 ```
-The error message provides a useful clue.
-Both parts of the message use the _same_ metavariable to describe the missing implicit argument, which means that Lean has determined that the two missing pieces will share a solution, even though it was unable to determine the actual value of the solution.
+The error messages provide a useful clue.
+Both messages use the _same_ metavariable to describe the missing implicit argument, which means that Lean has determined that the two missing pieces will share a solution, even though it was unable to determine the actual value of the solution.
 
 ### `Prod`
 
@@ -292,6 +305,7 @@ In other words, all products of more than two types, and their corresponding con
 The `Sum` datatype is a generic way of allowing a choice between values of two different types.
 For instance, a `Sum String Int` is either a `String` or an `Int`.
 Like `Prod`, `Sum` should be used either when writing very generic code, for a very small section of code where there is no sensible domain-specific type, or when the standard library contains useful functions.
+In most situations, it is more readable and maintainable to use a custom inductive type.
 
 Values of type `Sum α β` are either the constructor `inl` applied to a value of type `α` or the constructor `inr` applied to a value of type `β`:
 ```Lean
@@ -316,6 +330,7 @@ For instance, a function that counts the number of dogs in a list of animal name
 ```Lean
 {{#example_decl Examples/Intro.lean howManyDogs}}
 ```
+Function calls are evaluated before infix operators, so `howManyDogs morePets + 1` is the same as `(howManyDogs morePets) + 1`.
 As expected, `{{#example_in Examples/Intro.lean dogCount}}` yields `{{#example_out Examples/Intro.lean dogCount}}`.
 
 ### `Unit`
@@ -336,9 +351,10 @@ For instance, the following inductive datatype represents arithmetic expressions
 The type argument `ann` stands for annotations, and each constructor is annotated.
 Expressions coming from a parser might be annotated with source locations, so a return type of `ArithExpr SourcePos` ensures that the parser put a `SourcePos` at each subexpression.
 Expressions that don't come from the parser, however, will not have source locations, so their type can be `ArithExpr Unit`.
-Additionally, because all Lean functions have arguments, zero-argument functions in other languages can be represented as functions that take a `Unit` argument.
 
-The `Unit` type is similar to `void` in languages derived from C.
+
+Additionally, because all Lean functions have arguments, zero-argument functions in other languages can be represented as functions that take a `Unit` argument.
+In a return position, the `Unit` type is similar to `void` in languages derived from C.
 In the C family, a function that returns `void` will return control to its caller, but it will not return any interesting value.
 By being an intentionally uninteresting value, `Unit` allows this to be expressed without requiring a special-purpose `void` feature in the type system.
 Unit's constructor can be written as empty parentheses: `{{#example_in Examples/Intro.lean unitParens}} : {{#example_out Examples/Intro.lean unitParens}}`.
@@ -415,6 +431,7 @@ The same message can appear when type arguments are omitted in other contexts, s
  * Write a function to find the last entry in a list. It should return an `Option`.
  * Write a function that finds the first entry in a list that satisfies a given predicate. Start the definition with `def List.findFirst? {α : Type} (xs : List α) (predicate : α → Bool) : Option α :=`
  * Write a function `Prod.swap` that swaps the two fields in a pair. Start the definition with `def Prod.swap {α β : Type} (pair : α × β) : β × α :=` 
+ * Rewrite the `PetName` example to use a custom datatype and compare it to the version that uses `Sum`.
  * Write a function `zip` that combines two lists into a list of pairs. The resulting list should be as long as the shortest input list. Start the definition with `def zip {α β : Type} (xs : List α) (ys : List β) : List (α × β) :=`.
  * Write a polymorphic function `take` that returns the first _n_ entries in a list, where _n_ is a `Nat`. If the list contains fewer than `n` entries, then the resulting list should be the input list. `{{#example_in Examples/Intro.lean takeThree}}` should yield `{{#example_out Examples/Intro.lean takeThree}}`, and `{{#example_in Examples/Intro.lean takeOne}}` should yield `{{#example_out Examples/Intro.lean takeOne}}`.
  * Using the analogy between types and arithmetic, write a function that distributes products over sums. In other words, it should have type `α × (β ⊕ γ) → (α × β) ⊕ (α × γ)`.

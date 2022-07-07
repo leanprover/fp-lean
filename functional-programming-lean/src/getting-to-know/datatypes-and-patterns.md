@@ -1,6 +1,7 @@
 # Datatypes and Patterns
 
 Structures enable multiple independent pieces of data to be combined into a coherent whole that is represented by a brand new type.
+Types such as structures that group together a collection of values are called _product types_.
 Many domain concepts, however, can't be naturally represented as structures.
 For instance, an application might need to track user permissions, where some users are document owners, some may edit documents, and others may only read them.
 A calculator has a number of binary operators, such as addition, subtraction, and multiplication.
@@ -48,8 +49,9 @@ _Successor_ means "one greater than", so the successor of five is six and the su
 Using this definition, `{{#example_eval Examples/Intro.lean four 1}}` is represented as `{{#example_eval Examples/Intro.lean four 0}}`.
 This definition is almost like the definition of `Bool` with slightly different names.
 The only real difference is that `succ` is followed by `(n : Nat)`, which specifies that the constructor `succ` takes an argument of type `Nat` which happens to be named `n`.
-The defined names `zero` and `succ` are in a namespace named after their type, so they must be referred to as `Nat.zero` and `Nat.succ`, respectively.
-Argument names may occur in Lean's error messages and in feedback provided when writing mathematical proofs.
+The names `zero` and `succ` are in a namespace named after their type, so they must be referred to as `Nat.zero` and `Nat.succ`, respectively.
+
+Argument names, such as `n`, may occur in Lean's error messages and in feedback provided when writing mathematical proofs.
 Lean also has an optional syntax for providing arguments by name.
 Generally, however, the choice of argument name is less important than the choice of a structure field name, as it does not form as large a part of the API.
 
@@ -110,14 +112,13 @@ If `pred` is a function that finds the predecessor of a `Nat`, then it should be
 {{#example_out Examples/Intro.lean predBig}}
 ```
 Because `Nat` cannot represent negative numbers, `0` is a bit of a conundrum.
-Usually, when working with `Nat`, operators that would usually produce a negative number are redefined to produce `0` itself:
+Usually, when working with `Nat`, operators that would ordinarily produce a negative number are redefined to produce `0` itself:
 ```Lean
 {{#example_in Examples/Intro.lean predZero}}
 ```
 ```Lean info
 {{#example_out Examples/Intro.lean predZero}}
 ```
-
 
 To find the predecessor of a `Nat`, the first step is to check which constructor was used to create it.
 If it was `Nat.zero`, then the result is `Nat.zero`.
@@ -126,7 +127,17 @@ And this `Nat` is the desired predecessor, so the result of the `Nat.succ` branc
 ```Lean
 {{#example_decl Examples/Intro.lean pred}}
 ```
+Applying this function to `5` yields the following steps:
+```Lean
+{{#example_eval Examples/Intro.lean predFiveSteps}}
+```
 
+Pattern matching can be used with structures as well as with sum types.
+For instance, a function that extracts the third dimension from a `Point3D` can be written as follows:
+```Lean
+{{#example_decl Examples/Intro.lean depth}}
+```
+In this case, it would have been much simpler to just use the `z` accessor, but structure patterns are occasionally the simplest way to write a function.
 
 ## Recursive Functions
 
@@ -140,7 +151,7 @@ A simple recursive function over `Nat` checks whether its argument is even.
 In this case, `zero` is even.
 Non-recursive branches of the code like this one are called _base cases_.
 The successor of an odd number is even, and the successor of an even number is odd.
-This means that a number built with `succ` is even if its argument is not even.
+This means that a number built with `succ` is even if and only if its argument is not even.
 ```Lean
 {{#example_decl Examples/Intro.lean even}}
 ```
@@ -176,7 +187,7 @@ For instance, walking through the evaluation of `{{#example_eval Examples/Intro.
 ```
 
 One way to think about addition is that _n_ + _k_ applies `Nat.succ` _k_ times to _n_.
-Similarly, multiplication _n_·_k_ adds _n_ to itself _k_ times and subtraction _n_-_k_ takes _n_'s predecessor _k_ times.
+Similarly, multiplication _n_ × _k_ adds _n_ to itself _k_ times and subtraction _n_ - _k_ takes _n_'s predecessor _k_ times.
 ```Lean
 {{#example_decl Examples/Intro.lean times}}
 

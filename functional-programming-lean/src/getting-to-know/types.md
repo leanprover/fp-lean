@@ -3,7 +3,7 @@
 Types classify programs based on the values that they can
 compute. Types serve a number of roles in a program:
 
- 1. They allow the computer to make decisions about the in-memory
+ 1. They allow the compiler to make decisions about the in-memory
     representation of a value.
 
  2. They help programmers to communicate their intent to others,

@@ -69,4 +69,4 @@ This allows Lean code to more closely resemble ordinary mathematical notation.
 With the default Lean settings, both Visual Studio Code and Emacs allow these characters to be typed with a backslash (`\`) followed by a name.
 For example, to enter `α`, type `\alpha`.
 To find out how to type a character in Visual Studio Code, point the mouse at it and look at the tooltip.
-In Emacs, use `M-x describe-char` and look for `to input:` in the resulting information view.
+In Emacs, use `C-c C-k` with point on the character in question.

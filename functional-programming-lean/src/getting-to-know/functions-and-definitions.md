@@ -9,13 +9,11 @@ In Lean, definitions are introduced using the `def` keyword. For instance, to de
 In Lean, new names are defined using the colon-equal operator`:=`
 rather than `=`. This is because `=` is used to describe equalities
 between existing expressions, and using two different operators helps
-keep these usages different.
+prevent confusion.
 
-In the definition of `{{#example_in Examples/Intro.lean helloNameVal}}`,
-`{{#example_out Examples/Intro.lean helloNameVal}}` is simple enough
-that Lean is able to determine the definition's type automatically. However,
-most definitions are not so simple, so it will usually be necessary to add a
-type. This is done using a colon after the name being defined.
+In the definition of `{{#example_in Examples/Intro.lean helloNameVal}}`, the expression `{{#example_out Examples/Intro.lean helloNameVal}}` is simple enough that Lean is able to determine the definition's type automatically.
+However, most definitions are not so simple, so it will usually be necessary to add a type.
+This is done using a colon after the name being defined.
 
 ```Lean
 {{#example_decl Examples/Intro.lean lean}}
@@ -67,7 +65,7 @@ This arrow can also be written with an ASCII alternative arrow `->`, so the prec
 
 Behind the scenes, all functions actually expect precisely one argument.
 Functions like `maximum` that seem to take more than one argument are in fact functions that take one argument and then return a new function.
-This new function takes the next argument, and the process continues until there are no more arguments.
+This new function takes the next argument, and the process continues until no more arguments are expected.
 This can be seen by providing one argument to a multiple-argument function: `{{#example_in Examples/Intro.lean maximum3Type}}` yields `{{#example_out Examples/Intro.lean maximum3Type}}` and `{{#example_in Examples/Intro.lean stringAppendHelloType}}` yields `{{#example_out Examples/Intro.lean stringAppendHelloType}}`.
 Using a function that returns a function to implement multiple-argument functions is called _currying_ after the mathematician Haskell Curry.
 Function arrows associate to the right, which means that `Nat → Nat → Nat` should be parenthesized `Nat → (Nat → Nat)`.
@@ -119,7 +117,10 @@ When it makes sense to do so, natural number literals can be used for new types,
 This is part of Lean's mission of making it convenient to represent mathematics, and different branches of mathematics use number notation for very different purposes.
 The specific feature that allows this overloading does not replace all defined names with their definitions before looking for overloading, which is what leads to the error message above.
 
-One way to work around this limitation is by providing the type `Nat` on the right-hand side of the definition, causing `Nat`'s overloading rules to be used for `38`.
+One way to work around this limitation is by providing the type `Nat` on the right-hand side of the definition, causing `Nat`'s overloading rules to be used for `38`:
+```Lean
+{{#example_decl Examples/Intro.lean thirtyEightFixed}}
+```
 The definition is still type-correct because `{{#example_eval Examples/Intro.lean NaturalNumberDef 0}}` is the same type as `{{#example_eval Examples/Intro.lean NaturalNumberDef 1}}`—by definition!
 
 Another solution is to define an overloading for `NaturalNumber` that works equivalently to the one for `Nat`.
