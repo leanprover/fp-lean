@@ -82,7 +82,7 @@ For instance, `let` can be used in `unzip` like this:
 ```Lean
 {{#example_decl Examples/Intro.lean unzip}}
 ```
-To `let` on a single line, separate the local definition from the body with a semicolon.
+To use `let` on a single line, separate the local definition from the body with a semicolon.
 
 Local definitions with `let` may also use pattern matching when one pattern is enough to match all cases of a datatype.
 In the case of `unzip`, the result of the recursive call is a pair.
@@ -113,7 +113,7 @@ For instance, the recursive call to `unzip` does not need an annotation:
 As a rule of thumb, omitting the types of literal values (like strings and numbers) usually works, although Lean may pick a type for literal numbers that is more specific than the intended type.
 Lean can usually determine a type for a function application, because it already knows the argument types and the return type.
 Omitting return types for function definitions will often work, but function arguments typically require annotations.
-Definitions that are not functions, like `unzipped` in the example, do not need types if their bodies do not need types, and the body of this definition is a function application.
+Definitions that are not functions, like `unzipped` in the example, do not need type annotations if their bodies do not need type annotations, and the body of this definition is a function application.
 
 Omitting the return type for `unzip` is possible when using an explicit `match` expression:
 ```Lean
@@ -178,7 +178,7 @@ Omitting the argument type, however, causes an error:
 ```
 
 In general, messages that say something like "failed to infer" or that mention metavariables are often a sign that more type annotations are necessary.
-Especially while still learning Lean, it is useful to write down many types.
+Especially while still learning Lean, it is useful to provide most types explicitly.
 
 ## Simultaneous Matching
 
@@ -195,7 +195,7 @@ In the section on [datatypes and patterns](datatypes-and-patterns.md), `even` wa
 ```Lean
 {{#example_decl Examples/Intro.lean even}}
 ```
-Just as there is special syntax to make pattern matching lists more readable than using `List.cons` and `List.nil` directly, natural numbers can be matched using literal numbers and `+`.
+Just as there is special syntax to make list patterns more readable than using `List.cons` and `List.nil` directly, natural numbers can be matched using literal numbers and `+`.
 For instance, `even` can also be defined like this:
 ```Lean
 {{#example_decl Examples/Intro.lean evenFancy}}
@@ -212,6 +212,7 @@ can be replaced by numeric literals and `+`:
 {{#example_decl Examples/Intro.lean halve}}
 ```
 Behind the scenes, both definitions are completely equivalent.
+Remember: `halve n + 1` is equivalent to `(halve n) + 1`, not `halve (n + 1)`.
 
 When using this syntax, the second argument to `+` should always be a literal `Nat`.
 Even though addition is commutative, flipping the arguments in a pattern can result in errors like the following:
@@ -250,6 +251,7 @@ Similarly, implicit arguments may be written with curly braces:
 {{#example_out Examples/Intro.lean identLambda}}
 ```
 This style of anonymous function expression is often referred to as a _lambda expression_, because the typical notation used in mathematical descriptions of programming languages uses the Greek letter λ (lambda) where Lean has the keyword `fun`.
+Even though Lean does permit `λ` to be used instead of `fun`, it is most common to write `fun`.
 
 Anonymous functions also support the multiple-pattern style used in `def`.
 For instance, a function that returns the predecessor of a natural number if it exists can be written:
@@ -273,12 +275,14 @@ In that particular example, six non-whitespace characters are used to introduce 
 For these simple cases, Lean provides a shorthand.
 In an expression surrounded by parentheses, a centered dot character `·` can stand for an argument, and the expression inside the parentheses becomes the function's body.
 That particular function can also be written `{{#example_eval Examples/Intro.lean incrSteps 1}}`.
+Type the centered dot using `\cdot`.
 
 The centered dot always creates a function out of the _closest_ surrounding set of parentheses.
 For instance, `{{#example_eval Examples/Intro.lean funPair 0}}` is a function that returns a pair of numbers, while `{{#example_eval Examples/Intro.lean pairFun 0}}` is a pair of a function and a number.
-If multiple dots are used, then they become arguments from left to right.
-For instance,
-`{{#example_eval Examples/Intro.lean twoDots}}`
+If multiple dots are used, then they become arguments from left to right:
+```Lean
+{{#example_eval Examples/Intro.lean twoDots}}
+```
 
 Anonymous functions can be applied in precisely the same way as functions defined using `def` or `let`.
 The command `{{#example_in Examples/Intro.lean applyLambda}}` results in:
@@ -296,6 +300,7 @@ Each name in Lean occurs in a _namespace_, which is a collection of names.
 Names are placed in namespaces using `.`, so `List.map` is the name `map` in the `List` namespace.
 Names in different namespaces do not conflict with each other, even if they are otherwise identical.
 This means that `List.map` and `Array.map` are different names.
+Namespaces may be nested, so `Project.Frontend.User.loginTime` is the name `loginTime` in the nested namespace `Project.Frontend.User`.
 
 Names can be directly defined within a namespace.
 For instance, the name `double` can be defined in the `Nat` namespace:
@@ -378,6 +383,7 @@ In these contexts, the arguments can be enclosed in angle brackets `⟨` and `�
 A `Point` can be written `{{#example_in Examples/Intro.lean pointPos}}`.
 Be careful!
 Even though they look like the less-than sign `<` and greater-than sign `>`, these brackets are different.
+They can be input using `\<` and `\>`, respectively.
 
 Just as with the brace notation for named constructor arguments, this positional syntax can only be used in a context where Lean can determine the structure's type, either from a type annotation or from other type information in the program.
 For instance, `{{#example_in Examples/Intro.lean pointPosEvalNoType}}` yields the following error:

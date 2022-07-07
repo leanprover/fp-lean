@@ -231,6 +231,8 @@ book declaration {{{ thirtyNine }}}
 stop book declaration
 
 
+
+
 evaluation steps {{{ NaturalNumberDef }}}
   NaturalNumber
   ===>
@@ -346,14 +348,14 @@ stop book declaration
 expect info {{{ fourAndThreeEval }}}
   #eval fourAndThree
 message
-  "{ x := 4.300000, y := 3.400000 }
+"{ x := 4.300000, y := 3.400000 }
 "
 end expect
 
 expect info {{{ zeroXFourAndThreeEval }}}
   #eval zeroX fourAndThree
 message
-  "{ x := 0.000000, y := 3.400000 }
+"{ x := 0.000000, y := 3.400000 }
 "
 end expect
 
@@ -452,7 +454,7 @@ stop book declaration
 expect info {{{ evalDistance }}}
   #eval distance { x := 1.0, y := 2.0 } { x := 5.0, y := -1.0 }
 message
- "5.000000
+"5.000000
 "
 end expect
 
@@ -551,6 +553,19 @@ message
 "
 end expect
 
+
+evaluation steps {{{ predFiveSteps }}}
+  pred 5
+  ===>
+  pred (Nat.succ 4)
+  ===>
+  match Nat.succ 4 with
+    | Nat.zero => Nat.zero
+    | Nat.succ k => k
+  ===>
+  4
+end evaluation steps
+
 expect info {{{ predBig }}}
   #eval pred 839
 message
@@ -564,6 +579,13 @@ message
 "0
 "
 end expect
+
+
+book declaration {{{ depth }}}
+  def depth (p : Point3D) : Float :=
+    match p with
+      | { x:= h, y := w, z := d } => d
+stop book declaration
 
 book declaration {{{ even }}}
   def even (n : Nat) : Bool :=
@@ -828,7 +850,7 @@ end expect
 expect info {{{ replaceXImpT }}}
   #check replaceX
 message
-  "replaceX : PPoint ?m.10165 → ?m.10165 → PPoint ?m.10165"
+  "replaceX : PPoint ?m.10478 → ?m.10478 → PPoint ?m.10478"
 end expect
 
 book declaration {{{ lengthImp }}}
@@ -995,18 +1017,18 @@ expect error {{{ headNoneBad }}}
   #eval [].head?
 message
 "don't know how to synthesize implicit argument
-  @List.nil ?m.15683
+  @List.nil ?m.15996
 context:
-⊢ Type ?u.15680"
+⊢ Type ?u.15993"
 end expect
 
 expect error {{{ headNoneBad2 }}}
   #eval [].head?
 message
 "don't know how to synthesize implicit argument
-  @_root_.List.head? ?m.15683 []
+  @_root_.List.head? ?m.15996 []
 context:
-⊢ Type ?u.15680"
+⊢ Type ?u.15993"
 end expect
 
 
@@ -1079,16 +1101,20 @@ def List.findFirst? {α : Type} (xs : List α) (predicate : α → Bool) : Optio
     | [] => none
     | y :: ys => if predicate y then some y else ys.findFirst? predicate
 
-inductive Sign where
-  | pos
-  | neg
+
+book declaration {{{ Sign }}}
+  inductive Sign where
+    | pos
+    | neg
+stop book declaration
 
 
-def posOrNegThree (s : Sign) : match s with | Sign.pos => Nat | Sign.neg => Int :=
-  match s with
-  | Sign.pos => (3 : Nat)
-  | Sign.neg => (-3 : Int)
-
+book declaration {{{ posOrNegThree }}}
+  def posOrNegThree (s : Sign) : match s with | Sign.pos => Nat | Sign.neg => Int :=
+    match s with
+    | Sign.pos => (3 : Nat)
+    | Sign.neg => (-3 : Int)
+stop book declaration
 
 
 def take (n : Nat) (xs : List α) : List α :=
@@ -1166,7 +1192,7 @@ expect error {{{ MissingTypeArg }}}
 message
 "type expected
 failed to synthesize instance
-  CoeSort (Type → Type) ?m.19870"
+  CoeSort (Type → Type) ?m.20183"
 end expect
 
 book declaration {{{ MyTypeDef }}}
@@ -1179,7 +1205,7 @@ expect error {{{ MissingTypeArg2 }}}
 message
 "type expected
 failed to synthesize instance
-  CoeSort (Type → Type) ?m.20111"
+  CoeSort (Type → Type) ?m.20424"
 end expect
 
 -- Example solution
@@ -1214,7 +1240,7 @@ book declaration {{{ drop }}}
   def drop : Nat → List α → List α
     | Nat.zero, xs => xs
     | _, [] => []
-    | Nat.succ n , x :: xs => drop n xs
+    | Nat.succ n, x :: xs => drop n xs
 stop book declaration
 
 
@@ -1420,7 +1446,6 @@ message
   "fun {α} x => x : {α : Type} → α → α"
 end expect
 
-
 expect info {{{ predHuh }}}
   #check fun
     | 0 => none
@@ -1435,7 +1460,7 @@ end expect
 
 book declaration {{{ doubleLambda }}}
   def double : Nat → Nat := fun
-    | 0 => Nat.zero
+    | 0 => 0
     | k + 1 => double k + 2
 stop book declaration
 
@@ -1482,7 +1507,7 @@ stop book declaration
 expect info {{{ NatDoubleFour }}}
   #eval (4 : Nat).double
 message
- "8
+"8
 "
 end expect
 
@@ -1589,7 +1614,7 @@ end bookExample
 expect error {{{ pointPosEvalNoType }}}
   #eval ⟨1, 2⟩
 message
-"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.26361"
+"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.26680"
 end expect
 
 expect info {{{ pointPosWithType }}}
