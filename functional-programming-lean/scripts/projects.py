@@ -3,8 +3,10 @@ import re
 from pathlib import Path
 import os
 import shlex
+import shutil
 import subprocess
 import sys
+import tempfile
 
 def eprint(val):
     print(val, file=sys.stderr)
@@ -17,44 +19,39 @@ class ContainerContext:
 
     def __init__(self, project_root):
         self.project_root = project_root
-        subprocess.run(["podman", "build", "-f", "cmdline", "-t", "leanbook"], cwd = f"{project_root}{os.path.sep}examples", capture_output=True)
-        self.containers = set()
+        # A mapping from "container" names to working directories
+        self.containers = {}
         self.outputs = {}
 
     def __enter__(self):
-        subprocess.run(["podman", "build", "-f", "cmdline", "-t", "leanbook"], cwd = f"{self.project_root}{os.path.sep}examples", capture_output=True, check=True)
         return self
 
-    def __exit__(self, _type, _value, _traceback):
+    def __exit__(self, typ, value, traceback):
         # delete all created containers
         for i in self.containers:
-            subprocess.run(["podman", "stop", i], capture_output=True)
-            subprocess.run(["podman", "rm", i], capture_output=True)
+            self.containers[i].__exit__(typ, value, traceback)
+
+    def lean_version(self):
+        with open(f"{self.project_root}{os.path.sep}examples{os.path.sep}lean-toolchain", 'r') as f:
+            return f.read().strip()
 
     def ensure_container(self, name):
         if name not in self.containers:
-            podman_cmd = f"podman run -d -it --name {name} leanbook:latest"
-            try:
-                subprocess.run(["podman", "run", "-d", "-it", "--name", name, "leanbook:latest"], check=True, capture_output=True)
-            except subprocess.CalledProcessError as e:
-                eprint("Output:")
-                eprint(e.output)
-                eprint("Stderr:")
-                eprint(e.stderr)
-
-                raise e
-            finally:
-                self.containers.add(name)
+            tmp = tempfile.TemporaryDirectory(prefix=name)
+            self.containers[name] = tmp
+            shutil.copytree(self.project_root, tmp.name, dirs_exist_ok=True, ignore=shutil.ignore_patterns('.*', '*~'))
+            subprocess.run(["elan", "override", "set", self.lean_version()], cwd=tmp.name, check=True, capture_output=True)
+        return self.containers[name].name
 
     def rewrite_command(self, project_root):
         def rewrite(found):
             container = found.group('container')
-            self.ensure_container(container)
+            container_dir = self.ensure_container(container)
             directory = found.group('dir')
             command = found.group('command')
             show = found.group('show')
             try:
-                val = subprocess.run(["podman", "exec", "-w", f"/lean-book/{directory}", container] + shlex.split(command), check=True, capture_output=True)
+                val = subprocess.run(command, shell=True, cwd=f'{container_dir}{os.path.sep}examples{os.path.sep}{directory}', check=True, capture_output=True)
             except subprocess.CalledProcessError as e:
                 eprint("Output:")
                 eprint(e.output)
