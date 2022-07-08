@@ -97,11 +97,11 @@ Just as SQL can be thought of as a special-purpose language for interacting with
 
 This program can be run in the same manner as the prior program:
 ```
-{{#command {hello-name} {hello-name} {./run} {lean --run HelloName.lean}}}
+{{#command {hello-name} {hello-name} {lean --run HelloName.lean}}}
 ```
 If the user responds with `David`, a session of interaction with the program reads:
 ```
-{{#command_out {hello-name} {./run} }}
+{{#command_out {hello-name} {lean --run HelloName.lean} }}
 ```
 
 The type signature line is just like the one for `Hello.lean`:
