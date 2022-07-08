@@ -13,6 +13,7 @@ def eprint(val):
 
 command_re = re.compile(r'\{\{#command\s+\{(?P<dir>[^}]+)\}\s*\{(?P<container>[^}]+)\}\s*\{(?P<command>[^}]+)\}\s*(\{(?P<show>[^}]+)\}\s*)?\}\}')
 command_out_re = re.compile(r'\{\{#command_out\s+\{(?P<container>[^}]+)\}\s*\{(?P<command>[^}]+)\}\s*\}\}')
+file_contents_re = re.compile(r'\{\{#file_contents\s+\{(?P<container>[^}]+)\}\s*\{(?P<file>[^}]+)\}\s*(\{(?P<expected>[^}]+)\}\s*)?\}\}')
 
 
 class ContainerContext:
@@ -75,12 +76,32 @@ class ContainerContext:
             return self.outputs[container][command]
         return rewrite
 
+    def rewrite_file_contents(self, project_root):
+        def rewrite(found):
+            container = found.group('container')
+            filename = found.group('file')
+            expect = found.group('expected')
+            expected_contents = None
+            if expect is None:
+                expected_contents = None
+            else:
+                with open(f"{self.project_root}{os.path.sep}examples{os.path.sep}{expect}", 'r') as f:
+                    expected_contents = f.read()
+            container_dir = self.ensure_container(container)
+            with open(f'{container_dir}{os.path.sep}examples{os.path.sep}{filename}') as f:
+                contents = f.read()
+                if expected_contents is not None:
+                    assert contents == expected_contents, f'expected {self.project_root}{os.path.sep}examples{os.path.sep}{expect} matches actual:\n{contents}'
+                return contents
+        return rewrite
+
     def run_examples(self, context, book):
         project_root = Path(context['root']).parent
         def test_chapters(chapters):
             for ch in chapters:
                 ch['Chapter']['content'] = command_re.sub(self.rewrite_command(project_root), ch['Chapter']['content'])
                 ch['Chapter']['content'] = command_out_re.sub(self.rewrite_command_out(project_root), ch['Chapter']['content'])
+                ch['Chapter']['content'] = file_contents_re.sub(self.rewrite_file_contents(project_root), ch['Chapter']['content'])
                 test_chapters(ch['Chapter']['sub_items'])
 
         test_chapters(book['sections'])
