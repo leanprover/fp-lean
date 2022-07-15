@@ -18,8 +18,9 @@ This creates a directory called `greeting` that contains the following files:
  * `lakefile.lean` contains the configuration that `lake` needs to build the application.
  * `lean-toolchain` contains an identifier for the specific version of Lean that is used for the project.
 
-Additionally, `lake new` initializes the project as a Git repository and configures it to ignore intermediate build products.
+Additionally, `lake new` initializes the project as a Git repository and configures its `.gitignore` file to ignore intermediate build products.
 Typically, the majority of the application logic will be in a collection of libraries for the program, while `Main.lean` will contain a small wrapper around these pieces that does things like parsing command lines and executing the central application logic.
+To create a project in an already-existing directory, run `lake init` instead of `lake new`.
 
 By default, the library file `Greeting.lean` contains a single definition:
 ```Lean
@@ -51,8 +52,49 @@ The generated `lakefile.lean` contains the following:
 ```
 
 The initial Lakefile consists of three items:
+ * a _package_ declaration, named `greeting`,
+ * a _library_ declaration, named `Greeting`, and
+ * an _executable_, also named `greeting`.
+ 
+Each Lakefile will contain exactly one package, but any number of libraries or executables.
+Additionally, Lakefiles may contain _external libraries_, which are libraries not written in Lean to be statically linked with the resulting executable, _custom targets_, which are build targets that don't fit naturally into the library/executable taxonomy, _dependencies_, which are declarations of other Lean packages (either locally or from remote Git repositories), and _scripts_, which are essentially `IO` actions (similar to `main`), but that additionally have access to metadata about the package configuration.
+The items in the Lakefile allow things like source file locations, module hierarchies, and compiler flags to be configured.
+Generally speaking, however, the defaults are reasonable.
 
+Libraries, executables, and custom targets are all called _targets_.
+By default, `lake build` builds those targets that are annotated with `@[defaultTarget]`.
+This annotation is an _attribute_, which is metadata that can be associated with a Lean declaration.
+Attributes are similar to Java annotations or C# and Rust attributes.
+They are used pervasively throughout Lean.
+To build a target that is not annotated with `@[defaultTarget]`, specify the target's name as an argument after `lake build`.
 
-## Imports
+## Libraries and Imports
+
+A Lean library consists of a hierarchically organized collection of source files from which names can be imported, called _modules_.
+By default, a library has a single root file that matches its name.
+In this case, the root file for the library `Greeting` is `Greeting.lean`.
+The first line of `Main.lean`, which is `import Greeting`, makes the contents of `Greeting.lean` available in `Main.lean`.
+
+Further module files may be added to the library by creating a directory called `Greeting` and placing them inside.
+These names can be imported by replacing the directory separator with a dot.
+For instance, creating the file `Greeting/Smile.lean` with the contents:
+```Lean
+def expression : String := "a big smile"
+```
+means that `Main.lean` can use the definition as follows:
+```Lean
+-- TODO externalize and test
+import Greeting
+import Greeting.Smile
+
+def main : IO Unit :=
+  IO.println s!"Hello, {hello}, with {expression}!"
+```
+
+The module name hierarchy is separate from the namespace hierarchy.
+That is, names defined in the module `Greeting.Smile` are not in a corresponding namespace `Greeting.Smile`.
+Modules may place names into any namespace they like, and the code that imports them may `open` the namespace or not.
+`import` is used to make the contents of a source file available, while `open` makes names from a namespace available in the current context.
+In the Lakefile, the line `import Lake` makes the contents of the `Lake` module available, while the like `open Lake DSL` makes the contents of the `Lake` and `DSL` namespaces available without any prefixes.
 
 

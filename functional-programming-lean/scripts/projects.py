@@ -16,6 +16,9 @@ command_out_re = re.compile(r'\{\{#command_out\s+\{(?P<container>[^}]+)\}\s*\{(?
 file_contents_re = re.compile(r'\{\{#file_contents\s+\{(?P<container>[^}]+)\}\s*\{(?P<file>[^}]+)\}\s*(\{(?P<expected>[^}]+)\}\s*)?\}\}')
 
 
+def mangle(string):
+    return string.replace('-', '---').replace('/', '-slash-')
+
 class ContainerContext:
 
     def __init__(self, project_root):
@@ -38,7 +41,7 @@ class ContainerContext:
 
     def ensure_container(self, name):
         if name not in self.containers:
-            tmp = tempfile.TemporaryDirectory(prefix=name)
+            tmp = tempfile.TemporaryDirectory(prefix=mangle(name))
             self.containers[name] = tmp
             shutil.copytree(self.project_root, tmp.name, dirs_exist_ok=True, ignore=shutil.ignore_patterns('.*', '*~'))
             subprocess.run(["elan", "override", "set", self.lean_version()], cwd=tmp.name, check=True, capture_output=True)

@@ -16,6 +16,7 @@
   - [Running a Program](./hello-world/running-a-program.md)
   - [Step By Step](./hello-world/step-by-step.md)
   - [Starting a Project](./hello-world/starting-a-project.md)
+  - [Worked Example: `cat`](./hello-world/cat.md)
 - [Overloading and Type Classes]()
 - [Monads]()
 - [IO Revisited]()
