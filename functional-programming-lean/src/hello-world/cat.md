@@ -81,7 +81,7 @@ There is no danger of running out of stack space while calling `dump` because th
 This kind of recursion is called _tail recursion_, and will be described in more detail later in this book.
 Because the compiled code does not need to retain any state, the Lean compiler can compile the recursive call as a jump.
 
-If `feline` only redirected standard intput to standard output, then `dump` would be sufficient.
+If `feline` only redirected standard input to standard output, then `dump` would be sufficient.
 However, it also needs to be able to open files that are provided as command-line arguments and emit their contents.
 When its argument is the name of a file that exists, `fileStream` returns a stream that reads the file's contents.
 When the argument is not a file, `fileStream` emits an error and returns `none`.
@@ -158,7 +158,8 @@ then the command
 ```
 should emit
 ```
-{{#command_out {feline/2} {./build/bin/feline test1.txt test2.txt} {feline/2/expected/test12.txt} }}```
+{{#command_out {feline/2} {./build/bin/feline test1.txt test2.txt} {feline/2/expected/test12.txt} }}
+```
 
 Finally, the `-` argument should be handled appropriately.
 ```

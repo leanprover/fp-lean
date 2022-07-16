@@ -4,26 +4,32 @@ def bufsize : USize := 20 * 1024
 
 -- ANCHOR: dump
 partial def dump (stream : IO.FS.Stream) : IO Unit := do
-  let stdout ← IO.getStdout
+  -- ANCHOR: isEofBind
   let done ← stream.isEof
   if done then
+  -- ANCHOR_END: isEofBind
     pure ()
   else
+    -- ANCHOR: bufBind
+    let stdout ← IO.getStdout
     let buf ← stream.read bufsize
     stdout.write buf
+    -- ANCHOR_END: bufBind
     dump stream
 -- ANCHOR_END: dump
 
 -- ANCHOR: fileStream
 def fileStream (filename : System.FilePath) : IO (Option IO.FS.Stream) := do
-    let fileExists ← filename.pathExists
-    if not fileExists then
-      let stderr ← IO.getStderr
-      stderr.putStrLn s!"File not found: {filename}"
-      pure none
-    else
-      let handle ← IO.FS.Handle.mk filename IO.FS.Mode.read
-      pure (some (IO.FS.Stream.ofHandle handle))
+  -- ANCHOR: fileExistsBind
+  let fileExists ← filename.pathExists
+  if not fileExists then
+  -- ANCHOR_END: fileExistsBind
+    let stderr ← IO.getStderr
+    stderr.putStrLn s!"File not found: {filename}"
+    pure none
+  else
+    let handle ← IO.FS.Handle.mk filename IO.FS.Mode.read
+    pure (some (IO.FS.Stream.ofHandle handle))
 -- ANCHOR_END: fileStream
 
 -- ANCHOR: process
