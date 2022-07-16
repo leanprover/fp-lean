@@ -12,7 +12,7 @@ def eprint(val):
     print(val, file=sys.stderr)
 
 command_re = re.compile(r'\{\{#command\s+\{(?P<dir>[^}]+)\}\s*\{(?P<container>[^}]+)\}\s*\{(?P<command>[^}]+)\}\s*(\{(?P<show>[^}]+)\}\s*)?\}\}')
-command_out_re = re.compile(r'\{\{#command_out\s+\{(?P<container>[^}]+)\}\s*\{(?P<command>[^}]+)\}\s*\}\}')
+command_out_re = re.compile(r'\{\{#command_out\s+\{(?P<container>[^}]+)\}\s*\{(?P<command>[^}]+)\}\s*(\{(?P<expected>[^}]+)\}\s*)?\}\}')
 file_contents_re = re.compile(r'\{\{#file_contents\s+\{(?P<container>[^}]+)\}\s*\{(?P<file>[^}]+)\}\s*(\{(?P<expected>[^}]+)\}\s*)?\}\}')
 
 
@@ -76,7 +76,17 @@ class ContainerContext:
         def rewrite(found):
             container = found.group('container')
             command = found.group('command')
-            return self.outputs[container][command]
+            expect = found.group('expected')
+            expected_output = None
+            if expect is None:
+                expected_output = None
+            else:
+                with open(f"{self.project_root}{os.path.sep}examples{os.path.sep}{expect}", 'r') as f:
+                    expected_output = f.read()
+            output = self.outputs[container][command]
+            if expected_output is not None:
+                assert output == expected_output, f'expected {command} in {self.project_root}{os.path.sep}examples{os.path.sep}{expect} to match actual:\n{output}'
+            return output.rstrip()
         return rewrite
 
     def rewrite_file_contents(self, project_root):

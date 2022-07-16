@@ -17,6 +17,8 @@
   - [Step By Step](./hello-world/step-by-step.md)
   - [Starting a Project](./hello-world/starting-a-project.md)
   - [Worked Example: `cat`](./hello-world/cat.md)
+  - [Additional Conveniences](./hello-world/conveniences.md)
+  - [Summary](./hello-world/summary.md)
 - [Overloading and Type Classes]()
 - [Monads]()
 - [IO Revisited]()

@@ -134,3 +134,37 @@ Otherwise, the arguments should be processed one after the other.
 
 
 ## Meow!
+
+To check whether `feline` works, the first step is to build it with `{{#command {feline/2} {feline/2} {lake build} }}`.
+First off, when called without arguments, it should emit what it receives from standard input.
+Check that
+```
+{{#command {feline/2} {feline/2} {echo "It works!" | ./build/bin/feline} }}
+```
+emits `{{#command_out {feline/2} {echo "It works!" | ./build/bin/feline} }}`.
+
+Secondly, when called with files as arguments, it should print them.
+If the file `test1.txt` contains
+```
+{{#include ../../../examples/feline/2/test1.txt}}
+```
+and `test2.txt` contains
+```
+{{#include ../../../examples/feline/2/test2.txt}}
+```
+then the command
+```
+{{#command {feline/2} {feline/2} {./build/bin/feline test1.txt test2.txt} }}
+```
+should emit
+```
+{{#command_out {feline/2} {./build/bin/feline test1.txt test2.txt} {feline/2/expected/test12.txt} }}```
+
+Finally, the `-` argument should be handled appropriately.
+```
+{{#command {feline/2} {feline/2} {echo "and purr" | ./build/bin/feline test1.txt - test2.txt} }}
+```
+should yield
+```
+{{#command_out {feline/2} {echo "and purr" | ./build/bin/feline test1.txt - test2.txt} {feline/2/expected/test1purr2.txt}}}
+```
