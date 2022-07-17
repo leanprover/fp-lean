@@ -391,9 +391,9 @@ For instance, `{{#example_in Examples/Intro.lean pointPosEvalNoType}}` yields th
 {{#example_out Examples/Intro.lean pointPosEvalNoType}}
 ```
 The metavariable in the error is because there is no type information available.
-Adding an annotation, such as in `{{#example_in Examples/Intro.lean pointPosEvalNoType}}`, solves the problem:
+Adding an annotation, such as in `{{#example_in Examples/Intro.lean pointPosWithType}}`, solves the problem:
 ```Lean info
-{{#example_out Examples/Intro.lean pointPosEvalNoType}}
+{{#example_out Examples/Intro.lean pointPosWithType}}
 ```
 
 
