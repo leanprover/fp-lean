@@ -2,7 +2,7 @@
 
 As a program written in Lean becomes more serious, an ahead-of-time compiler-based workflow that results in an executable becomes more attractive.
 The standard Lean build tool is called Lake (short for "Lean Make"), and it is configured in Lean.
-Just as Lean contains a special-purpose language for writing programs with effects (the `do` language), Lake contains a special-purpose for configuring builds.
+Just as Lean contains a special-purpose language for writing programs with effects (the `do` language), Lake contains a special-purpose language for configuring builds.
 These languages are referred to as _embedded domain-specific languages_ (or sometimes _domain-specific embedded languages_, abbreviated EDSL or DSEL).
 They are _domain-specific_ in the sense that they are used for a particular purpose, with concepts from some sub-domain, and they are typically not suitable for general-purpose programming.
 The are _embedded_ because they occur inside another language's syntax.
