@@ -3,7 +3,7 @@ import Examples.Support
 expect info {{{ dropBang }}}
   #eval "Hello!!!".dropRightWhile (· == '!')
 message
-  "\"Hello\"
+"\"Hello\"
 "
 end expect
 
@@ -34,8 +34,8 @@ end expect
 
 book declaration {{{ nTimes }}}
 def nTimes (action : IO Unit) : Nat → IO Unit
-  | Nat.zero => pure ()
-  | Nat.succ n => do
+  | 0 => pure ()
+  | n + 1 => do
     action
     nTimes action n
 stop book declaration
@@ -51,8 +51,8 @@ end expect
 
 book declaration {{{ countdown }}}
   def countdown : Nat → List (IO Unit)
-    | Nat.zero => [IO.println "Blast off!"]
-    | Nat.succ n => IO.println s!"{n+1}" :: countdown n
+    | 0 => [IO.println "Blast off!"]
+    | n + 1 => IO.println s!"{n + 1}" :: countdown n
 stop book declaration
 
 

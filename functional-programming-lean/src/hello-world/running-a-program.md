@@ -21,11 +21,11 @@ As discussed in [the preceding chapter](../getting-to-know/polymorphism.md), `Un
 It has a single constructor called `unit` that takes no arguments.
 Languages in the C tradition have a notion of a `void` function that does not return any value at all.
 In Lean, all functions take an argument and return a value, and the lack of interesting arguments or return values can be signaled by using the `Unit` type instead.
-If `Bool` represents a single bit of information, `Unit represents zero bits of information.
+If `Bool` represents a single bit of information, `Unit` represents zero bits of information.
 
 `IO α` is the type of a program that, when executed, will either crash, fall into a loop, or return a value of type `α`.
 These programs are referred to as `IO` _actions_.
-Languages like Lean distinguish between _evaluation_ of expressions, which strictly adheres to the mathematical model of substitution of values for variables and reduction of sub-expressions, and _execution_ of `IO` actions, which rely on an external system to interact with the world.
+Lean distinguishes between _evaluation_ of expressions, which strictly adheres to the mathematical model of substitution of values for variables and reduction of sub-expressions, and _execution_ of `IO` actions, which rely on an external system to interact with the world.
 `IO.println` is a function from strings to `IO` actions that, when executed, write the given string to standard output.
 Because this action doesn't read any interesting information from the environment in the process of ouptutting the string, `IO.println` has type `String → IO Unit`.
 
@@ -56,18 +56,18 @@ Just as keeping customers away allows the cook to focus on making truly excellen
 It also helps programmers understand the parts of the program in isolation from each other, because there cannot be hidden state changes that create subtle coupling between components.
 
 This model of side effects is quite similar to how the overall aggregate of the Lean language, its compiler, and its run-time system (RTS) work.
-Primitives in the run-time system implement all the basic effects.
+Primitives in the run-time system, written in C, implement all the basic effects.
 When running a program, the RTS invokes the `main` action, which returns new `IO` actions to the RTS for execution.
 The RTS executes these actions, delegating to the user's Lean code to carry out computations.
 From the internal perspective of Lean, programs are free of side effects, and `IO` actions are just descriptions of tasks to be carried out.
-From the external perspective of the program's user, there is a layer of side effects that create an interface to the rest of the program.
+From the external perspective of the program's user, there is a layer of side effects that create an interface to the program's core logic.
 
 
 ## Real-World Functional Programming
 
 The other useful way to think about side effects in Lean is by considering `IO` actions to represent functions that take the entire world as an argument, and return a value paired with a new world.
 In this case, reading a line of text from standard input _is_ a pure function, because a different world is provided as an argument each time.
-Writing a line of text to standard output is a pure function, because the world that the function returns is different that he one it began with.
+Writing a line of text to standard output is a pure function, because the world that the function returns is different from the one that it began with.
 Programs do need to be careful to never re-use the world, nor to fail to return a new world—this would amount to time travel or the end of the world, after all.
 Careful abstraction boundaries can make this style of programming safe.
 If every primitive `IO` action accepts one world and returns a new one, and they can only be combined with tools that preserve this invariant, then the problem cannot occur.
@@ -97,11 +97,11 @@ Just as SQL can be thought of as a special-purpose language for interacting with
 
 This program can be run in the same manner as the prior program:
 ```
-{{#command {hello-name} {hello-name} {lean --run HelloName.lean}}}
+{{#command {hello-name} {hello-name} {echo "David" | lean --run HelloName.lean} {lean --run HelloName.lean}}}
 ```
 If the user responds with `David`, a session of interaction with the program reads:
 ```
-{{#command_out {hello-name} {lean --run HelloName.lean} }}
+{{#command_out {hello-name} {echo "David" | lean --run HelloName.lean} }}
 ```
 
 The type signature line is just like the one for `Hello.lean`:
@@ -117,7 +117,7 @@ The first two lines, which read:
 ```
 retrieve the `stdin` and `stdout` handles by executing the library actions `IO.getStdin` and `IO.getStdout`, respectively.
 In a `do` block, `let` has a slightly different meaning than in an ordinary expression.
-Ordinarily, the local definition in a `let` is separated from the expression in which it can be used by a semicolon.
+Ordinarily, the local definition in a `let` can be used in just one expression, which immediately follows the local definition.
 In a `do` block, local bindings introduced by `let` are available in the remainder of the block.
 Additionally, `let` typically connects the name being defined to its definition using `:=`, while some `let` bindings in `do` use a left arrow (`←`) instead.
 Using an arrow means that the value should be executed, and the result saved in the local variable.
@@ -129,7 +129,7 @@ The next part of the `do` block is responsible for asking the user for their nam
 {{#include ../../../examples/hello-name/HelloName.lean:question}}
 ```
 The first line writes the question to `stdout`, the second line requests input from `stdin`, and the third line removes the trailing newline (plus any other trailing whitespace) from the input line.
-The definition of `name` uses `:=` rather than `←` because `String.dropRightWhile` is an ordinary function on strings rather than an `IO` action.
+The definition of `name` uses `:=`, rather than `←`, because `String.dropRightWhile` is an ordinary function on strings, rather than an `IO` action.
 
 Finally, the last line in the program is:
 ```
@@ -137,10 +137,4 @@ Finally, the last line in the program is:
 ```
 It uses [string interpolation](../getting-to-know/conveniences.md#string-interpolation) to insert the provided name into a greeting string, writing the result to `stdout`.
 
-
-## Input and Output
-
- * Ask for name and greet
- * Make analogy to café
- * Step through evaluation/execution with diagrams
 

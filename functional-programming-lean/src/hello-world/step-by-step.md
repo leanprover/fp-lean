@@ -15,9 +15,8 @@ The first line is `{{#include ../../../examples/hello-name/HelloName.lean:line1}
 To execute a `let` statement that uses a `←`, start by evaluating the expression to the right of the arrow (in this case, `IO.getStdIn`).
 Because this expression is just a variable, its value is looked up.
 The resulting value is a built-in primitive `IO` action.
-The next step is to execute the resulting `IO` action.
-Executing this action results in a value that represents the standard input stream, which has type `IO.FS.Stream`.
-The result of executing the `IO` action is then associated with the name to the left of the arrow (here `stdin`) for the remainder of the `do` block.
+The next step is to execute this `IO` action, resulting in a value that represents the standard input stream, which has type `IO.FS.Stream`.
+Standard input is then associated with the name to the left of the arrow (here `stdin`) for the remainder of the `do` block.
 
 Executing the second line, `{{#include ../../../examples/hello-name/HelloName.lean:line2}}`, proceeds similarly.
 First, the expression `IO.getStdout` is evaluated, yielding an `IO` action that will return the standard output.
@@ -38,7 +37,7 @@ This means that it is a function that accepts a stream and a string, returning a
 The expression uses [accessor notation](../getting-to-know/structures.md#behind-the-scenes) for a function call.
 This function is applied to two arguments: the standard output stream and a string.
 The value of the expression is an `IO` action that will write the string and a newline character to the output stream.
-Having found this value, the next step is to execute it, which causes the string and newline to be output.
+Having found this value, the next step is to execute it, which causes the string and newline to actually be written to `stdout`.
 Statements that consist only of expressions do not introduce any new variables.
 
 The next statement in the block is `{{#include ../../../examples/hello-name/HelloName.lean:line4}}`.
@@ -46,7 +45,7 @@ The next statement in the block is `{{#include ../../../examples/hello-name/Hell
 Once again, this is an example of accessor notation.
 This `IO` action is executed, and the program waits until the user has typed a complete line of input.
 Assume the user writes "`David`".
-The resulting line (`"David\n"`) is associated with `input`, where `\n` is the newline character.
+The resulting line (`"David\n"`) is associated with `input`, where the escape sequence `\n` denotes the newline character.
 
 ```Lean
 {{#include ../../../examples/hello-name/HelloName.lean:block5}}
@@ -73,8 +72,6 @@ yields
 ```
 in which all non-letter characters have been removed from the right side of the string.
 In the current line of the program, whitespace characters (including the newline) are removed from the right side of the input string, resulting in `"David"`, which is associated with `name` for the remainder of the block.
-In a `do` block, `let` statements that use `:=` are essentially the same as `let` expressions in ordinary Lean code, with the only difference being that the local name is available in any number of statements rather than just in one expression.
-
 
 
 ## Greeting the User
@@ -94,7 +91,8 @@ After all, each action is executed immediately after it is produced.
 Why not simply carry out the effects during evaluation, as is done in other languages?
 
 The answer is twofold.
-First off, separating evaluation from execution allows execution to be "turned off", resulting in programs that more closely match mathematical reasoning.
+First off, separating evaluation from execution means that programs must be explicit about which functions can have side effects.
+Because the parts of the program that do not have effects are much more amenable to mathematical reasoning, whether in the heads of programmers or using Lean's facilities for formal proof, this separation can make it easier to avoid bugs.
 Secondly, not all `IO` actions need be executed at the time that they come into existence.
 The ability to mention an action without carrying it out allows ordinary functions to be used as control structures.
 

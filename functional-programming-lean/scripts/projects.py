@@ -1,3 +1,4 @@
+import difflib
 import json
 import re
 from pathlib import Path
@@ -83,9 +84,9 @@ class ContainerContext:
             else:
                 with open(f"{self.project_root}{os.path.sep}examples{os.path.sep}{expect}", 'r') as f:
                     expected_output = f.read()
-            output = self.outputs[container][command]
+            output = self.outputs[container][command].rstrip()
             if expected_output is not None:
-                assert output == expected_output, f'expected {command} in {self.project_root}{os.path.sep}examples{os.path.sep}{expect} to match actual:\n{output}'
+                assert output == expected_output.rstrip(), f'expected {command} in {self.project_root}{os.path.sep}examples{os.path.sep}{expect} to match actual:\n{output}'
             return output.rstrip()
         return rewrite
 
@@ -102,9 +103,9 @@ class ContainerContext:
                     expected_contents = f.read()
             container_dir = self.ensure_container(container)
             with open(f'{container_dir}{os.path.sep}examples{os.path.sep}{filename}') as f:
-                contents = f.read()
+                contents = f.read().rstrip()
                 if expected_contents is not None:
-                    assert contents == expected_contents, f'expected {self.project_root}{os.path.sep}examples{os.path.sep}{expect} matches actual:\n{contents}'
+                    assert contents == expected_contents.rstrip(), f'expected {self.project_root}{os.path.sep}examples{os.path.sep}{expect} matches actual:\n{contents}'
                 return contents
         return rewrite
 

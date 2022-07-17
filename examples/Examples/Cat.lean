@@ -41,13 +41,13 @@ def fileStream (filename : System.FilePath) : IO (Option IO.FS.Stream) := do
     let handle ← IO.FS.Handle.mk filename IO.FS.Mode.read
     pure (some (IO.FS.Stream.ofHandle handle))
 
-def process (err : UInt32) (args : List String) : IO UInt32 := do
+def process (exitCode : UInt32) (args : List String) : IO UInt32 := do
   match args with
-    | [] => pure err
+    | [] => pure exitCode
     | "-" :: args =>
       let stdin ← IO.getStdin
       dump stdin
-      process err args
+      process exitCode args
     | filename :: args =>
       let stream ← fileStream ⟨filename⟩
       match stream with
@@ -55,7 +55,7 @@ def process (err : UInt32) (args : List String) : IO UInt32 := do
           process 1 args
         | some stream =>
           dump stream
-          process err args
+          process exitCode args
 
 def main (args : List String) : IO UInt32 :=
   match args with
@@ -89,19 +89,19 @@ stop book declaration
 
 
 book declaration {{{ process }}}
-def process (err : UInt32) (args : List String) : IO UInt32 := do
+def process (exitCode : UInt32) (args : List String) : IO UInt32 := do
   match args with
-    | [] => pure err
+    | [] => pure exitCode
     | "-" :: args =>
       dump (← IO.getStdin)
-      process err args
+      process exitCode args
     | filename :: args =>
       match (← fileStream ⟨filename⟩) with
         | none =>
           process 1 args
         | some stream =>
           dump stream
-          process err args
+          process exitCode args
 stop book declaration
 
 def main (args : List String) : IO UInt32 :=

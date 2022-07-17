@@ -1,6 +1,5 @@
 # Additional Conveniences
 
-There are a number of ways to make the `do` notation for `IO` actions more concise.
 
 ## Nested Actions
 

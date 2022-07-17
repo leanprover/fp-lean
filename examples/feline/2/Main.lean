@@ -33,13 +33,13 @@ def fileStream (filename : System.FilePath) : IO (Option IO.FS.Stream) := do
 -- ANCHOR_END: fileStream
 
 -- ANCHOR: process
-def process (err : UInt32) (args : List String) : IO UInt32 := do
+def process (exitCode : UInt32) (args : List String) : IO UInt32 := do
   match args with
-    | [] => pure err
+    | [] => pure exitCode
     | "-" :: args =>
       let stdin ← IO.getStdin
       dump stdin
-      process err args
+      process exitCode args
     | filename :: args =>
       let stream ← fileStream ⟨filename⟩
       match stream with
@@ -47,7 +47,7 @@ def process (err : UInt32) (args : List String) : IO UInt32 := do
           process 1 args
         | some stream =>
           dump stream
-          process err args
+          process exitCode args
 -- ANCHOR_END: process
 
 -- ANCHOR: main

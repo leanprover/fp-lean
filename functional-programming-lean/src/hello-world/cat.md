@@ -2,13 +2,13 @@
 
 The standard Unix utility `cat` takes a number of command-line options, followed by a zero or more input files.
 If no files are provided, or if one of them is a dash (`-`), then it takes the standard input as the corresponding input instead of reading a file.
-The contents of the inputs are output, one after the other, to the standard output.
-If the specified file does not exist, this is noted on standard error, but `cat` continues concatenating the remaining inputs.
+The contents of the inputs are written, one after the other, to the standard output.
+If a specified input file does not exist, this is noted on standard error, but `cat` continues concatenating the remaining inputs.
 A non-zero exit code is returned if any of the input files do not exist.
 
 This section describes a simplified version of `cat`, called `feline`.
 Unlike commonly-used versions of `cat`, `feline` has no command-line options for features such as numbering lines, indicating non-printing characters, or displaying help text.
-Additionally, it cannot read more than once from a standard input that's associated with a terminal device.
+Furthermore, it cannot read more than once from a standard input that's associated with a terminal device.
  
 To get the most benefit from this section, follow along yourself.
 It's OK to copy-paste the code examples, but it's even better to type them in by hand.
@@ -43,7 +43,7 @@ Instead, it's better to read contiguous blocks of data all at once, directing th
 
 The first step is to decide how big of a block to read.
 For the sake of simplicity, this implementation uses a conservative 20 kilobyte block.
-`USize` is analogous to `size_t` in C---it's an unsigned integer type that is big enough to represent all valid array sizes.
+`USize` is analogous to `size_t` in C—it's an unsigned integer type that is big enough to represent all valid array sizes.
 ```Lean
 {{#include ../../../examples/feline/2/Main.lean:bufsize}}
 ```
@@ -70,8 +70,8 @@ The Lean compiler contains `IO` actions (such as `IO.getStdout`, which is called
 These are `IO` actions rather than ordinary definitions because Lean allows these standard POSIX streams to be replaced in a process, which makes it easier to do things like capturing the output from a program into a string by writing a custom `IO.FS.Stream`.
 
 The control flow in `dump` is essentially a `while` loop.
-When `dump` is called, if the stream has hit the end of the file, `pure ()` terminates the function by returning the constructor for `Unit`.
-If the stream has not yet hit the end of the file, one block is read, and its contents are written to `stdout`, after which `dump` calls itself directly.
+When `dump` is called, if the stream has reached the end of the file, `pure ()` terminates the function by returning the constructor for `Unit`.
+If the stream has not yet reached the end of the file, one block is read, and its contents are written to `stdout`, after which `dump` calls itself directly.
 The recursive calls continue until `stream.isEof` returns `true`.
 
 When an `if` expression occurs directly under a `do`, as in `dump`, each branch of the `if` is implicitly provided with a `do`.
@@ -79,7 +79,7 @@ In other words, the sequence of steps following the `else` are treated as a sequ
 
 There is no danger of running out of stack space while calling `dump` because the recursive call happens as the very last step in the function, and its result is returned directly rather than being manipulated or computed with.
 This kind of recursion is called _tail recursion_, and will be described in more detail later in this book.
-Because the compiled code does not need to retain any state, the Lean compiler can compile the recursive call as a jump.
+Because the compiled code does not need to retain any state, the Lean compiler can compile the recursive call to a jump.
 
 If `feline` only redirected standard input to standard output, then `dump` would be sufficient.
 However, it also needs to be able to open files that are provided as command-line arguments and emit their contents.
@@ -97,7 +97,7 @@ Second, the file handle is given the same interface as a POSIX stream using `IO.
 ### Handling Input
 
 The main loop of `feline` is another tail-recursive function, called `process`.
-In order to return a non-zero exit code if any of the inputs could not be read, `process` takes an argument `err` that represents the current return value for the whole program.
+In order to return a non-zero exit code if any of the inputs could not be read, `process` takes an argument `exitCode` that represents the current exit code for the whole program.
 Additionally, it takes a list of input files to be processed.
 ```Lean
 {{#include ../../../examples/feline/2/Main.lean:process}}
@@ -110,8 +110,8 @@ Another is that the specified filename is `"-"`, in which case `process` dumps t
 The final possibility is that an actual filename was specified.
 In this case, `fileStream` is used to attempt to open the file as a POSIX stream.
 Its argument is encased in `⟨ ... ⟩` because a `FilePath` is a single-field structure that contains a string.
-If the file could not be opened, it is skipped, and the recursive call to `process` sets the return code to `1`.
-If it could, then it is dumped, followed by calling `process` with the same error code that it was provided.
+If the file could not be opened, it is skipped, and the recursive call to `process` sets the exit code to `1`.
+If it could, then it is dumped, and the recursive call to `process` leaves the exit code unchanged.
 
 `process` does not need to be marked `partial` because it is structurally recursive.
 Each recursive call is provided with the tail of the input list, and all Lean lists are finite.
@@ -123,7 +123,7 @@ The final step is to write the `main` action.
 Unlike prior examples, `main` in `feline` is a function.
 In Lean, `main` can have one of three types:
  * `main : IO Unit` corresponds to `void main()` in C, for programs that cannot read their command-line arguments and always indicate success,
- * `main : IO UInt32` corresponds to `int main()` in C, for programs without arguments that may signal success or failure, and
+ * `main : IO UInt32` corresponds to `int main()` in C, for programs without arguments that return exit codes, and
  * `main : List String → IO UInt32` corresponds to `int main(int argc, char **argv)` in C, for programs that take arguments and signal success or failure.
 
 If no arguments were provided, `feline` should read from standard input as if it were called with a single `"-"` argument.
@@ -169,3 +169,8 @@ should yield
 ```
 {{#command_out {feline/2} {echo "and purr" | ./build/bin/feline test1.txt - test2.txt} {feline/2/expected/test1purr2.txt}}}
 ```
+
+## Exercise
+
+Extend `feline` with support for usage information.
+The extended version should accept a command-line argument `--help` that causes documentation about the available command-line options to be written to standard output.

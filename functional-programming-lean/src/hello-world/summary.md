@@ -7,6 +7,7 @@ While most language allow side effects to occur during evaluation, Lean does not
 Instead, Lean has a type called `IO` that represents _descriptions_ of programs that use side effects.
 These descriptions are then executed by the language's run-time system, which invokes the Lean expression evaluator to carry out specific computations.
 Values of type `IO α` are called _`IO` actions_.
+The simplest is `pure`, which returns its argument and has no actual side effects.
 
 `IO` actions can also be understood as functions that take the whole world as an argument and return a new in which the side effect has occurred.
 Behind the scenes, the `IO` library ensures that the world is never duplicated, created, or destroyed.
@@ -14,7 +15,7 @@ While this model of side effects cannot actually be implemented, as the whole un
 
 An `IO` action `main` is executed when the program starts.
 `main` can have one of three types:
- * `main : IO Unit` is used for simple programs that cannot read their command-line arguments and always indicate success,
+ * `main : IO Unit` is used for simple programs that cannot read their command-line arguments and always return exit code `0`,
  * `main : IO UInt32` is used for programs without arguments that may signal success or failure, and
  * `main : List String → IO UInt32` is used for programs that take command-line arguments and signal success or failure.
 
@@ -24,9 +25,9 @@ An `IO` action `main` is executed when the program starts.
 The Lean standard library provides a number of basic `IO` actions that represent effects such as reading from and writing to files and interacting with standard input and standard output.
 These base `IO` actions are composed into larger `IO` actions using `do`-notation, which is a built-in domain-specific language for writing descriptions of programs with side effects.
 A `do`-expression contains a sequence of _statements_, which may be:
- * Expressions that represent `IO` actions
- * Ordinary local definitions with `let` and `:=`, where the defined name refers to the value of the provided expression
- * Local definitions with `let` and `←`, where the defined name refers to the result of executing the value of the provided expression
+ * expressions that represent `IO` actions,
+ * ordinary local definitions with `let` and `:=`, where the defined name refers to the value of the provided expression, or
+ * local definitions with `let` and `←`, where the defined name refers to the result of executing the value of the provided expression.
 
 `IO` actions that are written with `do` are executed one statement at a time.
  
@@ -57,5 +58,5 @@ However, some real programs require the possibility of looping infinitely, becau
 Lean provides an escape hatch: functions whose definition is marked `partial` are not required to terminate.
 This comes at a cost.
 Because types are a first-class part of the Lean language, functions can return types.
-But `partial` functions are not evaluated during type checking, because an infinite loop in a function could cause the type checker to enter an infinite loop.
-Furthermore, mathematical proofs are unable to inspect the definitions of `partial` functions, which means that programs that use them are much less amenable to formal proof.
+Partial functions, however, are not evaluated during type checking, because an infinite loop in a function could cause the type checker to enter an infinite loop.
+Furthermore, mathematical proofs are unable to inspect the definitions of partial functions, which means that programs that use them are much less amenable to formal proof.

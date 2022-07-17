@@ -4,7 +4,7 @@ As a program written in Lean becomes more serious, an ahead-of-time compiler-bas
 The standard Lean build tool is called Lake (short for "Lean Make"), and it is configured in Lean.
 Just as Lean contains a special-purpose language for writing programs with effects (the `do` language), Lake contains a special-purpose for configuring builds.
 These languages are referred to as _embedded domain-specific languages_ (or sometimes _domain-specific embedded languages_, abbreviated EDSL or DSEL).
-The are _domain-specific_ in the sense that they are used for a particular purpose, with concepts from some sub-domain, and they are typically not suitable for general-purpose programming.
+They are _domain-specific_ in the sense that they are used for a particular purpose, with concepts from some sub-domain, and they are typically not suitable for general-purpose programming.
 The are _embedded_ because they occur inside another language's syntax.
 While Lean contains rich facilities for creating EDSLs, they are beyond the scope of this book.
 
@@ -24,16 +24,11 @@ To create a project in an already-existing directory, run `lake init` instead of
 
 By default, the library file `Greeting.lean` contains a single definition:
 ```Lean
--- TODO externalize and test
-def hello := "world"
+{{#file_contents {lake} {first-lake/greeting/Greeting.lean} {first-lake/expected/Greeting.lean}}}
 ```
 while the executable source `Main.lean` contains:
 ```Lean
--- TODO externalize and test
-import Greeting
-
-def main : IO Unit :=
-  IO.println s!"Hello, {hello}!"
+{{#file_contents {lake} {first-lake/greeting/Main.lean} {first-lake/expected/Main.lean}}}
 ```
 The `import` line makes the contents of `Greeting.lean` available in `Main.lean`.
 
@@ -51,7 +46,7 @@ The generated `lakefile.lean` contains the following:
 {{#file_contents {lake} {first-lake/greeting/lakefile.lean} {first-lake/expected/lakefile.lean}}}
 ```
 
-The initial Lakefile consists of three items:
+This initial Lakefile consists of three items:
  * a _package_ declaration, named `greeting`,
  * a _library_ declaration, named `Greeting`, and
  * an _executable_, also named `greeting`.
@@ -79,16 +74,11 @@ Further module files may be added to the library by creating a directory called 
 These names can be imported by replacing the directory separator with a dot.
 For instance, creating the file `Greeting/Smile.lean` with the contents:
 ```Lean
-def expression : String := "a big smile"
+{{#file_contents {lake} {second-lake/greeting/Greeting/Smile.lean}}}
 ```
 means that `Main.lean` can use the definition as follows:
 ```Lean
--- TODO externalize and test
-import Greeting
-import Greeting.Smile
-
-def main : IO Unit :=
-  IO.println s!"Hello, {hello}, with {expression}!"
+{{#file_contents {lake} {second-lake/greeting/Main.lean}}}
 ```
 
 The module name hierarchy is separate from the namespace hierarchy.
