@@ -27,7 +27,7 @@ If `Bool` represents a single bit of information, `Unit` represents zero bits of
 These programs are referred to as `IO` _actions_.
 Lean distinguishes between _evaluation_ of expressions, which strictly adheres to the mathematical model of substitution of values for variables and reduction of sub-expressions, and _execution_ of `IO` actions, which rely on an external system to interact with the world.
 `IO.println` is a function from strings to `IO` actions that, when executed, write the given string to standard output.
-Because this action doesn't read any interesting information from the environment in the process of ouptutting the string, `IO.println` has type `String → IO Unit`.
+Because this action doesn't read any interesting information from the environment in the process of emitting the string, `IO.println` has type `String → IO Unit`.
 
 ## Functional Programming vs Effects
 
@@ -53,7 +53,7 @@ When provided with an order, the cook faithfully and consistently delivers what 
 The counter worker is the surrounding run-time system that interacts with the world and can accept payments, dispense food, and have conversations with customers.
 Working together, the two employees serve all the functions of the restaurant, but their responsibilities are divided, with each performing the tasks that they're best at.
 Just as keeping customers away allows the cook to focus on making truly excellent coffee and sandwiches, Lean's lack of side effects allows programs to be used as part of formal mathematical proofs.
-It also helps programmers understand the parts of the program in isolation from each other, because there cannot be hidden state changes that create subtle coupling between components.
+It also helps programmers understand the parts of the program in isolation from each other, because there are no hidden state changes that create subtle coupling between components.
 
 This model of side effects is quite similar to how the overall aggregate of the Lean language, its compiler, and its run-time system (RTS) work.
 Primitives in the run-time system, written in C, implement all the basic effects.
@@ -120,7 +120,7 @@ In a `do` block, `let` has a slightly different meaning than in an ordinary expr
 Ordinarily, the local definition in a `let` can be used in just one expression, which immediately follows the local definition.
 In a `do` block, local bindings introduced by `let` are available in the remainder of the block.
 Additionally, `let` typically connects the name being defined to its definition using `:=`, while some `let` bindings in `do` use a left arrow (`←`) instead.
-Using an arrow means that the value should be executed, and the result saved in the local variable.
+Using an arrow means that the value of the expression is an `IO` action that should be executed, with the result of the action saved in the local variable.
 In other words, if the expression to the right of the arrow has type `IO α`, then the variable has type `α` in the remainder of the `do` block.
 `IO.getStdin` and `IO.getStdout` are `IO` actions because it allows `stdin` and `stdout` to be locally overridden in a program, which can be convenient.
 
