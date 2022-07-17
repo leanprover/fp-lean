@@ -1621,7 +1621,7 @@ end expect
 expect info {{{ pointPosWithType }}}
   #eval (⟨1, 2⟩ : Point)
 message
-  "{ x := 1.000000, y := 2.000000 }
+"{ x := 1.000000, y := 2.000000 }
 "
 end expect
 
