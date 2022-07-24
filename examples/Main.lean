@@ -1,6 +1,9 @@
 
 import Examples
 import Examples.Utils
+import Examples.Intro
+import Examples.Cat
+import Examples.Classes
 
 
 def index (cases : List α) : List (Nat × α) :=

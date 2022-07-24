@@ -20,7 +20,7 @@
   - [Additional Conveniences](./hello-world/conveniences.md)
   - [Summary](./hello-world/summary.md)
 - [Overloading and Type Classes](type-classes.md)
-  - [Addition](type-classes/plus.md)
+  - [Positive Numbers](type-classes/pos.md)
 - [Monads]()
 - [IO Revisited]()
 - [Monad Transformers]()

@@ -35,7 +35,7 @@ elab_rules : command
       unless (← isDefEq x y) do
         throwError "Expected {y}, but got {← reduce x}"
 
-syntax withPosition("bookExample" ":" term "{{{" ws ident ws "}}}" colGt term:60 colGt "===>" colGt term:60 "end bookExample") : command
+syntax withPosition("bookExample" ":" term "{{{" ws ident ws "}}}" colGt term:10 colGt "===>" colGt term:10 "end bookExample") : command
 
 elab_rules : command
   | `(bookExample : $type:term {{{ $name:ident }}} $x:term ===> $y:term end bookExample) =>
@@ -62,7 +62,7 @@ bookExample {{{ two }}}
   2
 end bookExample
 
-syntax withPosition("bookExample" "type" "{{{" ws ident ws "}}}" colGt term:60 colGt "===>" colGt term:60 "end bookExample") : command
+syntax withPosition("bookExample" "type" "{{{" ws ident ws "}}}" colGt term:10 colGt "===>" colGt term:10 "end bookExample") : command
 
 elab_rules : command
   | `(bookExample type {{{ $name:ident }}} $x:term ===> $y:term end bookExample) =>
@@ -82,7 +82,13 @@ bookExample type {{{ three }}}
   Nat
 end bookExample
 
-syntax withPosition("bookExample" "type" "{{{" ws ident ws "}}}" colGt term:60 colGt "<===" colGt term:60 "end bookExample") : command
+bookExample type {{{ listT }}}
+  List
+  ===>
+  Type → Type
+end bookExample
+
+syntax withPosition("bookExample" "type" "{{{" ws ident ws "}}}" colGt term:10 colGt "<===" colGt term:10 "end bookExample") : command
 
 elab_rules : command
   | `(bookExample type {{{ $name:ident }}} $x:term <=== $y:term end bookExample) =>

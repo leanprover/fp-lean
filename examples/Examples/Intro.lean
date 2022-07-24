@@ -1458,13 +1458,13 @@ message
   | Nat.succ n => some n : Nat → Option Nat"
 end expect
 
-
+namespace Double
 book declaration {{{ doubleLambda }}}
   def double : Nat → Nat := fun
     | 0 => 0
     | k + 1 => double k + 2
 stop book declaration
-
+end Double
 
 evaluation steps {{{ funPair }}}
   (· + 5, 3)
