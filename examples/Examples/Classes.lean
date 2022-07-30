@@ -176,11 +176,6 @@ message
 end expect
 
 
-bookExample type {{{ printlnType }}}
-  @IO.println
-  ===>
-  {α : Type} → [ToString α] → α → IO Unit
-end bookExample
 
 namespace Foo
 
@@ -209,8 +204,7 @@ expect info {{{ muls }}}
          seven * seven,
          Pos.succ Pos.one * seven]
 message
-"[7, 49, 14]
-"
+"[7, 49, 14]"
 end expect
 
 namespace NatLits
@@ -243,9 +237,123 @@ book declaration {{{ LT4ofNat }}}
   instance : OfNat LT4 (Nat.succ Nat.zero) where
     ofNat := LT4.one
 
-  instance : OfNat LT4 2 where
+  instance : OfNat LT4 (Nat.succ (Nat.succ Nat.zero)) where
     ofNat := LT4.two
 
-  instance : OfNat LT4 3 where
+  instance : OfNat LT4 (Nat.succ (Nat.succ (Nat.succ Nat.zero))) where
     ofNat := LT4.three
 stop book declaration
+
+
+expect info {{{ LT4three }}}
+  #eval (3 : LT4)
+message
+  "LT4.three"
+end expect
+
+expect info {{{ LT4zero }}}
+  #eval (0 : LT4)
+message
+  "LT4.zero"
+end expect
+
+expect error {{{ LT4four }}}
+  #eval (4 : LT4)
+message
+  "failed to synthesize instance
+  OfNat LT4 4"
+end expect
+
+
+
+book declaration {{{ OfNatPos }}}
+  instance : OfNat Pos (n + 1) where
+    ofNat :=
+      let rec natPlusOne : Nat → Pos
+        | 0 => Pos.one
+        | k+1 => Pos.succ (natPlusOne k)
+      natPlusOne n
+stop book declaration
+
+
+book declaration {{{ eight }}}
+  def eight : Pos := 8
+stop book declaration
+
+
+expect error {{{ zeroBad }}}
+  def zero : Pos := 0
+message
+"failed to synthesize instance
+  OfNat Pos 0"
+end expect
+
+namespace AltPos
+
+
+book declaration {{{ AltPos }}}
+  structure Pos where
+    succ ::
+    pred : Nat
+stop book declaration
+
+end AltPos
+
+bookExample type {{{ printlnType }}}
+  @IO.println
+  ===>
+  {α : Type} → [ToString α] → α → IO Unit
+end bookExample
+
+
+book declaration {{{ ListSum }}}
+  def List.sum [Add α] [OfNat α 0] : List α → α
+    | [] => 0
+    | x :: xs => x + xs.sum
+stop book declaration
+
+
+book declaration {{{ fourNats }}}
+  def fourNats : List Nat := [1, 2, 3, 4]
+stop book declaration
+
+
+book declaration {{{ fourPos }}}
+  def fourPos : List Pos := [1, 2, 3, 4]
+stop book declaration
+
+
+expect info {{{ fourNatsSum }}}
+  #eval fourNats.sum
+message
+"10"
+end expect
+
+
+expect error {{{ fourPosSum }}}
+  #eval fourPos.sum
+message
+"failed to synthesize instance
+  OfNat Pos 0"
+end expect
+
+namespace PointStuff
+
+
+book declaration {{{ PPoint }}}
+  structure PPoint (α : Type) where
+    x : α
+    y : α
+  deriving Repr
+stop book declaration
+
+
+book declaration {{{ AddPPoint }}}
+  instance [Add α] : Add (PPoint α) where
+    add p1 p2 := { x := p1.x + p2.x, y := p1.y + p2.y }
+stop book declaration
+
+end PointStuff
+
+
+#check [1,2,3][2]

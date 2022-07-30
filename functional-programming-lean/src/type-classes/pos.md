@@ -170,6 +170,7 @@ In Lean, natural number literals are interpreted using a type class called `OfNa
 {{#example_decl Examples/Classes.lean OfNat}}
 ```
 This type class takes two arguments: `α` is the type for which a natural number is overloaded, and the unnamed `Nat` argument is the actual literal number that was encountered in the program.
+The method `ofNat` is then used as the value of the numeric literal.
 Because the class contains the `Nat` argument, it becomes possible to define only instances for those values where the number makes sense.
 
 For example, a sum type that represents natural numbers less than four can be defined as follows:
@@ -177,11 +178,57 @@ For example, a sum type that represents natural numbers less than four can be de
 {{#example_decl Examples/Classes.lean LT4}}
 ```
 While it would not make sense to allow _any_ literal number to be used for this type, numbers less than four clearly make sense:
+```Lean
+{{#example_decl Examples/Classes.lean LT4ofNat}}
+```
+With these instances, the following examples work:
+```Lean
+{{#example_in Examples/Classes.lean LT4three}}
+```
+```Lean info
+{{#example_out Examples/Classes.lean LT4three}}
+```
+```Lean
+{{#example_in Examples/Classes.lean LT4zero}}
+```
+```Lean info
+{{#example_out Examples/Classes.lean LT4zero}}
+```
+On the other hand, out-of-bounds literals are still not allowed:
+```Lean
+{{#example_in Examples/Classes.lean LT4four}}
+```
+```Lean error
+{{#example_out Examples/Classes.lean LT4four}}
+```
 
+For `Pos`, the `OfNat` instance should work for _any_ `Nat` other than `Nat.zero`.
+This can be done using an automatic implicit argument to the instance that stands for any `Nat`, and defining the instance on a `Nat` that's one greater:
+```Lean
+{{#example_decl Examples/Classes.lean OfNatPos}}
+```
+Because `n` stands for a `Nat` that's one less than what the user wrote, the helper function `natPlusOne` returns a `Pos` that's one greater than its argument.
+This makes it possible to use natural number literals for positive numbers, but not for zero:
+```Lean
+{{#example_decl Examples/Classes.lean eight}}
+
+{{#example_in Examples/Classes.lean zeroBad}}
+```
+```Lean error
+{{#example_out Examples/Classes.lean zeroBad}}
+```
 
 ## Exercises
 
+### Another Representation
+
+An alternative way to represent a positive number is as the successor of some `Nat`.
 Replace the definition of `Pos` with the following structure:
+```Lean
+{{#example_decl Examples/Classes.lean AltPos}}
+```
+Define instances of `Add`, `Mul`, `ToString`, and `OfNat` that allow this version of `Pos` to be used conveniently.
 
+### Even Numbers
 
-
+Define a datatype that represents only even numbers. Define instances of `Add`, `Mul`, `ToString`, and `OfNat` that allow it to be used conveniently.
