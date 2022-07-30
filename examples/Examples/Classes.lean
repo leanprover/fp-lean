@@ -356,4 +356,95 @@ stop book declaration
 end PointStuff
 
 
-#check [1,2,3][2]
+
+namespace Foo
+
+evaluation steps {{{ minusDesugar }}}
+  x - y
+  ===>
+  Sub.sub x y
+end evaluation steps
+
+evaluation steps {{{ divDesugar }}}
+  x / y
+  ===>
+  Div.div x y
+end evaluation steps
+
+evaluation steps {{{ modDesugar }}}
+  x % y
+  ===>
+  Mod.mod x y
+end evaluation steps
+
+evaluation steps {{{ powDesugar }}}
+  x ^ y
+  ===>
+  Pow.pow x y
+end evaluation steps
+
+end Foo
+
+namespace OverloadedInt
+
+axiom x : Int
+
+evaluation steps {{{ negDesugar }}}
+  (- x)
+  ===>
+  Neg.neg x
+end evaluation steps
+
+end OverloadedInt
+
+namespace OverloadedBits
+
+axiom x : UInt8
+axiom y : UInt8
+
+evaluation steps {{{ bAndDesugar }}}
+  x &&& y
+  ===>
+  AndOp.and x y
+end evaluation steps
+
+evaluation steps {{{ bOrDesugar }}}
+  x ||| y
+  ===>
+  OrOp.or x y
+end evaluation steps
+
+evaluation steps {{{ bXorDesugar }}}
+  x ^^^ y
+  ===>
+  Xor.xor x y
+end evaluation steps
+
+evaluation steps {{{ complementDesugar }}}
+  ~~~ x
+  ===>
+  Complement.complement x
+end evaluation steps
+
+evaluation steps {{{ shrDesugar }}}
+  x >>> y
+  ===>
+  ShiftRight.shiftRight x y
+end evaluation steps
+
+evaluation steps {{{ shlDesugar }}}
+  x <<< y
+  ===>
+  ShiftLeft.shiftLeft x y
+end evaluation steps
+
+evaluation steps {{{ beqDesugar }}}
+  x == y
+  ===>
+  BEq.beq x y
+end evaluation steps
+
+
+
+end OverloadedBits
+
