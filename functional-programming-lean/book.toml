@@ -22,4 +22,5 @@ additional-css = ["custom.css"]
 #[output.pandoc]
 #command = "python -X utf8 ../../scripts/one-markdown.py"
 
-[output.wordcount]
+[output.fancywordcount]
+command = "python -X utf8 ../../scripts/wc.py"
