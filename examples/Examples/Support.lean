@@ -1,6 +1,8 @@
 import Lean
 import Lean.Message
 
+import Std.Data.PersistentArray
+
 syntax withPosition("book" "declaration" "{{{" ws ident ws "}}}" (command*) "stop" "book" "declaration") : command
 
 elab_rules : command
@@ -103,15 +105,21 @@ def nats : (min : Nat) -> (howMany : Nat) -> List Nat
   | n, Nat.zero => [n]
   | n, Nat.succ k => n :: nats (Nat.succ n) k
 
-def Std.PersistentArray.getN! [Inhabited α] (arr : Std.PersistentArray α) (howMany : Nat) : List α := nats 0 howMany |> List.map (fun i => arr.get! i)
-
 syntax withPosition("expect" "error" "{{{" ws ident ws "}}}" colGt command "message" str "end" "expect") : command
 syntax withPosition("expect" "error" colGt command "message" str "end" "expect") : command
+
+-- Compare info and errors modulo leading and trailing whitespace to work around
+-- #eval always sticking a \n at the end
+def messagesMatch (msg1 msg2 : String) : Bool :=
+  let trim str := str.dropWhile (·.isWhitespace) |>.dropRightWhile (·.isWhitespace)
+  trim msg1 == trim msg2
+
+def List.containsBy (xs : List α) (pred : α → Bool) : Bool :=
+  xs.find? pred |>.isSome
 
 macro_rules
   | `(expect error {{{ $name:ident }}} $cmd:command message $msg:str end expect) =>
     `(expect error  $cmd:command message $msg:str end expect)
-
 
 elab_rules : command
   | `(expect error $cmd:command message $msg:str end expect) =>
@@ -119,15 +127,15 @@ elab_rules : command
     open Lean in
     open Lean.Meta in do
       let savedState <- get
+      set { savedState with messages := MessageLog.empty }
       let desiredError := msg.getString
       try
         elabCommand cmd
         let afterState <- get
-        let lengthDifference := afterState.messages.msgs.size - savedState.messages.msgs.size
-        let newMessages := afterState.messages.msgs.getN! lengthDifference
+        let newMessages := afterState.messages.msgs.toList
         let newErrors := newMessages.filter fun m => m.severity == MessageSeverity.error
         let errStrings <- newErrors.mapM fun err => err.data.toString
-        unless errStrings.contains desiredError do
+        unless errStrings.containsBy (messagesMatch desiredError) do
           throwError "The desired error {desiredError} was not found in\n{errStrings}"
       finally
         set savedState
@@ -143,6 +151,7 @@ but is expected to have type
   Nat : Type"
 end expect
 
+
 syntax withPosition("expect" "info" "{{{" ws ident ws "}}}" colGt command "message" str "end" "expect") : command
 syntax withPosition("expect" "info" colGt command "message" str "end" "expect") : command
 
@@ -156,15 +165,15 @@ elab_rules : command
     open Lean in
     open Lean.Meta in do
       let savedState <- get
+      set { savedState with messages := MessageLog.empty }
       let desiredInfo := msg.getString
       try
         elabCommand cmd
         let afterState <- get
-        let lengthDifference := afterState.messages.msgs.size - savedState.messages.msgs.size
-        let newMessages := afterState.messages.msgs.getN! lengthDifference
+        let newMessages := afterState.messages.msgs.toList
         let newInfos := newMessages.filter fun m => m.severity == MessageSeverity.information
         let errStrings <- newInfos.mapM fun err => err.data.toString
-        unless errStrings.contains desiredInfo do
+        unless errStrings.containsBy (messagesMatch desiredInfo) do
           throwError "The desired info {repr desiredInfo} was not found in\n{List.map repr errStrings}"
       finally
         set savedState
@@ -191,6 +200,7 @@ message
 med dig
 "
 end expect
+
 
 syntax withPosition("evaluation" "steps" "{{{" ws ident ws "}}}" sepBy1(colGt term, "===>") "end" "evaluation" "steps"): command
 elab_rules : command
@@ -249,7 +259,7 @@ def zipSameLength : List α → List β → Option (List (α × β))
   | _, _ => none
 
 def Lean.Name.last : Lean.Name -> Option String
-  | Lean.Name.str _ s _ => some s
+  | Lean.Name.str _ s => some s
   | _ => none
 
 syntax "similar datatypes" ident ident : command

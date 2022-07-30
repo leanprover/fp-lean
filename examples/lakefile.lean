@@ -5,7 +5,6 @@ package examples {
   -- add configuration options here
 }
 
-@[defaultTarget]
 lean_lib Examples {
   -- add lib config here
 }

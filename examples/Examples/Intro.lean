@@ -850,7 +850,7 @@ end expect
 expect info {{{ replaceXImpT }}}
   #check replaceX
 message
-  "replaceX : PPoint ?m.10478 → ?m.10478 → PPoint ?m.10478"
+  "replaceX : PPoint ?m.10758 → ?m.10758 → PPoint ?m.10758"
 end expect
 
 book declaration {{{ lengthImp }}}
@@ -1018,18 +1018,18 @@ expect error {{{ headNoneBad }}}
   #eval [].head?
 message
 "don't know how to synthesize implicit argument
-  @List.nil ?m.15996
+  @List.nil ?m.16538
 context:
-⊢ Type ?u.15993"
+⊢ Type ?u.16535"
 end expect
 
 expect error {{{ headNoneBad2 }}}
   #eval [].head?
 message
 "don't know how to synthesize implicit argument
-  @_root_.List.head? ?m.15996 []
+  @_root_.List.head? ?m.16538 []
 context:
-⊢ Type ?u.15993"
+⊢ Type ?u.16535"
 end expect
 
 
@@ -1144,8 +1144,6 @@ end expect
 -- sum notation
 example : (Sum α β) = (α ⊕ β) := by rfl
 
-#check Empty.rec
-
 def Exhausts (α : Type) (xs : List α) := (x : α) → x ∈ xs
 
 example : Exhausts (Bool × Unit) [(true, Unit.unit), (false, Unit.unit)] := by
@@ -1193,7 +1191,7 @@ expect error {{{ MissingTypeArg }}}
 message
 "type expected
 failed to synthesize instance
-  CoeSort (Type → Type) ?m.20183"
+  CoeSort (Type → Type) ?m.20827"
 end expect
 
 book declaration {{{ MyTypeDef }}}
@@ -1206,7 +1204,7 @@ expect error {{{ MissingTypeArg2 }}}
 message
 "type expected
 failed to synthesize instance
-  CoeSort (Type → Type) ?m.20424"
+  CoeSort (Type → Type) ?m.21084"
 end expect
 
 -- Example solution
@@ -1615,7 +1613,7 @@ end bookExample
 expect error {{{ pointPosEvalNoType }}}
   #eval ⟨1, 2⟩
 message
-"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.26680"
+"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.27483"
 end expect
 
 expect info {{{ pointPosWithType }}}

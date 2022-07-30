@@ -71,14 +71,14 @@ expect error {{{ fourteenOops }}}
   def fourteen : Pos := seven + seven
 message
 "failed to synthesize instance
-  HAdd Pos Pos ?m.269"
+  HAdd Pos Pos ?m.300"
 end expect
 
 expect error {{{ fortyNineOops }}}
   def fortyNine : Pos := seven * seven
 message
 "failed to synthesize instance
-  HMul Pos Pos ?m.269"
+  HMul Pos Pos ?m.300"
 end expect
 
 
