@@ -90,6 +90,8 @@ Defining an addition function for `Pos` and an instance of `Plus Pos` allows `Po
 ```Lean
 {{#example_decl Examples/Classes.lean PlusPos}}
 ```
+
+## Overloaded Addition
 Lean's built-in addition operator relies on a class named `Add` that is almost identical to `Plus`.
 When a programmer writes `{{#example_eval Examples/Classes.lean plusDesugar 0}}`, it is interpreted as meaning `{{#example_eval Examples/Classes.lean plusDesugar 1}}`.
 Defining an instance of `Add Pos` allows `Pos` values to use ordinary addition syntax:
@@ -99,12 +101,14 @@ Defining an instance of `Add Pos` allows `Pos` values to use ordinary addition s
 {{#example_decl Examples/Classes.lean betterFourteen}}
 ```
 
+## Conversion to Strings
+
 Another useful built-in class is called `ToString`.
 Instances of `ToString` provide a standard way of converting a type to a string.
 For instance, a `ToString` instance is used when a value occurs in an interpolated string, and it determines how the `IO.println` function used at the [beginning of the description of `IO`](../hello-world/running-a-program.html#running-a-program) will display a value.
 
 For example, one way to convert a `Pos` into a `String` is to reveal its inner structure.
-The function `posToString` takes a `Bool` that determines whether to parenthesize uses of `Pos.succ`---this should be `true` in the initial call to the function, and `false` in all recursive calls.
+The function `posToString` takes a `Bool` that determines whether to parenthesize uses of `Pos.succ`—this should be `true` in the initial call to the function, and `false` in all recursive calls.
 ```Lean
 {{#example_decl Examples/Classes.lean posToStringStructure}}
 ```
@@ -132,27 +136,52 @@ Converting it to a `Nat` and then using the `ToString Nat` instance (that is, th
 ```Lean info
 {{#example_out Examples/Classes.lean sevenShort}}
 ```
+When more than one instance is defined, the most recent takes precedence.
+Additionally, if a type has a `ToString` instance, then it can be used to display the result of `#eval` even if the type in question was not defined with `deriving Repr`, so `{{#example_in Examples/Classes.lean sevenEvalStr}}` outputs `{{#example_out Examples/Classes.lean sevenEvalStr}}`.
 
-## Instance Implicits
+## Overloaded Multiplication
 
-It can be useful to write functions that work for _any_ overloading of a given function.
-For instance, `IO.println` works for any type that has an instance of `ToString`.
-This is indicated using square brackets around the required instance.
-For example, the type of `IO.println` is `{{#example_out Examples/Classes.lean printlnType}}`.
-This type says that `IO.println` accepts an argument of type `α`, which Lean should determine automatically, and that there must be a `ToString` instance available for `α`.
-It returns an `IO` action.
+For multiplication, there is a type class called `Mul`.
+Just as `{{#example_eval Examples/Classes.lean plusDesugar 0}}` is interpreted as `{{#example_eval Examples/Classes.lean plusDesugar 1}}`, `{{#example_eval Examples/Classes.lean timesDesugar 0}}` is interpreted as `{{#example_eval Examples/Classes.lean timesDesugar 1}}`.
+An instance of `Mul` allows ordinary multiplication syntax to be used with `Pos`:
+```Lean
+{{#example_decl Examples/Classes.lean PosMul}}
+```
+With this instance, multiplication works as expected:
+```Lean
+{{#example_in Examples/Classes.lean muls}}
+```
+```Lean info
+{{#example_out Examples/Classes.lean muls}}
+```
+
+## Literal Numbers
+
+It is quite inconvenient to write out a sequence of constructors for positive numbers.
+One way to work around the problem would be to provide a function to convert a `Nat` into a `Pos`.
+However, this approach has downsides.
+First off, because `Pos` cannot represent `0`, the resulting function would either convert a `Nat` to a bigger number, or it would return `Option Nat`.
+Neither is particularly convenient.
+Secondly, the need to call the function explicitly would make programs that use positive numbers much less convenient to write than programs that use `Nat`.
+Having a trade-off between precise types and convenient APIs means that the precise types become less useful.
+
+In Lean, natural number literals are interpreted using a type class called `OfNat`:
+```Lean
+{{#example_decl Examples/Classes.lean OfNat}}
+```
+This type class takes two arguments: `α` is the type for which a natural number is overloaded, and the unnamed `Nat` argument is the actual literal number that was encountered in the program.
+Because the class contains the `Nat` argument, it becomes possible to define only instances for those values where the number makes sense.
+
+For example, a sum type that represents natural numbers less than four can be defined as follows:
+```Lean
+{{#example_decl Examples/Classes.lean LT4}}
+```
+While it would not make sense to allow _any_ literal number to be used for this type, numbers less than four clearly make sense:
 
 
-This can be accomplished using _instance implicits_.
+## Exercises
 
-Thus far, there have been two kinds of function arguments:
-
- * Explicit arguments, which are to be provided by the caller of the function
- * Implicit arguments, which are found by Lean when a unique type-correct solution exists
- 
-Implicit arguments are surrounded with curly braces (`{` and `}`) in a function's type.
-
-
+Replace the definition of `Pos` with the following structure:
 
 
 

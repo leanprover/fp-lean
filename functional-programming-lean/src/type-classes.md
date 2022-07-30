@@ -28,3 +28,9 @@ Type classes are also a means of describing types that share common attributes (
 A Lean type class is much more analogous to an interface.
 Similarly, instances of type classes describe how to implement a given interface for a type, while the term is used to describe values with a given type in object oriented programming.
 
+
+
+TODO:
+
+ * GetElem type class for a[i]
+ * Coercions and outparams

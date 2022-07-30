@@ -1,6 +1,5 @@
 import Examples.Support
 
-
 book declaration {{{ Plus }}}
   class Plus (α : Type) where
     plus : α → α → α
@@ -144,7 +143,6 @@ instance : ToString Pos where
 stop book declaration
 
 
-
 expect info {{{ sevenLong }}}
   #eval s!"There are {seven}"
 message
@@ -170,6 +168,12 @@ message
 end expect
 end Blah
 
+expect info {{{ sevenEvalStr }}}
+  #eval seven
+message
+"7
+"
+end expect
 
 
 bookExample type {{{ printlnType }}}
@@ -177,3 +181,71 @@ bookExample type {{{ printlnType }}}
   ===>
   {α : Type} → [ToString α] → α → IO Unit
 end bookExample
+
+namespace Foo
+
+evaluation steps {{{ timesDesugar }}}
+  x * y
+  ===>
+  Mul.mul x y
+end evaluation steps
+
+end Foo
+
+
+
+book declaration {{{ PosMul }}}
+  def Pos.mul : Pos → Pos → Pos
+    | Pos.one, k => k
+    | Pos.succ n, k => n.mul k + k
+
+  instance : Mul Pos where
+    mul := Pos.mul
+stop book declaration
+
+
+expect info {{{ muls }}}
+  #eval [seven * Pos.one,
+         seven * seven,
+         Pos.succ Pos.one * seven]
+message
+"[7, 49, 14]
+"
+end expect
+
+namespace NatLits
+
+
+book declaration {{{ OfNat }}}
+class OfNat (α : Type) (_ : Nat) where
+  ofNat : α
+stop book declaration
+
+end NatLits
+
+similar datatypes OfNat NatLits.OfNat
+
+
+book declaration {{{ LT4 }}}
+  inductive LT4 where
+    | zero
+    | one
+    | two
+    | three
+  deriving Repr
+stop book declaration
+
+
+book declaration {{{ LT4ofNat }}}
+  instance : OfNat LT4 Nat.zero where
+    ofNat := LT4.zero
+
+  instance : OfNat LT4 (Nat.succ Nat.zero) where
+    ofNat := LT4.one
+
+  instance : OfNat LT4 2 where
+    ofNat := LT4.two
+
+  instance : OfNat LT4 3 where
+    ofNat := LT4.three
+stop book declaration

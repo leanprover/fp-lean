@@ -21,6 +21,7 @@
   - [Summary](./hello-world/summary.md)
 - [Overloading and Type Classes](type-classes.md)
   - [Positive Numbers](type-classes/pos.md)
+  - [Type Classes and Polymorphism](type-classes/polymorphism.md)
 - [Monads]()
 - [IO Revisited]()
 - [Monad Transformers]()
