@@ -30,7 +30,3 @@ Similarly, instances of type classes describe how to implement a given interface
 
 
 
-TODO:
-
- * GetElem type class for a[i]
- * Coercions and outparams
