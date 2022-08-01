@@ -53,7 +53,7 @@ class ContainerContext:
             shutil.copytree(self.project_root, tmp.name, dirs_exist_ok=True, ignore=shutil.ignore_patterns('.*', '*~'))
         return self.containers[name].name
 
-    def fix_toolchain(self, folder):
+    def resolve_toolchain(self, folder):
         toolchain = os.path.join(folder, 'lean-toolchain')
         if os.path.isfile(toolchain):
             content = open(toolchain).read().strip()
@@ -80,7 +80,7 @@ class ContainerContext:
                 directory = directory.replace('/', os.path.sep)
                 folder = f'{container_dir}{os.path.sep}examples{os.path.sep}{directory}'
                 exe = command.replace('/', os.path.sep)
-                self.fix_toolchain(folder)
+                self.resolve_toolchain(folder)
                 logger.info(f'subprocess {exe}: {folder}')
                 val = subprocess.run(exe, shell=True, cwd=folder, check=True, capture_output=True)
             except subprocess.CalledProcessError as e:
