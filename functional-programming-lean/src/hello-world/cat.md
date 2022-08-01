@@ -9,11 +9,11 @@ A non-zero exit code is returned if any of the input files do not exist.
 This section describes a simplified version of `cat`, called `feline`.
 Unlike commonly-used versions of `cat`, `feline` has no command-line options for features such as numbering lines, indicating non-printing characters, or displaying help text.
 Furthermore, it cannot read more than once from a standard input that's associated with a terminal device.
- 
+
 To get the most benefit from this section, follow along yourself.
 It's OK to copy-paste the code examples, but it's even better to type them in by hand.
 This makes it easier to learn the mechanical process of typing in code, recovering from mistakes, and interpreting feedback from the compiler.
- 
+
 ## Getting started
 
 The first step in implementing `feline` is to create a package and decide how to organize the code.
@@ -163,11 +163,11 @@ should emit
 
 Finally, the `-` argument should be handled appropriately.
 ```
-{{#command {feline/2} {feline/2} {echo "and purr" | ./build/bin/feline test1.txt - test2.txt} }}
+{{#command {feline/2} {feline/2} {echo and purr| ./build/bin/feline test1.txt - test2.txt} }}
 ```
 should yield
 ```
-{{#command_out {feline/2} {echo "and purr" | ./build/bin/feline test1.txt - test2.txt} {feline/2/expected/test1purr2.txt}}}
+{{#command_out {feline/2} {echo and purr| ./build/bin/feline test1.txt - test2.txt} {feline/2/expected/test1purr2.txt}}}
 ```
 
 ## Exercise

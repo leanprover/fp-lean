@@ -8,6 +8,8 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import logging
+import time
 
 def eprint(val):
     print(val, file=sys.stderr)
@@ -16,6 +18,9 @@ command_re = re.compile(r'\{\{#command\s+\{(?P<dir>[^}]+)\}\s*\{(?P<container>[^
 command_out_re = re.compile(r'\{\{#command_out\s+\{(?P<container>[^}]+)\}\s*\{(?P<command>[^}]+)\}\s*(\{(?P<expected>[^}]+)\}\s*)?\}\}')
 file_contents_re = re.compile(r'\{\{#file_contents\s+\{(?P<container>[^}]+)\}\s*\{(?P<file>[^}]+)\}\s*(\{(?P<expected>[^}]+)\}\s*)?\}\}')
 
+logger = logging.getLogger(__name__)
+logger.setLevel('INFO')
+logger.addHandler(logging.FileHandler('projects.log', 'a'))
 
 def mangle(string):
     return string.replace('-', '---').replace('/', '-slash-')
@@ -44,9 +49,25 @@ class ContainerContext:
         if name not in self.containers:
             tmp = tempfile.TemporaryDirectory(prefix=mangle(name))
             self.containers[name] = tmp
+            logger.info(f'ensure_container {self.project_root} => {tmp.name}')
             shutil.copytree(self.project_root, tmp.name, dirs_exist_ok=True, ignore=shutil.ignore_patterns('.*', '*~'))
-            subprocess.run(["elan", "override", "set", self.lean_version()], cwd=tmp.name, check=True, capture_output=True)
         return self.containers[name].name
+
+    def fix_toolchain(self, folder):
+        toolchain = os.path.join(folder, 'lean-toolchain')
+        if os.path.isfile(toolchain):
+            content = open(toolchain).read().strip()
+            if content.endswith('lean-toolchain'):
+                x = folder
+                for p in content.split('/'):
+                    x = os.path.join(x, p)
+                if os.path.isfile(x):
+                    contents = open(x).read().strip()
+                    logger.info(f'fixing toolchain to version {contents}')
+                    with open(toolchain, 'w') as f:
+                        f.write(contents)
+                else:
+                    raise Exception(f'toolchain reference {content} not found in {folder}')
 
     def rewrite_command(self, project_root):
         def rewrite(found):
@@ -56,15 +77,23 @@ class ContainerContext:
             command = found.group('command')
             show = found.group('show')
             try:
-                val = subprocess.run(command, shell=True, cwd=f'{container_dir}{os.path.sep}examples{os.path.sep}{directory}', check=True, capture_output=True)
+                directory = directory.replace('/', os.path.sep)
+                folder = f'{container_dir}{os.path.sep}examples{os.path.sep}{directory}'
+                exe = command.replace('/', os.path.sep)
+                self.fix_toolchain(folder)
+                logger.info(f'subprocess {exe}: {folder}')
+                val = subprocess.run(exe, shell=True, cwd=folder, check=True, capture_output=True)
             except subprocess.CalledProcessError as e:
+                logger.error(f'Output: {e.output.decode("utf-8")}')
+                logger.error(f'Stderr: {e.stderr.decode("utf-8")}')
                 eprint("Output:")
                 eprint(e.output)
                 eprint("Stderr:")
                 eprint(e.stderr)
                 raise e
 
-            if container not in self.outputs: self.outputs[container] = {}
+            if container not in self.outputs:
+                self.outputs[container] = {}
             self.outputs[container][command] = val.stdout.decode('utf-8')
             if show is None:
                 return command
@@ -72,6 +101,9 @@ class ContainerContext:
                 return show
 
         return rewrite
+
+    def normalize(self, s):
+        return s.replace('\r\n', '\n').rstrip()
 
     def rewrite_command_out(self, project_root):
         def rewrite(found):
@@ -83,8 +115,8 @@ class ContainerContext:
                 expected_output = None
             else:
                 with open(f"{self.project_root}{os.path.sep}examples{os.path.sep}{expect}", 'r') as f:
-                    expected_output = f.read()
-            output = self.outputs[container][command].rstrip()
+                    expected_output = self.normalize(f.read())
+            output = self.normalize(self.outputs[container][command])
             if expected_output is not None:
                 assert output == expected_output.rstrip(), f'expected {command} in {self.project_root}{os.path.sep}examples{os.path.sep}{expect} to match actual:\n{output}'
             return output.rstrip()
@@ -111,11 +143,15 @@ class ContainerContext:
 
     def run_examples(self, context, book):
         project_root = Path(context['root']).parent
+        logger.info(f'project_root {project_root}')
         def test_chapters(chapters):
             for ch in chapters:
-                ch['Chapter']['content'] = command_re.sub(self.rewrite_command(project_root), ch['Chapter']['content'])
-                ch['Chapter']['content'] = command_out_re.sub(self.rewrite_command_out(project_root), ch['Chapter']['content'])
-                ch['Chapter']['content'] = file_contents_re.sub(self.rewrite_file_contents(project_root), ch['Chapter']['content'])
+                chapter = ch['Chapter']
+                name = chapter['name']
+                logger.info(f'chapter {name}')
+                chapter['content'] = command_re.sub(self.rewrite_command(project_root), chapter['content'])
+                chapter['content'] = command_out_re.sub(self.rewrite_command_out(project_root), chapter['content'])
+                chapter['content'] = file_contents_re.sub(self.rewrite_file_contents(project_root), chapter['content'])
                 test_chapters(ch['Chapter']['sub_items'])
 
         test_chapters(book['sections'])
