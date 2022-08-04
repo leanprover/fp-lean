@@ -31,7 +31,7 @@ Now that `stdin` and `stdout` have been found, the remainder of the block consis
 ```
 
 The first statement in the block, `{{#include ../../../examples/hello-name/HelloName.lean:line3}}`, consists of an expression.
-To execute a expression, it is first evaluated.
+To execute an expression, it is first evaluated.
 In this case, `IO.FS.Stream.putStrLn` has type `IO.FS.Stream → String → IO Unit`.
 This means that it is a function that accepts a stream and a string, returning an `IO` action.
 The expression uses [accessor notation](../getting-to-know/structures.md#behind-the-scenes) for a function call.
