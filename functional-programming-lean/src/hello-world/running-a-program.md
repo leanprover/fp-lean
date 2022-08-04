@@ -124,7 +124,8 @@ In a `do` block, local bindings introduced by `let` are available in the remaind
 Additionally, `let` typically connects the name being defined to its definition using `:=`, while some `let` bindings in `do` use a left arrow (`←` or `<-`) instead.
 Using an arrow means that the value of the expression is an `IO` action that should be executed, with the result of the action saved in the local variable.
 In other words, if the expression to the right of the arrow has type `IO α`, then the variable has type `α` in the remainder of the `do` block.
-`IO.getStdin` and `IO.getStdout` are `IO` actions because it allows `stdin` and `stdout` to be locally overridden in a program, which can be convenient.
+`IO.getStdin` and `IO.getStdout` are `IO` actions in order to allow `stdin` and `stdout` to be locally overridden in a program, which can be convenient.
+If they were global variables as in C, then there would be no meaningful way to override them, but `IO` actions can return different values each time they are executed.
 
 The next part of the `do` block is responsible for asking the user for their name:
 ```Lean
