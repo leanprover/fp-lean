@@ -23,7 +23,8 @@ Languages in the C tradition have a notion of a `void` function that does not re
 In Lean, all functions take an argument and return a value, and the lack of interesting arguments or return values can be signaled by using the `Unit` type instead.
 If `Bool` represents a single bit of information, `Unit` represents zero bits of information.
 
-`IO α` is the type of a program that, when executed, will either crash, fall into a loop, or return a value of type `α`.
+`IO α` is the type of a program that, when executed, will either throw an exception or return a value of type `α`.
+During execution, this program may have side effects.
 These programs are referred to as `IO` _actions_.
 Lean distinguishes between _evaluation_ of expressions, which strictly adheres to the mathematical model of substitution of values for variables and reduction of sub-expressions, and _execution_ of `IO` actions, which rely on an external system to interact with the world.
 `IO.println` is a function from strings to `IO` actions that, when executed, write the given string to standard output.
