@@ -25,6 +25,9 @@ logger.addHandler(logging.FileHandler('projects.log', 'a'))
 def mangle(string):
     return string.replace('-', '---').replace('/', '-slash-')
 
+def normalize(s):
+    return s.replace('\r\n', '\n').rstrip()
+
 class ContainerContext:
 
     def __init__(self, project_root):
@@ -78,11 +81,11 @@ class ContainerContext:
             show = found.group('show')
             try:
                 directory = directory.replace('/', os.path.sep)
-                folder = f'{container_dir}{os.path.sep}examples{os.path.sep}{directory}'
+                directory = f'{container_dir}{os.path.sep}examples{os.path.sep}{directory}'
                 exe = command.replace('/', os.path.sep)
-                self.resolve_toolchain(folder)
-                logger.info(f'subprocess {exe}: {folder}')
-                val = subprocess.run(exe, shell=True, cwd=folder, check=True, capture_output=True)
+                self.resolve_toolchain(directory)
+                logger.info(f'subprocess {exe}: {directory}')
+                val = subprocess.run(exe, shell=True, cwd=directory, check=True, capture_output=True)
             except subprocess.CalledProcessError as e:
                 logger.error(f'Output: {e.output.decode("utf-8")}')
                 logger.error(f'Stderr: {e.stderr.decode("utf-8")}')
@@ -102,9 +105,6 @@ class ContainerContext:
 
         return rewrite
 
-    def normalize(self, s):
-        return s.replace('\r\n', '\n').rstrip()
-
     def rewrite_command_out(self, project_root):
         def rewrite(found):
             container = found.group('container')
@@ -115,8 +115,8 @@ class ContainerContext:
                 expected_output = None
             else:
                 with open(f"{self.project_root}{os.path.sep}examples{os.path.sep}{expect}", 'r') as f:
-                    expected_output = self.normalize(f.read())
-            output = self.normalize(self.outputs[container][command])
+                    expected_output = normalize(f.read())
+            output = normalize(self.outputs[container][command])
             if expected_output is not None:
                 assert output == expected_output.rstrip(), f'expected {command} in {self.project_root}{os.path.sep}examples{os.path.sep}{expect} to match actual:\n{output}'
             return output.rstrip()
