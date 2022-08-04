@@ -38,7 +38,7 @@ In this case, the local name of `handle` could also have been eliminated using n
 Even though it's often good style to use nested actions, it can still sometimes be helpful to name intermediate results.
 
 It is important to remember, however, that nested actions are only a shorter notation for `IO` actions that occur in a surrounding `do` block.
-The side effects that are involved in executing the still occur in the same order, and execution of side effects is not interspersed with the evaluation of expressions.
+The side effects that are involved in executing them still occur in the same order, and execution of side effects is not interspersed with the evaluation of expressions.
 For an example of where this might be confusing, consider the following helper definitions that return data after announcing to the world that they have been executed:
 ```Lean
 {{#example_decl Examples/Cat.lean getNumA}}
