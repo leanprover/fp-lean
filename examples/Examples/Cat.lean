@@ -43,24 +43,24 @@ def fileStream (filename : System.FilePath) : IO (Option IO.FS.Stream) := do
 
 def process (exitCode : UInt32) (args : List String) : IO UInt32 := do
   match args with
-    | [] => pure exitCode
-    | "-" :: args =>
-      let stdin ← IO.getStdin
-      dump stdin
+  | [] => pure exitCode
+  | "-" :: args =>
+    let stdin ← IO.getStdin
+    dump stdin
+    process exitCode args
+  | filename :: args =>
+    let stream ← fileStream ⟨filename⟩
+    match stream with
+    | none =>
+      process 1 args
+    | some stream =>
+      dump stream
       process exitCode args
-    | filename :: args =>
-      let stream ← fileStream ⟨filename⟩
-      match stream with
-        | none =>
-          process 1 args
-        | some stream =>
-          dump stream
-          process exitCode args
 
 def main (args : List String) : IO UInt32 :=
   match args with
-    | [] => process 0 ["-"]
-    | _ =>  process 0 args
+  | [] => process 0 ["-"]
+  | _ =>  process 0 args
 
 end Original
 
@@ -91,23 +91,23 @@ stop book declaration
 book declaration {{{ process }}}
 def process (exitCode : UInt32) (args : List String) : IO UInt32 := do
   match args with
-    | [] => pure exitCode
-    | "-" :: args =>
-      dump (← IO.getStdin)
+  | [] => pure exitCode
+  | "-" :: args =>
+    dump (← IO.getStdin)
+    process exitCode args
+  | filename :: args =>
+    match (← fileStream ⟨filename⟩) with
+    | none =>
+      process 1 args
+    | some stream =>
+      dump stream
       process exitCode args
-    | filename :: args =>
-      match (← fileStream ⟨filename⟩) with
-        | none =>
-          process 1 args
-        | some stream =>
-          dump stream
-          process exitCode args
 stop book declaration
 
 def main (args : List String) : IO UInt32 :=
   match args with
-    | [] => process 0 ["-"]
-    | _ =>  process 0 args
+  | [] => process 0 ["-"]
+  | _ =>  process 0 args
 end Improved
 
 example : Original.bufsize = Improved.bufsize := by rfl

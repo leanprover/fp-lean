@@ -498,16 +498,16 @@ end evaluation steps
 book declaration {{{ isZero }}}
   def isZero (n : Nat) : Bool :=
     match n with
-      | Nat.zero => true
-      | Nat.succ k => false
+    | Nat.zero => true
+    | Nat.succ k => false
 stop book declaration
 
 evaluation steps {{{ isZeroZeroSteps }}}
   isZero Nat.zero
   ===>
   match Nat.zero with
-    | Nat.zero => true
-    | Nat.succ k => false
+  | Nat.zero => true
+  | Nat.succ k => false
   ===>
   true
 end evaluation steps
@@ -525,8 +525,8 @@ evaluation steps {{{ isZeroFiveSteps }}}
   isZero (Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ Nat.zero)))))
   ===>
   match Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ Nat.zero)))) with
-    | Nat.zero => true
-    | Nat.succ k => false
+  | Nat.zero => true
+  | Nat.succ k => false
   ===>
   false
 end evaluation steps
@@ -542,8 +542,8 @@ end expect
 book declaration {{{ pred }}}
   def pred (n : Nat) : Nat :=
     match n with
-      | Nat.zero => Nat.zero
-      | Nat.succ k => k
+    | Nat.zero => Nat.zero
+    | Nat.succ k => k
 stop book declaration
 
 expect info {{{ predFive }}}
@@ -560,8 +560,8 @@ evaluation steps {{{ predFiveSteps }}}
   pred (Nat.succ 4)
   ===>
   match Nat.succ 4 with
-    | Nat.zero => Nat.zero
-    | Nat.succ k => k
+  | Nat.zero => Nat.zero
+  | Nat.succ k => k
   ===>
   4
 end evaluation steps
@@ -584,14 +584,14 @@ end expect
 book declaration {{{ depth }}}
   def depth (p : Point3D) : Float :=
     match p with
-      | { x:= h, y := w, z := d } => d
+    | { x:= h, y := w, z := d } => d
 stop book declaration
 
 book declaration {{{ even }}}
   def even (n : Nat) : Bool :=
     match n with
-      | Nat.zero => true
-      | Nat.succ k => not (even k)
+    | Nat.zero => true
+    | Nat.succ k => not (even k)
 stop book declaration
 
 expect info
@@ -612,8 +612,8 @@ end expect
 expect error {{{ evenLoops }}}
   def evenLoops (n : Nat) : Bool :=
     match n with
-      | Nat.zero => true
-      | Nat.succ k => not (evenLoops n)
+    | Nat.zero => true
+    | Nat.succ k => not (evenLoops n)
 message
 "fail to show termination for
   evenLoops
@@ -626,8 +626,8 @@ end expect
 book declaration {{{ plus }}}
   def plus (n : Nat) (k : Nat) : Nat :=
     match k with
-      | Nat.zero => n
-      | Nat.succ k' => Nat.succ (plus n k')
+    | Nat.zero => n
+    | Nat.succ k' => Nat.succ (plus n k')
 stop book declaration
 
 evaluation steps {{{ plusThreeTwo }}}
@@ -636,20 +636,20 @@ evaluation steps {{{ plusThreeTwo }}}
   plus 3 (Nat.succ (Nat.succ Nat.zero))
   ===>
   match Nat.succ (Nat.succ Nat.zero) with
-    | Nat.zero => 3
-    | Nat.succ k' => Nat.succ (plus 3 k')
+  | Nat.zero => 3
+  | Nat.succ k' => Nat.succ (plus 3 k')
   ===>
   Nat.succ (plus 3 (Nat.succ Nat.zero))
   ===>
   Nat.succ (match Nat.succ Nat.zero with
-    | Nat.zero => 3
-    | Nat.succ k' => Nat.succ (plus 3 k'))
+  | Nat.zero => 3
+  | Nat.succ k' => Nat.succ (plus 3 k'))
   ===>
   Nat.succ (Nat.succ (plus 3 Nat.zero))
   ===>
   Nat.succ (Nat.succ (match Nat.zero with
-    | Nat.zero => 3
-    | Nat.succ k' => Nat.succ (plus 3 k')))
+  | Nat.zero => 3
+  | Nat.succ k' => Nat.succ (plus 3 k')))
   ===>
   Nat.succ (Nat.succ 3)
   ===>
@@ -659,8 +659,8 @@ end evaluation steps
 book declaration {{{ times }}}
   def times (n : Nat) (k : Nat) : Nat :=
     match k with
-      | Nat.zero => Nat.zero
-      | Nat.succ k' => plus n (times n k')
+    | Nat.zero => Nat.zero
+    | Nat.succ k' => plus n (times n k')
 stop book declaration
 
 #eval times 5 3
@@ -668,8 +668,8 @@ stop book declaration
 book declaration {{{ minus }}}
   def minus (n : Nat) (k : Nat) : Nat :=
     match k with
-      | Nat.zero => n
-      | Nat.succ k' => pred (minus n k')
+    | Nat.zero => n
+    | Nat.succ k' => pred (minus n k')
 stop book declaration
 
 expect error {{{ div }}}
@@ -777,8 +777,8 @@ namespace Ooops
 book declaration {{{ length1 }}}
   def length (α : Type) (xs : List α) : Nat :=
     match xs with
-      | List.nil => Nat.zero
-      | List.cons y ys => Nat.succ (length α ys)
+    | List.nil => Nat.zero
+    | List.cons y ys => Nat.succ (length α ys)
 stop book declaration
 
 evaluation steps {{{ length1EvalSummary }}}
@@ -801,20 +801,20 @@ evaluation steps {{{ length1Eval }}}
   length String (List.cons "Sourdough" (List.cons "bread" List.nil))
   ===>
   match List.cons "Sourdough" (List.cons "bread" List.nil) with
-    | List.nil => Nat.zero
-    | List.cons y ys => Nat.succ (length String ys)
+  | List.nil => Nat.zero
+  | List.cons y ys => Nat.succ (length String ys)
   ===>
   Nat.succ (length String (List.cons "bread" List.nil))
   ===>
   Nat.succ (match List.cons "bread" List.nil with
-    | List.nil => Nat.zero
-    | List.cons y ys => Nat.succ (length String ys))
+  | List.nil => Nat.zero
+  | List.cons y ys => Nat.succ (length String ys))
   ===>
   Nat.succ (Nat.succ (length String List.nil))
   ===>
   Nat.succ (Nat.succ (match List.nil with
-    | List.nil => Nat.zero
-    | List.cons y ys => Nat.succ (length String ys)))
+  | List.nil => Nat.zero
+  | List.cons y ys => Nat.succ (length String ys)))
   ===>
   Nat.succ (Nat.succ Nat.zero)
   ===>
@@ -828,8 +828,8 @@ namespace Oooops
 book declaration {{{ length2 }}}
   def length (α : Type) (xs : List α) : Nat :=
     match xs with
-      | [] => 0
-      | y :: ys => Nat.succ (length α ys)
+    | [] => 0
+    | y :: ys => Nat.succ (length α ys)
 stop book declaration
 end Oooops
 
@@ -856,8 +856,8 @@ end expect
 book declaration {{{ lengthImp }}}
   def length {α : Type} (xs : List α) : Nat :=
     match xs with
-      | [] => 0
-      | y :: ys => Nat.succ (length ys)
+    | [] => 0
+    | y :: ys => Nat.succ (length ys)
 stop book declaration
 
 expect info {{{ lengthImpPrimes }}}
@@ -951,9 +951,9 @@ stop book declaration
 book declaration {{{ howManyDogs }}}
   def howManyDogs (pets : List PetName) : Nat :=
     match pets with
-      | [] => 0
-      | Sum.inl _ :: morePets => howManyDogs morePets + 1
-      | Sum.inr _ :: morePets => howManyDogs morePets
+    | [] => 0
+    | Sum.inl _ :: morePets => howManyDogs morePets + 1
+    | Sum.inr _ :: morePets => howManyDogs morePets
 stop book declaration
 
 expect info {{{ dogCount }}}
@@ -1003,8 +1003,8 @@ namespace Floop
 book declaration {{{ headHuh }}}
   def List.head? {α : Type} (xs : List α) : Option α :=
     match xs with
-      | [] => none
-      | y :: _ => some y
+    | [] => none
+    | y :: _ => some y
 stop book declaration
 
 expect info {{{ headSome }}}
@@ -1044,9 +1044,9 @@ end expect
 
 def List.final? {α : Type} (xs : List α) : Option α :=
   match xs with
-    | [] => none
-    | [y] => some y
-    | y1 :: y2 :: ys => final? (y2::ys)
+  | [] => none
+  | [y] => some y
+  | y1 :: y2 :: ys => final? (y2::ys)
 
 
 end Floop
@@ -1085,13 +1085,13 @@ example : sevens.swap = ((7, 7), "VII") := by rfl
 
 def findString (haystack : List String) (needle : String) : Option Int :=
   match haystack with
-    | [] => none
-    | x :: xs =>
-      if needle == x then
-        some 0
-      else match findString xs needle with
-             | none => none
-             | some i => some (i + 1)
+  | [] => none
+  | x :: xs =>
+    if needle == x then
+      some 0
+    else match findString xs needle with
+         | none => none
+         | some i => some (i + 1)
 
 inductive LinkedList : Type -> Type where
   | nil : LinkedList α
@@ -1099,8 +1099,8 @@ inductive LinkedList : Type -> Type where
 
 def List.findFirst? {α : Type} (xs : List α) (predicate : α → Bool) : Option α :=
   match xs with
-    | [] => none
-    | y :: ys => if predicate y then some y else ys.findFirst? predicate
+  | [] => none
+  | y :: ys => if predicate y then some y else ys.findFirst? predicate
 
 
 book declaration {{{ Sign }}}
@@ -1120,9 +1120,9 @@ stop book declaration
 
 def take (n : Nat) (xs : List α) : List α :=
   match n, xs with
-    | _, [] => []
-    | Nat.zero, _ => []
-    | Nat.succ n', x :: xs => x :: take n' xs
+  | _, [] => []
+  | Nat.zero, _ => []
+  | Nat.succ n', x :: xs => x :: take n' xs
 
 
 
@@ -1210,18 +1210,18 @@ end expect
 -- Example solution
 def zip {α β : Type} (xs : List α) (ys : List β) : List (α × β) :=
   match xs with
+  | [] => []
+  | x :: xs' =>
+    match ys with
     | [] => []
-    | x :: xs' =>
-      match ys with
-        | [] => []
-        | y :: ys' => (x, y) :: zip xs' ys'
+    | y :: ys' => (x, y) :: zip xs' ys'
 
 namespace AutoImpl
 book declaration {{{ lengthImpAuto }}}
   def length (xs : List α) : Nat :=
     match xs with
-      | [] => 0
-      | y :: ys => Nat.succ (length ys)
+    | [] => 0
+    | y :: ys => Nat.succ (length ys)
 stop book declaration
 
 end AutoImpl
@@ -1347,10 +1347,10 @@ end expect
 expect error {{{ unzipNoTypesAtAll }}}
   def unzip pairs :=
     match pairs with
-      | [] => ([], [])
-      | (x, y) :: xys =>
-        let unzipped := unzip xys
-        (x :: unzipped.fst, y :: unzipped.snd)
+    | [] => ([], [])
+    | (x, y) :: xys =>
+      let unzipped := unzip xys
+      (x :: unzipped.fst, y :: unzipped.snd)
 message
 "invalid match-expression, pattern contains metavariables
   []"
@@ -1374,9 +1374,9 @@ namespace Match
 book declaration {{{ dropMatch }}}
   def drop (n : Nat) (xs : List α) : List α :=
     match n, xs with
-      | Nat.zero, ys => ys
-      | _, [] => []
-      | Nat.succ n , y :: ys => drop n ys
+    | Nat.zero, ys => ys
+    | _, [] => []
+    | Nat.succ n , y :: ys => drop n ys
 stop book declaration
 
 book declaration {{{ evenFancy }}}
@@ -1575,8 +1575,8 @@ namespace WithMatch
 book declaration {{{ inlineStringHuhMatch }}}
   def Inline.string? (inline : Inline) : Option String :=
     match inline with
-      | Inline.string s => some s
-      | _ => none
+    | Inline.string s => some s
+    | _ => none
 stop book declaration
 end WithMatch
 

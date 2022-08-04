@@ -133,8 +133,8 @@ book declaration {{{ posToStringStructure }}}
 def posToString (atTop : Bool) (p : Pos) : String :=
   let paren s := if atTop then s else "(" ++ s ++ ")"
   match p with
-    | Pos.one => "Pos.one"
-    | Pos.succ n => paren s!"Pos.succ {posToString false n}"
+  | Pos.one => "Pos.one"
+  | Pos.succ n => paren s!"Pos.succ {posToString false n}"
 stop book declaration
 
 book declaration {{{ UglyToStringPos }}}
