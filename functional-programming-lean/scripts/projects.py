@@ -54,23 +54,8 @@ class ContainerContext:
             self.containers[name] = tmp
             logger.info(f'ensure_container {self.project_root} => {tmp.name}')
             shutil.copytree(self.project_root, tmp.name, dirs_exist_ok=True, ignore=shutil.ignore_patterns('.*', '*~'))
+            subprocess.run(["elan", "override", "set", self.lean_version()], cwd=tmp.name, check=True, capture_output=True)
         return self.containers[name].name
-
-    def resolve_toolchain(self, folder):
-        toolchain = os.path.join(folder, 'lean-toolchain')
-        if os.path.isfile(toolchain):
-            content = open(toolchain).read().strip()
-            if content.endswith('lean-toolchain'):
-                x = folder
-                for p in content.split('/'):
-                    x = os.path.join(x, p)
-                if os.path.isfile(x):
-                    contents = open(x).read().strip()
-                    logger.info(f'fixing toolchain to version {contents}')
-                    with open(toolchain, 'w') as f:
-                        f.write(contents)
-                else:
-                    raise Exception(f'toolchain reference {content} not found in {folder}')
 
     def rewrite_command(self, project_root):
         def rewrite(found):
@@ -83,7 +68,6 @@ class ContainerContext:
                 directory = directory.replace('/', os.path.sep)
                 directory = f'{container_dir}{os.path.sep}examples{os.path.sep}{directory}'
                 exe = command.replace('/', os.path.sep)
-                self.resolve_toolchain(directory)
                 logger.info(f'subprocess {exe}: {directory}')
                 val = subprocess.run(exe, shell=True, cwd=directory, check=True, capture_output=True)
             except subprocess.CalledProcessError as e:
