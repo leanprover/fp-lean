@@ -52,7 +52,7 @@ The resulting line (`"David\n"`) is associated with `input`, where the escape se
 ```
 
 The next line, `{{#include ../../../examples/hello-name/HelloName.lean:line5}}`, is a `let` statement that uses `:=` instead of `←`.
-This means that the expression will be evaluated, but the result need not be an `IO` action and will not be executed.
+This means that the expression will be evaluated, but the resulting value need not be an `IO` action and will not be executed.
 In this case, `String.dropRightWhile` takes a string and a predicate over characters and returns a new string from which all the characters that satisfy the predicate have been removed.
 For example,
 ```Lean
