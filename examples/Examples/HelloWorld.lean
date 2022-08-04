@@ -115,3 +115,13 @@ evaluation steps : IO Unit {{{ evalMain }}}
      IO.println "Blast off!"
      pure ()
 end evaluation steps
+
+expect info {{{ evalDoesIO }}}
+  #eval runActions (countdown 3)
+message
+"3
+2
+1
+Blast off!"
+end expect
+
