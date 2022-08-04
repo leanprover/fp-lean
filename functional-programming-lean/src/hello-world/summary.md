@@ -9,7 +9,7 @@ These descriptions are then executed by the language's run-time system, which in
 Values of type `IO α` are called _`IO` actions_.
 The simplest is `pure`, which returns its argument and has no actual side effects.
 
-`IO` actions can also be understood as functions that take the whole world as an argument and return a new in which the side effect has occurred.
+`IO` actions can also be understood as functions that take the whole world as an argument and return a new world in which the side effect has occurred.
 Behind the scenes, the `IO` library ensures that the world is never duplicated, created, or destroyed.
 While this model of side effects cannot actually be implemented, as the whole universe is too big to fit in memory, the real world can be represented by a token that is passed around through the program.
 
