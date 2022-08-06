@@ -125,3 +125,18 @@ message
 Blast off!"
 end expect
 
+namespace Exercises
+  book declaration {{{ ExMain }}}
+    def main : IO Unit := do
+      let englishGreeting := IO.println "Hello!"
+      IO.println "Bonjour!"
+      englishGreeting
+  stop book declaration
+
+  -- Part of a solution
+  expect info
+    #eval main
+  message
+  "Bonjour!\nHello!\n"
+  end expect
+end Exercises

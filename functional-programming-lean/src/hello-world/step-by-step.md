@@ -163,3 +163,13 @@ The first step is to evaluate `main`. That occurs as follows:
 The resulting `IO` action is a `do` block.
 Each step of the `do` block is then executed, one at a time, yielding the expected output.
 The final step, `pure ()`, does not have any effects, and it is only present because the definition of `runActions` needs a base case.
+
+## Exercise
+
+Step through the execution of the following program on a piece of paper:
+```Lean
+{{#example_decl Examples/HelloWorld.lean ExMain}}
+```
+While stepping through the program's execution, identify when an expression is being evaluated and when an `IO` action is being executed.
+When executing an `IO` action results in a side effect, write it down.
+After doing this, run the program with Lean and double-check that your predictions about the side effects were correct.
