@@ -82,7 +82,9 @@ This token is then passed on to the IO primitives, and their returned tokens are
 At the end of the program, the token is returned to the operating system.
 
 This model of side effects is a good description of how `IO` actions as descriptions of tasks to be carried out by the RTS are represented internally in Lean.
-The actual functions that transform the real world are behind an abstraction barrier, and there is a sub-language of Lean called `do`-notation that allows these primitives to be safely composed into a larger, useful program.
+The actual functions that transform the real world are behind an abstraction barrier.
+But real programs typically consist of a sequence of effects, rather than just one.
+To enable programs to use multiple effects, there is a sub-language of Lean called `do`-notation that allows these primitive `IO` actions to be safely composed into a larger, useful program.
 
 ## Combining `IO` Actions
 
