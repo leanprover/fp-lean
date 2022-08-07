@@ -122,7 +122,7 @@ The first two lines, which read:
 retrieve the `stdin` and `stdout` handles by executing the library actions `IO.getStdin` and `IO.getStdout`, respectively.
 In a `do` block, `let` has a slightly different meaning than in an ordinary expression.
 Ordinarily, the local definition in a `let` can be used in just one expression, which immediately follows the local definition.
-In a `do` block, local bindings introduced by `let` are available in the remainder of the block.
+In a `do` block, local bindings introduced by `let` are available in all statements in the remainder of the `do` block, rather than just the next one.
 Additionally, `let` typically connects the name being defined to its definition using `:=`, while some `let` bindings in `do` use a left arrow (`←` or `<-`) instead.
 Using an arrow means that the value of the expression is an `IO` action that should be executed, with the result of the action saved in the local variable.
 In other words, if the expression to the right of the arrow has type `IO α`, then the variable has type `α` in the remainder of the `do` block.
