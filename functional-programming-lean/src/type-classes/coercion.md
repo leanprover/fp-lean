@@ -1,4 +1,0 @@
-# Coercions
-
- - Coe
- - CoeSort
