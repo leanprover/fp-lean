@@ -16,7 +16,7 @@ The program displays `{{#command_out {hello} {lean --run Hello.lean} }}` and exi
 When Lean is invoked with the `--run` option, it invokes the program's `main` definition.
 In programs that do not take command-line arguments, `main` should have type `IO Unit`.
 This means that `main` is not a function, because there are no arrows (`→`) in its type.
-In Lean, `main` describes an action to be taken.
+Instead of a being a function that has side effects, `main` consists of a description of effects to be carried out.
 
 As discussed in [the preceding chapter](../getting-to-know/polymorphism.md), `Unit` is the simplest inductive type.
 It has a single constructor called `unit` that takes no arguments.
@@ -56,6 +56,7 @@ The counter worker is the surrounding run-time system that interacts with the wo
 Working together, the two employees serve all the functions of the restaurant, but their responsibilities are divided, with each performing the tasks that they're best at.
 Just as keeping customers away allows the cook to focus on making truly excellent coffee and sandwiches, Lean's lack of side effects allows programs to be used as part of formal mathematical proofs.
 It also helps programmers understand the parts of the program in isolation from each other, because there are no hidden state changes that create subtle coupling between components.
+The cook's notes represent `IO` actions that are produced by evaluating Lean expressions, and the counter worker's replies are the values that are passed back from effects.
 
 This model of side effects is quite similar to how the overall aggregate of the Lean language, its compiler, and its run-time system (RTS) work.
 Primitives in the run-time system, written in C, implement all the basic effects.
@@ -67,14 +68,14 @@ From the external perspective of the program's user, there is a layer of side ef
 
 ## Real-World Functional Programming
 
-The other useful way to think about side effects in Lean is by considering `IO` actions to represent functions that take the entire world as an argument, and return a value paired with a new world.
+The other useful way to think about side effects in Lean is by considering `IO` actions to be functions that take the entire world as an argument and return a value paired with a new world.
 In this case, reading a line of text from standard input _is_ a pure function, because a different world is provided as an argument each time.
 Writing a line of text to standard output is a pure function, because the world that the function returns is different from the one that it began with.
 Programs do need to be careful to never re-use the world, nor to fail to return a new world—this would amount to time travel or the end of the world, after all.
 Careful abstraction boundaries can make this style of programming safe.
 If every primitive `IO` action accepts one world and returns a new one, and they can only be combined with tools that preserve this invariant, then the problem cannot occur.
 
-In reality, this model cannot be implemented.
+This model cannot be implemented.
 After all, the entire universe cannot be turned in to a Lean value and placed into memory.
 However, it is possible to implement a variation of this model with an abstract token that stands for the world.
 When the program is started, it is provided with a world token.
@@ -84,7 +85,7 @@ At the end of the program, the token is returned to the operating system.
 This model of side effects is a good description of how `IO` actions as descriptions of tasks to be carried out by the RTS are represented internally in Lean.
 The actual functions that transform the real world are behind an abstraction barrier.
 But real programs typically consist of a sequence of effects, rather than just one.
-To enable programs to use multiple effects, there is a sub-language of Lean called `do`-notation that allows these primitive `IO` actions to be safely composed into a larger, useful program.
+To enable programs to use multiple effects, there is a sub-language of Lean called `do` notation that allows these primitive `IO` actions to be safely composed into a larger, useful program.
 
 ## Combining `IO` Actions
 
@@ -102,11 +103,11 @@ Just as SQL can be thought of as a special-purpose language for interacting with
 
 This program can be run in the same manner as the prior program:
 ```
-{{#command {hello-name} {hello-name} {echo "David" | lean --run HelloName.lean} {lean --run HelloName.lean}}}
+{{#command {hello-name} {hello-name} {./run} {lean --run HelloName.lean}}}
 ```
 If the user responds with `David`, a session of interaction with the program reads:
 ```
-{{#command_out {hello-name} {echo "David" | lean --run HelloName.lean} }}
+{{#command_out {hello-name} {./run} }}
 ```
 
 The type signature line is just like the one for `Hello.lean`:

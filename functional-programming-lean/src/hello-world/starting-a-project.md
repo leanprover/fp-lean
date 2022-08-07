@@ -1,6 +1,7 @@
 # Starting a Project
 
 As a program written in Lean becomes more serious, an ahead-of-time compiler-based workflow that results in an executable becomes more attractive.
+Like other languages, Lean has tools for building multiple-file packages and managing dependencies.
 The standard Lean build tool is called Lake (short for "Lean Make"), and it is configured in Lean.
 Just as Lean contains a special-purpose language for writing programs with effects (the `do` language), Lake contains a special-purpose language for configuring builds.
 These languages are referred to as _embedded domain-specific languages_ (or sometimes _domain-specific embedded languages_, abbreviated EDSL or DSEL).
