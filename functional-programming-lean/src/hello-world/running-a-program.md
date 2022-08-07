@@ -98,6 +98,7 @@ The following program, called `HelloName.lean`, asks the user for their name and
 In this program, the `main` action consists of a `do` block.
 This block contains a sequence of _statements_, which can be both local variables (introduced using `let`) and actions that are to be executed.
 Just as SQL can be thought of as a special-purpose language for interacting with databases, the `do` syntax can be thought of as a special-purpose sub-language within Lean that is dedicated to modeling imperative programs.
+`IO` actions that are built with a `do` block are executed by executing the statements in order.
 
 This program can be run in the same manner as the prior program:
 ```
