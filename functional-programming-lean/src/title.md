@@ -8,6 +8,10 @@ This version of the text is written for Lean 4 release `{{#lean_version}}`.
 
 ## Release history
 
+### August, 2022
+
+This third public release adds a second chapter, which describes compiling and running programs along with Lean's model for side effects.
+
 ### July, 2022
 
 The second public release completes the first chapter.

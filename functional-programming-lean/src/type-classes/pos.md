@@ -231,4 +231,4 @@ Define instances of `Add`, `Mul`, `ToString`, and `OfNat` that allow this versio
 
 ### Even Numbers
 
-Define a datatype that represents only even numbers. Define instances of `Add`, `Mul`, `ToString`, and `OfNat` that allow it to be used conveniently.
+Define a datatype that represents only even numbers. Define instances of `Add`, `Mul`, and `ToString` that allow it to be used conveniently. `OfNat` requires a feature that is introduced in [the next section](polymorphism.md).

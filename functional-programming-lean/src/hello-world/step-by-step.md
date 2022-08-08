@@ -31,7 +31,7 @@ Now that `stdin` and `stdout` have been found, the remainder of the block consis
 ```
 
 The first statement in the block, `{{#include ../../../examples/hello-name/HelloName.lean:line3}}`, consists of an expression.
-To execute a expression, it is first evaluated.
+To execute an expression, it is first evaluated.
 In this case, `IO.FS.Stream.putStrLn` has type `IO.FS.Stream → String → IO Unit`.
 This means that it is a function that accepts a stream and a string, returning an `IO` action.
 The expression uses [accessor notation](../getting-to-know/structures.md#behind-the-scenes) for a function call.
@@ -51,9 +51,10 @@ The resulting line (`"David\n"`) is associated with `input`, where the escape se
 {{#include ../../../examples/hello-name/HelloName.lean:block5}}
 ```
 
-The next line, `{{#include ../../../examples/hello-name/HelloName.lean:line5}}`, is a `let` statement that uses `:=` instead of `←`.
-This means that the expression will be evaluated, but the result need not be an `IO` action and will not be executed.
-In this case, `String.dropRightWhile` takes a string and a predicate over characters and returns a new string from which all the characters that satisfy the predicate have been removed.
+The next line, `{{#include ../../../examples/hello-name/HelloName.lean:line5}}`, is a `let` statement.
+Unlike the other `let` statements in this program, it uses `:=` instead of `←`.
+This means that the expression will be evaluated, but the resulting value need not be an `IO` action and will not be executed.
+In this case, `String.dropRightWhile` takes a string and a predicate over characters and returns a new string from which all the characters at the end of the string that satisfy the predicate have been removed.
 For example,
 ```Lean
 {{#example_in Examples/HelloWorld.lean dropBang}}
@@ -70,7 +71,7 @@ yields
 ```Lean info
 {{#example_out Examples/HelloWorld.lean dropNonLetter}}
 ```
-in which all non-letter characters have been removed from the right side of the string.
+in which all non-alphanumeric characters have been removed from the right side of the string.
 In the current line of the program, whitespace characters (including the newline) are removed from the right side of the input string, resulting in `"David"`, which is associated with `name` for the remainder of the block.
 
 
@@ -114,7 +115,7 @@ This can be generalized to a version that runs the underlying action any number 
 {{#example_decl Examples/HelloWorld.lean nTimes}}
 ```
 In the base case for `Nat.zero`, the result is `pure ()`.
-The function `pure` creates an `IO` action that does nothing, but returns `pure`'s argument, which in this case is the constructor for `Unit`.
+The function `pure` creates an `IO` action that has no side effects, but returns `pure`'s argument, which in this case is the constructor for `Unit`.
 As an action that does nothing and returns nothing interesting, `pure ()` is at the same time utterly boring and very useful.
 In the recursive step, a `do` block is used to create an action that first executes `action` and then executes the result of the recursive call.
 Executing `{{#example_in Examples/HelloWorld.lean nTimes3}}` causes the following output:
@@ -163,3 +164,13 @@ The first step is to evaluate `main`. That occurs as follows:
 The resulting `IO` action is a `do` block.
 Each step of the `do` block is then executed, one at a time, yielding the expected output.
 The final step, `pure ()`, does not have any effects, and it is only present because the definition of `runActions` needs a base case.
+
+## Exercise
+
+Step through the execution of the following program on a piece of paper:
+```Lean
+{{#example_decl Examples/HelloWorld.lean ExMain}}
+```
+While stepping through the program's execution, identify when an expression is being evaluated and when an `IO` action is being executed.
+When executing an `IO` action results in a side effect, write it down.
+After doing this, run the program with Lean and double-check that your predictions about the side effects were correct.

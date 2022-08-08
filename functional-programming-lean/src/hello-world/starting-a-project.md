@@ -1,6 +1,7 @@
 # Starting a Project
 
 As a program written in Lean becomes more serious, an ahead-of-time compiler-based workflow that results in an executable becomes more attractive.
+Like other languages, Lean has tools for building multiple-file packages and managing dependencies.
 The standard Lean build tool is called Lake (short for "Lean Make"), and it is configured in Lean.
 Just as Lean contains a special-purpose language for writing programs with effects (the `do` language), Lake contains a special-purpose language for configuring builds.
 These languages are referred to as _embedded domain-specific languages_ (or sometimes _domain-specific embedded languages_, abbreviated EDSL or DSEL).
@@ -85,6 +86,6 @@ The module name hierarchy is separate from the namespace hierarchy.
 That is, names defined in the module `Greeting.Smile` are not in a corresponding namespace `Greeting.Smile`.
 Modules may place names into any namespace they like, and the code that imports them may `open` the namespace or not.
 `import` is used to make the contents of a source file available, while `open` makes names from a namespace available in the current context.
-In the Lakefile, the line `import Lake` makes the contents of the `Lake` module available, while the like `open Lake DSL` makes the contents of the `Lake` and `DSL` namespaces available without any prefixes.
+In the Lakefile, the line `import Lake` makes the contents of the `Lake` module available, while the line `open Lake DSL` makes the contents of the `Lake` and `DSL` namespaces available without any prefixes.
 
 

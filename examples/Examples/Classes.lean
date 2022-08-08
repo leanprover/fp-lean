@@ -71,14 +71,14 @@ expect error {{{ fourteenOops }}}
   def fourteen : Pos := seven + seven
 message
 "failed to synthesize instance
-  HAdd Pos Pos ?m.300"
+  HAdd Pos Pos ?m.292"
 end expect
 
 expect error {{{ fortyNineOops }}}
   def fortyNine : Pos := seven * seven
 message
 "failed to synthesize instance
-  HMul Pos Pos ?m.300"
+  HMul Pos Pos ?m.292"
 end expect
 
 
@@ -133,8 +133,8 @@ book declaration {{{ posToStringStructure }}}
 def posToString (atTop : Bool) (p : Pos) : String :=
   let paren s := if atTop then s else "(" ++ s ++ ")"
   match p with
-    | Pos.one => "Pos.one"
-    | Pos.succ n => paren s!"Pos.succ {posToString false n}"
+  | Pos.one => "Pos.one"
+  | Pos.succ n => paren s!"Pos.succ {posToString false n}"
 stop book declaration
 
 book declaration {{{ UglyToStringPos }}}
@@ -231,16 +231,16 @@ stop book declaration
 
 
 book declaration {{{ LT4ofNat }}}
-  instance : OfNat LT4 Nat.zero where
+  instance : OfNat LT4 0 where
     ofNat := LT4.zero
 
-  instance : OfNat LT4 (Nat.succ Nat.zero) where
+  instance : OfNat LT4 1 where
     ofNat := LT4.one
 
-  instance : OfNat LT4 (Nat.succ (Nat.succ Nat.zero)) where
+  instance : OfNat LT4 2 where
     ofNat := LT4.two
 
-  instance : OfNat LT4 (Nat.succ (Nat.succ (Nat.succ Nat.zero))) where
+  instance : OfNat LT4 3 where
     ofNat := LT4.three
 stop book declaration
 

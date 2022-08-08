@@ -38,7 +38,7 @@ In this case, the local name of `handle` could also have been eliminated using n
 Even though it's often good style to use nested actions, it can still sometimes be helpful to name intermediate results.
 
 It is important to remember, however, that nested actions are only a shorter notation for `IO` actions that occur in a surrounding `do` block.
-The side effects that are involved in executing the still occur in the same order, and execution of side effects is not interspersed with the evaluation of expressions.
+The side effects that are involved in executing them still occur in the same order, and execution of side effects is not interspersed with the evaluation of expressions.
 For an example of where this might be confusing, consider the following helper definitions that return data after announcing to the world that they have been executed:
 ```Lean
 {{#example_decl Examples/Cat.lean getNumA}}
@@ -84,4 +84,26 @@ For instance, all of the following programs are equivalent:
 
 Idiomatic Lean code uses curly braces with `do` very rarely.
 
+## Running `IO` Actions With `#eval`
 
+Lean's `#eval` command can be used to execute `IO` actions, rather than just evaluating them.
+Normally, adding a `#eval` command to a Lean file causes Lean to evaluate the provided expression, convert the resulting value to a string, and provide that string as a tooltip and in the info window.
+Rather than failing because `IO` actions can't be converted to strings, `#eval` executes them, carrying out their side effects.
+If the result of execution is the `Unit` value `()`, then no result string is shown, but if it is a type that can be converted to a string, then Lean displays the resulting value.
+
+This means that, given the prior definitions of `countdown` and `runActions`, 
+```Lean
+{{#example_in Examples/HelloWorld.lean evalDoesIO}}
+```
+displays
+```Lean info
+{{#example_out Examples/HelloWorld.lean evalDoesIO}}
+```
+This is the output produced by running the `IO` action, rather than some opaque representation of the action itself.
+In other words, for `IO` actions, `#eval` both _evaluates_ the provided expression and _executes_ the resulting action value.
+
+Quickly testing `IO` actions with `#eval` can be much more convenient that compiling and running whole programs.
+However, there are some limitations.
+For instance, reading from standard input simply returns empty input.
+Additionally, the `IO` action is re-executed whenever Lean needs to update the diagnostic information that it provides to users, and this can happen at unpredictable times.
+An action that reads and writes files, for instance, may do so at inconvenient times.

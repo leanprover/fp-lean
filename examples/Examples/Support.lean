@@ -272,26 +272,26 @@ elab_rules : command
       let t1 := C1.getId
       let t2 := C2.getId
       let i1 <- match (e.find? t1).get! with
-        | ConstantInfo.inductInfo i => pure i
-        | _ => throwError "Not an inductive type: {t1}"
+      | ConstantInfo.inductInfo i => pure i
+      | _ => throwError "Not an inductive type: {t1}"
       let i2 <- match (e.find? t2).get! with
-        | ConstantInfo.inductInfo i => pure i
-        | _ => throwError "Not an inductive type: {t2}"
+      | ConstantInfo.inductInfo i => pure i
+      | _ => throwError "Not an inductive type: {t2}"
       if i1.numParams != i2.numParams then throwError "Param count mismatch"
       if i1.numIndices != i2.numIndices then throwError "Index count mismatch"
       if i1.isRec != i1.isRec then throwError "Recursiveness mismatch"
       let ctors <- match zipSameLength i1.ctors i2.ctors with
-        | some v => pure v
-        | none => throwError "Different number of constructors"
+      | some v => pure v
+      | none => throwError "Different number of constructors"
       for (c1, c2) in ctors do
         let (n1, n2) := (c1.last.get!, c2.last.get!)
         if n1 != n2 then throwError "Constructor name mismatch: {n1} vs {n2}"
         let ctor1 <- match (e.find? c1).get! with
-          | ConstantInfo.ctorInfo i => pure i
-          | _ => throwError "Not a constructor {c1}"
+        | ConstantInfo.ctorInfo i => pure i
+        | _ => throwError "Not a constructor {c1}"
         let ctor2 <- match (e.find? c2).get! with
-          | ConstantInfo.ctorInfo i => pure i
-          | _ => throwError "Not a constructor {c2}"
+        | ConstantInfo.ctorInfo i => pure i
+        | _ => throwError "Not a constructor {c2}"
         if ctor1.numFields != ctor2.numFields then throwError "Constructor field count mismatch for {n1}"
 
 

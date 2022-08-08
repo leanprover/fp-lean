@@ -9,7 +9,7 @@ These descriptions are then executed by the language's run-time system, which in
 Values of type `IO α` are called _`IO` actions_.
 The simplest is `pure`, which returns its argument and has no actual side effects.
 
-`IO` actions can also be understood as functions that take the whole world as an argument and return a new in which the side effect has occurred.
+`IO` actions can also be understood as functions that take the whole world as an argument and return a new world in which the side effect has occurred.
 Behind the scenes, the `IO` library ensures that the world is never duplicated, created, or destroyed.
 While this model of side effects cannot actually be implemented, as the whole universe is too big to fit in memory, the real world can be represented by a token that is passed around through the program.
 
@@ -20,11 +20,11 @@ An `IO` action `main` is executed when the program starts.
  * `main : List String → IO UInt32` is used for programs that take command-line arguments and signal success or failure.
 
 
-## `do`-Notation
+## `do` Notation
 
 The Lean standard library provides a number of basic `IO` actions that represent effects such as reading from and writing to files and interacting with standard input and standard output.
-These base `IO` actions are composed into larger `IO` actions using `do`-notation, which is a built-in domain-specific language for writing descriptions of programs with side effects.
-A `do`-expression contains a sequence of _statements_, which may be:
+These base `IO` actions are composed into larger `IO` actions using `do` notation, which is a built-in domain-specific language for writing descriptions of programs with side effects.
+A `do` expression contains a sequence of _statements_, which may be:
  * expressions that represent `IO` actions,
  * ordinary local definitions with `let` and `:=`, where the defined name refers to the value of the provided expression, or
  * local definitions with `let` and `←`, where the defined name refers to the result of executing the value of the provided expression.
@@ -32,7 +32,7 @@ A `do`-expression contains a sequence of _statements_, which may be:
 `IO` actions that are written with `do` are executed one statement at a time.
  
 Furthermore, `if` and `match` expressions that occur immediately under a `do` are implicitly considered to have their own `do` in each branch.
-Inside of a `do`-expression, _nested actions_ are expressions with a left arrow immediately under parentheses.
+Inside of a `do` expression, _nested actions_ are expressions with a left arrow immediately under parentheses.
 The Lean compiler implicitly lifts them to the nearest enclosing `do`, which may be implicitly part of a branch of a `match` or `if` expression, and given a unique name.
 This unique name then replaces the origin site of the nested action.
 

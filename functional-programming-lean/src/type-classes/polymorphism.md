@@ -57,3 +57,10 @@ A library of polymorphic instances is a set of building blocks to construct code
 Polymorphic functions that take instance arguments are latent requests to the type class mechanism to assemble helper functions behind the scenes.
 The API's clients are freed from the burden of plumbing together all of the necessary building blocks by hand.
 
+TODO: describe rules for method argument plicity, explaining why `OfNat.ofNat` takes the `Nat` explicitly but the type implicitly
+
+## Exercises
+
+### Even Number Literals
+
+Write an instance of `OfNat` for the even number datatype from the [previous section's exercises](pos.md#even-numbers) that uses recursive instance search.

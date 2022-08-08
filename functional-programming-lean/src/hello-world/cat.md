@@ -37,7 +37,7 @@ Ensure that the code can be built by running `{{#command {feline/1} {feline/1} {
 ## Concatenating Streams
 
 Now that the basic skeleton of the program has been built, it's time to actually enter the code.
-A proper implementation of `cat` works with infinite IO streams, such as `/dev/random`, which means that it can't read its input into memory before outputting it.
+A proper implementation of `cat` can be used with infinite IO streams, such as `/dev/random`, which means that it can't read its input into memory before outputting it.
 Furthermore, it should not work one character at a time, as this leads to frustratingly slow performance.
 Instead, it's better to read contiguous blocks of data all at once, directing the data to the standard output one block at a time.
 
