@@ -103,11 +103,11 @@ Just as SQL can be thought of as a special-purpose language for interacting with
 
 This program can be run in the same manner as the prior program:
 ```
-{{#command {hello-name} {hello-name} {./run} {lean --run HelloName.lean}}}
+{{#command {hello-name} {hello-name} {lean --run HelloName.lean} }}
 ```
 If the user responds with `David`, a session of interaction with the program reads:
 ```
-{{#command_out {hello-name} {./run} }}
+{{#command_expect {hello-name} {hello-name} {echo "David" | lean --run HelloName.lean} {hello-name/expected1.txt} }}
 ```
 
 The type signature line is just like the one for `Hello.lean`:
@@ -143,5 +143,3 @@ Finally, the last line in the program is:
 {{#include ../../../examples/hello-name/HelloName.lean:answer}}
 ```
 It uses [string interpolation](../getting-to-know/conveniences.md#string-interpolation) to insert the provided name into a greeting string, writing the result to `stdout`.
-
-

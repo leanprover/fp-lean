@@ -167,7 +167,7 @@ Finally, the `-` argument should be handled appropriately.
 ```
 should yield
 ```
-{{#command_out {feline/2} {echo "and purr" | ./build/bin/feline test1.txt - test2.txt} {feline/2/expected/test1purr2.txt}}}
+{{#command_out {feline/2} {echo "and purr" | ./build/bin/feline test1.txt - test2.txt} {feline/2/expected/test1purr2.txt} }}
 ```
 
 ## Exercise

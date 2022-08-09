@@ -16,6 +16,7 @@ def eprint(val):
 
 command_re = re.compile(r'\{\{#command\s+\{(?P<dir>[^}]+)\}\s*\{(?P<container>[^}]+)\}\s*\{(?P<command>[^}]+)\}\s*(\{(?P<show>[^}]+)\}\s*)?\}\}')
 command_out_re = re.compile(r'\{\{#command_out\s+\{(?P<container>[^}]+)\}\s*\{(?P<command>[^}]+)\}\s*(\{(?P<expected>[^}]+)\}\s*)?\}\}')
+command_expect_re = re.compile(r'\{\{#command_expect\s+\{(?P<dir>[^}]+)\}\s*\{(?P<container>[^}]+)\}\s*\{(?P<command>[^}]+)\}\s*(\{(?P<expected>[^}]+)\}\s*)?\}\}')
 file_contents_re = re.compile(r'\{\{#file_contents\s+\{(?P<container>[^}]+)\}\s*\{(?P<file>[^}]+)\}\s*(\{(?P<expected>[^}]+)\}\s*)?\}\}')
 
 logger = logging.getLogger(__name__)
@@ -27,6 +28,23 @@ def mangle(string):
 
 def normalize(s):
     return s.replace('\r\n', '\n').rstrip()
+
+def find_in_path(exe_name):
+    paths = os.environ.get('PATH')
+    paths = paths.split(os.path.pathsep)
+    for p in paths:
+        exe_path = os.path.join(p, exe_name)
+        if os.path.isfile(exe_path):
+            return exe_path
+    return None
+
+def fix_echo(cmd):
+    if cmd.startswith("echo") and os.name == 'nt':
+        echo = find_in_path("echo.exe")
+        if echo:
+            cmd = f"\"{echo}\" {cmd[5:]}"
+            logger.info(f'fixing command line {cmd}')
+    return cmd
 
 class ContainerContext:
 
@@ -64,12 +82,15 @@ class ContainerContext:
             directory = found.group('dir')
             command = found.group('command')
             show = found.group('show')
+            logger.info(f'#command {container} {directory} {command} {show}')
             try:
                 directory = directory.replace('/', os.path.sep)
                 directory = f'{container_dir}{os.path.sep}examples{os.path.sep}{directory}'
                 exe = command.replace('/', os.path.sep)
                 logger.info(f'subprocess {exe}: {directory}')
+                exe = fix_echo(exe)
                 val = subprocess.run(exe, shell=True, cwd=directory, check=True, capture_output=True)
+                logger.info(f'output["{command}"]= {val.stdout.decode("utf-8")}')
             except subprocess.CalledProcessError as e:
                 logger.error(f'Output: {e.output.decode("utf-8")}')
                 logger.error(f'Stderr: {e.stderr.decode("utf-8")}')
@@ -89,11 +110,54 @@ class ContainerContext:
 
         return rewrite
 
+    def rewrite_command_expect(self, project_root):
+        def rewrite(found):
+            container = found.group('container')
+            container_dir = self.ensure_container(container)
+            directory = found.group('dir')
+            command = found.group('command')
+            expect = found.group('expected')
+            logger.info(f'#command_expect {container} {directory} {command} {expect}')
+            try:
+                directory = directory.replace('/', os.path.sep)
+                directory = f'{container_dir}{os.path.sep}examples{os.path.sep}{directory}'
+                exe = command.replace('/', os.path.sep)
+                logger.info(f'subprocess {exe}: {directory}')
+                exe = fix_echo(exe)
+                val = subprocess.run(exe, shell=True, cwd=directory, check=True, capture_output=True)
+                logger.info(f'output["{command}"]= {val.stdout.decode("utf-8")}')
+            except subprocess.CalledProcessError as e:
+                logger.error(f'Output: {e.output.decode("utf-8")}')
+                logger.error(f'Stderr: {e.stderr.decode("utf-8")}')
+                eprint("Output:")
+                eprint(e.output)
+                eprint("Stderr:")
+                eprint(e.stderr)
+                raise e
+
+            if container not in self.outputs:
+                self.outputs[container] = {}
+            self.outputs[container][command] = val.stdout.decode('utf-8')
+            expected_output = None
+            if expect is None:
+                expected_output = None
+            else:
+                with open(f"{self.project_root}{os.path.sep}examples{os.path.sep}{expect}", 'r') as f:
+                    expected_output = normalize(f.read())
+
+            output = normalize(self.outputs[container][command])
+            if expected_output is not None:
+                assert output == expected_output.rstrip(), f'expected {command} in {self.project_root}{os.path.sep}examples{os.path.sep}{expect} to match actual:\n{output}'
+            return output.rstrip()
+
+        return rewrite
+
     def rewrite_command_out(self, project_root):
         def rewrite(found):
             container = found.group('container')
             command = found.group('command')
             expect = found.group('expected')
+            logger.info(f'#command_out {container} {command} {expect}')
             expected_output = None
             if expect is None:
                 expected_output = None
@@ -135,6 +199,7 @@ class ContainerContext:
                 logger.info(f'chapter {name}')
                 chapter['content'] = command_re.sub(self.rewrite_command(project_root), chapter['content'])
                 chapter['content'] = command_out_re.sub(self.rewrite_command_out(project_root), chapter['content'])
+                chapter['content'] = command_expect_re.sub(self.rewrite_command_expect(project_root), chapter['content'])
                 chapter['content'] = file_contents_re.sub(self.rewrite_file_contents(project_root), chapter['content'])
                 test_chapters(ch['Chapter']['sub_items'])
 
