@@ -448,3 +448,57 @@ end evaluation steps
 
 end OverloadedBits
 
+
+book declaration {{{ addNatPos }}}
+  def addNatPos : Nat → Pos → Pos
+    | 0, p => p
+    | n + 1, p => Pos.succ (addNatPos n p)
+
+  def addPosNat : Pos → Nat → Pos
+    | p, 0 => p
+    | p, n + 1 => Pos.succ (addPosNat p n)
+stop book declaration
+
+
+
+book declaration {{{ haddInsts }}}
+  instance : HAdd Nat Pos Pos where
+    hAdd := addNatPos
+
+  instance : HAdd Pos Nat Pos where
+    hAdd := addPosNat
+stop book declaration
+
+
+expect info {{{ posNatEx }}}
+  #eval (3 : Pos) + (5 : Nat)
+message
+  "8"
+end expect
+
+expect info {{{ natPosEx }}}
+  #eval (3 : Nat) + (5 : Pos)
+message
+  "8"
+end expect
+
+book declaration {{{ HPlus }}}
+  class HPlus (α : Type) (β : Type) (γ : Type) where
+    hPlus : α → β → γ
+stop book declaration
+
+instance : HPlus Nat Pos Pos where
+  hPlus := addNatPos
+
+instance : HPlus Pos Nat Pos where
+  hPlus := addPosNat
+
+
+expect error {{{ hPlusOops }}}
+  #eval HPlus.hPlus (3 : Pos) (5 : Nat)
+message
+"typeclass instance problem is stuck, it is often due to metavariables
+  HPlus Pos Nat ?m.4956"
+end expect
+
+#eval (HPlus.hPlus (3 : Pos) (5 : Nat) : Int)

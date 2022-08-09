@@ -23,7 +23,7 @@
   - [Positive Numbers](type-classes/pos.md)
   - [Type Classes and Polymorphism](type-classes/polymorphism.md)
   - [Standard Classes](type-classes/standard-classes.md)
-  - [Out Parameters](type-classes/out-params.md)
+  - [Output Parameters](type-classes/out-params.md)
   - [Coercions](type-classes/coercion.md)
   - [Additional Conveniences](type-classes/conveniences.md)
   - [Summary](type-classes/summary.md)
