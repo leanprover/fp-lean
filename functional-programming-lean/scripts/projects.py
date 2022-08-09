@@ -16,7 +16,7 @@ def eprint(val):
 
 command_re = re.compile(r'\{\{#command\s+\{(?P<dir>[^}]+)\}\s*\{(?P<container>[^}]+)\}\s*\{(?P<command>[^}]+)\}\s*(\{(?P<show>[^}]+)\}\s*)?\}\}')
 command_out_re = re.compile(r'\{\{#command_out\s+\{(?P<container>[^}]+)\}\s*\{(?P<command>[^}]+)\}\s*(\{(?P<expected>[^}]+)\}\s*)?\}\}')
-command_expect_re = re.compile(r'\{\{#command_expect\s+\{(?P<dir>[^}]+)\}\s*\{(?P<container>[^}]+)\}\s*\{(?P<command>[^}]+)\}\s*(\{(?P<expected>[^}]+)\}\s*)?\}\}')
+command_expect_re = re.compile(r'\{\{#command_expect\s+\{(?P<dir>[^}]+)\}\s*\{(?P<container>[^}]+)\}\s*\{(?P<command>[^}]+)\}\s*(\{(?P<expected>[^}]+)\}\s*)?\s*(\{(?P<show>[^}]+)\}\s*)?\}\}')
 file_contents_re = re.compile(r'\{\{#file_contents\s+\{(?P<container>[^}]+)\}\s*\{(?P<file>[^}]+)\}\s*(\{(?P<expected>[^}]+)\}\s*)?\}\}')
 
 logger = logging.getLogger(__name__)
@@ -112,43 +112,8 @@ class ContainerContext:
 
     def rewrite_command_expect(self, project_root):
         def rewrite(found):
-            container = found.group('container')
-            container_dir = self.ensure_container(container)
-            directory = found.group('dir')
-            command = found.group('command')
-            expect = found.group('expected')
-            logger.info(f'#command_expect {container} {directory} {command} {expect}')
-            try:
-                directory = directory.replace('/', os.path.sep)
-                directory = f'{container_dir}{os.path.sep}examples{os.path.sep}{directory}'
-                exe = command.replace('/', os.path.sep)
-                logger.info(f'subprocess {exe}: {directory}')
-                exe = fix_echo(exe)
-                val = subprocess.run(exe, shell=True, cwd=directory, check=True, capture_output=True)
-                logger.info(f'output["{command}"]= {val.stdout.decode("utf-8")}')
-            except subprocess.CalledProcessError as e:
-                logger.error(f'Output: {e.output.decode("utf-8")}')
-                logger.error(f'Stderr: {e.stderr.decode("utf-8")}')
-                eprint("Output:")
-                eprint(e.output)
-                eprint("Stderr:")
-                eprint(e.stderr)
-                raise e
-
-            if container not in self.outputs:
-                self.outputs[container] = {}
-            self.outputs[container][command] = val.stdout.decode('utf-8')
-            expected_output = None
-            if expect is None:
-                expected_output = None
-            else:
-                with open(f"{self.project_root}{os.path.sep}examples{os.path.sep}{expect}", 'r') as f:
-                    expected_output = normalize(f.read())
-
-            output = normalize(self.outputs[container][command])
-            if expected_output is not None:
-                assert output == expected_output.rstrip(), f'expected {command} in {self.project_root}{os.path.sep}examples{os.path.sep}{expect} to match actual:\n{output}'
-            return output.rstrip()
+            self.rewrite_command(project_root)(found)
+            return self.rewrite_command_out(project_root)(found)
 
         return rewrite
 
