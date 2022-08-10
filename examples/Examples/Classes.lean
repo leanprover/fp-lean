@@ -543,10 +543,7 @@ instance : HPlus Int Nat Unit where
 instance [Add α] : HPlus α α α where
   hPlus := Add.add
 
-
-
-
-#eval (HPlus.hPlus (0 : Int) _ )
+-- #eval (HPlus.hPlus (0 : Int) _ )
 
 end BetterHPlus
 
