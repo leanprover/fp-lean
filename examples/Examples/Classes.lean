@@ -482,8 +482,43 @@ message
   "8"
 end expect
 
+namespace ProblematicHPlus
+
 book declaration {{{ HPlus }}}
   class HPlus (α : Type) (β : Type) (γ : Type) where
+    hPlus : α → β → γ
+stop book declaration
+
+
+book declaration {{{ HPlusInstances }}}
+  instance : HPlus Nat Pos Pos where
+    hPlus := addNatPos
+
+  instance : HPlus Pos Nat Pos where
+    hPlus := addPosNat
+stop book declaration
+
+expect error {{{ hPlusOops }}}
+  #eval HPlus.hPlus (3 : Pos) (5 : Nat)
+message
+"typeclass instance problem is stuck, it is often due to metavariables
+  HPlus Pos Nat ?m.4956"
+end expect
+
+
+expect info {{{ hPlusLotsaTypes }}}
+  #eval (HPlus.hPlus (3 : Pos) (5 : Nat) : Pos)
+message
+  "8"
+end expect
+
+end ProblematicHPlus
+
+
+namespace BetterHPlus
+
+book declaration {{{ HPlusOut }}}
+  class HPlus (α : Type) (β : Type) (γ : outParam Type) where
     hPlus : α → β → γ
 stop book declaration
 
@@ -493,12 +528,29 @@ instance : HPlus Nat Pos Pos where
 instance : HPlus Pos Nat Pos where
   hPlus := addPosNat
 
-
-expect error {{{ hPlusOops }}}
+expect info {{{ hPlusWorks }}}
   #eval HPlus.hPlus (3 : Pos) (5 : Nat)
 message
-"typeclass instance problem is stuck, it is often due to metavariables
-  HPlus Pos Nat ?m.4956"
+  "8"
 end expect
 
-#eval (HPlus.hPlus (3 : Pos) (5 : Nat) : Int)
+instance : HPlus Int Nat Unit where
+  hPlus := fun x y => ()
+
+
+-- TODO explain why this is needed for that #eval
+@[defaultInstance]
+instance [Add α] : HPlus α α α where
+  hPlus := Add.add
+
+
+
+
+#eval (HPlus.hPlus (0 : Int) _ )
+
+end BetterHPlus
+
+similar datatypes ProblematicHPlus.HPlus BetterHPlus.HPlus
+
+
+def foo := GetElem
