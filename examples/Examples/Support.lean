@@ -30,7 +30,7 @@ elab_rules : command
   | `(bookExample {{{ $name:ident }}} $x:term ===> $y:term end bookExample) =>
     open Lean.Elab.Command in
     open Lean.Elab.Term in
-    open Lean.Meta in liftTermElabM `bookExample do
+    open Lean.Meta in liftTermElabM <| withDeclName `bookExample do
       let x ← elabTerm x none
       let y ← elabTerm y none
       synthesizeSyntheticMVarsNoPostponing
@@ -43,7 +43,7 @@ elab_rules : command
   | `(bookExample : $type:term {{{ $name:ident }}} $x:term ===> $y:term end bookExample) =>
     open Lean.Elab.Command in
     open Lean.Elab.Term in
-    open Lean.Meta in liftTermElabM `bookExample do
+    open Lean.Meta in liftTermElabM <| withDeclName `bookExample do
       let t ← elabTerm type none
       let x ← elabTerm x (some t)
       let y ← elabTerm y (some t)
@@ -70,7 +70,7 @@ elab_rules : command
   | `(bookExample type {{{ $name:ident }}} $x:term ===> $y:term end bookExample) =>
     open Lean.Elab.Command in
     open Lean.Elab.Term in
-    open Lean.Meta in liftTermElabM `bookExample do
+    open Lean.Meta in liftTermElabM <| withDeclName name.raw.getId do
       let x ← elabTerm x none
       let xType ← inferType x
       let y ← elabTerm y none
@@ -96,7 +96,7 @@ elab_rules : command
   | `(bookExample type {{{ $name:ident }}} $x:term <=== $y:term end bookExample) =>
     open Lean.Elab.Command in
     open Lean.Elab.Term in
-    open Lean.Meta in liftTermElabM `bookExample do
+    open Lean.Meta in liftTermElabM <| withDeclName name.raw.getId do
       let y ← elabTerm y none
       let _ ← elabTerm x (some y)
       synthesizeSyntheticMVarsNoPostponing
@@ -212,7 +212,7 @@ elab_rules : command
       let mut current : Option Syntax := none
       for item in exprs do
         if let some v := current then
-          liftTermElabM `evaluationSteps do
+          liftTermElabM <| withDeclName name.raw.getId do
             let x <- elabTerm item.raw none
             let y <- elabTerm v none
             synthesizeSyntheticMVarsNoPostponing
@@ -235,11 +235,11 @@ elab_rules : command
     open Lean.Elab.Term in
     open Lean in
     open Lean.Meta in do
-      let expected <- liftTermElabM `evaluationSteps (elabTerm ty none)
+      let expected <- liftTermElabM <| withDeclName name.raw.getId <| elabTerm ty none
       let mut current : Option Syntax := none
       for item in exprs do
         if let some v := current then
-          liftTermElabM `evaluationSteps do
+          liftTermElabM <| withDeclName name.raw.getId do
             let x <- elabTerm item.raw (some expected)
             let y <- elabTerm v (some expected)
             synthesizeSyntheticMVarsNoPostponing
