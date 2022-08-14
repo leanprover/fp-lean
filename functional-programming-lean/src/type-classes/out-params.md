@@ -92,24 +92,68 @@ Output parameters can determine other types in the program, and instance search 
 Deciding whether a parameter is an input or an output controls the circumstances under which Lean will initiate type class search.
 In particular, type class search does not occur until all inputs are known.
 However, in some cases, output parameters are not enough, and instance search should also occur when some inputs are unknown.
-This is a bit like default values for optional function arguments in Python or Kotlin, except default types are being selected.
+This is a bit like default values for optional function arguments in Python or Kotlin, except default _types_ are being selected.
 
 _Default instances_ are instances that are available for instance search _even when not all their inputs are known_.
-When one of these instances matches the constraints imposed by the program, it is used, which can cause input parameters to be solved with concrete types or values.
+When one of these instances can be used, it will be used.
+This can cause programs to successfully type check, rather than complaining about unknown types and metavariables.
+On the other hand, default instances can make instance selection less predictable.
+In particular, if an undesired default instance is selected, then an expression may have a different type than expected, which can cause confusing type errors to occur elsewhere in the program.
+Be selective about where default instances are used!
 
-Uses:
- * Keep simple case simple (Add vs HAdd)
- * Allow fewer type annotations (OfNat Nat n)
- 
-Describe:
- * Priorities
+One example of where default instances can be useful is with an instance of `HPlus` that can be derived from an `Add` instance.
+In other words, ordinary addition is a special case of heterogeneous addition in which all three types happen to be the same.
+This can be implemented using the following instance:
+```Lean
+{{#example_decl Examples/Classes.lean notDefaultAdd}}
+```
+With this instance, `hPlus` can be used for any addable type, like `Nat`:
+```Lean
+{{#example_in Examples/Classes.lean hPlusWorks}}
+```
+```Lean info
+{{#example_out Examples/Classes.lean hPlusWorks}}
+```
+
+However, this instance will only be used in situations where the types of both arguments are known.
+For example,
+```Lean
+{{#example_in Examples/Classes.lean plusFiveThree}}
+```
+yields the type
+```Lean info
+{{#example_out Examples/Classes.lean plusFiveThree}}
+```
+as expected, but
+```Lean
+{{#example_in Examples/Classes.lean plusFiveMeta}}
+```
+yields a type that contains two metavariables, one for the remaining argument and one for the return type:
+```Lean info
+{{#example_out Examples/Classes.lean plusFiveMeta}}
+```
+The function `hAdd` is the built-in Lean function that corresponds to `hPlus`, and it is used to interpret the plus sign.
+In the vast majority of cases, when someone supplies one argument to addition, the other argument will have the same type.
+
+To make this instance into a default instance, apply the `defaultInstance` attribute:
+```Lean
+{{#example_decl Examples/Classes.lean defaultAdd}}
+```
+With this default instance, the example has a more useful type:
+```Lean
+{{#example_in Examples/Classes.lean plusFive}}
+```
+yields
+```Lean info
+{{#example_out Examples/Classes.lean plusFive}}
+```
+
+Similarly, simply writing `{{#example_in Examples/Classes.lean fiveType}}` gives a `{{#example_out Examples/Classes.lean fiveType}}` rather than a type with a metavariable that is waiting for more information in order to select an `OfNat` instance.
+This is because the `OfNat` instance for `Nat` is a default instance.
+
+Default instances can also be assigned _priorities_ that affect which will be chosen in situations where more than one might apply.
+For more information on default instance priorities, please consult the Lean manual.
 
 
-
-
-
- - HAdd, etc
- - HAppend
- - GetElem
  
  

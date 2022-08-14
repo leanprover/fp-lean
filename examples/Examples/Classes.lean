@@ -515,6 +515,7 @@ end expect
 end ProblematicHPlus
 
 
+
 namespace BetterHPlus
 
 book declaration {{{ HPlusOut }}}
@@ -534,20 +535,47 @@ message
   "8"
 end expect
 
-instance : HPlus Int Nat Unit where
-  hPlus := fun x y => ()
+
+book declaration {{{ notDefaultAdd }}}
+  instance [Add α] : HPlus α α α where
+    hPlus := Add.add
+stop book declaration
+
+expect info {{{ plusFiveThree }}}
+  #check HPlus.hPlus (5 : Nat) (3 : Nat)
+message
+  "HPlus.hPlus 5 3 : Nat"
+end expect
+
+expect info {{{ plusFiveMeta }}}
+  #check HPlus.hPlus (5 : Nat)
+message
+  "HPlus.hPlus 5 : ?m.4969 → ?m.4971"
+end expect
 
 
--- TODO explain why this is needed for that #eval
-@[defaultInstance]
-instance [Add α] : HPlus α α α where
-  hPlus := Add.add
+book declaration {{{ defaultAdd }}}
+  @[defaultInstance]
+  instance [Add α] : HPlus α α α where
+    hPlus := Add.add
+stop book declaration
 
--- #eval (HPlus.hPlus (0 : Int) _ )
+
+expect info {{{ plusFive }}}
+  #check HPlus.hPlus (5 : Nat)
+message
+  "HPlus.hPlus 5 : Nat → Nat"
+end expect
 
 end BetterHPlus
 
 similar datatypes ProblematicHPlus.HPlus BetterHPlus.HPlus
+
+bookExample type {{{ fiveType }}}
+  5
+  ===>
+  Nat
+end bookExample
 
 
 def foo := GetElem
