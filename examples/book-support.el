@@ -36,6 +36,17 @@
   (interactive "MName: ")
   (fp-lean--wrap (format "evaluation steps {{{ %s }}}" name) "end evaluation steps"))
 
+(defun fp-lean-example (name)
+  "Book example named NAME."
+  (interactive "MName: ")
+  (fp-lean--wrap (format "bookExample {{{ %s }}}" name) "end bookExample"))
+
+(defun fp-lean-example-type (name)
+  "Book example for type named NAME."
+  (interactive "MName: ")
+  (fp-lean--wrap (format "bookExample type {{{ %s }}}" name) "end bookExample"))
+
+
 (defun fp-lean-code ()
   (interactive)
   (insert "```Lean")

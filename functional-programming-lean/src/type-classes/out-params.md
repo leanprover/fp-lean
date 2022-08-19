@@ -10,7 +10,7 @@ These functions allow natural numbers to be added to positive numbers, but they 
 
 ## Heterogeneous Overloadings
 
-Handily, Lean provides a type class called `HAdd` for overloading addition heterogeneously.
+As mentioned in the section on [overloaded addition](pos.md#overloaded-addition), Lean provides a type class called `HAdd` for overloading addition heterogeneously.
 The `HAdd` class takes three type parameters: the two argument types and the return type.
 Instances of `HAdd Nat Pos Pos` and `HAdd Pos Nat Pos` allow ordinary addition notation to be used to mix the types:
 ```Lean
@@ -30,7 +30,7 @@ For instance, given the above two instances, the following examples work:
 {{#example_out Examples/Classes.lean natPosEx}}
 ```
 
-The definition of the `HAdd` type class is very much like the following definition of `HPlus` with corresponding instances:
+The definition of the `HAdd` type class is very much like the following definition of `HPlus` with the corresponding instances:
 ```Lean
 {{#example_decl Examples/Classes.lean HPlus}}
 
@@ -67,7 +67,7 @@ However, this solution is not very convenient for users of the positive number l
 This problem can also be solved by declaring `γ` to be an _output parameter_.
 Most type class parameters are inputs to the search algorithm: they are used to select an instance.
 For example, in an `OfNat` instance, both the type and the natural number are used to select a particular interpretation of a natural number literal.
-However, in some cases, it can be convenient to start the search process even when some of the type parameters are not yet known, and use the instances that are discovered to solve metavariables.
+However, in some cases, it can be convenient to start the search process even when some of the type parameters are not yet known, and use the instances that are discovered in the search to determine values for metavariables.
 The parameters that aren't needed to start instance search are outputs of the process, which is declared with the `outParam` modifier:
 ```Lean
 {{#example_decl Examples/Classes.lean HPlusOut}}
@@ -96,12 +96,12 @@ This is a bit like default values for optional function arguments in Python or K
 
 _Default instances_ are instances that are available for instance search _even when not all their inputs are known_.
 When one of these instances can be used, it will be used.
-This can cause programs to successfully type check, rather than complaining about unknown types and metavariables.
+This can cause programs to successfully type check, rather than failing with errors related to unknown types and metavariables.
 On the other hand, default instances can make instance selection less predictable.
 In particular, if an undesired default instance is selected, then an expression may have a different type than expected, which can cause confusing type errors to occur elsewhere in the program.
 Be selective about where default instances are used!
 
-One example of where default instances can be useful is with an instance of `HPlus` that can be derived from an `Add` instance.
+One example of where default instances can be useful is an instance of `HPlus` that can be derived from an `Add` instance.
 In other words, ordinary addition is a special case of heterogeneous addition in which all three types happen to be the same.
 This can be implemented using the following instance:
 ```Lean
@@ -132,9 +132,8 @@ yields a type that contains two metavariables, one for the remaining argument an
 ```Lean info
 {{#example_out Examples/Classes.lean plusFiveMeta}}
 ```
-The function `hAdd` is the built-in Lean function that corresponds to `hPlus`, and it is used to interpret the plus sign.
-In the vast majority of cases, when someone supplies one argument to addition, the other argument will have the same type.
 
+In the vast majority of cases, when someone supplies one argument to addition, the other argument will have the same type.
 To make this instance into a default instance, apply the `defaultInstance` attribute:
 ```Lean
 {{#example_decl Examples/Classes.lean defaultAdd}}
@@ -148,6 +147,9 @@ yields
 {{#example_out Examples/Classes.lean plusFive}}
 ```
 
+Each operator that exists in overloadable heterogeneous and homogeneous versions follows the pattern of a default instance that allows the homogeneous version to be used in contexts where the heterogeneous is expected.
+The infix operator is replaced with a call to the heterogeneous version, and the homogeneous default instance is selected when possible.
+
 Similarly, simply writing `{{#example_in Examples/Classes.lean fiveType}}` gives a `{{#example_out Examples/Classes.lean fiveType}}` rather than a type with a metavariable that is waiting for more information in order to select an `OfNat` instance.
 This is because the `OfNat` instance for `Nat` is a default instance.
 
@@ -155,5 +157,8 @@ Default instances can also be assigned _priorities_ that affect which will be ch
 For more information on default instance priorities, please consult the Lean manual.
 
 
- 
+## Exercises
+
+Define an instance of `HMul (PPoint α) α (PPoint α)` that multiplies both projections by the scalar
+
  

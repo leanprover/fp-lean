@@ -18,6 +18,7 @@ book declaration {{{ PlusNat }}}
     plus := Nat.add
 stop book declaration
 
+
 expect info {{{ plusNatFiveThree }}}
   #eval Plus.plus 5 3
 message
@@ -44,6 +45,13 @@ bookExample type {{{ plusType }}}
   ===>
   {α : Type} → [Plus α] → α → α → α
 end bookExample
+
+expect error {{{ plusFloatFail }}}
+  #eval plus 5.2 917.25861
+message
+"failed to synthesize instance
+  Plus Float"
+end expect
 
 
 book declaration {{{ Pos }}}
@@ -114,7 +122,7 @@ axiom y : Nat
 evaluation steps {{{ plusDesugar }}}
   x + y
   ===>
-  Add.add x y
+  HAdd.hAdd x y
 end evaluation steps
 
 end Foo
@@ -182,7 +190,7 @@ namespace Foo
 evaluation steps {{{ timesDesugar }}}
   x * y
   ===>
-  Mul.mul x y
+  HMul.hMul x y
 end evaluation steps
 
 end Foo
@@ -271,7 +279,7 @@ book declaration {{{ OfNatPos }}}
     ofNat :=
       let rec natPlusOne : Nat → Pos
         | 0 => Pos.one
-        | k+1 => Pos.succ (natPlusOne k)
+        | k + 1 => Pos.succ (natPlusOne k)
       natPlusOne n
 stop book declaration
 
@@ -304,6 +312,19 @@ bookExample type {{{ printlnType }}}
   ===>
   {α : Type} → [ToString α] → α → IO Unit
 end bookExample
+
+
+expect info {{{ printlnMetas }}}
+  #check IO.println
+message
+"IO.println : ?m.2497 → IO Unit"
+end expect
+
+expect info {{{ printlnNoMetas }}}
+  #check @IO.println
+message
+"@IO.println : {α : Type u_1} → [inst : ToString α] → α → IO Unit"
+end expect
 
 
 book declaration {{{ ListSum }}}
@@ -355,6 +376,19 @@ stop book declaration
 
 end PointStuff
 
+
+
+bookExample type {{{ ofNatType }}}
+  @OfNat.ofNat
+  ===>
+  {α : Type} → (n : Nat) → [OfNat α n] → α
+end bookExample
+
+bookExample type {{{ addType }}}
+  @Add.add
+  ===>
+  {α : Type} → [Add α] → α → α → α
+end bookExample
 
 
 namespace Foo
@@ -502,7 +536,7 @@ expect error {{{ hPlusOops }}}
   #eval HPlus.hPlus (3 : Pos) (5 : Nat)
 message
 "typeclass instance problem is stuck, it is often due to metavariables
-  HPlus Pos Nat ?m.4881"
+  HPlus Pos Nat ?m.4911"
 end expect
 
 
@@ -550,7 +584,7 @@ end expect
 expect info {{{ plusFiveMeta }}}
   #check HPlus.hPlus (5 : Nat)
 message
-  "HPlus.hPlus 5 : ?m.4969 → ?m.4971"
+  "HPlus.hPlus 5 : ?m.4999 → ?m.5001"
 end expect
 
 
@@ -578,4 +612,14 @@ bookExample type {{{ fiveType }}}
 end bookExample
 
 
-def foo := GetElem
+-- Example for exercise
+inductive Method where
+  | GET
+  | POST
+  | PUT
+  | DELETE
+
+structure Response where
+
+class HTTP (m : Method) where
+  doTheWork : (uri : String) → IO Response

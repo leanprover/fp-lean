@@ -6,7 +6,33 @@ This is indicated using square brackets around the required instance: the type o
 This type says that `IO.println` accepts an argument of type `α`, which Lean should determine automatically, and that there must be a `ToString` instance available for `α`.
 It returns an `IO` action.
 
-Similarly, a function that sums all entries in a list needs two instances: `Add` allows the entries to be added, and an `OfNat` instance for `0` provides a sensible value to return for the empty list:
+
+## Checking Polymorphic Functions' Types
+
+Checking the type of a function that takes implicit arguments or uses type classes requires the use of some additional syntax.
+Simply writing
+```Lean
+{{#example_in Examples/Classes.lean printlnMetas}}
+```
+yields a type with metavariables:
+```Lean info
+{{#example_out Examples/Classes.lean printlnMetas}}
+```
+This is because Lean does its best to discover implicit arguments, and the presence of metavariables indicates that it did not yet discover enough type information to do so.
+To understand the signature of a function, this feature can be suppressed with an at-sign (`@`) before the function's name:
+```Lean
+{{#example_in Examples/Classes.lean printlnNoMetas}}
+```
+```Lean info
+{{#example_out Examples/Classes.lean printlnNoMetas}}
+```
+In this output, the instance itself has been given the name `inst`.
+Additionally, there is a `u_1` after `Type`, which uses a feature of Lean that has not yet been introduced.
+For now, ignore these parameters to `Type`.
+
+## Defining Polymorphic Functions with Instance Implicits
+
+A function that sums all entries in a list needs two instances: `Add` allows the entries to be added, and an `OfNat` instance for `0` provides a sensible value to return for the empty list:
 ```Lean
 {{#example_decl Examples/Classes.lean ListSum}}
 ```
@@ -38,19 +64,23 @@ In the case of ordinary implicit arguments, Lean uses a technique called _unific
 This process relies only on the specific types involved in the function's definition and the call site.
 For instance implicits, Lean instead consults a built-in table of instance values.
 
-Instances may themselves take instance implicit arguments.
+Just as the `OfNat` instance for `Pos` took a natural number `n` as an automatic implicit argument, instances may also take instance implicit arguments themselves.
 The [section on polymorphism](../getting-to-know/polymorphism.md) presented a polymorphic point type:
 ```Lean
 {{#example_decl Examples/Classes.lean PPoint}}
 ```
 Addition of points should add the underlying `x` and `y` fields.
 Thus, an `Add` instance for `PPoint` requires an `Add` instance for whatever type these fields have.
-In other words, the `Add` instance for `PPoint` requires a further `Add` instance:
+In other words, the `Add` instance for `PPoint` requires a further `Add` instance for `α`:
 ```Lean
 {{#example_decl Examples/Classes.lean AddPPoint}}
 ```
 When Lean encounters an addition of two points, it searches for and finds this instance.
 It then performs a further search for the `Add α` instance.
+
+The instance values that are constructed in this way are values of the type class's structure type.
+A successful recursive instance search results in a structure value that has a reference to another structure value.
+An instance of `Add (PPoint Nat)` contains a reference to the instance of `Add Nat` that was found.
 
 This recursive search process means that type classes offer significantly more power than plain overloaded functions.
 A library of polymorphic instances is a set of building blocks to construct code that the compiler will assemble on its own, given nothing but the desired type.
@@ -60,7 +90,30 @@ The API's clients are freed from the burden of plumbing together all of the nece
 
 ## Methods and Implicit Arguments
 
-TODO: describe rules for method argument plicity, explaining why `OfNat.ofNat` takes the `Nat` explicitly but the type implicitly
+
+The type of `{{#example_in Examples/Classes.lean ofNatType}}` may be surprising.
+It is `{{#example_out Examples/Classes.lean ofNatType}}`, in which the `Nat` argument `n` occurs as an explicit function argument.
+In the declaration of the method, however, `ofNat` simply has type `α`.
+This seeming discrepancy is because the declaring a type class really results in the following:
+
+ * A structure type to contain the implementation of each overloaded operation
+ * A namespace with the same name as the class
+ * For each method, a function in the class's namespace that retrieves its implementation from an instance
+ 
+This is analogous to the way that declaring a new structure also declares accessor functions.
+The primary difference is that a structure's accessors take the structure value as an explicit argument, while the type class methods take the instance value as an instance implicit to be found automatically by Lean.
+
+In order for the Lean to find an instance, its arguments must be available.
+This means that each argument to the type class must be an argument to the method that occurs before the instance.
+It is most convenient when these arguments are implicit, because Lean does the work of discovering their values.
+For example, `{{#example_in Examples/Classes.lean addType}}` has the type `{{#example_out Examples/Classes.lean addType}}`.
+In this case, the type argument `α` can be implicit because the arguments to `Add.add` provide information about which type the user intended.
+This type can then be used to search for the `Add` instance.
+
+In the case of `ofNat`, however, the particular `Nat` literal to be decoded does not appear as part of any other argument.
+This means that Lean would have no information to use when attempting to figure out the implicit argument `n`.
+The result would be a very inconvenient API.
+Thus, in these cases, Lean uses an explicit argument for the class's method.
 
 
 
