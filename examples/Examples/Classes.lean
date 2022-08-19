@@ -536,7 +536,7 @@ expect error {{{ hPlusOops }}}
   #eval HPlus.hPlus (3 : Pos) (5 : Nat)
 message
 "typeclass instance problem is stuck, it is often due to metavariables
-  HPlus Pos Nat ?m.4911"
+  HPlus Pos Nat ?m.4944"
 end expect
 
 
@@ -584,7 +584,7 @@ end expect
 expect info {{{ plusFiveMeta }}}
   #check HPlus.hPlus (5 : Nat)
 message
-  "HPlus.hPlus 5 : ?m.4999 → ?m.5001"
+  "HPlus.hPlus 5 : ?m.5032 → ?m.5034"
 end expect
 
 
