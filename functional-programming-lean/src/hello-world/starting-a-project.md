@@ -6,7 +6,7 @@ The standard Lean build tool is called Lake (short for "Lean Make"), and it is c
 Just as Lean contains a special-purpose language for writing programs with effects (the `do` language), Lake contains a special-purpose language for configuring builds.
 These languages are referred to as _embedded domain-specific languages_ (or sometimes _domain-specific embedded languages_, abbreviated EDSL or DSEL).
 They are _domain-specific_ in the sense that they are used for a particular purpose, with concepts from some sub-domain, and they are typically not suitable for general-purpose programming.
-The are _embedded_ because they occur inside another language's syntax.
+They are _embedded_ because they occur inside another language's syntax.
 While Lean contains rich facilities for creating EDSLs, they are beyond the scope of this book.
 
 ## First steps
@@ -71,7 +71,7 @@ By default, a library has a single root file that matches its name.
 In this case, the root file for the library `Greeting` is `Greeting.lean`.
 The first line of `Main.lean`, which is `import Greeting`, makes the contents of `Greeting.lean` available in `Main.lean`.
 
-Further module files may be added to the library by creating a directory called `Greeting` and placing them inside.
+Additional module files may be added to the library by creating a directory called `Greeting` and placing them inside.
 These names can be imported by replacing the directory separator with a dot.
 For instance, creating the file `Greeting/Smile.lean` with the contents:
 ```Lean
