@@ -76,6 +76,7 @@ The recursive calls continue until `stream.isEof` returns `true`.
 
 When an `if` expression occurs directly under a `do`, as in `dump`, each branch of the `if` is implicitly provided with a `do`.
 In other words, the sequence of steps following the `else` are treated as a sequence of `IO` actions to be executed, just as if they had a `do` at the beginning.
+Names introduced with `let` in the branches of the `if` are visible only in their own branches, and are not in scope outside of the `if`.
 
 There is no danger of running out of stack space while calling `dump` because the recursive call happens as the very last step in the function, and its result is returned directly rather than being manipulated or computed with.
 This kind of recursion is called _tail recursion_, and will be described in more detail later in this book.
