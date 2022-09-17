@@ -62,7 +62,7 @@ However, running the program results in the following output:
 {{#example_decl Examples/Cat.lean testEffectsExpanded}}
 ```
 This is due to the rule that nested actions are lifted to the _closest enclosing_ `do` block.
-The branches of the `if` were not implicitly wrapped in `do` blocks because the `if` is not _immediately_ under a `do`.
+The branches of the `if` were not implicitly wrapped in `do` blocks because the `if` is not itself a statement in the `do` block—the statement is the `let` that defines `a`.
 Indeed, they could not be wrapped this way, because the type of the conditional expression is `Nat`, not `IO Nat`.
 
 ## Flexible Layouts for `do`
