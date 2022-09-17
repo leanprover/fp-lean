@@ -123,8 +123,8 @@ Thus, `process` does not introduce any non-termination itself.
 The final step is to write the `main` action.
 Unlike prior examples, `main` in `feline` is a function.
 In Lean, `main` can have one of three types:
- * `main : IO Unit` corresponds to `void main()` in C, for programs that cannot read their command-line arguments and always indicate success,
- * `main : IO UInt32` corresponds to `int main()` in C, for programs without arguments that return exit codes, and
+ * `main : IO Unit` corresponds to programs that cannot read their command-line arguments and always indicate success with an exit code of `0`,
+ * `main : IO UInt32` corresponds to `int main(void)` in C, for programs without arguments that return exit codes, and
  * `main : List String → IO UInt32` corresponds to `int main(int argc, char **argv)` in C, for programs that take arguments and signal success or failure.
 
 If no arguments were provided, `feline` should read from standard input as if it were called with a single `"-"` argument.

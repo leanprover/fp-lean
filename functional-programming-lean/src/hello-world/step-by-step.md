@@ -145,7 +145,7 @@ The function `runActions` takes a list of actions and constructs a single action
 ```Lean
 {{#example_decl Examples/HelloWorld.lean runActions}}
 ```
-It's structure is essentially the same as that of `nTimes`, except instead of having one action that is executed for each `Nat.succ`, the action under each `List.cons` is to be executed.
+Its structure is essentially the same as that of `nTimes`, except instead of having one action that is executed for each `Nat.succ`, the action under each `List.cons` is to be executed.
 Similarly, `runActions` does not itself run the actions.
 It creates a new action that will run them, and that action must be placed in a position where it will be executed as a part of `main`:
 ```Lean
