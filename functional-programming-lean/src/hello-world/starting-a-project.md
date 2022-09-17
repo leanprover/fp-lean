@@ -82,10 +82,11 @@ means that `Main.lean` can use the definition as follows:
 {{#file_contents {lake} {second-lake/greeting/Main.lean}}}
 ```
 
-The module name hierarchy is separate from the namespace hierarchy.
-That is, names defined in the module `Greeting.Smile` are not in a corresponding namespace `Greeting.Smile`.
+The module name hierarchy is decoupled from the namespace hierarchy.
+In Lean, modules are units of code distribution, while namespaces are units of code organization.
+That is, names defined in the module `Greeting.Smile` are not automatically in a corresponding namespace `Greeting.Smile`.
 Modules may place names into any namespace they like, and the code that imports them may `open` the namespace or not.
 `import` is used to make the contents of a source file available, while `open` makes names from a namespace available in the current context.
 In the Lakefile, the line `import Lake` makes the contents of the `Lake` module available, while the line `open Lake DSL` makes the contents of the `Lake` and `DSL` namespaces available without any prefixes.
-
+The `Lake` module places names into both the `Lake` and `DSL` namespaces.
 
