@@ -446,6 +446,18 @@ message
 "
 end expect
 
+
+book declaration {{{ modifyBoth }}}
+  def Point.modifyBoth (f : Float → Float) (p : Point) : Point :=
+    { x:= f p.x, y := f p.y }
+stop book declaration
+
+expect info {{{ modifyBothTest }}}
+  #eval fourAndThree.modifyBoth Float.floor
+message
+  "{ x := 4.000000, y := 3.000000 }"
+end expect
+
 book declaration {{{ distance }}}
   def distance (p1 : Point) (p2 : Point) : Float :=
     Float.sqrt (((p2.x - p1.x) ^ 2.0) + ((p2.y - p1.y) ^ 2.0))
@@ -454,8 +466,7 @@ stop book declaration
 expect info {{{ evalDistance }}}
   #eval distance { x := 1.0, y := 2.0 } { x := 5.0, y := -1.0 }
 message
-"5.000000
-"
+"5.000000"
 end expect
 
 
@@ -850,7 +861,7 @@ end expect
 expect info {{{ replaceXImpT }}}
   #check replaceX
 message
-  "replaceX : PPoint ?m.10513 → ?m.10513 → PPoint ?m.10513"
+  "replaceX : PPoint ?m.10529 → ?m.10529 → PPoint ?m.10529"
 end expect
 
 book declaration {{{ lengthImp }}}
@@ -1018,18 +1029,18 @@ expect error {{{ headNoneBad }}}
   #eval [].head?
 message
 "don't know how to synthesize implicit argument
-  @List.nil ?m.16140
+  @List.nil ?m.16156
 context:
-⊢ Type ?u.16137"
+⊢ Type ?u.16153"
 end expect
 
 expect error {{{ headNoneBad2 }}}
   #eval [].head?
 message
 "don't know how to synthesize implicit argument
-  @_root_.List.head? ?m.16140 []
+  @_root_.List.head? ?m.16156 []
 context:
-⊢ Type ?u.16137"
+⊢ Type ?u.16153"
 end expect
 
 
@@ -1191,7 +1202,7 @@ expect error {{{ MissingTypeArg }}}
 message
 "type expected
 failed to synthesize instance
-  CoeSort (Type → Type) ?m.20414"
+  CoeSort (Type → Type) ?m.20430"
 end expect
 
 book declaration {{{ MyTypeDef }}}
@@ -1204,7 +1215,7 @@ expect error {{{ MissingTypeArg2 }}}
 message
 "type expected
 failed to synthesize instance
-  CoeSort (Type → Type) ?m.20656"
+  CoeSort (Type → Type) ?m.20672"
 end expect
 
 -- Example solution
@@ -1613,7 +1624,7 @@ end bookExample
 expect error {{{ pointPosEvalNoType }}}
   #eval ⟨1, 2⟩
 message
-"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.27006"
+"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.27022"
 end expect
 
 expect info {{{ pointPosWithType }}}
