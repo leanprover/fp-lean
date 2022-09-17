@@ -264,8 +264,11 @@ That is, `{{#example_in Examples/Intro.lean originx}}` and `{{#example_in Exampl
 {{#example_out Examples/Intro.lean originx1}}
 ```
 
-Accessor dot notation is available for any function where Lean is able to determine the type of the first argument.
-If `EXPR1` has type `T`, then `EXPR1.f EXPR2` is converted into `T.f EXPR1 EXPR2`.
+Accessor dot notation is usable with more than just structure fields.
+It can also be used for functions that take any number of arguments.
+More generally, accessor notation has the form `TARGET.f ARG1 ARG2 ...`.
+If `TARGET` has type `T`, the function named `T.f` is called.
+`TARGET` becomes its leftmost argument of type `T`, which is often but not always the first one, and `ARG1 ARG2 ...` are provided in order as the remaining arguments.
 For instance, `String.append` can be invoked from a string with accessor notation, even though `String` is not a structure with an `append` field.
 ```Lean
 {{#example_in Examples/Intro.lean stringAppendDot}}
@@ -273,7 +276,21 @@ For instance, `String.append` can be invoked from a string with accessor notatio
 ```Lean info
 {{#example_out Examples/Intro.lean stringAppendDot}}
 ```
+In that example, `TARGET` represents `"one string"` and `ARG1` represents `" and another"`.
 
+The function `Point.modifyBoth` (that is, `modifyBoth` defined in the `Point` namespace) applies a function to both fields in a `Point`:
+```Lean
+{{#example_decl Examples/Intro.lean modifyBoth}}
+```
+Even though the `Point` argument comes after the function argument, it can be used with dot notation as well:
+```Lean
+{{#example_in Examples/Intro.lean modifyBothTest}}
+```
+```Lean info
+{{#example_out Examples/Intro.lean modifyBothTest}}
+```
+In this case, `TARGET` represents `fourAndThree`, while `ARG1` is `Float.floor`.
+This is because the target of the accessor notation is used as the first argument in which the type matches, not necessarily the first argument.
 
 ## Exercises
 
