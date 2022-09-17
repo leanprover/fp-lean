@@ -74,7 +74,7 @@ When `dump` is called, if the stream has reached the end of the file, `pure ()` 
 If the stream has not yet reached the end of the file, one block is read, and its contents are written to `stdout`, after which `dump` calls itself directly.
 The recursive calls continue until `stream.isEof` returns `true`.
 
-When an `if` expression occurs directly under a `do`, as in `dump`, each branch of the `if` is implicitly provided with a `do`.
+When an `if` expression occurs as a statement in a `do`, as in `dump`, each branch of the `if` is implicitly provided with a `do`.
 In other words, the sequence of steps following the `else` are treated as a sequence of `IO` actions to be executed, just as if they had a `do` at the beginning.
 Names introduced with `let` in the branches of the `if` are visible only in their own branches, and are not in scope outside of the `if`.
 
@@ -103,7 +103,7 @@ Additionally, it takes a list of input files to be processed.
 ```Lean
 {{#include ../../../examples/feline/2/Main.lean:process}}
 ```
-Just as with `if`, each branch of a `match` directly under a `do` is implicitly provided with its own `do`.
+Just as with `if`, each branch of a `match` that is used as a statement in a `do` is implicitly provided with its own `do`.
 
 There are three possibilities.
 One is that no more files remain to be processed, in which case `process` returns the error code unchanged.
