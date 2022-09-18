@@ -8,6 +8,10 @@ This version of the text is written for Lean 4 release `{{#lean_version}}`.
 
 ## Release history
 
+### September, 2022
+
+This release adds the first half of a chapter on type classes, which are Lean's mechanism for overloading operators and an important means of organizing code and structuring libraries. Additionally, the second chapter has been updated to account for changes in Lean's stream API.
+
 ### August, 2022
 
 This third public release adds a second chapter, which describes compiling and running programs along with Lean's model for side effects.
