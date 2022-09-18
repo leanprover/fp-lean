@@ -8,13 +8,9 @@ For instance, in `dump`:
 ```Lean
 {{#include ../../../examples/feline/2/Main.lean:dump}}
 ```
-the pattern occurs twice:
+the pattern occurs for `stdout`:
 ```Lean
-{{#include ../../../examples/feline/2/Main.lean:isEofBind}}
-```
-and
-```Lean
-{{#include ../../../examples/feline/2/Main.lean:bufBind}}
+{{#include ../../../examples/feline/2/Main.lean:stdoutBind}}
 ```
 Similarly, `fileStream` contains the following snippet:
 ```Lean

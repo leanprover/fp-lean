@@ -4,17 +4,14 @@ def bufsize : USize := 20 * 1024
 
 -- ANCHOR: dump
 partial def dump (stream : IO.FS.Stream) : IO Unit := do
-  -- ANCHOR: isEofBind
-  let done ← stream.isEof
-  if done then
-  -- ANCHOR_END: isEofBind
+  let buf ← stream.read bufsize
+  if buf.isEmpty then
     pure ()
   else
-    -- ANCHOR: bufBind
+    -- ANCHOR: stdoutBind
     let stdout ← IO.getStdout
-    let buf ← stream.read bufsize
     stdout.write buf
-    -- ANCHOR_END: bufBind
+    -- ANCHOR_END: stdoutBind
     dump stream
 -- ANCHOR_END: dump
 
