@@ -72,7 +72,7 @@ These are `IO` actions rather than ordinary definitions because Lean allows thes
 The control flow in `dump` is essentially a `while` loop.
 When `dump` is called, if the stream has reached the end of the file, `pure ()` terminates the function by returning the constructor for `Unit`.
 If the stream has not yet reached the end of the file, one block is read, and its contents are written to `stdout`, after which `dump` calls itself directly.
-The recursive calls continue until `stream.isEof` returns `true`.
+The recursive calls continue until `stream.read` returns an empty byte array, which indicates that the end of the file has been reached.
 
 When an `if` expression occurs as a statement in a `do`, as in `dump`, each branch of the `if` is implicitly provided with a `do`.
 In other words, the sequence of steps following the `else` are treated as a sequence of `IO` actions to be executed, just as if they had a `do` at the beginning.

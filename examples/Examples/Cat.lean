@@ -4,7 +4,6 @@ namespace Str
 
 book declaration {{{ Stream }}}
   structure Stream where
-    isEof   : IO Bool
     flush   : IO Unit
     read    : USize → IO ByteArray
     write   : ByteArray → IO Unit
@@ -22,12 +21,11 @@ namespace Original
 def bufsize : USize := 20 * 1024
 
 partial def dump (stream : IO.FS.Stream) : IO Unit := do
-  let done ← stream.isEof
-  if done then
+  let buf ← stream.read bufsize
+  if buf.isEmpty then
     pure ()
   else
     let stdout ← IO.getStdout
-    let buf ← stream.read bufsize
     stdout.write buf
     dump stream
 
@@ -70,10 +68,11 @@ def bufsize : USize := 20 * 1024
 
 book declaration {{{ dump }}}
   partial def dump (stream : IO.FS.Stream) : IO Unit := do
-    if (← stream.isEof) then
+    let buf ← stream.read bufsize
+    if buf.isEmpty then
       pure ()
     else
-      (← IO.getStdout).write (← stream.read bufsize)
+      (← IO.getStdout).write buf
       dump stream
 stop book declaration
 

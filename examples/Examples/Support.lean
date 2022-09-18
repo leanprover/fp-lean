@@ -1,7 +1,6 @@
 import Lean
 import Lean.Message
-
-import Std.Data.PersistentArray
+import Lean.Data.PersistentArray
 
 syntax withPosition("book" "declaration" "{{{" ws ident ws "}}}" (command*) "stop" "book" "declaration") : command
 

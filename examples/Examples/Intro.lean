@@ -1202,7 +1202,7 @@ expect error {{{ MissingTypeArg }}}
 message
 "type expected
 failed to synthesize instance
-  CoeSort (Type → Type) ?m.20430"
+  CoeSort (Type → Type) ?m.20429"
 end expect
 
 book declaration {{{ MyTypeDef }}}
@@ -1215,7 +1215,7 @@ expect error {{{ MissingTypeArg2 }}}
 message
 "type expected
 failed to synthesize instance
-  CoeSort (Type → Type) ?m.20672"
+  CoeSort (Type → Type) ?m.20671"
 end expect
 
 -- Example solution
@@ -1624,7 +1624,7 @@ end bookExample
 expect error {{{ pointPosEvalNoType }}}
   #eval ⟨1, 2⟩
 message
-"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.27022"
+"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.27021"
 end expect
 
 expect info {{{ pointPosWithType }}}
