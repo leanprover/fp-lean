@@ -374,6 +374,15 @@ book declaration {{{ AddPPoint }}}
     add p1 p2 := { x := p1.x + p2.x, y := p1.y + p2.y }
 stop book declaration
 
+instance [Mul α] : HMul (PPoint α) α (PPoint α) where
+  hMul p z := {x := p.x * z, y := p.y * z}
+
+expect info {{{ HMulPPoint }}}
+  #eval {x := 2.5, y := 3.7 : PPoint Float} * 2.0
+message
+ "{ x := 5.000000, y := 7.400000 }"
+end expect
+
 end PointStuff
 
 
@@ -536,7 +545,7 @@ expect error {{{ hPlusOops }}}
   #eval HPlus.hPlus (3 : Pos) (5 : Nat)
 message
 "typeclass instance problem is stuck, it is often due to metavariables
-  HPlus Pos Nat ?m.4944"
+  HPlus Pos Nat ?m.5048"
 end expect
 
 
@@ -584,7 +593,7 @@ end expect
 expect info {{{ plusFiveMeta }}}
   #check HPlus.hPlus (5 : Nat)
 message
-  "HPlus.hPlus 5 : ?m.5032 → ?m.5034"
+  "HPlus.hPlus 5 : ?m.5136 → ?m.5138"
 end expect
 
 

@@ -47,7 +47,7 @@ In object-oriented programming, a method is essentially a function that is conne
 Objects are interacted with via their methods.
 In Lean, the term "method" refers to an operation that has been declared to be overloadable, and has no special connection to objects or values or private fields.
 
-One way to overload addition is to define a type class called `Plus`, with an addition method `plus`.
+One way to overload addition is to define a type class named `Plus`, with an addition method named `plus`.
 Once an instance of `Plus` for `Nat` has been defined, it becomes possible to add two `Nat`s using `Plus.plus`:
 ```Lean
 {{#example_in Examples/Classes.lean plusNatFiveThree}}
@@ -89,7 +89,7 @@ Parentheses in an `open` command indicate that only the indicated names from the
 {{#example_out Examples/Classes.lean plusNatFiveThreeAgain}}
 ```
 
-Defining an addition function for `Pos` and an instance of `Plus Pos` allows `Pos` and `Nat` to use the same addition function:
+Defining an addition function for `Pos` and an instance of `Plus Pos` allows `plus` to be used to add both `Pos` and `Nat` values:
 ```Lean
 {{#example_decl Examples/Classes.lean PlusPos}}
 ```
@@ -123,7 +123,7 @@ Defining an instance of `Add Pos` allows `Pos` values to use ordinary addition s
 ## Conversion to Strings
 
 Another useful built-in class is called `ToString`.
-Instances of `ToString` provide a standard way of converting a type to a string.
+Instances of `ToString` provide a standard way of converting values from a given type into strings.
 For instance, a `ToString` instance is used when a value occurs in an interpolated string, and it determines how the `IO.println` function used at the [beginning of the description of `IO`](../hello-world/running-a-program.html#running-a-program) will display a value.
 
 For example, one way to convert a `Pos` into a `String` is to reveal its inner structure.
