@@ -83,7 +83,7 @@ A successful recursive instance search results in a structure value that has a r
 An instance of `Add (PPoint Nat)` contains a reference to the instance of `Add Nat` that was found.
 
 This recursive search process means that type classes offer significantly more power than plain overloaded functions.
-A library of polymorphic instances is a set of building blocks to construct code that the compiler will assemble on its own, given nothing but the desired type.
+A library of polymorphic instances is a set of code building blocks that the compiler will assemble on its own, given nothing but the desired type.
 Polymorphic functions that take instance arguments are latent requests to the type class mechanism to assemble helper functions behind the scenes.
 The API's clients are freed from the burden of plumbing together all of the necessary building blocks by hand.
 
