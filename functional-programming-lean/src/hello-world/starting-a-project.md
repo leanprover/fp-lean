@@ -43,7 +43,7 @@ A `lakefile.lean` describes a _package_, which is a coherent collection of Lean 
 A package may contain any number of libraries or executables.
 While the [documentation for Lake](https://github.com/leanprover/lake#readme) describes the available options in a lakefile, it makes use of a number of Lean features that have not yet been described here.
 The generated `lakefile.lean` contains the following:
-```
+```lean
 {{#file_contents {lake} {first-lake/greeting/lakefile.lean} {first-lake/expected/lakefile.lean}}}
 ```
 
