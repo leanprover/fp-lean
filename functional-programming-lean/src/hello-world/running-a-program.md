@@ -2,7 +2,7 @@
 
 The simplest way to run a Lean program is to use the `--run` option to the Lean executable.
 Create a file called `Hello.lean` and enter the following contents:
-```Lean
+```lean
 {{#include ../../../examples/simple-hello/Hello.lean}}
 ```
 Then, from the command line, run:
@@ -94,7 +94,7 @@ To enable programs to use multiple effects, there is a sub-language of Lean call
 Most useful programs accept input in addition to producing output.
 Furthermore, they may take decisions based on input, using the input data as part of a computation.
 The following program, called `HelloName.lean`, asks the user for their name and then greets them:
-```Lean
+```lean
 {{#include ../../../examples/hello-name/HelloName.lean:all}}
 ```
 
@@ -113,14 +113,14 @@ If the user responds with `David`, a session of interaction with the program rea
 ```
 
 The type signature line is just like the one for `Hello.lean`:
-```Lean
+```lean
 {{#include ../../../examples/hello-name/HelloName.lean:sig}}
 ```
 The only difference is that it ends with the keyword `do`, which initiates a sequence of commands.
 Each indented line following the keyword `do` is part of the same sequence of commands.
 
 The first two lines, which read:
-```Lean
+```lean
 {{#include ../../../examples/hello-name/HelloName.lean:setup}}
 ```
 retrieve the `stdin` and `stdout` handles by executing the library actions `IO.getStdin` and `IO.getStdout`, respectively.
@@ -134,7 +134,7 @@ In other words, if the expression to the right of the arrow has type `IO α`, th
 If they were global variables as in C, then there would be no meaningful way to override them, but `IO` actions can return different values each time they are executed.
 
 The next part of the `do` block is responsible for asking the user for their name:
-```Lean
+```lean
 {{#include ../../../examples/hello-name/HelloName.lean:question}}
 ```
 The first line writes the question to `stdout`, the second line requests input from `stdin`, and the third line removes the trailing newline (plus any other trailing whitespace) from the input line.
@@ -145,5 +145,3 @@ Finally, the last line in the program is:
 {{#include ../../../examples/hello-name/HelloName.lean:answer}}
 ```
 It uses [string interpolation](../getting-to-know/conveniences.md#string-interpolation) to insert the provided name into a greeting string, writing the result to `stdout`.
-
-

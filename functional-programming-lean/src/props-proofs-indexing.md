@@ -2,18 +2,18 @@
 
 Like many languages, Lean uses square brackets for indexing into arrays and lists.
 For instance, if `woodlandCritters` is defined as follows:
-```Lean
+```lean
 {{#example_decl Examples/Props.lean woodlandCritters}}
 ```
 then the individual components can be extracted:
-```Lean
+```lean
 {{#example_decl Examples/Props.lean animals}}
 ```
 However, attempting to extract the fourth element results in a compile-time error, rather than a run-time error:
-```Lean
+```lean
 {{#example_in Examples/Props.lean outOfBounds}}
 ```
-```Lean error
+```lean error
 {{#example_out Examples/Props.lean outOfBounds}}
 ```
 This error message is saying Lean tried to automatically mathematically prove that `3 < List.length woodlandCritters`, which would mean that the lookup was safe, but that it could not do so.
@@ -40,7 +40,7 @@ None of the following are propositions:
  * 1 + green = ice cream
  * All capital cities are prime numbers
  * At least one gorg is a fleep
- 
+
 Propositions come in two varieties: those that are purely mathematical, relying only on our definitions of concepts, and those that are facts about the world.
 Theorem provers like Lean are concerned with the former category.
 
@@ -55,7 +55,7 @@ The proposition is proved by providing this evidence.
 
 For example, the proposition "1 + 1 = 2" can be written directly in Lean.
 The evidence for this proposition is the constructor `rfl`, which is short for _reflexivity_:
-```Lean
+```lean
 {{#example_decl Examples/Props.lean onePlusOneIsTwo}}
 ```
 A relation is reflexive if everything is related to itself.
@@ -69,7 +69,7 @@ This helps keep their roles clear in a file.
 
 Just as `Type` describes types such as `Nat`, `String`, and `List (Nat × String × (Int → Float))` that represent data structures and functions, `Prop` describes propositions.
 The prior example could be rewritten as follows:
-```Lean
+```lean
 {{#example_decl Examples/Props.lean onePlusOneIsTwoProp}}
 ```
 
@@ -85,7 +85,7 @@ To write a proof with tactics, begin the definition with `by`.
 Writing `by` puts Lean into tactic mode until the end of the next indented block.
 While in tactic mode, Lean provides ongoing feedback about the current proof state.
 Written with tactics, `onePlusOneIsTwo` is still quite short:
-```Lean
+```lean
 {{#example_decl Examples/Props.lean onePlusOneIsTwoTactics}}
 ```
 The `simp` tactic, short for "simplify", is the workhorse of Lean.
@@ -102,5 +102,3 @@ Tactics are useful for a number of reasons:
 ## Connectives
 
 The basic building blocks of logic, such as "and", "or", "true", "false", and "not", are called _logical connectives_.
-
-

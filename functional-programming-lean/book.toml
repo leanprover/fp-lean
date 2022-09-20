@@ -17,7 +17,7 @@ command = "python -X utf8 scripts/projects.py"
 command = "python -X utf8 scripts/lean-version.py"
 
 [output.html]
-additional-css = ["custom.css"]
+additional-css = ["custom.css", "pygments.css"]
 
 #[output.pandoc]
 #command = "python -X utf8 ../../scripts/one-markdown.py"
