@@ -28,6 +28,18 @@ book declaration {{{ onePlusOneIsTwo }}}
   def onePlusOneIsTwo : 1 + 1 = 2 := rfl
 stop book declaration
 
+expect error {{{ onePlusOneIsFifteen }}}
+  def onePlusOneIsFifteen : 1 + 1 = 15 := rfl
+message
+"type mismatch
+  rfl
+has type
+  1 + 1 = 1 + 1 : Prop
+but is expected to have type
+  1 + 1 = 15 : Prop"
+end expect
+
+
 namespace Foo
 book declaration {{{ onePlusOneIsTwoProp }}}
   def OnePlusOneIsTwo : Prop := 1 + 1 = 2

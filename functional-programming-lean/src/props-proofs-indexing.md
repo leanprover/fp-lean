@@ -42,26 +42,35 @@ None of the following are propositions:
  * At least one gorg is a fleep
  
 Propositions come in two varieties: those that are purely mathematical, relying only on our definitions of concepts, and those that are facts about the world.
-Theorem provers like Lean are concerned with the former category.
+Theorem provers like Lean are concerned with the former category, and have nothing to say about the flight capabilities of penguins or the legal status of capital cities.
 
 A _proof_ is a convincing argument that a proposition is true.
 For mathematical propositions, these arguments make use of the definitions of the concepts that are involved as well as the rules of logical argumentation.
 Most proofs are written for people to understand, and leave out many tedious details.
+Computer-aided theorem provers like Lean are designed to allow mathematicians to write proofs while omitting many details, while the software fills in the missing explicit steps.
 
-In Lean, a type describes a program.
-For instance, a program of type `Nat → List String` will take a `Nat` argument and produce a list of strings.
-Similarly, a Lean proposition describes what counts as evidence that it is true.
+In Lean, a program's type describes the ways it can be interacted with.
+For instance, a program of type `Nat → List String` is a function that takes a `Nat` argument and produces a list of strings.
+In other words, each type specifies what counts as a program with that type.
+
+In Lean, propositions are a kind of type that describes what counts as evidence that it is true.
 The proposition is proved by providing this evidence.
+On the other hand, if the proposition is false, then it will be impossible to construct this evidence.
 
 For example, the proposition "1 + 1 = 2" can be written directly in Lean.
 The evidence for this proposition is the constructor `rfl`, which is short for _reflexivity_:
 ```Lean
 {{#example_decl Examples/Props.lean onePlusOneIsTwo}}
 ```
-A relation is reflexive if everything is related to itself.
-In the case of equality, it simply means that every value is equal to itself.
-In other words, 1 = 1, 2 = 2, 3 = 3, and so forth.
-When Lean sees `rfl` being used to prove that `1 + 1 = 2`, it checks that the two sides of the equation are, in fact, equal, and then accepts the proof.
+On the other hand, `rfl` does not prove the false proposition "1 + 1 = 15":
+```Lean
+{{#example_in Examples/Props.lean onePlusOneIsFifteen}}
+```
+```Lean error
+{{#example_out Examples/Props.lean onePlusOneIsFifteen}}
+```
+This error message indicates that `rfl` can prove that two expressions are equal when both sides of the equality statement are already the same number.
+Because `1 + 1` evaluates directly to `2`, they are considered equivalent, which allows `onePlusOneIsTwo` to be accepted.
 
 When a proposition has been proven, it is called a _theorem_.
 In Lean, it is conventional to declare theorems with the `theorem` keyword instead of `def`.
