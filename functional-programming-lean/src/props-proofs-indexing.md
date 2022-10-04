@@ -228,6 +228,15 @@ Internally, Lean contains a table of types that are known to have at least one v
 This error is saying that some arbitrary type `α` is not necessarily in that table.
 The next chapter describes how to add to this table, and how to successfully write functions like `unsafeThird`.
 
+Adding whitespace between a list and the brackets used for lookup can cause another message:
+```Lean
+{{#example_in Examples/Props.lean extraSpace}}
+```
+```Lean error
+{{#example_out Examples/Props.lean extraSpace}}
+```
+Adding a space causes Lean to treat the expression as a function application, and the index as a list that contains a single number.
+This error message results from having Lean attempt to treat `woodlandCritters` as a function.
 
 ## Exercises
 

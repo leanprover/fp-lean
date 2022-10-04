@@ -218,3 +218,12 @@ message
 "failed to synthesize instance
   Inhabited α"
 end expect
+
+expect error {{{ extraSpace }}}
+  #eval woodlandCritters [1]
+message
+"function expected at
+  woodlandCritters
+term has type
+  List String"
+end expect

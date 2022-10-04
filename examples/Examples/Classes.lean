@@ -620,6 +620,27 @@ bookExample type {{{ fiveType }}}
   Nat
 end bookExample
 
+instance : GetElem (List α) Pos α (fun n k => n.length > k.toNat) where
+  getElem (xs : List α) (i : Pos) ok := xs[i.toNat]
+
+namespace PointStuff
+
+instance : GetElem (PPoint α) Bool α (fun _ _ => True) where
+  getElem (p : PPoint α) (i : Bool) _ :=
+    if not i then p.x else p.y
+
+instance : GetElem (PPoint α) Nat α (fun _ n => n = 0 ∨ n = 1) where
+  getElem (p : PPoint α) (i : Nat) zeroOrOne :=
+    match i with
+    | 0 => p.x
+    | 1 => p.y
+    | n + 2 => False.rec $ by
+      cases zeroOrOne <;> injections
+
+
+
+
+end PointStuff
 
 -- Example for exercise
 inductive Method where
