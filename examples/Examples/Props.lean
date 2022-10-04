@@ -58,8 +58,6 @@ end Foo2
 
 theorem oneLessThanFive : 1 < 5 := by simp
 
-def x := Nat.le
-
 def second (xs : List α) (ok : xs.length ≥ 3) : α :=
   xs[ 2 ]
 
@@ -173,7 +171,7 @@ message
   - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
-α : Type ?u.3144
+α : Type ?u.3882
 xs : List α
 ⊢ 2 < List.length xs"
 end expect
