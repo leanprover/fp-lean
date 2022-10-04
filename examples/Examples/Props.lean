@@ -58,5 +58,165 @@ end Foo2
 
 theorem oneLessThanFive : 1 < 5 := by simp
 
-def third (xs : List α) (ok : xs.length ≥ 3) : α :=
-  xs[2]
+def x := Nat.le
+
+def second (xs : List α) (ok : xs.length ≥ 3) : α :=
+  xs[ 2 ]
+
+example : String := second ["a", "b", "c", "d"] (by simp)
+
+example : 1 + 1 = 2 ∨ 3 < 5 := by simp
+example : ¬(1 + 1 = 5) := by simp
+
+example : True := True.intro
+example : True ∨ False := by simp
+example : False → True := by simp
+
+example (xs : List α) (ok : xs.length ≥ 3) : 2 < xs.length := by simp_arith [*]
+
+def foo : True ∧ True := And.intro True.intro True.intro
+def bar : True ∨ False := Or.inl True.intro
+
+namespace Connectives
+inductive A : Prop where | intro
+inductive B : Prop where | intro
+
+bookExample type {{{ TrueProp }}}
+  True
+  ===>
+  Prop
+end bookExample
+
+bookExample type {{{ TrueIntro }}}
+  True.intro
+  ===>
+  True
+end bookExample
+
+bookExample type {{{ AndProp }}}
+  A ∧ B
+  ===>
+  Prop
+end bookExample
+
+bookExample type {{{ AndIntro }}}
+  And.intro
+  ===>
+  A → B → A ∧ B
+end bookExample
+
+bookExample type {{{ AndIntroEx }}}
+  And.intro rfl rfl
+  ===>
+  1 + 1 = 2 ∧ "Str".append "ing" = "String"
+end bookExample
+
+
+book declaration {{{ AndIntroExTac }}}
+  theorem addAndAppend : 1 + 1 = 2 ∧ "Str".append "ing" = "String" := by simp
+stop book declaration
+
+bookExample type {{{ OrProp }}}
+  A ∨ B
+  ===>
+  Prop
+end bookExample
+
+bookExample type {{{ OrIntro1 }}}
+  Or.inl
+  ===>
+  A → A ∨ B
+end bookExample
+
+bookExample type {{{ OrIntro2 }}}
+  Or.inr
+  ===>
+  B → A ∨ B
+end bookExample
+
+bookExample type {{{ OrIntroEx }}}
+  Or.inr rfl
+  ===>
+  1 + 1 = 90 ∨ "Str".append "ing" = "String"
+end bookExample
+
+
+book declaration {{{ OrIntroExTac }}}
+  theorem addOrAppend : 1 + 1 = 90 ∨ "Str".append "ing" = "String" := by simp
+stop book declaration
+
+
+book declaration {{{ andImpliesOr }}}
+  theorem andImpliesOr : A ∧ B → A ∨ B :=
+    fun andEvidence =>
+      match andEvidence with
+      | And.intro a b => Or.inl a
+stop book declaration
+
+bookExample type {{{ FalseProp }}}
+  False
+  ===>
+  Prop
+end bookExample
+
+
+end Connectives
+
+
+
+
+expect error {{{ thirdErr }}}
+  def third (xs : List α) : α := xs[2]
+message
+"failed to prove index is valid, possible solutions:
+  - Use `have`-expressions to prove the index is valid
+  - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]?` notation instead, result is an `Option` type
+  - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
+α : Type ?u.3144
+xs : List α
+⊢ 2 < List.length xs"
+end expect
+
+book declaration {{{ third }}}
+  def third (xs : List α) (ok : xs.length > 2) : α := xs[2]
+stop book declaration
+
+expect info {{{ thirdCritters }}}
+  #eval third woodlandCritters (by simp)
+message
+  "\"snail\""
+end expect
+
+book declaration {{{ thirdOption }}}
+  def thirdOption (xs : List α) : Option α := xs[2]?
+stop book declaration
+
+
+expect info {{{ thirdOptionCritters }}}
+  #eval thirdOption woodlandCritters
+message
+  "some \"snail\""
+end expect
+
+
+expect info {{{ thirdOptionTwo }}}
+  #eval thirdOption ["only", "two"]
+message
+  "none"
+end expect
+
+
+expect info {{{ crittersBang }}}
+  #eval woodlandCritters[1]!
+message
+  "\"deer\""
+end expect
+
+
+expect error {{{ unsafeThird }}}
+  def unsafeThird (xs : List α) : α := xs[2]!
+message
+"failed to synthesize instance
+  Inhabited α"
+end expect
