@@ -620,6 +620,18 @@ bookExample type {{{ fiveType }}}
   Nat
 end bookExample
 
+structure NonEmptyList (α : Type) : Type where
+  head : α
+  tail : List α
+
+def NonEmptyList.get (xs : NonEmptyList α) (i : Nat) (ok : i ≤ xs.tail.length): α :=
+  match i with
+  | 0 => xs.head
+  | n + 1 => xs.tail[n]
+
+instance : GetElem (NonEmptyList α) Nat α (fun xs n => n ≤ xs.tail.length) where
+  getElem := NonEmptyList.get
+
 instance : GetElem (List α) Pos α (fun n k => n.length > k.toNat) where
   getElem (xs : List α) (i : Pos) ok := xs[i.toNat]
 
