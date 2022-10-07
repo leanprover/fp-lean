@@ -1,4 +1,4 @@
-# Propositions, Proofs, and Indexing
+# Interlude: Propositions, Proofs, and Indexing
 
 Like many languages, Lean uses square brackets for indexing into arrays and lists.
 For instance, if `woodlandCritters` is defined as follows:
@@ -42,38 +42,45 @@ None of the following are propositions:
  * At least one gorg is a fleep
 
 Propositions come in two varieties: those that are purely mathematical, relying only on our definitions of concepts, and those that are facts about the world.
-Theorem provers like Lean are concerned with the former category.
+Theorem provers like Lean are concerned with the former category, and have nothing to say about the flight capabilities of penguins or the legal status of capital cities.
 
 A _proof_ is a convincing argument that a proposition is true.
 For mathematical propositions, these arguments make use of the definitions of the concepts that are involved as well as the rules of logical argumentation.
 Most proofs are written for people to understand, and leave out many tedious details.
+Computer-aided theorem provers like Lean are designed to allow mathematicians to write proofs while omitting many details, while the software fills in the missing explicit steps.
 
-In Lean, a type describes a program.
-For instance, a program of type `Nat → List String` will take a `Nat` argument and produce a list of strings.
-Similarly, a Lean proposition describes what counts as evidence that it is true.
+In Lean, a program's type describes the ways it can be interacted with.
+For instance, a program of type `Nat → List String` is a function that takes a `Nat` argument and produces a list of strings.
+In other words, each type specifies what counts as a program with that type.
+
+In Lean, propositions are a kind of type that describes what counts as evidence that it is true.
 The proposition is proved by providing this evidence.
+On the other hand, if the proposition is false, then it will be impossible to construct this evidence.
 
 For example, the proposition "1 + 1 = 2" can be written directly in Lean.
 The evidence for this proposition is the constructor `rfl`, which is short for _reflexivity_:
 ```lean
 {{#example_decl Examples/Props.lean onePlusOneIsTwo}}
 ```
-A relation is reflexive if everything is related to itself.
-In the case of equality, it simply means that every value is equal to itself.
-In other words, 1 = 1, 2 = 2, 3 = 3, and so forth.
-When Lean sees `rfl` being used to prove that `1 + 1 = 2`, it checks that the two sides of the equation are, in fact, equal, and then accepts the proof.
+On the other hand, `rfl` does not prove the false proposition "1 + 1 = 15":
+```lean
+{{#example_in Examples/Props.lean onePlusOneIsFifteen}}
+```
+```lean error
+{{#example_out Examples/Props.lean onePlusOneIsFifteen}}
+```
+This error message indicates that `rfl` can prove that two expressions are equal when both sides of the equality statement are already the same number.
+Because `1 + 1` evaluates directly to `2`, they are considered equivalent, which allows `onePlusOneIsTwo` to be accepted.
+Just as `Type` describes types such as `Nat`, `String`, and `List (Nat × String × (Int → Float))` that represent data structures and functions, `Prop` describes propositions.
 
 When a proposition has been proven, it is called a _theorem_.
 In Lean, it is conventional to declare theorems with the `theorem` keyword instead of `def`.
-This helps keep their roles clear in a file.
+This helps readers see which declarations are proofs, and which are definitions.
 
-Just as `Type` describes types such as `Nat`, `String`, and `List (Nat × String × (Int → Float))` that represent data structures and functions, `Prop` describes propositions.
 The prior example could be rewritten as follows:
 ```lean
 {{#example_decl Examples/Props.lean onePlusOneIsTwoProp}}
 ```
-
-
 
 ## Tactics
 
@@ -88,7 +95,7 @@ Written with tactics, `onePlusOneIsTwo` is still quite short:
 ```lean
 {{#example_decl Examples/Props.lean onePlusOneIsTwoTactics}}
 ```
-The `simp` tactic, short for "simplify", is the workhorse of Lean.
+The `simp` tactic, short for "simplify", is the workhorse of Lean proofs.
 It rewrites the goal to as simple a form as possible, taking care of parts of the proof that are small enough.
 In particular, it proves simple equality statements.
 Behind the scenes, a detailed formal proof is constructed, but `simp` frees users from having to read or write these details.
@@ -98,7 +105,79 @@ Tactics are useful for a number of reasons:
  2. Proofs written with tactics are easier to maintain over time, because flexible automation can paper over small changes to definitions.
  3. Because a single tactic can prove many different theorems, Lean can use tactics behind the scenes to free users from writing proofs by hand. For instance, an array lookup requires a proof that the index is in bounds, and a tactic can typically construct that proof without the user needing to worry about it.
 
+Behind the scenes, indexing notation uses a tactic to prove that the user's lookup operation is safe.
+This tactic is `simp`, configured to take certain arithmetic identities into account.
+
 
 ## Connectives
 
 The basic building blocks of logic, such as "and", "or", "true", "false", and "not", are called _logical connectives_.
+Each connective defines what counts as evidence of its truth.
+For example, to prove a statement "_A_ and _B_", one must prove both _A_ and _B_.
+This means that evidence for "_A_ and _B_" is a pair of evidence for _A_ and evidence for _B_.
+Similarly, evidence for "_A_ or _B_" consists of either evidence for _A_ or evidence for _B_.
+
+In particular, most of these connectives are defined like datatypes, and they have constructors.
+If `A` and `B` are propositions, then "`A` and `B`" (written `{{#example_in Examples/Props.lean AndProp}}`) is a proposition.
+Evidence for `A ∧ B` consists of the constructor `{{#example_in Examples/Props.lean AndIntro}}`, which has the type `{{#example_out Examples/Props.lean AndIntro}}`.
+Replacing `A` and `B` with concrete propositions, it is possible to prove `{{#example_out Examples/Props.lean AndIntroEx}}` with `{{#example_in Examples/Props.lean AndIntroEx}}`.
+Of course, `simp` is also powerful enough to find this proof:
+```lean
+{{#example_decl Examples/Props.lean AndIntroExTac}}
+```
+
+Similarly, "`A` or `B`" (written `{{#example_in Examples/Props.lean OrProp}}`) has two constructors, because a proof of "`A` or `B`" requires only that one of the two underlying propositions be true.
+There are two constructors: `{{#example_in Examples/Props.lean OrIntro1}}`, with type `{{#example_out Examples/Props.lean OrIntro1}}`, and `{{#example_in Examples/Props.lean OrIntro2}}`, with type `{{#example_out Examples/Props.lean OrIntro2}}`.
+
+Implication (if _A_ then _B_) is represented using functions.
+In particular, a function that transforms evidence for _A_ into evidence for _B_ is itself evidence that _A_ implies _B_.
+This is different from the usual description of implication, in which `A → B` is shorthand for `¬A ∨ B`, but the two formulations are equivalent.
+
+Because evidence for an "and" is a constructor, it can be used with pattern matching.
+For instance, a proof that _A_ and _B_ implies _A_ or _B_ is a function that pulls the evidence of _A_ (or of _B_) out of the evidence for _A_ and _B_, and then uses this evidence to produce evidence of _A_ or _B_:
+```lean
+{{#example_decl Examples/Props.lean andImpliesOr}}
+```
+
+There is also a version that crashes the program when the index is out of bounds:
+```lean
+{{#example_in Examples/Props.lean crittersBang}}
+```
+```lean info
+{{#example_out Examples/Props.lean crittersBang}}
+```
+
+## Messages You May Meet
+
+In addition to the error that occurs when Lean is unable to find compile-time evidence that an indexing operation is safe, polymorphic functions that use unsafe indexing may produce the following message:
+```lean
+{{#example_in Examples/Props.lean unsafeThird}}
+```
+```lean error
+{{#example_out Examples/Props.lean unsafeThird}}
+```
+This is due to a technical restriction that is part of keeping Lean usable as both a logic for proving theorems and a programming language.
+In particular, only programs whose types contain at least one value are allowed to crash.
+This is because a proposition in Lean is a kind of type that classifies evidence of its truth.
+False propositions have no such evidence.
+If a program with an empty type could crash, then that program could be used as a kind of fake evidence for a false proposition.
+
+Internally, Lean contains a table of types that are known to have at least one value.
+This error is saying that some arbitrary type `α` is not necessarily in that table.
+The next chapter describes how to add to this table, and how to successfully write functions like `unsafeThird`.
+
+Adding whitespace between a list and the brackets used for lookup can cause another message:
+```lean
+{{#example_in Examples/Props.lean extraSpace}}
+```
+```lean error
+{{#example_out Examples/Props.lean extraSpace}}
+```
+Adding a space causes Lean to treat the expression as a function application, and the index as a list that contains a single number.
+This error message results from having Lean attempt to treat `woodlandCritters` as a function.
+
+## Exercises
+
+* Prove the following theorems using `rfl`: `2 + 3 = 5`, `15 - 8 = 7`, `"Hello, ".append "world" = "Hello, world"`, `5 < 18`.
+* Prove the following theorems using `by simp`: `2 + 3 = 5`, `15 - 8 = 7`, `"Hello, ".append "world" = "Hello, world"`, `5 < 18`.
+* Write a function that looks up the fifth entry in a list. Pass the evidence that this lookup is safe as an argument to the function.

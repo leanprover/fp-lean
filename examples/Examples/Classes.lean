@@ -79,14 +79,14 @@ expect error {{{ fourteenOops }}}
   def fourteen : Pos := seven + seven
 message
 "failed to synthesize instance
-  HAdd Pos Pos ?m.285"
+  HAdd Pos Pos ?m.287"
 end expect
 
 expect error {{{ fortyNineOops }}}
   def fortyNine : Pos := seven * seven
 message
 "failed to synthesize instance
-  HMul Pos Pos ?m.285"
+  HMul Pos Pos ?m.287"
 end expect
 
 
@@ -317,7 +317,7 @@ end bookExample
 expect info {{{ printlnMetas }}}
   #check IO.println
 message
-"IO.println : ?m.2497 → IO Unit"
+"IO.println : ?m.3487 → IO Unit"
 end expect
 
 expect info {{{ printlnNoMetas }}}
@@ -545,7 +545,7 @@ expect error {{{ hPlusOops }}}
   #eval HPlus.hPlus (3 : Pos) (5 : Nat)
 message
 "typeclass instance problem is stuck, it is often due to metavariables
-  HPlus Pos Nat ?m.5048"
+  HPlus Pos Nat ?m.6667"
 end expect
 
 
@@ -593,7 +593,7 @@ end expect
 expect info {{{ plusFiveMeta }}}
   #check HPlus.hPlus (5 : Nat)
 message
-  "HPlus.hPlus 5 : ?m.5136 → ?m.5138"
+  "HPlus.hPlus 5 : ?m.6784 → ?m.6786"
 end expect
 
 
@@ -620,6 +620,39 @@ bookExample type {{{ fiveType }}}
   Nat
 end bookExample
 
+structure NonEmptyList (α : Type) : Type where
+  head : α
+  tail : List α
+
+def NonEmptyList.get (xs : NonEmptyList α) (i : Nat) (ok : i ≤ xs.tail.length): α :=
+  match i with
+  | 0 => xs.head
+  | n + 1 => xs.tail[n]
+
+instance : GetElem (NonEmptyList α) Nat α (fun xs n => n ≤ xs.tail.length) where
+  getElem := NonEmptyList.get
+
+instance : GetElem (List α) Pos α (fun n k => n.length > k.toNat) where
+  getElem (xs : List α) (i : Pos) ok := xs[i.toNat]
+
+namespace PointStuff
+
+instance : GetElem (PPoint α) Bool α (fun _ _ => True) where
+  getElem (p : PPoint α) (i : Bool) _ :=
+    if not i then p.x else p.y
+
+instance : GetElem (PPoint α) Nat α (fun _ n => n = 0 ∨ n = 1) where
+  getElem (p : PPoint α) (i : Nat) zeroOrOne :=
+    match i with
+    | 0 => p.x
+    | 1 => p.y
+    | n + 2 => False.rec $ by
+      cases zeroOrOne <;> injections
+
+
+
+
+end PointStuff
 
 -- Example for exercise
 inductive Method where
