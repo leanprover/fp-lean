@@ -405,26 +405,51 @@ namespace Foo
 evaluation steps {{{ minusDesugar }}}
   x - y
   ===>
-  Sub.sub x y
+  HSub.hSub x y
 end evaluation steps
 
 evaluation steps {{{ divDesugar }}}
   x / y
   ===>
-  Div.div x y
+  HDiv.hDiv x y
 end evaluation steps
 
 evaluation steps {{{ modDesugar }}}
   x % y
   ===>
-  Mod.mod x y
+  HMod.hMod x y
 end evaluation steps
 
 evaluation steps {{{ powDesugar }}}
   x ^ y
   ===>
-  Pow.pow x y
+  HPow.hPow x y
 end evaluation steps
+
+evaluation steps {{{ ltDesugar }}}
+  x < y
+  ===>
+  LT.lt x y
+end evaluation steps
+
+evaluation steps {{{ leDesugar }}}
+  x ≤ y
+  ===>
+  LE.le x y
+end evaluation steps
+
+evaluation steps {{{ gtDesugar }}}
+  x > y
+  ===>
+  LT.lt y x
+end evaluation steps
+
+evaluation steps {{{ geDesugar }}}
+  x ≥ y
+  ===>
+  LE.le y x
+end evaluation steps
+
 
 end Foo
 
@@ -545,7 +570,7 @@ expect error {{{ hPlusOops }}}
   #eval HPlus.hPlus (3 : Pos) (5 : Nat)
 message
 "typeclass instance problem is stuck, it is often due to metavariables
-  HPlus Pos Nat ?m.7135"
+  HPlus Pos Nat ?m.7195"
 end expect
 
 
@@ -593,7 +618,7 @@ end expect
 expect info {{{ plusFiveMeta }}}
   #check HPlus.hPlus (5 : Nat)
 message
-  "HPlus.hPlus 5 : ?m.7336 → ?m.7338"
+  "HPlus.hPlus 5 : ?m.7396 → ?m.7398"
 end expect
 
 
@@ -772,6 +797,34 @@ instance : GetElem (PPoint α) Nat α (fun _ n => n < 2) where
     | 1 => p.y
 end PointStuff
 
+bookExample {{{ boolEqTrue }}}
+  "Octopus" ==  "Cuttlefish"
+  ===>
+  false
+end bookExample
+
+bookExample {{{ boolEqFalse }}}
+  "Octopodes" ==  "Octo".append "podes"
+  ===>
+  true
+end bookExample
+
+expect error {{{ functionEq }}}
+  (fun (x : Nat) => 1 + x) == (Nat.succ ·)
+message
+"failed to synthesize instance
+  BEq (Nat → Nat)"
+end expect
+
+bookExample type {{{ functionEqProp }}}
+  (fun (x : Nat) => 1 + x) = (Nat.succ ·)
+  ===>
+  Prop
+end bookExample
+
+example : (fun (x : Nat) => 1 + x) = (Nat.succ ·) := by
+  funext x ; induction x <;> simp_arith
+
 -- Example for exercise
 inductive Method where
   | GET
@@ -783,3 +836,22 @@ structure Response where
 
 class HTTP (m : Method) where
   doTheWork : (uri : String) → IO Response
+
+expect info {{{ twoLessFour }}}
+  #check 2 < 4
+message
+  "2 < 4 : Prop"
+end expect
+
+expect error {{{ funEqDec }}}
+  if (fun (x : Nat) => 1 + x) = (Nat.succ ·) then "yes" else "no"
+message
+"failed to synthesize instance
+  Decidable ((fun x => 1 + x) = fun a => Nat.succ a)"
+end expect
+
+bookExample : Nat {{{ ifProp }}}
+  if 2 < 4 then 1 else 2
+  ===>
+  1
+end bookExample

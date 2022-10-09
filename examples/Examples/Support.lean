@@ -23,7 +23,7 @@ stop book declaration
 
 #check MyNamespaceIsGreat.twentyFive
 
-syntax withPosition("bookExample" "{{{" ws ident ws "}}}" colGt term:60 colGt "===>" colGt term:60 "end bookExample") : command
+syntax withPosition("bookExample" "{{{" ws ident ws "}}}" colGt term:10 colGt "===>" colGt term:10 "end bookExample") : command
 
 elab_rules : command
   | `(bookExample {{{ $name:ident }}} $x:term ===> $y:term end bookExample) =>
@@ -63,7 +63,7 @@ bookExample {{{ two }}}
   2
 end bookExample
 
-syntax withPosition("bookExample" "type" "{{{" ws ident ws "}}}" colGt term:10 colGt "===>" colGt term:10 "end bookExample") : command
+syntax withPosition("bookExample" "type" "{{{" ws ident ws "}}}" colGt term:1 colGt "===>" colGt term:1 "end bookExample") : command
 
 elab_rules : command
   | `(bookExample type {{{ $name:ident }}} $x:term ===> $y:term end bookExample) =>
