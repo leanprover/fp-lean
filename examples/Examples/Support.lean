@@ -107,6 +107,9 @@ def nats : (min : Nat) -> (howMany : Nat) -> List Nat
 syntax withPosition("expect" "error" "{{{" ws ident ws "}}}" colGt command "message" str "end" "expect") : command
 syntax withPosition("expect" "error" colGt command "message" str "end" "expect") : command
 
+syntax withPosition("expect" "error" "{{{" ws ident ws "}}}" colGt term "message" str "end" "expect") : command
+syntax withPosition("expect" "error" colGt term "message" str "end" "expect") : command
+
 -- Compare info and errors modulo leading and trailing whitespace to work around
 -- #eval always sticking a \n at the end
 def messagesMatch (msg1 msg2 : String) : Bool :=
@@ -117,6 +120,10 @@ def List.containsBy (xs : List α) (pred : α → Bool) : Bool :=
   xs.find? pred |>.isSome
 
 macro_rules
+  | `(expect error {{{ $name:ident }}} $expr:term message $msg:str end expect) =>
+    `(expect error {{{ $name }}} def x := $expr message $msg end expect)
+  | `(expect error $expr:term message $msg:str end expect) =>
+    `(expect error def x := $expr message $msg end expect)
   | `(expect error {{{ $name:ident }}} $cmd:command message $msg:str end expect) =>
     `(expect error  $cmd:command message $msg:str end expect)
 

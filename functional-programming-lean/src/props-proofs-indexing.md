@@ -152,8 +152,6 @@ For instance, a proof that _A_ and _B_ implies _A_ or _B_ is a function that pul
 The `simp` tactic can prove theorems that use these connectives.
 For example:
 
-
-
 ## Evidence as Arguments
 
 While `simp` does a great job proving propositions that involve equalities and inequalities of specific numbers, it is not very good at proving statements that involve variables.

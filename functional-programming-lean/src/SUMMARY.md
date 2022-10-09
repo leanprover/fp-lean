@@ -24,7 +24,7 @@
   - [Positive Numbers](type-classes/pos.md)
   - [Type Classes and Polymorphism](type-classes/polymorphism.md)
   - [Controlling Instance Search](type-classes/out-params.md)
-  - [Indexing](type-classes/indexing.md)
+  - [Arrays and Indexing](type-classes/indexing.md)
   - [Standard Classes](type-classes/standard-classes.md)
   - [Coercions](type-classes/coercion.md)
   - [Additional Conveniences](type-classes/conveniences.md)

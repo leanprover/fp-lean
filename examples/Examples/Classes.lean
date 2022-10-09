@@ -79,14 +79,14 @@ expect error {{{ fourteenOops }}}
   def fourteen : Pos := seven + seven
 message
 "failed to synthesize instance
-  HAdd Pos Pos ?m.287"
+  HAdd Pos Pos ?m.299"
 end expect
 
 expect error {{{ fortyNineOops }}}
   def fortyNine : Pos := seven * seven
 message
 "failed to synthesize instance
-  HMul Pos Pos ?m.287"
+  HMul Pos Pos ?m.299"
 end expect
 
 
@@ -317,7 +317,7 @@ end bookExample
 expect info {{{ printlnMetas }}}
   #check IO.println
 message
-"IO.println : ?m.3487 → IO Unit"
+"IO.println : ?m.3630 → IO Unit"
 end expect
 
 expect info {{{ printlnNoMetas }}}
@@ -545,7 +545,7 @@ expect error {{{ hPlusOops }}}
   #eval HPlus.hPlus (3 : Pos) (5 : Nat)
 message
 "typeclass instance problem is stuck, it is often due to metavariables
-  HPlus Pos Nat ?m.6667"
+  HPlus Pos Nat ?m.7135"
 end expect
 
 
@@ -593,7 +593,7 @@ end expect
 expect info {{{ plusFiveMeta }}}
   #check HPlus.hPlus (5 : Nat)
 message
-  "HPlus.hPlus 5 : ?m.6784 → ?m.6786"
+  "HPlus.hPlus 5 : ?m.7336 → ?m.7338"
 end expect
 
 
@@ -620,38 +620,156 @@ bookExample type {{{ fiveType }}}
   Nat
 end bookExample
 
-structure NonEmptyList (α : Type) : Type where
-  head : α
-  tail : List α
 
-def NonEmptyList.get (xs : NonEmptyList α) (i : Nat) (ok : i ≤ xs.tail.length): α :=
-  match i with
-  | 0 => xs.head
-  | n + 1 => xs.tail[n]
+book declaration {{{ northernTrees }}}
+  def northernTrees : Array String :=
+    #["beech", "birch", "elm", "oak"]
+stop book declaration
 
-instance : GetElem (NonEmptyList α) Nat α (fun xs n => n ≤ xs.tail.length) where
-  getElem := NonEmptyList.get
+bookExample {{{ northernTreesSize }}}
+  northernTrees.size
+  ===>
+  4
+end bookExample
 
-instance : GetElem (List α) Pos α (fun n k => n.length > k.toNat) where
-  getElem (xs : List α) (i : Pos) ok := xs[i.toNat]
+bookExample {{{ northernTreesTwo }}}
+  northernTrees[2]
+  ===>
+  "elm"
+end bookExample
+
+
+expect error {{{ northernTreesEight }}}
+  northernTrees[8]
+message
+"failed to prove index is valid, possible solutions:
+  - Use `have`-expressions to prove the index is valid
+  - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]?` notation instead, result is an `Option` type
+  - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
+⊢ 8 < Array.size northernTrees"
+end expect
+
+inductive EvenList (α : Type) : Type where
+  | nil : EvenList α
+  | cons : α → α → EvenList α → EvenList α
+
+
+book declaration {{{ NonEmptyList }}}
+  structure NonEmptyList (α : Type) : Type where
+    head : α
+    tail : List α
+stop book declaration
+
+def NonEmptyList.toList (xs : NonEmptyList α) := xs.head :: xs.tail
+
+book declaration {{{ idahoSpiders }}}
+  def idahoSpiders : NonEmptyList String := {
+    head := "Banded Garden Spider",
+    tail := [
+      "Long-legged Sac Spider",
+      "Wolf Spider",
+      "Hobo Spider",
+      "Cat-faced Spider"
+    ]
+  }
+stop book declaration
+
+bookExample {{{ firstSpider }}}
+  idahoSpiders.head
+   ===>
+  "Banded Garden Spider"
+end bookExample
+
+bookExample {{{ moreSpiders }}}
+  idahoSpiders.tail.length
+  ===>
+  4
+end bookExample
+
+book declaration {{{ NEListGetHuh }}}
+  def NonEmptyList.get? : NonEmptyList α → Nat → Option α
+    | xs, 0 => some xs.head
+    | {head := _, tail := []}, n + 1 => none
+    | {head := _, tail := h :: t}, n + 1 => get? {head := h, tail := t} n
+stop book declaration
+
+namespace UseList
+book declaration {{{ NEListGetHuhList }}}
+  def NonEmptyList.get? : NonEmptyList α → Nat → Option α
+    | xs, 0 => some xs.head
+    | xs, n + 1 => xs.tail.get? n
+stop book declaration
+end UseList
+
+book declaration {{{ inBoundsNEList }}}
+  abbrev NonEmptyList.inBounds (xs : NonEmptyList α) (i : Nat) : Prop :=
+    i ≤ xs.tail.length
+stop book declaration
+
+
+book declaration {{{ NEListGet }}}
+  def NonEmptyList.get (xs : NonEmptyList α) (i : Nat) (ok : xs.inBounds i) : α :=
+    match i with
+    | 0 => xs.head
+    | n + 1 => xs.tail[n]
+stop book declaration
+
+
+
+book declaration {{{ spiderBoundsChecks }}}
+theorem atLeastThreeSpiders : idahoSpiders.inBounds 2 := by simp
+
+theorem notSixSpiders : ¬idahoSpiders.inBounds 5 := by simp
+stop book declaration
+
+book declaration {{{ GetElemNEList }}}
+  instance : GetElem (NonEmptyList α) Nat α NonEmptyList.inBounds where
+    getElem := NonEmptyList.get
+stop book declaration
+
+
+bookExample {{{ firstSpider }}}
+  idahoSpiders[0]
+   ===>
+  "Banded Garden Spider"
+end bookExample
+
+
+expect error {{{ tenthSpider }}}
+  idahoSpiders[9]
+message
+  "failed to prove index is valid, possible solutions:
+  - Use `have`-expressions to prove the index is valid
+  - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]?` notation instead, result is an `Option` type
+  - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
+⊢ NonEmptyList.inBounds idahoSpiders 9"
+end expect
+
+
+
+
+book declaration {{{ ListPosElem }}}
+  instance : GetElem (List α) Pos α (fun n k => n.length > k.toNat) where
+    getElem (xs : List α) (i : Pos) ok := xs[i.toNat]
+stop book declaration
 
 namespace PointStuff
 
-instance : GetElem (PPoint α) Bool α (fun _ _ => True) where
-  getElem (p : PPoint α) (i : Bool) _ :=
-    if not i then p.x else p.y
 
-instance : GetElem (PPoint α) Nat α (fun _ n => n = 0 ∨ n = 1) where
-  getElem (p : PPoint α) (i : Nat) zeroOrOne :=
+book declaration {{{ PPointBoolGetElem }}}
+  instance : GetElem (PPoint α) Bool α (fun _ _ => True) where
+    getElem (p : PPoint α) (i : Bool) _ :=
+      if not i then p.x else p.y
+stop book declaration
+
+
+instance : GetElem (PPoint α) Nat α (fun _ n => n < 2) where
+  getElem (p : PPoint α) (i : Nat) _ :=
     match i with
     | 0 => p.x
     | 1 => p.y
-    | n + 2 => False.rec $ by
-      cases zeroOrOne <;> injections
-
-
-
-
 end PointStuff
 
 -- Example for exercise
