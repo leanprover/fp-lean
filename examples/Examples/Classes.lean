@@ -470,6 +470,37 @@ namespace OverloadedBits
 axiom x : UInt8
 axiom y : UInt8
 
+bookExample type {{{ UInt8 }}}
+  UInt8
+  ===>
+  Type
+end bookExample
+
+bookExample type {{{ UInt16 }}}
+  UInt16
+  ===>
+  Type
+end bookExample
+
+bookExample type {{{ UInt32 }}}
+  UInt32
+  ===>
+  Type
+end bookExample
+
+bookExample type {{{ UInt64 }}}
+  UInt64
+  ===>
+  Type
+end bookExample
+
+bookExample type {{{ USize }}}
+  USize
+  ===>
+  Type
+end bookExample
+
+
 evaluation steps {{{ bAndDesugar }}}
   x &&& y
   ===>
@@ -570,7 +601,7 @@ expect error {{{ hPlusOops }}}
   #eval HPlus.hPlus (3 : Pos) (5 : Nat)
 message
 "typeclass instance problem is stuck, it is often due to metavariables
-  HPlus Pos Nat ?m.7195"
+  HPlus Pos Nat ?m.7227"
 end expect
 
 
@@ -618,7 +649,7 @@ end expect
 expect info {{{ plusFiveMeta }}}
   #check HPlus.hPlus (5 : Nat)
 message
-  "HPlus.hPlus 5 : ?m.7396 → ?m.7398"
+  "HPlus.hPlus 5 : ?m.7428 → ?m.7430"
 end expect
 
 
@@ -855,3 +886,108 @@ bookExample : Nat {{{ ifProp }}}
   ===>
   1
 end bookExample
+
+namespace Cmp
+book declaration {{{ Ordering }}}
+  inductive Ordering where
+  | lt
+  | eq
+  | gt
+stop book declaration
+end Cmp
+
+similar datatypes Ordering Cmp.Ordering
+
+
+book declaration {{{ OrdPos }}}
+  def Pos.comp : Pos → Pos → Ordering
+    | Pos.one, Pos.one => Ordering.eq
+    | Pos.one, Pos.succ _ => Ordering.lt
+    | Pos.succ _, Pos.one => Ordering.gt
+    | Pos.succ n, Pos.succ k => comp n k
+
+  instance : Ord Pos where
+    compare := Pos.comp
+stop book declaration
+
+namespace H
+
+book declaration {{{ Hashable }}}
+  class Hashable (α : Type) where
+    hash : α → UInt64
+stop book declaration
+end H
+
+similar datatypes Hashable H.Hashable
+
+bookExample type {{{ mixHash }}}
+  mixHash
+  ===>
+  UInt64 → UInt64 → UInt64
+end bookExample
+
+
+book declaration {{{ HashablePos }}}
+  def hashPos : Pos → UInt64
+    | Pos.one => 0
+    | Pos.succ n => mixHash 1 (hashPos n)
+
+  instance : Hashable Pos where
+    hash := hashPos
+stop book declaration
+
+book declaration {{{ HashableNonEmptyList }}}
+  instance [Hashable α] : Hashable (NonEmptyList α) where
+    hash xs := mixHash (hash xs.head) (hash xs.tail)
+stop book declaration
+
+
+
+book declaration {{{ BEqHashableDerive }}}
+  deriving instance BEq, Hashable for Pos
+  deriving instance BEq, Hashable, Repr for NonEmptyList
+stop book declaration
+
+namespace A
+book declaration {{{ HAppend }}}
+  class HAppend (α : Type) (β : Type) (γ : outParam Type) where
+    hAppend : α → β → γ
+stop book declaration
+end A
+
+namespace AppendOverloads
+section
+axiom xs : List Nat
+axiom ys : List Nat
+bookExample {{{ desugarHAppend }}}
+  xs ++ ys
+   ===>
+  HAppend.hAppend xs ys
+end bookExample
+end
+end AppendOverloads
+
+
+book declaration {{{ AppendNEList }}}
+  instance : Append (NonEmptyList α) where
+    append xs ys :=
+      { head := xs.head, tail := xs.tail ++ ys.head :: ys.tail }
+stop book declaration
+
+expect info {{{ appendSpiders }}}
+  #eval idahoSpiders ++ idahoSpiders
+  message
+  "{ head := \"Banded Garden Spider\",
+  tail := [\"Long-legged Sac Spider\",
+           \"Wolf Spider\",
+           \"Hobo Spider\",
+           \"Cat-faced Spider\",
+           \"Banded Garden Spider\",
+           \"Long-legged Sac Spider\",
+           \"Wolf Spider\",
+           \"Hobo Spider\",
+           \"Cat-faced Spider\"] }"
+end expect
+
+
+similar datatypes HAppend A.HAppend

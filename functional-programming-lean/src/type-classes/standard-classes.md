@@ -22,6 +22,9 @@ The following arithmetic operators are overloaded:
 
 ## Bitwise Operators
 
+Lean contains a number of standard bitwise operators that are overloaded using type classes.
+There are instances for fixed-width types such as `{{#example_in Examples/Classes.lean UInt8}}`, `{{#example_in Examples/Classes.lean UInt16}}`, `{{#example_in Examples/Classes.lean UInt32}}`, `{{#example_in Examples/Classes.lean UInt64}}`, and `{{#example_in Examples/Classes.lean USize}}`.
+The latter is the size of words on the current platform, typically 32 or 64 bits.
 The following bitwise operators are overloaded:
 
 | Expression | Desugaring | Class Name |
@@ -93,16 +96,103 @@ The following propositions, that are usually decidable, are overloaded with type
 | `{{#example_in Examples/Classes.lean leDesugar}}` | `{{#example_out Examples/Classes.lean leDesugar}}` | `LE` |
 | `{{#example_in Examples/Classes.lean gtDesugar}}` | `{{#example_out Examples/Classes.lean gtDesugar}}` | `LT` |
 | `{{#example_in Examples/Classes.lean geDesugar}}` | `{{#example_out Examples/Classes.lean geDesugar}}` | `LE` |
+Because defining new propositions hasn't yet been demonstrated, it may be difficult to define new instances of `LT` and `LE`.
 
-
+Additionally, comparing values using `<`, `==`, and `>` can be inefficient.
+Checking first whether one value is less than another, and then whether they are equal, can require two traversals over large data structures.
+To solve this problem, Java and C# have standard `compareTo` and `CompareTo` methods (respectively) that can be overridden by a class in order to implement all three operations at the same time.
+These methods return a negative integer if the receiver is less than the argument, zero if they are equal, and a positive integer if the receiver is greater than the argument.
+Rather than overload the meaning of integers, Lean has a built-in inductive type that describes these three possibilities:
+```Lean
+{{#example_decl Examples/Classes.lean Ordering}}
+```
+The `Ord` type class can be overloaded to produce these comparisons.
+For `Pos`, an implementation can be:
+```Lean
+{{#example_decl Examples/Classes.lean OrdPos}}
+```
+In situations where `compareTo` would be the right approach in Java, use `Ord.compare` in Lean.
 
 ## Hashing
 
+Java and C# have `hashCode` and `GetHashCode` methods, respectively, that compute a hash of a value for use in data structures such as hash tables.
+The Lean equivalent is a type class called `Hashable`:
+```Lean
+{{#example_decl Examples/Classes.lean Hashable}}
+```
+If two values are considered equal according to a `BEq` instance for their type, then they should have the same hashes.
+In other words, if `x == y` then `hash x == hash y`.
+If `x != y`, then `hash x` won't necessarily differ from `hash y` (after all, there are infinitely more `Nat` values than there are `UInt64` values), but data structures built on hashing will have better performance if unequal values are likely to have unequal hashes.
+This is the same expectation as in Java and C#.
+
+The standard library contains a function `{{#example_in Examples/Classes.lean mixHash}}` with type `{{#example_out Examples/Classes.lean mixHash}}` that can be used to combine hashes for different fields for a constructor.
+A reasonable hash function for an inductive datatype can be written by assigning a unique number to each constructor, and then mixing that number with the hashes of each field.
+For instance, a `Hashable` instance for `Pos` can be written:
+```Lean
+{{#example_decl Examples/Classes.lean HashablePos}}
+```
+`Hashable` instances for polymorphic types can use recursive instance search.
+For instance, hashing a `NonEmptyList α` is only possible when `α` can be hashed:
+```Lean
+{{#example_decl Examples/Classes.lean HashableNonEmptyList}}
+```
+
+## Deriving Standard Classes
+
+Instance of classes like `BEq` and `Hashable` are often quite tedious to implement by hand.
+Lean includes a feature called _instance deriving_ that allows the compiler to automatically construct well-behaved instances of many type classes.
+In fact, the `deriving Repr` phrase in the definition of `Point` in the [section on structures](../getting-to-know/structures.md) is an example of instance deriving.
+
+Instances can be derived in two ways:
+ 1. When defining a structure or inductive type, add `deriving` to the end of the type declaration followed by the names of the classes for which instances should be derived.
+ 2. Write `deriving instance C1, C2, ... for T` to deriving instances of `C1, C2, ...` for the type `T` after the fact.
+
+`BEq` and `Hashable` instances can be derived for `Pos` and `NonEmptyList` using a very small amount of code:
+```Lean
+{{#example_decl Examples/Classes.lean BEqHashableDerive}}
+```
+
+Instance can be derived for at least the following classes:
+ * `Inhabited`
+ * `BEq`
+ * `Repr`
+ * `Hashable`
+ * `Ord`
+In some cases, however, the derived `Ord` instance may not produce precisely the ordering desired in an application.
+When this is the case, it's fine to write an `Ord` instance by hand.
+The collection of classes for which instances can be derived can be extended by advanced users of Lean.
+
+Aside from the clear advantages in programmer productivity and code readability, deriving instances also makes code easier to maintain, because the instances are updated as the definitions of types evolve.
+Changesets involving updates to datatypes need not also have line after line of formulaic modifications to equality tests and hash computation.
 
 ## Appending
 
- - Add, Mul, etc
- - Hashable
- - Ord, BEq
- - Append
- - Functor
+Many datatypes have some sort of append operator.
+In Lean, appending two values is overloaded with the type class `HAppend`, which is a heterogeneous operation like that used for arithmetic operations:
+```Lean
+{{#example_decl Examples/Classes.lean HAppend}}
+```
+The syntax `{{#example_in Examples/Classes.lean desugarHAppend}}` desugars to `{{#example_out Examples/Classes.lean desugarHAppend}}`.
+For homogeneous cases, it's enough to implement an instance of `Append`, which follows the usual pattern:
+```Lean
+{{#example_decl Examples/Classes.lean AppendNEList}}
+```
+
+After defining the above instance,
+```Lean
+{{#example_in Examples/Classes.lean appendSpiders}}
+```
+has the following output:
+```Lean info
+{{#example_out Examples/Classes.lean appendSpiders}}
+```
+
+
+## Functors
+
+- Functor
+
+
+## Exercises
+
+ * Write an instance of `HAppend (NonEmpytList α) (List α) (NonEmptyList α)` and test it.
