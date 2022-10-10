@@ -955,6 +955,8 @@ book declaration {{{ HAppend }}}
 stop book declaration
 end A
 
+similar datatypes HAppend A.HAppend
+
 namespace AppendOverloads
 section
 axiom xs : List Nat
@@ -989,5 +991,92 @@ expect info {{{ appendSpiders }}}
            \"Cat-faced Spider\"] }"
 end expect
 
+book declaration {{{ AppendNEListList }}}
+  instance : HAppend (NonEmptyList α) (List α) (NonEmptyList α) where
+    hAppend xs ys :=
+      { head := xs.head, tail := xs.tail ++ ys }
+stop book declaration
 
-similar datatypes HAppend A.HAppend
+expect info {{{ appendSpidersList }}}
+  #eval idahoSpiders ++ ["Trapdoor Spider"]
+  message
+"{ head := \"Banded Garden Spider\",
+  tail := [\"Long-legged Sac Spider\", \"Wolf Spider\", \"Hobo Spider\", \"Cat-faced Spider\", \"Trapdoor Spider\"] }"
+end expect
+
+
+bookExample {{{ mapList }}}
+  Functor.map (· + 5) [1, 2, 3]
+  ===>
+  [6, 7, 8]
+end bookExample
+
+bookExample {{{ mapOption }}}
+  Functor.map toString (some (List.cons 5 List.nil))
+  ===>
+  some "[5]"
+end bookExample
+
+bookExample {{{ mapListList }}}
+  List.reverse <$> [[1, 2, 3], [4, 5, 6]]
+  ===>
+  [[3, 2, 1], [6, 5, 4]]
+end bookExample
+
+bookExample {{{ mapInfixList }}}
+  (· + 5) <$> [1, 2, 3]
+  ===>
+  [6, 7, 8]
+end bookExample
+
+bookExample {{{ mapInfixOption }}}
+  toString <$> (some (List.cons 5 List.nil))
+  ===>
+  some "[5]"
+end bookExample
+
+bookExample {{{ mapInfixListList }}}
+  List.reverse <$> [[1, 2, 3], [4, 5, 6]]
+  ===>
+  [[3, 2, 1], [6, 5, 4]]
+end bookExample
+
+
+book declaration {{{ FunctorNonEmptyList }}}
+  instance : Functor NonEmptyList where
+    map f xs := { head := f xs.head, tail := f <$> xs.tail }
+stop book declaration
+
+namespace PointStuff
+
+book declaration {{{ FunctorPPoint }}}
+  instance : Functor PPoint where
+    map f p := { x := f p.x, y := f p.y }
+stop book declaration
+end PointStuff
+
+book declaration {{{ concat }}}
+  def concat [Append α] (xs : NonEmptyList α) : α :=
+    let rec catList (start : α) : List α → α
+      | [] => start
+      | (z :: zs) => catList (start ++ z) zs
+    catList xs.head xs.tail
+stop book declaration
+
+-- Just a quick test, not used in the book
+bookExample {{{ concatText }}}
+ concat idahoSpiders
+ ===>
+ "Banded Garden SpiderLong-legged Sac SpiderWolf SpiderHobo SpiderCat-faced Spider"
+end bookExample
+
+namespace FakeFunctor
+book declaration {{{ FunctorDef }}}
+  class Functor (f : Type → Type) where
+    map : {α β : Type} → (α → β) → f α → f β
+
+    mapConst {α β : Type} (x : α) (coll : f β) : f α :=
+      map (fun _ => x) coll
+stop book declaration
+end FakeFunctor
+similar datatypes FakeFunctor.Functor Functor

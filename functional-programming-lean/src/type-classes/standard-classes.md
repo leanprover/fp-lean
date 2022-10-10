@@ -143,9 +143,11 @@ Instance of classes like `BEq` and `Hashable` are often quite tedious to impleme
 Lean includes a feature called _instance deriving_ that allows the compiler to automatically construct well-behaved instances of many type classes.
 In fact, the `deriving Repr` phrase in the definition of `Point` in the [section on structures](../getting-to-know/structures.md) is an example of instance deriving.
 
-Instances can be derived in two ways:
- 1. When defining a structure or inductive type, add `deriving` to the end of the type declaration followed by the names of the classes for which instances should be derived.
- 2. Write `deriving instance C1, C2, ... for T` to deriving instances of `C1, C2, ...` for the type `T` after the fact.
+Instances can be derived in two ways.
+The first can be used when defining a structure or inductive type.
+In this case, add `deriving` to the end of the type declaration followed by the names of the classes for which instances should be derived.
+For a type that is already defined, a standalone `deriving` command can be used.
+Write `deriving instance C1, C2, ... for T` to deriving instances of `C1, C2, ...` for the type `T` after the fact.
 
 `BEq` and `Hashable` instances can be derived for `Pos` and `NonEmptyList` using a very small amount of code:
 ```Lean
@@ -187,12 +189,88 @@ has the following output:
 {{#example_out Examples/Classes.lean appendSpiders}}
 ```
 
+Similarly, a definition of `HAppend` allows non-empty lists to be appended to ordinary lists:
+```Lean
+{{#example_decl Examples/Classes.lean AppendNEListList}}
+```
+With this instance available,
+```Lean
+{{#example_in Examples/Classes.lean appendSpidersList}}
+```
+results in
+```Lean info
+{{#example_out Examples/Classes.lean appendSpidersList}}
+```
 
 ## Functors
 
-- Functor
+A polymorphic type is a _functor_ if it has an overload for a function named `map` that transforms every element contained in it by a function.
+While most languages use this terminology, C#'s equivalent to `map` is called `Select`.
+For example, mapping a function over a list constructs a new list in which each entry from the starting list has been replaced by the result of the function on that entry.
+Mapping a function `f` over an `Option` leaves `none` untouched, and replaces `some x` with `some (f x)`.
 
+Here are some examples of functors and how their `Functor` instances overload `map`:
+ * `{{#example_in Examples/Classes.lean mapList}}` evaluates to `{{#example_out Examples/Classes.lean mapList}}`
+ * `{{#example_in Examples/Classes.lean mapOption}}` evaluates to `{{#example_out Examples/Classes.lean mapOption}}`
+ * `{{#example_in Examples/Classes.lean mapListList}}` evaluates to `{{#example_out Examples/Classes.lean mapListList}}`
+
+Because `Functor.map` is a bit of a long name for this common operation, Lean also provides an infix operator for mapping a function, namely `<$>`.
+The prior examples can be rewritten as follows:
+ * `{{#example_in Examples/Classes.lean mapInfixList}}` evaluates to `{{#example_out Examples/Classes.lean mapInfixList}}`
+ * `{{#example_in Examples/Classes.lean mapInfixOption}}` evaluates to `{{#example_out Examples/Classes.lean mapInfixOption}}`
+ * `{{#example_in Examples/Classes.lean mapInfixListList}}` evaluates to `{{#example_out Examples/Classes.lean mapInfixListList}}`
+
+An instance of `Functor` for `NonEmptyList` requires specifying the `map` function.
+```Lean
+{{#example_decl Examples/Classes.lean FunctorNonEmptyList}}
+```
+Here, `map` uses the `Functor` instance for `List` to map the function over the tail.
+This instance is defined for `NonEmptyList` rather than for `NonEmptyList α` because the argument type `α` plays no role in resolving the type class.
+A `NonEmptyList` can have a function mapped over it _no matter what the type of entries is_.
+If `α` were a parameter to the class, then it would be possible to make versions of `Functor` that only worked for `NonEmptyList Nat`, but part of being a functor is that `map` works for any entry type.
+
+Here is an instance of `Functor` for `PPoint`:
+```Lean
+{{#example_decl Examples/Classes.lean FunctorPPoint}}
+```
+In this case, `f` has been applied to both `x` and `y`.
+
+Even when the type contained in a functor is itself a functor, mapping a function only goes down one layer.
+That is, when using `map` on a `NonEmptyList (PPoint Nat)`, the function being mapped should take `PPoint Nat` as its argument rather than `Nat`.
+
+The definition of the `Functor` class uses one more language feature that has not yet been discussed: default method definitions.
+Normally, a class will specify some minimal set of overloadable operations that make sense together, and then use polymorphic functions with instance implicit arguments that build on the overloaded operations to provide a larger library of features.
+For instance, the function `concat` can concatenate any non-empty list whose entries are appendable:
+```Lean
+{{#example_decl Examples/Classes.lean concat}}
+```
+However, for some classes, there are operations that can be more efficiently implemented with knowledge of the internals of a datatype.
+
+In these cases, a default method definition can be provided.
+A default method definition provides a default implementation of a method in terms of the other methods.
+However, instance implementors may choose to override this default with something more efficient.
+Default method definitions contain `:=` in a `class` definition.
+
+In the case of `Functor`, some types have a more efficient way of implementing `map` when the function being mapped ignores its argument.
+Functions that ignore their arguments are called _constant functions_ because they always return the same value.
+Here is the definition of `Functor`:
+```Lean
+{{#example_decl Examples/Classes.lean FunctorDef}}
+```
+
+Just as a `Hashable` instance that doesn't respect `BEq` is buggy, a `Functor` instance that moves around the data as it maps the function is also buggy.
+For instance, a buggy `Functor` instance for `List` might throw away its argument and always return the empty list, or it might reverse the list.
+A bad instance for `PPoint` might place `f x` in both the `x` and the `y` fields.
+Specifically, `Functor` instances should follow two rules:
+ 1. Mapping the identity function should result in the original argument.
+ 2. Mapping two composed functions should have the same effect as composing their mapping.
+
+More formally, the first rule says that `id <$> x` equals `x`.
+This rules out implementations of `map` that move the data around or delete some of it.
+The second rule says that `map (fun y => f (g y)) x` equals `map f (map g x)`.
+TODO example?
 
 ## Exercises
 
- * Write an instance of `HAppend (NonEmpytList α) (List α) (NonEmptyList α)` and test it.
+ * Write an instance of `HAppend (List α) (NonEmptyList α) (NonEmptyList α)` and test it.
+ * Define a datatype that represents binary trees. Implement a `Functor` instance for this datatype.
