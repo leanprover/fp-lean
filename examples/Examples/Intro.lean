@@ -861,7 +861,7 @@ end expect
 expect info {{{ replaceXImpT }}}
   #check replaceX
 message
-  "replaceX : PPoint ?m.15503 → ?m.15503 → PPoint ?m.15503"
+  "replaceX : PPoint ?m.16938 → ?m.16938 → PPoint ?m.16938"
 end expect
 
 book declaration {{{ lengthImp }}}
@@ -1029,18 +1029,18 @@ expect error {{{ headNoneBad }}}
   #eval [].head?
 message
 "don't know how to synthesize implicit argument
-  @List.nil ?m.21475
+  @List.nil ?m.22906
 context:
-⊢ Type ?u.21472"
+⊢ Type ?u.22903"
 end expect
 
 expect error {{{ headNoneBad2 }}}
   #eval [].head?
 message
 "don't know how to synthesize implicit argument
-  @_root_.List.head? ?m.21475 []
+  @_root_.List.head? ?m.22906 []
 context:
-⊢ Type ?u.21472"
+⊢ Type ?u.22903"
 end expect
 
 
@@ -1202,7 +1202,7 @@ expect error {{{ MissingTypeArg }}}
 message
 "type expected
 failed to synthesize instance
-  CoeSort (Type → Type) ?m.29665"
+  CoeSort (Type → Type) ?m.32363"
 end expect
 
 book declaration {{{ MyTypeDef }}}
@@ -1215,7 +1215,7 @@ expect error {{{ MissingTypeArg2 }}}
 message
 "type expected
 failed to synthesize instance
-  CoeSort (Type → Type) ?m.29904"
+  CoeSort (Type → Type) ?m.32602"
 end expect
 
 -- Example solution
@@ -1624,7 +1624,7 @@ end bookExample
 expect error {{{ pointPosEvalNoType }}}
   #eval ⟨1, 2⟩
 message
-"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.38108"
+"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.41162"
 end expect
 
 expect info {{{ pointPosWithType }}}

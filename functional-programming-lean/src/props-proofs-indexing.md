@@ -139,6 +139,66 @@ For instance, a proof that _A_ and _B_ implies _A_ or _B_ is a function that pul
 {{#example_decl Examples/Props.lean andImpliesOr}}
 ```
 
+
+| Connective      | Lean Syntax | Evidence     |
+|-----------------|-------------|--------------|
+| True            | `True`      | `True.intro : True` |
+| False           | `False`     | No evidence  |
+| _A_ and _B_     | `A ∧ B`     | `And.intro : A → B → A ∧ B` |
+| _A_ or _B_      | `A ∨ B`     | Either `Or.inl : A → A ∨ B` or `Or.inr : B → A ∨ B` |
+| _A_ implies _B_ | `A → B`     | A function that transforms evidence of _A_ into evidence of _B_ |
+| not _A_         | `¬A`        | A function that would transform evidence of _A_ into evidence of `False` |
+
+The `simp` tactic can prove theorems that use these connectives.
+For example:
+
+## Evidence as Arguments
+
+While `simp` does a great job proving propositions that involve equalities and inequalities of specific numbers, it is not very good at proving statements that involve variables.
+For instance, `simp` can prove that `4 < 15`, but it can't easily tell that because `x < 4`, it's also true that `x < 15`.
+Because index notation uses `simp` behind the scenes to prove that array access is safe, it can require a bit of hand-holding to make things work right.
+
+One of the easiest ways to make indexing notation work well is to have the function that performs a lookup into a data structure take the required evidence of safety as an argument.
+For instance, a function that returns the third entry in a list is not generally safe because lists might contain zero, one, or two entries:
+```lean
+{{#example_in Examples/Props.lean thirdErr}}
+```
+```lean error
+{{#example_out Examples/Props.lean thirdErr}}
+```
+However, the obligation to show that the list has at least three entries can be imposed on the caller by adding an argument that consists of evidence that the indexing operation is safe:
+```lean
+{{#example_decl Examples/Props.lean third}}
+```
+When the function is called on a concrete list, its length is known.
+In these cases, `by simp` can construct the evidence automatically:
+```lean
+{{#example_in Examples/Props.lean thirdCritters}}
+```
+```lean info
+{{#example_out Examples/Props.lean thirdCritters}}
+```
+
+## Indexing Without Evidence
+
+In cases where it's not practical to prove that an indexing operation is in bounds, there are other alternatives.
+Adding an question mark results in an `Option`, where the result is `some` if the index is in bounds, and `none` otherwise.
+For example:
+```lean
+{{#example_decl Examples/Props.lean thirdOption}}
+
+{{#example_in Examples/Props.lean thirdOptionCritters}}
+```
+```lean info
+{{#example_out Examples/Props.lean thirdOptionCritters}}
+```
+```lean
+{{#example_in Examples/Props.lean thirdOptionTwo}}
+```
+```lean info
+{{#example_out Examples/Props.lean thirdOptionTwo}}
+```
+
 There is also a version that crashes the program when the index is out of bounds:
 ```lean
 {{#example_in Examples/Props.lean crittersBang}}
