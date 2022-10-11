@@ -266,9 +266,9 @@ Specifically, `Functor` instances should follow two rules:
  2. Mapping two composed functions should have the same effect as composing their mapping.
 
 More formally, the first rule says that `id <$> x` equals `x`.
-This rules out implementations of `map` that move the data around or delete some of it.
 The second rule says that `map (fun y => f (g y)) x` equals `map f (map g x)`.
-TODO example?
+These rules prevent implementations of `map` that move the data around or delete some of it.
+
 
 ## Exercises
 

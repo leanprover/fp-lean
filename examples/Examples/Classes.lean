@@ -1080,3 +1080,53 @@ book declaration {{{ FunctorDef }}}
 stop book declaration
 end FakeFunctor
 similar datatypes FakeFunctor.Functor Functor
+
+
+-- Coercions
+
+
+bookExample type {{{ drop }}}
+  @List.drop
+  ===>
+  {α : Type} → Nat → List α → List α
+end bookExample
+
+expect error {{{ dropPos }}}
+  [1, 2, 3, 4].drop (2 : Pos)
+  message
+"application type mismatch
+  List.drop 2
+argument
+  2
+has type
+  Pos : Type
+but is expected to have type
+  Nat : Type"
+end expect
+
+namespace FakeCoe
+book declaration {{{ Coe }}}
+  class Coe (α : Type) (β : Type) where
+    coe : α → β
+stop book declaration
+end FakeCoe
+
+similar datatypes Coe FakeCoe.Coe
+
+
+book declaration {{{ CoePosNat }}}
+  instance : Coe Pos Nat where
+    coe x := x.toNat
+stop book declaration
+
+expect info {{{ dropPosCoe }}}
+  #eval [1, 2, 3, 4].drop (2 : Pos)
+message
+"[3, 4]"
+end expect
+
+expect info {{{ checkDropPosCoe }}}
+  #check [1, 2, 3, 4].drop (2 : Pos)
+message
+  "List.drop (Pos.toNat 2) [1, 2, 3, 4] : List Nat"
+end expect
