@@ -46,13 +46,13 @@ This function is called `Option.getD` in the standard library, and can be called
 ```lean
 {{#example_in Examples/Intro.lean getD}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean getD}}
 ```
 ```lean
 {{#example_in Examples/Intro.lean getDNone}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean getDNone}}
 ```
 
@@ -136,13 +136,13 @@ For instance, `14` can be a `Nat` or an `Int`:
 ```lean
 {{#example_in Examples/Intro.lean fourteenNat}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean fourteenNat}}
 ```
 ```lean
 {{#example_in Examples/Intro.lean fourteenInt}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean fourteenInt}}
 ```
 
@@ -152,7 +152,7 @@ Omitting all types from the definition of `unzip`:
 {{#example_in Examples/Intro.lean unzipNoTypesAtAll}}
 ```
 leads to a message about the `match` expression:
-```lean error
+```output error
 {{#example_out Examples/Intro.lean unzipNoTypesAtAll}}
 ```
 This is because `match` needs to know the type of the value being inspected, but that type was not available.
@@ -173,7 +173,7 @@ Omitting the argument type, however, causes an error:
 ```lean
 {{#example_in Examples/Intro.lean identNoTypes}}
 ```
-```lean error
+```output error
 {{#example_out Examples/Intro.lean identNoTypes}}
 ```
 
@@ -219,7 +219,7 @@ Even though addition is commutative, flipping the arguments in a pattern can res
 ```lean
 {{#example_in Examples/Intro.lean halveFlippedPat}}
 ```
-```lean error
+```output error
 {{#example_out Examples/Intro.lean halveFlippedPat}}
 ```
 This restriction enables Lean to transform all uses of the `+` notation in a pattern into uses of the underlying `Nat.succ`, keeping the language simpler behind the scenes.
@@ -233,21 +233,21 @@ For instance, a function that adds one to a number can be written:
 ```lean
 {{#example_in Examples/Intro.lean incr}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean incr}}
 ```
 Type annotations are written the same way as on `def`, using parentheses and colons:
 ```lean
 {{#example_in Examples/Intro.lean incrInt}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean incrInt}}
 ```
 Similarly, implicit arguments may be written with curly braces:
 ```lean
 {{#example_in Examples/Intro.lean identLambda}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean identLambda}}
 ```
 This style of anonymous function expression is often referred to as a _lambda expression_, because the typical notation used in mathematical descriptions of programming languages uses the Greek letter λ (lambda) where Lean has the keyword `fun`.
@@ -258,7 +258,7 @@ For instance, a function that returns the predecessor of a natural number if it 
 ```lean
 {{#example_in Examples/Intro.lean predHuh}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean predHuh}}
 ```
 Note that Lean's own description of the function has a named argument and a `match` expression.
@@ -286,11 +286,11 @@ If multiple dots are used, then they become arguments from left to right:
 
 Anonymous functions can be applied in precisely the same way as functions defined using `def` or `let`.
 The command `{{#example_in Examples/Intro.lean applyLambda}}` results in:
-```lean info
+```output info
 {{#example_out Examples/Intro.lean applyLambda}}
 ```
 while `{{#example_in Examples/Intro.lean applyCdot}}` results in:
-```lean info
+```output info
 {{#example_out Examples/Intro.lean applyCdot}}
 ```
 
@@ -311,7 +311,7 @@ Because `Nat` is also the name of a type, dot notation is available to call `Nat
 ```lean
 {{#example_in Examples/Intro.lean NatDoubleFour}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean NatDoubleFour}}
 ```
 
@@ -324,13 +324,13 @@ To refer to them, prefix their names with `NewNamespace.`:
 ```lean
 {{#example_in Examples/Intro.lean tripleNamespace}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean tripleNamespace}}
 ```
 ```lean
 {{#example_in Examples/Intro.lean quadrupleNamespace}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean quadrupleNamespace}}
 ```
 
@@ -346,7 +346,7 @@ To do this, place the `open ... in` prior to the command.
 ```lean
 {{#example_in Examples/Intro.lean quadrupleNamespaceOpen}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean quadrupleNamespaceOpen}}
 ```
 Finally, namespaces may be opened for _all_ following commands for the rest of the file.
@@ -387,12 +387,12 @@ They can be input using `\<` and `\>`, respectively.
 
 Just as with the brace notation for named constructor arguments, this positional syntax can only be used in a context where Lean can determine the structure's type, either from a type annotation or from other type information in the program.
 For instance, `{{#example_in Examples/Intro.lean pointPosEvalNoType}}` yields the following error:
-```lean error
+```output error
 {{#example_out Examples/Intro.lean pointPosEvalNoType}}
 ```
 The metavariable in the error is because there is no type information available.
 Adding an annotation, such as in `{{#example_in Examples/Intro.lean pointPosWithType}}`, solves the problem:
-```lean info
+```output info
 {{#example_out Examples/Intro.lean pointPosWithType}}
 ```
 
@@ -406,7 +406,7 @@ For instance,
 {{#example_in Examples/Intro.lean interpolation}}
 ```
 yields the output
-```lean info
+```output info
 {{#example_out Examples/Intro.lean interpolation}}
 ```
 
@@ -416,7 +416,7 @@ For instance, attempting to interpolate a function results in an error.
 {{#example_in Examples/Intro.lean interpolationOops}}
 ```
 yields the output
-```lean info
+```output info
 {{#example_out Examples/Intro.lean interpolationOops}}
 ```
 This is because there is no standard way to convert functions into strings.

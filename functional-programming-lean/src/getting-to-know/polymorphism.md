@@ -42,7 +42,7 @@ This can be seen by asking Lean to check the type of `replaceX`, and then asking
 ```lean
 {{#example_in Examples/Intro.lean replaceXT}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean replaceXT}}
 ```
 This function type includes the _name_ of the first argument, and later arguments in the type refer back to this name.
@@ -51,27 +51,27 @@ Providing the first argument, `Nat`, causes all occurrences of `α` in the remai
 ```lean
 {{#example_in Examples/Intro.lean replaceXNatT}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean replaceXNatT}}
 ```
 Because the remaining arguments are not explicitly named, no further substitution occurs as more arguments are provided:
 ```lean
 {{#example_in Examples/Intro.lean replaceXNatOriginT}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean replaceXNatOriginT}}
 ```
 ```lean
 {{#example_in Examples/Intro.lean replaceXNatOriginFiveT}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean replaceXNatOriginFiveT}}
 ```
 The fact that the type of the whole function application expression was determined by passing a type as an argument has no bearing on the ability to evaluate it.
 ```lean
 {{#example_in Examples/Intro.lean replaceXNatOriginFiveV}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean replaceXNatOriginFiveV}}
 ```
 
@@ -153,7 +153,7 @@ It can be used with `natOrigin` without providing `Nat` explicitly, because Lean
 ```lean
 {{#example_in Examples/Intro.lean replaceXImpNat}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean replaceXImpNat}}
 ```
 
@@ -165,7 +165,7 @@ This `length` function can be applied directly to `primesUnder10`:
 ```lean
 {{#example_in Examples/Intro.lean lengthImpPrimes}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean lengthImpPrimes}}
 ```
 
@@ -173,7 +173,7 @@ In the standard library, Lean calls this function `List.length`, which means tha
 ```lean
 {{#example_in Examples/Intro.lean lengthDotPrimes}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean lengthDotPrimes}}
 ```
 
@@ -184,7 +184,7 @@ For instance, a version of `List.length` that only works for lists of integers c
 ```lean
 {{#example_in Examples/Intro.lean lengthExpNat}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean lengthExpNat}}
 ```
 
@@ -233,14 +233,14 @@ Because `head?` is defined in the `List` namespace, it can be used with accessor
 ```lean
 {{#example_in Examples/Intro.lean headSome}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean headSome}}
 ```
 However, attempting to test it on the empty list leads to two errors:
 ```lean
 {{#example_in Examples/Intro.lean headNoneBad}}
 ```
-```lean error
+```output error
 {{#example_out Examples/Intro.lean headNoneBad}}
 
 {{#example_out Examples/Intro.lean headNoneBad2}}
@@ -254,7 +254,7 @@ Explicitly providing a type allows Lean to proceed:
 ```lean
 {{#example_in Examples/Intro.lean headNone}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean headNone}}
 ```
 The error messages provide a useful clue.
@@ -391,7 +391,7 @@ For example, for this inductive type:
 {{#example_in Examples/Intro.lean TypeInType}}
 ```
 Lean gives the following error:
-```lean error
+```output error
 {{#example_out Examples/Intro.lean TypeInType}}
 ```
 A later chapter describes why this is the case, and how to modify definitions to make them work.
@@ -403,7 +403,7 @@ For example:
 {{#example_in Examples/Intro.lean Positivity}}
 ```
 yields the message:
-```lean error
+```output error
 {{#example_out Examples/Intro.lean Positivity}}
 ```
 For technical reasons, allowing these datatypes could make it possible to undermine Lean's internal logic, making it unsuitable for use as a theorem prover.
@@ -414,7 +414,7 @@ For instance, the argument `α` is not passed to `MyType` in `ctor`'s type:
 {{#example_in Examples/Intro.lean MissingTypeArg}}
 ```
 Lean replies with the following error:
-```lean error
+```output error
 {{#example_out Examples/Intro.lean MissingTypeArg}}
 ```
 This error occurs because Lean contains an extensible set of rules for "punning" between different types, which allows convenient mathematical notation such as using a type that represents an algebraic structure in a context where its carrier set is expected.

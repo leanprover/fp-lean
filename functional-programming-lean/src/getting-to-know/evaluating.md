@@ -115,7 +115,7 @@ In particular, the example
 {{#example_in Examples/Intro.lean stringAppendReprFunction}}
 ```
 yields a quite long error message:
-```lean error
+```output error
 {{#example_out Examples/Intro.lean stringAppendReprFunction}}
 ```
 

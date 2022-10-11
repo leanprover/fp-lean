@@ -14,33 +14,33 @@ Lean's floating-point number type is called `Float`, and floating-point numbers 
 ```lean
 {{#example_in Examples/Intro.lean onePointTwo}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean onePointTwo}}
 ```
 ```lean
 {{#example_in Examples/Intro.lean negativeLots}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean negativeLots}}
 ```
 ```lean
 {{#example_in Examples/Intro.lean zeroPointZero}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean zeroPointZero}}
 ```
 When floating point numbers are written with the decimal point, Lean will infer the type `Float`. If they are written without it, then a type annotation may be necessary.
 ```lean
 {{#example_in Examples/Intro.lean zeroNat}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean zeroNat}}
 ```
 
 ```lean
 {{#example_in Examples/Intro.lean zeroFloat}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean zeroFloat}}
 ```
 
@@ -65,13 +65,13 @@ The origin of a Cartesian plane is where both `x` and `y` are both zero:
 ```
 
 If the `deriving Repr` line in `Point`'s definition were omitted, then attempting `{{#example_in Examples/Intro.lean PointNoRepr}}` would yield an error similar to that which occurs when omitting a function's argument:
-```lean error
+```output error
 {{#example_out Examples/Intro.lean PointNoRepr}}
 ```
 That message is saying that the evaluation machinery doesn't know how to communicate the result of evaluation back to the user.
 
 Happily, with `deriving Repr`, the result of `{{#example_in Examples/Intro.lean originEval}}` looks very much like the definition of `origin`.
-```lean info
+```output info
 {{#example_out Examples/Intro.lean originEval}}
 ```
 
@@ -81,21 +81,21 @@ This is done using dot notation, as in C, Python, or Rust.
 ```lean
 {{#example_in Examples/Intro.lean originx}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean originx}}
 ```
 
 ```lean
 {{#example_in Examples/Intro.lean originy}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean originy}}
 ```
 
 This can be used to define functions that take structures as arguments.
 For instance, addition of points is performed by adding the underlying coordinate values.
 It should be the case that `{{#example_in Examples/Intro.lean addPointsEx}}` yields
-```lean info
+```output info
 {{#example_out Examples/Intro.lean addPointsEx}}
 ```
 The function itself takes two `Points` as arguments, called `p1` and `p2`.
@@ -112,7 +112,7 @@ For example, the distance between (1, 2) and (5, -1) is 5:
 ```lean
 {{#example_in Examples/Intro.lean evalDistance}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean evalDistance}}
 ```
 
@@ -131,7 +131,7 @@ For instance,
 {{#example_in Examples/Intro.lean originNoType}}
 ```
 leads to the error
-```lean error
+```output error
 {{#example_out Examples/Intro.lean originNoType}}
 ```
 
@@ -139,7 +139,7 @@ As usual, the situation can be remedied by providing a type annotation.
 ```lean
 {{#example_in Examples/Intro.lean originWithAnnot}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean originWithAnnot}}
 ```
 
@@ -147,7 +147,7 @@ To make programs more concise, Lean also allows the structure type annotation in
 ```lean
 {{#example_in Examples/Intro.lean originWithAnnot2}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean originWithAnnot2}}
 ```
 
@@ -184,19 +184,19 @@ evaluating it, then evaluating an update of it using `zeroX`, then evaluating it
 ```lean
 {{#example_in Examples/Intro.lean fourAndThreeEval}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean fourAndThreeEval}}
 ```
 ```lean
 {{#example_in Examples/Intro.lean zeroXFourAndThreeEval}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean zeroXFourAndThreeEval}}
 ```
 ```lean
 {{#example_in Examples/Intro.lean fourAndThreeEval}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean fourAndThreeEval}}
 ```
 
@@ -223,7 +223,7 @@ Instead of using curly-brace initialization syntax, the constructor can also be 
 {{#example_in Examples/Intro.lean checkPointMk}}
 ```
 However, this is not generally considered to be good Lean style, and Lean even returns its feedback using the standard structure initializer syntax.
-```lean info
+```output info
 {{#example_out Examples/Intro.lean checkPointMk}}
 ```
 
@@ -232,7 +232,7 @@ For instance, `Point.mk` is a function that accepts two `Float`s (respectively `
 ```lean
 {{#example_in Examples/Intro.lean Pointmk}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean Pointmk}}
 ```
 To override a structure's constructor name, write it with two colons at the beginning.
@@ -247,20 +247,20 @@ For `Point`, accessor functions `Point.x` and `Point.y` are generated.
 ```lean
 {{#example_in Examples/Intro.lean Pointx}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean Pointx}}
 ```
 
 ```lean
 {{#example_in Examples/Intro.lean Pointy}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean Pointy}}
 ```
 
 In fact, just as the curly-braced structure construction syntax is converted to a call to the structure's constructor behind the scenes, the syntax `p1.x` in the prior definition of `addPoints` is converted into a call to the `Point.x` accessor.
 That is, `{{#example_in Examples/Intro.lean originx}}` and `{{#example_in Examples/Intro.lean originx1}}` both yield
-```lean info
+```output info
 {{#example_out Examples/Intro.lean originx1}}
 ```
 
@@ -273,7 +273,7 @@ For instance, `String.append` can be invoked from a string with accessor notatio
 ```lean
 {{#example_in Examples/Intro.lean stringAppendDot}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean stringAppendDot}}
 ```
 In that example, `TARGET` represents `"one string"` and `ARG1` represents `" and another"`.
@@ -286,7 +286,7 @@ Even though the `Point` argument comes after the function argument, it can be us
 ```lean
 {{#example_in Examples/Intro.lean modifyBothTest}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean modifyBothTest}}
 ```
 In this case, `TARGET` represents `fourAndThree`, while `ARG1` is `Float.floor`.

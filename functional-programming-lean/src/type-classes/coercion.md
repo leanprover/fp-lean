@@ -21,7 +21,7 @@ Applying `List.drop` to a `Pos`, however, leads to a type error:
 ```lean
 {{#example_in Examples/Classes.lean dropPos}}
 ```
-```lean error
+```output error
 {{#example_out Examples/Classes.lean dropPos}}
 ```
 
@@ -35,14 +35,14 @@ An instance of `Coe Pos Nat` is enough to allow the prior code to work:
 
 {{#example_in Examples/Classes.lean dropPosCoe}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Classes.lean dropPosCoe}}
 ```
 Using `#check` shows the translation that was used behind the scenes:
 ```lean
 {{#example_in Examples/Classes.lean checkDropPosCoe}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Classes.lean checkDropPosCoe}}
 ```
 

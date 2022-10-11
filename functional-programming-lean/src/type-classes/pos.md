@@ -13,7 +13,7 @@ For instance, numeric literals are rejected:
 ```lean
 {{#example_in Examples/Classes.lean sevenOops}}
 ```
-```lean error
+```output error
 {{#example_out Examples/Classes.lean sevenOops}}
 ```
 Instead, the constructors must be used directly:
@@ -25,13 +25,13 @@ Similarly, addition and multiplication are not easy to use:
 ```lean
 {{#example_in Examples/Classes.lean fourteenOops}}
 ```
-```lean error
+```output error
 {{#example_out Examples/Classes.lean fourteenOops}}
 ```
 ```lean
 {{#example_in Examples/Classes.lean fortyNineOops}}
 ```
-```lean error
+```output error
 {{#example_out Examples/Classes.lean fortyNineOops}}
 ```
 
@@ -52,7 +52,7 @@ Once an instance of `Plus` for `Nat` has been defined, it becomes possible to ad
 ```lean
 {{#example_in Examples/Classes.lean plusNatFiveThree}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Classes.lean plusNatFiveThree}}
 ```
 Adding more instances allows `Plus.plus` to take more types of arguments.
@@ -85,7 +85,7 @@ Parentheses in an `open` command indicate that only the indicated names from the
 
 {{#example_in Examples/Classes.lean plusNatFiveThreeAgain}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Classes.lean plusNatFiveThreeAgain}}
 ```
 
@@ -98,7 +98,7 @@ Because there is not yet an instance of `Plus Float`, attempting to add two floa
 ```lean
 {{#example_in Examples/Classes.lean plusFloatFail}}
 ```
-```lean error
+```output error
 {{#example_out Examples/Classes.lean plusFloatFail}}
 ```
 These errors mean that Lean was unable to find an instance for a given type class.
@@ -139,7 +139,7 @@ results in informative, yet overwhelming, output:
 ```lean
 {{#example_in Examples/Classes.lean sevenLong}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Classes.lean sevenLong}}
 ```
 
@@ -152,7 +152,7 @@ Converting it to a `Nat` and then using the `ToString Nat` instance (that is, th
 
 {{#example_in Examples/Classes.lean sevenShort}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Classes.lean sevenShort}}
 ```
 When more than one instance is defined, the most recent takes precedence.
@@ -172,7 +172,7 @@ With this instance, multiplication works as expected:
 ```lean
 {{#example_in Examples/Classes.lean muls}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Classes.lean muls}}
 ```
 
@@ -210,20 +210,20 @@ With these instances, the following examples work:
 ```lean
 {{#example_in Examples/Classes.lean LT4three}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Classes.lean LT4three}}
 ```
 ```lean
 {{#example_in Examples/Classes.lean LT4zero}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Classes.lean LT4zero}}
 ```
 On the other hand, out-of-bounds literals are still not allowed:
 ```lean
 {{#example_in Examples/Classes.lean LT4four}}
 ```
-```lean error
+```output error
 {{#example_out Examples/Classes.lean LT4four}}
 ```
 
@@ -241,7 +241,7 @@ This makes it possible to use natural number literals for positive numbers, but 
 
 {{#example_in Examples/Classes.lean zeroBad}}
 ```
-```lean error
+```output error
 {{#example_out Examples/Classes.lean zeroBad}}
 ```
 

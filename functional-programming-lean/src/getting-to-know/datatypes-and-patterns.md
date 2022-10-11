@@ -102,13 +102,13 @@ If `pred` is a function that finds the predecessor of a `Nat`, then it should be
 ```lean
 {{#example_in Examples/Intro.lean predFive}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean predFive}}
 ```
 ```lean
 {{#example_in Examples/Intro.lean predBig}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean predBig}}
 ```
 Because `Nat` cannot represent negative numbers, `0` is a bit of a conundrum.
@@ -116,7 +116,7 @@ Usually, when working with `Nat`, operators that would ordinarily produce a nega
 ```lean
 {{#example_in Examples/Intro.lean predZero}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Intro.lean predZero}}
 ```
 
@@ -170,7 +170,7 @@ A consequence of this is that Lean will not accept a version of `even` that atte
 {{#example_in Examples/Intro.lean evenLoops}}
 ```
 The important part of the error message is that Lean could not determine that the recursive function always reaches a base case (because it doesn't).
-```lean error
+```output error
 {{#example_out Examples/Intro.lean evenLoops}}
 ```
 
@@ -205,7 +205,7 @@ This program terminates for all inputs, as it always makes progress towards the 
 However, it is not structurally recursive, because it doesn't follow the pattern of finding a result for zero and transforming a result for a smaller `Nat` into a result for its successor.
 In particular, the recursive invocation of the function is applied to the result of another function call, rather than to an input constructor's argument.
 Thus, Lean rejects it with the following message:
-```lean error
+```output error
 {{#example_out Examples/Intro.lean div}}
 ```
 This message means that `div` requires a manual proof of termination.

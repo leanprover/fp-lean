@@ -108,7 +108,7 @@ In particular, the definition:
 {{#example_in Examples/Intro.lean thirtyEight}}
 ```
 results in the following error:
-```lean error
+```output error
 {{#example_out Examples/Intro.lean thirtyEight}}
 ```
 

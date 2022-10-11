@@ -20,13 +20,13 @@ For instance, given the above two instances, the following examples work:
 ```lean
 {{#example_in Examples/Classes.lean posNatEx}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Classes.lean posNatEx}}
 ```
 ```lean
 {{#example_in Examples/Classes.lean natPosEx}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Classes.lean natPosEx}}
 ```
 
@@ -41,7 +41,7 @@ When attempting to use these instances with `#eval`, an error occurs:
 ```lean
 {{#example_in Examples/Classes.lean hPlusOops}}
 ```
-```lean error
+```output error
 {{#example_out Examples/Classes.lean hPlusOops}}
 ```
 This happens because there is a metavariable in the type, and Lean has no way to solve it.
@@ -56,7 +56,7 @@ One solution to the problem is to ensure that all three types are available by a
 ```lean
 {{#example_in Examples/Classes.lean hPlusLotsaTypes}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Classes.lean hPlusLotsaTypes}}
 ```
 However, this solution is not very convenient for users of the positive number library.
@@ -78,7 +78,7 @@ For instance:
 ```lean
 {{#example_in Examples/Classes.lean hPlusWorks}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Classes.lean hPlusWorks}}
 ```
 
@@ -111,7 +111,7 @@ With this instance, `hPlus` can be used for any addable type, like `Nat`:
 ```lean
 {{#example_in Examples/Classes.lean hPlusWorks}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Classes.lean hPlusWorks}}
 ```
 
@@ -121,7 +121,7 @@ For example,
 {{#example_in Examples/Classes.lean plusFiveThree}}
 ```
 yields the type
-```lean info
+```output info
 {{#example_out Examples/Classes.lean plusFiveThree}}
 ```
 as expected, but
@@ -129,7 +129,7 @@ as expected, but
 {{#example_in Examples/Classes.lean plusFiveMeta}}
 ```
 yields a type that contains two metavariables, one for the remaining argument and one for the return type:
-```lean info
+```output info
 {{#example_out Examples/Classes.lean plusFiveMeta}}
 ```
 
@@ -143,7 +143,7 @@ With this default instance, the example has a more useful type:
 {{#example_in Examples/Classes.lean plusFive}}
 ```
 yields
-```lean info
+```output info
 {{#example_out Examples/Classes.lean plusFive}}
 ```
 

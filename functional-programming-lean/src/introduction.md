@@ -52,11 +52,11 @@ Code examples that are provided to Lean as _input_ are formatted like this:
 ```
 The last line above (beginning with `#eval`) is a command that instructs Lean to calculate an answer.
 Lean's replies are formatted like this:
-```lean info
+```output info
 {{#example_out Examples/Intro.lean add1_7}}
 ```
 Error messages returned by Lean are formatted like this:
-```lean error
+```output error
 {{#example_out Examples/Intro.lean add1_string}}
 ```
 

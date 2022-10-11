@@ -15,7 +15,7 @@ Simply writing
 {{#example_in Examples/Classes.lean printlnMetas}}
 ```
 yields a type with metavariables:
-```lean info
+```output info
 {{#example_out Examples/Classes.lean printlnMetas}}
 ```
 This is because Lean does its best to discover implicit arguments, and the presence of metavariables indicates that it did not yet discover enough type information to do so.
@@ -23,7 +23,7 @@ To understand the signature of a function, this feature can be suppressed with a
 ```lean
 {{#example_in Examples/Classes.lean printlnNoMetas}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Classes.lean printlnNoMetas}}
 ```
 In this output, the instance itself has been given the name `inst`.
@@ -42,7 +42,7 @@ This function can be used for a list of `Nat`s:
 
 {{#example_in Examples/Classes.lean fourNatsSum}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Classes.lean fourNatsSum}}
 ```
 but not for a list of `Pos` numbers:
@@ -51,7 +51,7 @@ but not for a list of `Pos` numbers:
 
 {{#example_in Examples/Classes.lean fourPosSum}}
 ```
-```lean error
+```output error
 {{#example_out Examples/Classes.lean fourPosSum}}
 ```
 

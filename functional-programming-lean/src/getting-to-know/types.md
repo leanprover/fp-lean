@@ -71,7 +71,7 @@ When a program can't be given a type, an error is returned from both
 
 outputs
 
-```lean error
+```output error
 {{#example_out Examples/Intro.lean stringAppendList}}
 ```
 

@@ -60,7 +60,7 @@ For example,
 {{#example_in Examples/HelloWorld.lean dropBang}}
 ```
 yields
-```lean info
+```output info
 {{#example_out Examples/HelloWorld.lean dropBang}}
 ```
 and
@@ -68,7 +68,7 @@ and
 {{#example_in Examples/HelloWorld.lean dropNonLetter}}
 ```
 yields
-```lean info
+```output info
 {{#example_out Examples/HelloWorld.lean dropNonLetter}}
 ```
 in which all non-alphanumeric characters have been removed from the right side of the string.
@@ -106,7 +106,7 @@ For instance, executing
 {{#example_in Examples/HelloWorld.lean twiceShy}}
 ```
 results in
-```lean info
+```output info
 {{#example_out Examples/HelloWorld.lean twiceShy}}
 ```
 being printed.
@@ -119,7 +119,7 @@ The function `pure` creates an `IO` action that has no side effects, but returns
 As an action that does nothing and returns nothing interesting, `pure ()` is at the same time utterly boring and very useful.
 In the recursive step, a `do` block is used to create an action that first executes `action` and then executes the result of the recursive call.
 Executing `{{#example_in Examples/HelloWorld.lean nTimes3}}` causes the following output:
-```lean info
+```output info
 {{#example_out Examples/HelloWorld.lean nTimes3}}
 ```
 
@@ -137,7 +137,7 @@ This list contains six elements (one for each number, plus a `"Blast off!"` acti
 ```lean
 {{#example_in Examples/HelloWorld.lean from5length}}
 ```
-```lean info
+```output info
 {{#example_out Examples/HelloWorld.lean from5length}}
 ```
 
@@ -152,7 +152,7 @@ It creates a new action that will run them, and that action must be placed in a 
 {{#example_decl Examples/HelloWorld.lean main}}
 ```
 Running this program results in the following output:
-```lean info
+```output info
 {{#example_out Examples/HelloWorld.lean countdown5}}
 ```
 

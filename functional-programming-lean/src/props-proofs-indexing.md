@@ -13,7 +13,7 @@ However, attempting to extract the fourth element results in a compile-time erro
 ```lean
 {{#example_in Examples/Props.lean outOfBounds}}
 ```
-```lean error
+```output error
 {{#example_out Examples/Props.lean outOfBounds}}
 ```
 This error message is saying Lean tried to automatically mathematically prove that `3 < List.length woodlandCritters`, which would mean that the lookup was safe, but that it could not do so.
@@ -66,7 +66,7 @@ On the other hand, `rfl` does not prove the false proposition "1 + 1 = 15":
 ```lean
 {{#example_in Examples/Props.lean onePlusOneIsFifteen}}
 ```
-```lean error
+```output error
 {{#example_out Examples/Props.lean onePlusOneIsFifteen}}
 ```
 This error message indicates that `rfl` can prove that two expressions are equal when both sides of the equality statement are already the same number.
@@ -163,7 +163,7 @@ For instance, a function that returns the third entry in a list is not generally
 ```lean
 {{#example_in Examples/Props.lean thirdErr}}
 ```
-```lean error
+```output error
 {{#example_out Examples/Props.lean thirdErr}}
 ```
 However, the obligation to show that the list has at least three entries can be imposed on the caller by adding an argument that consists of evidence that the indexing operation is safe:
@@ -175,7 +175,7 @@ In these cases, `by simp` can construct the evidence automatically:
 ```lean
 {{#example_in Examples/Props.lean thirdCritters}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Props.lean thirdCritters}}
 ```
 
@@ -189,13 +189,13 @@ For example:
 
 {{#example_in Examples/Props.lean thirdOptionCritters}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Props.lean thirdOptionCritters}}
 ```
 ```lean
 {{#example_in Examples/Props.lean thirdOptionTwo}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Props.lean thirdOptionTwo}}
 ```
 
@@ -203,7 +203,7 @@ There is also a version that crashes the program when the index is out of bounds
 ```lean
 {{#example_in Examples/Props.lean crittersBang}}
 ```
-```lean info
+```output info
 {{#example_out Examples/Props.lean crittersBang}}
 ```
 
@@ -213,7 +213,7 @@ In addition to the error that occurs when Lean is unable to find compile-time ev
 ```lean
 {{#example_in Examples/Props.lean unsafeThird}}
 ```
-```lean error
+```output error
 {{#example_out Examples/Props.lean unsafeThird}}
 ```
 This is due to a technical restriction that is part of keeping Lean usable as both a logic for proving theorems and a programming language.
@@ -230,7 +230,7 @@ Adding whitespace between a list and the brackets used for lookup can cause anot
 ```lean
 {{#example_in Examples/Props.lean extraSpace}}
 ```
-```lean error
+```output error
 {{#example_out Examples/Props.lean extraSpace}}
 ```
 Adding a space causes Lean to treat the expression as a function application, and the index as a list that contains a single number.

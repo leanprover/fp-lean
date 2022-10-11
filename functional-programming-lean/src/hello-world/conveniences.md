@@ -50,7 +50,7 @@ A program that prints `0` when number A is five, or number `B` otherwise, can be
 However, this program probably has more side effects (such as prompting for user input or reading a database) than was intended.
 The definition of `getNumA` makes it clear that it will always return `5`, and thus the program should not read number B.
 However, running the program results in the following output:
-```lean info
+```output info
 {{#example_out Examples/Cat.lean runTest}}
 ```
 `getNumB` was executed because `test` is equivalent to this definition:
@@ -92,7 +92,7 @@ This means that, given the prior definitions of `countdown` and `runActions`,
 {{#example_in Examples/HelloWorld.lean evalDoesIO}}
 ```
 displays
-```lean info
+```output info
 {{#example_out Examples/HelloWorld.lean evalDoesIO}}
 ```
 This is the output produced by running the `IO` action, rather than some opaque representation of the action itself.
