@@ -1,6 +1,12 @@
 code.info:before {
-  content: "🛈 ";
+  content: "\f05a";
+  font-family: "FontAwesome";
   font-style: normal;
+  font-size: 12pt;
+  margin-left: -30px;
+  display: block;
+  position: absolute;
+  color: #718c00
 }
 
 code.info {
@@ -9,8 +15,14 @@ code.info {
 
 
 code.error:before {
-  content: "⚠ ";
+  content: "\f071";
+  font-family: "FontAwesome";
   font-style: normal;
+  font-size: 12pt;
+  margin-left: -30px;
+  display: block;
+  position: absolute;
+  color: #ff0000;
 }
 
 code.error {

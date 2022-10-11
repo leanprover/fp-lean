@@ -13,7 +13,7 @@ compute. Types serve a number of roles in a program:
  3. They prevent various potential mistakes, such as adding a number
     to a string, and thus reduce the number of tests that are
     necessary for a program.
-    
+
  4. They help the Lean compiler automate the production of auxiliary code that can save boilerplate.
 
 Lean's type system is unusually expressive.
@@ -27,7 +27,7 @@ examples so far, Lean has been able to discover a type on its own, but
 it is sometimes necessary to provide one. This is done using the colon
 operator:
 
-```Lean
+```lean
 #eval {{#example_in Examples/Intro.lean onePlusTwoType}}
 ```
 
@@ -39,7 +39,7 @@ In C, unsigned integers underflow to the largest representable numbers when subt
 Thus, subtraction on `Nat` returns `0` when the answer would have otherwise been negative.
 For instance,
 
-```Lean
+```lean
 #eval {{#example_in Examples/Intro.lean oneMinusTwo}}
 ```
 
@@ -47,7 +47,7 @@ evaluates to `{{#example_out Examples/Intro.lean oneMinusTwo}}` rather
 than `-1`. To use a type that can represent the negative integers,
 provide a it directly:
 
-```Lean
+```lean
 #eval {{#example_in Examples/Intro.lean oneMinusTwoInt}}
 ```
 
@@ -56,7 +56,7 @@ With this type, the result is `{{#example_out Examples/Intro.lean oneMinusTwoInt
 To check the type of an expression without evaluating it, use `#check`
 instead of `#eval`. For instance:
 
-```Lean
+```lean
 {{#example_in Examples/Intro.lean oneMinusTwoIntType}}
 ```
 
@@ -65,16 +65,15 @@ reports `{{#example_out Examples/Intro.lean oneMinusTwoIntType}}` without actual
 When a program can't be given a type, an error is returned from both
 `#check` and `#eval`. For instance:
 
-```Lean
+```lean
 {{#example_in Examples/Intro.lean stringAppendList}}
 ```
 
 outputs
 
-```Lean error
+```lean error
 {{#example_out Examples/Intro.lean stringAppendList}}
 ```
 
 because the second argument to ``String.append`` is expected to be a
 string, but a list of strings was provided instead.
-

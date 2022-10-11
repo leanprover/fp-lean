@@ -2,7 +2,7 @@
 
 In Lean, definitions are introduced using the `def` keyword. For instance, to define the name `{{#example_in Examples/Intro.lean helloNameVal}}` to refer to the string `{{#example_out Examples/Intro.lean helloNameVal}}`, write:
 
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean hello}}
 ```
 
@@ -15,7 +15,7 @@ In the definition of `{{#example_in Examples/Intro.lean helloNameVal}}`, the exp
 However, most definitions are not so simple, so it will usually be necessary to add a type.
 This is done using a colon after the name being defined.
 
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean lean}}
 ```
 
@@ -38,28 +38,28 @@ Nonetheless, definitions such as `hello` introduce names that refer _directly_ t
 
 There are a variety of ways to define functions in Lean. The simplest is to place the function's arguments before the definition's type, separated by spaces. For instance, a function that adds one to its argument can be written:
 
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean add1}}
 ```
 
 Testing this function with `#eval` gives `{{#example_out Examples/Intro.lean add1_7}}`, as expected:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean add1_7}}
 ```
 
 
 Just as functions are applied to multiple arguments just by writing spaces between each argument, functions that accept multiple arguments are defined with spaces between the arguments' names and types. The function `maximum`, whose result is equal to the greatest of its two arguments, takes two `Nat` arguments `n` and `k` and returns a `Nat`.
 
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean maximum}}
 ```
 
 When a defined function like `maximum` has been provided with its arguments, the result is determined by first replacing the argument names with the provided values in the body, and then evaluating the resulting body. For example:
-```Lean
+```lean
 {{#example_eval Examples/Intro.lean maximum_eval}}
 ```
 
-Expressions that evaluate to natural numbers, integers, and strings have types that say this (`Nat`, `Int`, and `String`, respectively). This is also true of functions. A function that accepts a `Nat` and returns a `Bool` has type `Nat → Bool`, and a function that accepts two `Nat`s and returns a `Nat` has type `Nat → Nat → Nat`. 
+Expressions that evaluate to natural numbers, integers, and strings have types that say this (`Nat`, `Int`, and `String`, respectively). This is also true of functions. A function that accepts a `Nat` and returns a `Bool` has type `Nat → Bool`, and a function that accepts two `Nat`s and returns a `Nat` has type `Nat → Nat → Nat`.
 Entering `{{#example_in Examples/Intro.lean add1type}}` yields `{{#example_out Examples/Intro.lean add1type}}` and `{{#example_in Examples/Intro.lean maximumType}}` yields `{{#example_out Examples/Intro.lean maximumType}}`.
 This arrow can also be written with an ASCII alternative arrow `->`, so the preceding function types can be written `Nat -> Bool` and `Nat -> Nat -> Nat`, respectively.
 
@@ -83,11 +83,11 @@ In Lean, however, types are a first-class part of the language - they are expres
 This means that definitions can refer to types just as well as they can refer to other values.
 
 For instance, if ``String`` is too much to type, a shorter abbreviation ``Str`` can be defined:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean StringTypeDef}}
 ```
 It is then possible to use ``Str`` as a definition's type instead of ``String``:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean aStr}}
 ```
 
@@ -99,16 +99,16 @@ Because ``Str`` has been defined to mean ``String``, the definition of ``aStr`` 
 
 Experimenting with using definitions for types is made more complicated by a feature of Lean that has not yet been introduced.
 If ``Nat`` is too short, a longer name ``NaturalNumber`` can be defined:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean NaturalNumberTypeDef}}
 ```
 However, using ``NaturalNumber`` as a definition's type instead of ``Nat`` does not have the expected effect.
 In particular, the definition:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean thirtyEight}}
 ```
 results in the following error:
-```Lean error
+```lean error
 {{#example_out Examples/Intro.lean thirtyEight}}
 ```
 
@@ -118,7 +118,7 @@ This is part of Lean's mission of making it convenient to represent mathematics,
 The specific feature that allows this overloading does not replace all defined names with their definitions before looking for overloading, which is what leads to the error message above.
 
 One way to work around this limitation is by providing the type `Nat` on the right-hand side of the definition, causing `Nat`'s overloading rules to be used for `38`:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean thirtyEightFixed}}
 ```
 The definition is still type-correct because `{{#example_eval Examples/Intro.lean NaturalNumberDef 0}}` is the same type as `{{#example_eval Examples/Intro.lean NaturalNumberDef 1}}`—by definition!
@@ -129,11 +129,11 @@ This requires more advanced features of Lean, however.
 Finally, defining the new name for `Nat` using `abbrev` instead of `def` allows overloading resolution to replace the defined name with its definition.
 Definitions written using `abbrev` are always unfolded.
 For instance,
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean NTypeDef}}
 ```
 and
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean thirtyNine}}
 ```
 are accepted without issue.
@@ -142,5 +142,3 @@ Behind the scenes, some definitions are internally marked as being unfoldable du
 Definitions that are to be unfolded are called _reducible_.
 Control over reducibility is essential to allow Lean to scale: fully unfolding all definitions can result in very large types that are slow for a machine to process and difficult for users to understand.
 Definitions produced with `abbrev` are marked as reducible.
-
-

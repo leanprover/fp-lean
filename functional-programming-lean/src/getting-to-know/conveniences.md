@@ -8,11 +8,11 @@ When writing polymorphic functions in Lean, it is typically not necessary to lis
 Instead, they can simply be mentioned.
 If Lean can determine their type, then they are automatically inserted as implicit arguments.
 In other words, the previous definition of `length`:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean lengthImp}}
 ```
 can be written without `{α : Type}`:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean lengthImpAuto}}
 ```
 This can greatly simplify highly polymorphic definitions that take many implicit arguments.
@@ -26,33 +26,33 @@ In these situations, the cases of the `match` expression can be written directly
 The first step is to move the arguments' types to the right of the definition's type, in the form of a function type.
 For instance, the type of `length` is `List α → Nat`.
 Then, replace the `:=` with each case of the pattern match:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean lengthMatchDef}}
 ```
 
 This syntax can also be used to define functions that take more than one argument.
 In this case, their patterns are separated by commas.
 For instance, `drop` takes a number _n_ and a list, and returns the list after removing the first _n_ entries.
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean drop}}
 ```
 
 Named arguments and patterns can also be used in the same definition.
 For instance, a function that takes a default value and an optional value, and returns the default when the optional value is `none`, can be written:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean fromOption}}
 ```
 This function is called `Option.getD` in the standard library, and can be called with dot notation:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean getD}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean getD}}
 ```
-```Lean
+```lean
 {{#example_in Examples/Intro.lean getDNone}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean getDNone}}
 ```
 
@@ -67,7 +67,7 @@ For instance, `unzip` is a function that transforms a list of pairs into a pair 
 When the list of pairs is empty, then the result of `unzip` is a pair of empty lists.
 When the list of pairs has a pair at its head, then the two fields of the pair are added to the result of unzipping the rest of the list.
 This definition of `unzip` follows that description exactly:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean unzipBad}}
 ```
 Unfortunately, there is a problem: this code is slower than it needs to be.
@@ -79,7 +79,7 @@ In Lean, the result of the recursive call can be named, and thus saved, using `l
 Local definitions with `let` resemble top-level definitions with `def`: it takes a name to be locally defined, arguments if desired, a type signature, and then a body following `:=`.
 After the local definition, the expression in which the local definition is available (called the _body_ of the `let`-expression) must be on a new line, starting at a column in the file that is less than or equal to that of the `let` keyword.
 For instance, `let` can be used in `unzip` like this:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean unzip}}
 ```
 To use `let` on a single line, separate the local definition from the body with a semicolon.
@@ -87,14 +87,14 @@ To use `let` on a single line, separate the local definition from the body with 
 Local definitions with `let` may also use pattern matching when one pattern is enough to match all cases of a datatype.
 In the case of `unzip`, the result of the recursive call is a pair.
 Because pairs have only a single constructor, the name `unzipped` can be replaced with a pair pattern:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean unzipPat}}
 ```
 Judicious use of patterns with `let` can make code easier to read, compared to writing the accessor calls by hand.
 
 The biggest difference between `let` and `def` is that recursive `let` definitions must be explicitly indicated by writing `let rec`.
 For instance, one way to reverse a list involves a recursive helper function, as in this definition:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean reverse}}
 ```
 The helper function walks down the input list, moving one entry at a time over to `soFar`.
@@ -106,7 +106,7 @@ When it reaches the end of the input list, `soFar` contains a reversed version o
 In many situations, Lean can automatically determine an expression's type.
 In these cases, explicit types may be omitted from both top-level definitions (with `def`) and local definitions (with `let`).
 For instance, the recursive call to `unzip` does not need an annotation:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean unzipNT}}
 ```
 
@@ -116,7 +116,7 @@ Omitting return types for function definitions will often work, but function arg
 Definitions that are not functions, like `unzipped` in the example, do not need type annotations if their bodies do not need type annotations, and the body of this definition is a function application.
 
 Omitting the return type for `unzip` is possible when using an explicit `match` expression:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean unzipNRT}}
 ```
 
@@ -133,26 +133,26 @@ Finally, Lean's type inference is a best-effort system.
 Because Lean's type system is so expressive, there is no "best" or most general type to find for all expressions.
 This means that even if you get a type, there's no guarantee that it's the _right_ type for a given application.
 For instance, `14` can be a `Nat` or an `Int`:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean fourteenNat}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean fourteenNat}}
 ```
-```Lean
+```lean
 {{#example_in Examples/Intro.lean fourteenInt}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean fourteenInt}}
 ```
 
 Missing type annotations can give confusing error messages.
 Omitting all types from the definition of `unzip`:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean unzipNoTypesAtAll}}
 ```
 leads to a message about the `match` expression:
-```Lean error
+```lean error
 {{#example_out Examples/Intro.lean unzipNoTypesAtAll}}
 ```
 This is because `match` needs to know the type of the value being inspected, but that type was not available.
@@ -162,18 +162,18 @@ In this program, the type annotation on the argument is required.
 Even some very simple programs require type annotations.
 For instance, the identity function just returns whatever argument it is passed.
 With argument and type annotations, it looks like this:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean idA}}
 ```
 Lean is capable of determining the return type on its own:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean idB}}
 ```
 Omitting the argument type, however, causes an error:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean identNoTypes}}
 ```
-```Lean error
+```lean error
 {{#example_out Examples/Intro.lean identNoTypes}}
 ```
 
@@ -185,30 +185,30 @@ Especially while still learning Lean, it is useful to provide most types explici
 Pattern-matching expressions, just like pattern-matching definitions, can match on multiple values at once.
 Both the expressions to be inspected and the patterns that they match against are written with commas between them, similarly to the syntax used for definitions.
 Here is a version of `drop` that uses simultaneous matching:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean dropMatch}}
 ```
 
 ## Natural Number Patterns
 
 In the section on [datatypes and patterns](datatypes-and-patterns.md), `even` was defined like this:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean even}}
 ```
 Just as there is special syntax to make list patterns more readable than using `List.cons` and `List.nil` directly, natural numbers can be matched using literal numbers and `+`.
 For instance, `even` can also be defined like this:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean evenFancy}}
 ```
 
 In this notation, the arguments to the `+` pattern serve different roles.
 Behind the scenes, the left argument (`n` above) becomes an argument to some number of `Nat.succ` patterns, and the right argument (`1` above) determines how many `Nat.succ`s to wrap around the pattern.
 The explicit patterns in `halve`, which divides a `Nat` by two and drops the remainder:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean explicitHalve}}
 ```
 can be replaced by numeric literals and `+`:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean halve}}
 ```
 Behind the scenes, both definitions are completely equivalent.
@@ -216,10 +216,10 @@ Remember: `halve n + 1` is equivalent to `(halve n) + 1`, not `halve (n + 1)`.
 
 When using this syntax, the second argument to `+` should always be a literal `Nat`.
 Even though addition is commutative, flipping the arguments in a pattern can result in errors like the following:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean halveFlippedPat}}
 ```
-```Lean error
+```lean error
 {{#example_out Examples/Intro.lean halveFlippedPat}}
 ```
 This restriction enables Lean to transform all uses of the `+` notation in a pattern into uses of the underlying `Nat.succ`, keeping the language simpler behind the scenes.
@@ -230,24 +230,24 @@ Functions in Lean need not be defined at the top level.
 As expressions, functions are produced with the `fun` syntax.
 Function expressions begin with the keyword `fun`, followed by one or more arguments, which are separated from the return expression using `=>`.
 For instance, a function that adds one to a number can be written:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean incr}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean incr}}
 ```
 Type annotations are written the same way as on `def`, using parentheses and colons:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean incrInt}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean incrInt}}
 ```
 Similarly, implicit arguments may be written with curly braces:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean identLambda}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean identLambda}}
 ```
 This style of anonymous function expression is often referred to as a _lambda expression_, because the typical notation used in mathematical descriptions of programming languages uses the Greek letter λ (lambda) where Lean has the keyword `fun`.
@@ -255,10 +255,10 @@ Even though Lean does permit `λ` to be used instead of `fun`, it is most common
 
 Anonymous functions also support the multiple-pattern style used in `def`.
 For instance, a function that returns the predecessor of a natural number if it exists can be written:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean predHuh}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean predHuh}}
 ```
 Note that Lean's own description of the function has a named argument and a `match` expression.
@@ -266,7 +266,7 @@ Many of Lean's convenient syntactic shorthands are expanded to simpler syntax be
 
 Definitions using `def` that take arguments may be rewritten as function expressions.
 For instance, a function that doubles its argument can be written as follows:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean doubleLambda}}
 ```
 
@@ -280,17 +280,17 @@ Type the centered dot using `\cdot`.
 The centered dot always creates a function out of the _closest_ surrounding set of parentheses.
 For instance, `{{#example_eval Examples/Intro.lean funPair 0}}` is a function that returns a pair of numbers, while `{{#example_eval Examples/Intro.lean pairFun 0}}` is a pair of a function and a number.
 If multiple dots are used, then they become arguments from left to right:
-```Lean
+```lean
 {{#example_eval Examples/Intro.lean twoDots}}
 ```
 
 Anonymous functions can be applied in precisely the same way as functions defined using `def` or `let`.
 The command `{{#example_in Examples/Intro.lean applyLambda}}` results in:
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean applyLambda}}
 ```
 while `{{#example_in Examples/Intro.lean applyCdot}}` results in:
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean applyCdot}}
 ```
 
@@ -304,49 +304,49 @@ Namespaces may be nested, so `Project.Frontend.User.loginTime` is the name `logi
 
 Names can be directly defined within a namespace.
 For instance, the name `double` can be defined in the `Nat` namespace:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean NatDouble}}
 ```
 Because `Nat` is also the name of a type, dot notation is available to call `Nat.double` on expressions with type `Nat`:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean NatDoubleFour}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean NatDoubleFour}}
 ```
 
 In addition to defining names directly in a namespace, a sequence of declarations can be placed in a namespace using the `namespace` and `end` commands.
 For instance, this defines `triple` and `quadruple` in the namespace `NewNamespace`:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean NewNamespace}}
 ```
 To refer to them, prefix their names with `NewNamespace.`:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean tripleNamespace}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean tripleNamespace}}
 ```
-```Lean
+```lean
 {{#example_in Examples/Intro.lean quadrupleNamespace}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean quadrupleNamespace}}
 ```
 
 Namespaces may be _opened_, which allows the names in them to be used without explicit qualification.
 Writing `open MyNamespace in` before an expression causes the contents of `MyNamespace` to be available in the expression.
 For example, `timesTwelve` uses both `quadruple` and `triple` after opening `NewNamespace`:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean quadrupleOpenDef}}
 ```
 Namespaces can also be opened prior to a command.
 This allows all parts of the command to refer to the contents of the namespace, rather than just a single expression.
 To do this, place the `open ... in` prior to the command.
-```Lean
+```lean
 {{#example_in Examples/Intro.lean quadrupleNamespaceOpen}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean quadrupleNamespaceOpen}}
 ```
 Finally, namespaces may be opened for _all_ following commands for the rest of the file.
@@ -356,15 +356,15 @@ To do this, simply omit the `in` from a top-level usage of `open`.
 
 When consuming values that have a sum type, it is often the case that only a single constructor is of interest.
 For instance, given this type that represents a subset of Markdown inline elements:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean Inline}}
 ```
 a function that recognizes string elements and extracts their contents can be written:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean inlineStringHuhMatch}}
 ```
 An alternative way of writing this function's body uses `if` together with `let`:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean inlineStringHuh}}
 ```
 This is very much like the pattern-matching `let` syntax.
@@ -387,12 +387,12 @@ They can be input using `\<` and `\>`, respectively.
 
 Just as with the brace notation for named constructor arguments, this positional syntax can only be used in a context where Lean can determine the structure's type, either from a type annotation or from other type information in the program.
 For instance, `{{#example_in Examples/Intro.lean pointPosEvalNoType}}` yields the following error:
-```Lean error
+```lean error
 {{#example_out Examples/Intro.lean pointPosEvalNoType}}
 ```
 The metavariable in the error is because there is no type information available.
 Adding an annotation, such as in `{{#example_in Examples/Intro.lean pointPosWithType}}`, solves the problem:
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean pointPosWithType}}
 ```
 
@@ -402,21 +402,21 @@ Adding an annotation, such as in `{{#example_in Examples/Intro.lean pointPosWith
 In Lean, prefixing a string with `s!` triggers _interpolation_, where expressions contained in curly braces inside the string are replaced with their values.
 This is similar to `f`-strings in Python and `$`-prefixed strings in C#.
 For instance,
-```Lean
+```lean
 {{#example_in Examples/Intro.lean interpolation}}
 ```
 yields the output
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean interpolation}}
 ```
 
 Not all expressions can be interpolated into a string.
 For instance, attempting to interpolate a function results in an error.
-```Lean
+```lean
 {{#example_in Examples/Intro.lean interpolationOops}}
 ```
 yields the output
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean interpolationOops}}
 ```
 This is because there is no standard way to convert functions into strings.

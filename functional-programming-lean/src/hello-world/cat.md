@@ -9,11 +9,11 @@ A non-zero exit code is returned if any of the input files do not exist.
 This section describes a simplified version of `cat`, called `feline`.
 Unlike commonly-used versions of `cat`, `feline` has no command-line options for features such as numbering lines, indicating non-printing characters, or displaying help text.
 Furthermore, it cannot read more than once from a standard input that's associated with a terminal device.
- 
+
 To get the most benefit from this section, follow along yourself.
 It's OK to copy-paste the code examples, but it's even better to type them in by hand.
 This makes it easier to learn the mechanical process of typing in code, recovering from mistakes, and interpreting feedback from the compiler.
- 
+
 ## Getting started
 
 The first step in implementing `feline` is to create a package and decide how to organize the code.
@@ -44,14 +44,14 @@ Instead, it's better to read contiguous blocks of data all at once, directing th
 The first step is to decide how big of a block to read.
 For the sake of simplicity, this implementation uses a conservative 20 kilobyte block.
 `USize` is analogous to `size_t` in C—it's an unsigned integer type that is big enough to represent all valid array sizes.
-```Lean
+```lean
 {{#include ../../../examples/feline/2/Main.lean:bufsize}}
 ```
 
 ### Streams
 
 The main work of `feline` is done by `dump`, which reads input one block at a time, dumping the result to standard output, until the end of the input has been reached:
-```Lean
+```lean
 {{#include ../../../examples/feline/2/Main.lean:dump}}
 ```
 The `dump` function is declared `partial`, because it calls itself recursively on input that is not immediately smaller than an argument.
@@ -63,7 +63,7 @@ In cases like this, there is no alternative to declaring the function `partial`.
 The type `IO.FS.Stream` represents a POSIX stream.
 Behind the scenes, it is represented as a structure that has one field for each POSIX stream operation.
 Each operation is represented as an IO action that provides the corresponding operation:
-```Lean
+```lean
 {{#example_decl Examples/Cat.lean Stream}}
 ```
 The Lean compiler contains `IO` actions (such as `IO.getStdout`, which is called in `dump`) to get streams that represent standard input, standard output, and standard error.
@@ -86,7 +86,7 @@ If `feline` only redirected standard input to standard output, then `dump` would
 However, it also needs to be able to open files that are provided as command-line arguments and emit their contents.
 When its argument is the name of a file that exists, `fileStream` returns a stream that reads the file's contents.
 When the argument is not a file, `fileStream` emits an error and returns `none`.
-```Lean
+```lean
 {{#include ../../../examples/feline/2/Main.lean:fileStream}}
 ```
 Opening a file as a stream takes two steps.
@@ -100,7 +100,7 @@ Second, the file handle is given the same interface as a POSIX stream using `IO.
 The main loop of `feline` is another tail-recursive function, called `process`.
 In order to return a non-zero exit code if any of the inputs could not be read, `process` takes an argument `exitCode` that represents the current exit code for the whole program.
 Additionally, it takes a list of input files to be processed.
-```Lean
+```lean
 {{#include ../../../examples/feline/2/Main.lean:process}}
 ```
 Just as with `if`, each branch of a `match` that is used as a statement in a `do` is implicitly provided with its own `do`.
@@ -129,7 +129,7 @@ In Lean, `main` can have one of three types:
 
 If no arguments were provided, `feline` should read from standard input as if it were called with a single `"-"` argument.
 Otherwise, the arguments should be processed one after the other.
-```Lean
+```lean
 {{#include ../../../examples/feline/2/Main.lean:main}}
 ```
 

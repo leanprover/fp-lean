@@ -2,14 +2,14 @@
 
 A `do` block can be executed one line at a time.
 Start with the program from the prior section:
-```Lean
+```lean
 {{#include ../../../examples/hello-name/HelloName.lean:block1}}
 ```
 
 ## Standard IO
 
 The first line is `{{#include ../../../examples/hello-name/HelloName.lean:line1}}`, while the remainder is:
-```Lean
+```lean
 {{#include ../../../examples/hello-name/HelloName.lean:block2}}
 ```
 To execute a `let` statement that uses a `←`, start by evaluating the expression to the right of the arrow (in this case, `IO.getStdIn`).
@@ -26,7 +26,7 @@ Finally, this value is associated with the name `stdout` for the remainder of th
 ## Asking a Question
 
 Now that `stdin` and `stdout` have been found, the remainder of the block consists of a question and an answer:
-```Lean
+```lean
 {{#include ../../../examples/hello-name/HelloName.lean:block3}}
 ```
 
@@ -47,7 +47,7 @@ This `IO` action is executed, and the program waits until the user has typed a c
 Assume the user writes "`David`".
 The resulting line (`"David\n"`) is associated with `input`, where the escape sequence `\n` denotes the newline character.
 
-```Lean
+```lean
 {{#include ../../../examples/hello-name/HelloName.lean:block5}}
 ```
 
@@ -56,19 +56,19 @@ Unlike the other `let` statements in this program, it uses `:=` instead of `←`
 This means that the expression will be evaluated, but the resulting value need not be an `IO` action and will not be executed.
 In this case, `String.dropRightWhile` takes a string and a predicate over characters and returns a new string from which all the characters at the end of the string that satisfy the predicate have been removed.
 For example,
-```Lean
+```lean
 {{#example_in Examples/HelloWorld.lean dropBang}}
 ```
 yields
-```Lean info
+```lean info
 {{#example_out Examples/HelloWorld.lean dropBang}}
 ```
 and
-```Lean
+```lean
 {{#example_in Examples/HelloWorld.lean dropNonLetter}}
 ```
 yields
-```Lean info
+```lean info
 {{#example_out Examples/HelloWorld.lean dropNonLetter}}
 ```
 in which all non-alphanumeric characters have been removed from the right side of the string.
@@ -78,7 +78,7 @@ In the current line of the program, whitespace characters (including the newline
 ## Greeting the User
 
 All that remains to be executed in the `do` block is a single statement:
-```Lean
+```lean
 {{#include ../../../examples/hello-name/HelloName.lean:line6}}
 ```
 The string argument to `putStrLn` is constructed via string interpolation, yielding the string `"Hello, David!"`.
@@ -98,20 +98,20 @@ Secondly, not all `IO` actions need be executed at the time that they come into 
 The ability to mention an action without carrying it out allows ordinary functions to be used as control structures.
 
 For instance, the function `twice` takes an `IO` action as its argument, returning a new action that will execute the first one twice.
-```Lean
+```lean
 {{#example_decl Examples/HelloWorld.lean twice}}
 ```
 For instance, executing
-```Lean
+```lean
 {{#example_in Examples/HelloWorld.lean twiceShy}}
 ```
 results in
-```Lean info
+```lean info
 {{#example_out Examples/HelloWorld.lean twiceShy}}
 ```
 being printed.
 This can be generalized to a version that runs the underlying action any number of times:
-```Lean
+```lean
 {{#example_decl Examples/HelloWorld.lean nTimes}}
 ```
 In the base case for `Nat.zero`, the result is `pure ()`.
@@ -119,46 +119,46 @@ The function `pure` creates an `IO` action that has no side effects, but returns
 As an action that does nothing and returns nothing interesting, `pure ()` is at the same time utterly boring and very useful.
 In the recursive step, a `do` block is used to create an action that first executes `action` and then executes the result of the recursive call.
 Executing `{{#example_in Examples/HelloWorld.lean nTimes3}}` causes the following output:
-```Lean info
+```lean info
 {{#example_out Examples/HelloWorld.lean nTimes3}}
 ```
 
 In addition to using functions as control structures, the fact that `IO` actions are first-class values means that they can be saved in data structures for later execution.
 For instance, the function `countdown` takes a `Nat` and returns a list of unexecuted `IO` actions, one for each `Nat`:
-```Lean
+```lean
 {{#example_decl Examples/HelloWorld.lean countdown}}
 ```
 This function has no side effects, and does not print anything.
 For example, it can be applied to an argument, and the length of the resulting list of actions can be checked:
-```Lean
+```lean
 {{#example_decl Examples/HelloWorld.lean from5}}
 ```
 This list contains six elements (one for each number, plus a `"Blast off!"` action for zero):
-```Lean
+```lean
 {{#example_in Examples/HelloWorld.lean from5length}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/HelloWorld.lean from5length}}
 ```
 
 The function `runActions` takes a list of actions and constructs a single action that runs them all in order:
-```Lean
+```lean
 {{#example_decl Examples/HelloWorld.lean runActions}}
 ```
 Its structure is essentially the same as that of `nTimes`, except instead of having one action that is executed for each `Nat.succ`, the action under each `List.cons` is to be executed.
 Similarly, `runActions` does not itself run the actions.
 It creates a new action that will run them, and that action must be placed in a position where it will be executed as a part of `main`:
-```Lean
+```lean
 {{#example_decl Examples/HelloWorld.lean main}}
 ```
 Running this program results in the following output:
-```Lean info
+```lean info
 {{#example_out Examples/HelloWorld.lean countdown5}}
 ```
 
 What happens when this program is run?
 The first step is to evaluate `main`. That occurs as follows:
-```Lean
+```lean
 {{#example_eval Examples/HelloWorld.lean evalMain}}
 ```
 The resulting `IO` action is a `do` block.
@@ -168,7 +168,7 @@ The final step, `pure ()`, does not have any effects, and it is only present bec
 ## Exercise
 
 Step through the execution of the following program on a piece of paper:
-```Lean
+```lean
 {{#example_decl Examples/HelloWorld.lean ExMain}}
 ```
 While stepping through the program's execution, identify when an expression is being evaluated and when an `IO` action is being executed.

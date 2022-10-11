@@ -24,11 +24,11 @@ Typically, the majority of the application logic will be in a collection of libr
 To create a project in an already-existing directory, run `lake init` instead of `lake new`.
 
 By default, the library file `Greeting.lean` contains a single definition:
-```Lean
+```lean
 {{#file_contents {lake} {first-lake/greeting/Greeting.lean} {first-lake/expected/Greeting.lean}}}
 ```
 while the executable source `Main.lean` contains:
-```Lean
+```lean
 {{#file_contents {lake} {first-lake/greeting/Main.lean} {first-lake/expected/Main.lean}}}
 ```
 The `import` line makes the contents of `Greeting.lean` available in `Main.lean`.
@@ -43,7 +43,7 @@ A `lakefile.lean` describes a _package_, which is a coherent collection of Lean 
 A package may contain any number of libraries or executables.
 While the [documentation for Lake](https://github.com/leanprover/lake#readme) describes the available options in a lakefile, it makes use of a number of Lean features that have not yet been described here.
 The generated `lakefile.lean` contains the following:
-```
+```lean
 {{#file_contents {lake} {first-lake/greeting/lakefile.lean} {first-lake/expected/lakefile.lean}}}
 ```
 
@@ -51,7 +51,7 @@ This initial Lakefile consists of three items:
  * a _package_ declaration, named `greeting`,
  * a _library_ declaration, named `Greeting`, and
  * an _executable_, also named `greeting`.
- 
+
 Each Lakefile will contain exactly one package, but any number of libraries or executables.
 Additionally, Lakefiles may contain _external libraries_, which are libraries not written in Lean to be statically linked with the resulting executable, _custom targets_, which are build targets that don't fit naturally into the library/executable taxonomy, _dependencies_, which are declarations of other Lean packages (either locally or from remote Git repositories), and _scripts_, which are essentially `IO` actions (similar to `main`), but that additionally have access to metadata about the package configuration.
 The items in the Lakefile allow things like source file locations, module hierarchies, and compiler flags to be configured.
@@ -74,11 +74,11 @@ The first line of `Main.lean`, which is `import Greeting`, makes the contents of
 Additional module files may be added to the library by creating a directory called `Greeting` and placing them inside.
 These names can be imported by replacing the directory separator with a dot.
 For instance, creating the file `Greeting/Smile.lean` with the contents:
-```Lean
+```lean
 {{#file_contents {lake} {second-lake/greeting/Greeting/Smile.lean}}}
 ```
 means that `Main.lean` can use the definition as follows:
-```Lean
+```lean
 {{#file_contents {lake} {second-lake/greeting/Main.lean}}}
 ```
 
@@ -89,4 +89,3 @@ Modules may place names into any namespace they like, and the code that imports 
 `import` is used to make the contents of a source file available, while `open` makes names from a namespace available in the current context.
 In the Lakefile, the line `import Lake` makes the contents of the `Lake` module available, while the line `open Lake DSL` makes the contents of the `Lake` and `DSL` namespaces available without any prefixes.
 The `Lake` module places names into both the `Lake` and `DSL` namespaces.
-

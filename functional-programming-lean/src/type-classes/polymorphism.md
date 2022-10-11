@@ -11,19 +11,19 @@ It returns an `IO` action.
 
 Checking the type of a function that takes implicit arguments or uses type classes requires the use of some additional syntax.
 Simply writing
-```Lean
+```lean
 {{#example_in Examples/Classes.lean printlnMetas}}
 ```
 yields a type with metavariables:
-```Lean info
+```lean info
 {{#example_out Examples/Classes.lean printlnMetas}}
 ```
 This is because Lean does its best to discover implicit arguments, and the presence of metavariables indicates that it did not yet discover enough type information to do so.
 To understand the signature of a function, this feature can be suppressed with an at-sign (`@`) before the function's name:
-```Lean
+```lean
 {{#example_in Examples/Classes.lean printlnNoMetas}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Classes.lean printlnNoMetas}}
 ```
 In this output, the instance itself has been given the name `inst`.
@@ -33,25 +33,25 @@ For now, ignore these parameters to `Type`.
 ## Defining Polymorphic Functions with Instance Implicits
 
 A function that sums all entries in a list needs two instances: `Add` allows the entries to be added, and an `OfNat` instance for `0` provides a sensible value to return for the empty list:
-```Lean
+```lean
 {{#example_decl Examples/Classes.lean ListSum}}
 ```
 This function can be used for a list of `Nat`s:
-```Lean
+```lean
 {{#example_decl Examples/Classes.lean fourNats}}
 
 {{#example_in Examples/Classes.lean fourNatsSum}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Classes.lean fourNatsSum}}
 ```
 but not for a list of `Pos` numbers:
-```Lean
+```lean
 {{#example_decl Examples/Classes.lean fourPos}}
 
 {{#example_in Examples/Classes.lean fourPosSum}}
 ```
-```Lean error
+```lean error
 {{#example_out Examples/Classes.lean fourPosSum}}
 ```
 
@@ -66,13 +66,13 @@ For instance implicits, Lean instead consults a built-in table of instance value
 
 Just as the `OfNat` instance for `Pos` took a natural number `n` as an automatic implicit argument, instances may also take instance implicit arguments themselves.
 The [section on polymorphism](../getting-to-know/polymorphism.md) presented a polymorphic point type:
-```Lean
+```lean
 {{#example_decl Examples/Classes.lean PPoint}}
 ```
 Addition of points should add the underlying `x` and `y` fields.
 Thus, an `Add` instance for `PPoint` requires an `Add` instance for whatever type these fields have.
 In other words, the `Add` instance for `PPoint` requires a further `Add` instance for `α`:
-```Lean
+```lean
 {{#example_decl Examples/Classes.lean AddPPoint}}
 ```
 When Lean encounters an addition of two points, it searches for and finds this instance.
@@ -99,7 +99,7 @@ This seeming discrepancy is because the declaring a type class really results in
  * A structure type to contain the implementation of each overloaded operation
  * A namespace with the same name as the class
  * For each method, a function in the class's namespace that retrieves its implementation from an instance
- 
+
 This is analogous to the way that declaring a new structure also declares accessor functions.
 The primary difference is that a structure's accessors take the structure value as an explicit argument, while the type class methods take the instance value as an instance implicit to be found automatically by Lean.
 

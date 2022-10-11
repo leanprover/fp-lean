@@ -2,18 +2,18 @@
 
 Like many languages, Lean uses square brackets for indexing into arrays and lists.
 For instance, if `woodlandCritters` is defined as follows:
-```Lean
+```lean
 {{#example_decl Examples/Props.lean woodlandCritters}}
 ```
 then the individual components can be extracted:
-```Lean
+```lean
 {{#example_decl Examples/Props.lean animals}}
 ```
 However, attempting to extract the fourth element results in a compile-time error, rather than a run-time error:
-```Lean
+```lean
 {{#example_in Examples/Props.lean outOfBounds}}
 ```
-```Lean error
+```lean error
 {{#example_out Examples/Props.lean outOfBounds}}
 ```
 This error message is saying Lean tried to automatically mathematically prove that `3 < List.length woodlandCritters`, which would mean that the lookup was safe, but that it could not do so.
@@ -40,7 +40,7 @@ None of the following are propositions:
  * 1 + green = ice cream
  * All capital cities are prime numbers
  * At least one gorg is a fleep
- 
+
 Propositions come in two varieties: those that are purely mathematical, relying only on our definitions of concepts, and those that are facts about the world.
 Theorem provers like Lean are concerned with the former category, and have nothing to say about the flight capabilities of penguins or the legal status of capital cities.
 
@@ -59,14 +59,14 @@ On the other hand, if the proposition is false, then it will be impossible to co
 
 For example, the proposition "1 + 1 = 2" can be written directly in Lean.
 The evidence for this proposition is the constructor `rfl`, which is short for _reflexivity_:
-```Lean
+```lean
 {{#example_decl Examples/Props.lean onePlusOneIsTwo}}
 ```
 On the other hand, `rfl` does not prove the false proposition "1 + 1 = 15":
-```Lean
+```lean
 {{#example_in Examples/Props.lean onePlusOneIsFifteen}}
 ```
-```Lean error
+```lean error
 {{#example_out Examples/Props.lean onePlusOneIsFifteen}}
 ```
 This error message indicates that `rfl` can prove that two expressions are equal when both sides of the equality statement are already the same number.
@@ -78,7 +78,7 @@ In Lean, it is conventional to declare theorems with the `theorem` keyword inste
 This helps readers see which declarations are proofs, and which are definitions.
 
 The prior example could be rewritten as follows:
-```Lean
+```lean
 {{#example_decl Examples/Props.lean onePlusOneIsTwoProp}}
 ```
 
@@ -92,7 +92,7 @@ To write a proof with tactics, begin the definition with `by`.
 Writing `by` puts Lean into tactic mode until the end of the next indented block.
 While in tactic mode, Lean provides ongoing feedback about the current proof state.
 Written with tactics, `onePlusOneIsTwo` is still quite short:
-```Lean
+```lean
 {{#example_decl Examples/Props.lean onePlusOneIsTwoTactics}}
 ```
 The `simp` tactic, short for "simplify", is the workhorse of Lean proofs.
@@ -122,7 +122,7 @@ If `A` and `B` are propositions, then "`A` and `B`" (written `{{#example_in Exam
 Evidence for `A ∧ B` consists of the constructor `{{#example_in Examples/Props.lean AndIntro}}`, which has the type `{{#example_out Examples/Props.lean AndIntro}}`.
 Replacing `A` and `B` with concrete propositions, it is possible to prove `{{#example_out Examples/Props.lean AndIntroEx}}` with `{{#example_in Examples/Props.lean AndIntroEx}}`.
 Of course, `simp` is also powerful enough to find this proof:
-```Lean
+```lean
 {{#example_decl Examples/Props.lean AndIntroExTac}}
 ```
 
@@ -135,7 +135,7 @@ This is different from the usual description of implication, in which `A → B` 
 
 Because evidence for an "and" is a constructor, it can be used with pattern matching.
 For instance, a proof that _A_ and _B_ implies _A_ or _B_ is a function that pulls the evidence of _A_ (or of _B_) out of the evidence for _A_ and _B_, and then uses this evidence to produce evidence of _A_ or _B_:
-```Lean
+```lean
 {{#example_decl Examples/Props.lean andImpliesOr}}
 ```
 
@@ -160,22 +160,22 @@ Because index notation uses `simp` behind the scenes to prove that array access 
 
 One of the easiest ways to make indexing notation work well is to have the function that performs a lookup into a data structure take the required evidence of safety as an argument.
 For instance, a function that returns the third entry in a list is not generally safe because lists might contain zero, one, or two entries:
-```Lean
+```lean
 {{#example_in Examples/Props.lean thirdErr}}
 ```
-```Lean error
+```lean error
 {{#example_out Examples/Props.lean thirdErr}}
 ```
 However, the obligation to show that the list has at least three entries can be imposed on the caller by adding an argument that consists of evidence that the indexing operation is safe:
-```Lean
+```lean
 {{#example_decl Examples/Props.lean third}}
 ```
 When the function is called on a concrete list, its length is known.
 In these cases, `by simp` can construct the evidence automatically:
-```Lean
+```lean
 {{#example_in Examples/Props.lean thirdCritters}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Props.lean thirdCritters}}
 ```
 
@@ -184,36 +184,36 @@ In these cases, `by simp` can construct the evidence automatically:
 In cases where it's not practical to prove that an indexing operation is in bounds, there are other alternatives.
 Adding an question mark results in an `Option`, where the result is `some` if the index is in bounds, and `none` otherwise.
 For example:
-```Lean
+```lean
 {{#example_decl Examples/Props.lean thirdOption}}
 
 {{#example_in Examples/Props.lean thirdOptionCritters}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Props.lean thirdOptionCritters}}
 ```
-```Lean
+```lean
 {{#example_in Examples/Props.lean thirdOptionTwo}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Props.lean thirdOptionTwo}}
 ```
 
 There is also a version that crashes the program when the index is out of bounds:
-```Lean
+```lean
 {{#example_in Examples/Props.lean crittersBang}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Props.lean crittersBang}}
 ```
 
 ## Messages You May Meet
 
 In addition to the error that occurs when Lean is unable to find compile-time evidence that an indexing operation is safe, polymorphic functions that use unsafe indexing may produce the following message:
-```Lean
+```lean
 {{#example_in Examples/Props.lean unsafeThird}}
 ```
-```Lean error
+```lean error
 {{#example_out Examples/Props.lean unsafeThird}}
 ```
 This is due to a technical restriction that is part of keeping Lean usable as both a logic for proving theorems and a programming language.
@@ -227,10 +227,10 @@ This error is saying that some arbitrary type `α` is not necessarily in that ta
 The next chapter describes how to add to this table, and how to successfully write functions like `unsafeThird`.
 
 Adding whitespace between a list and the brackets used for lookup can cause another message:
-```Lean
+```lean
 {{#example_in Examples/Props.lean extraSpace}}
 ```
-```Lean error
+```lean error
 {{#example_out Examples/Props.lean extraSpace}}
 ```
 Adding a space causes Lean to treat the expression as a function application, and the index as a list that contains a single number.
@@ -241,4 +241,3 @@ This error message results from having Lean attempt to treat `woodlandCritters` 
 * Prove the following theorems using `rfl`: `2 + 3 = 5`, `15 - 8 = 7`, `"Hello, ".append "world" = "Hello, world"`, `5 < 18`.
 * Prove the following theorems using `by simp`: `2 + 3 = 5`, `15 - 8 = 7`, `"Hello, ".append "world" = "Hello, world"`, `5 < 18`.
 * Write a function that looks up the fifth entry in a list. Pass the evidence that this lookup is safe as an argument to the function.
-

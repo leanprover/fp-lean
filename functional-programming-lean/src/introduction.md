@@ -39,24 +39,24 @@ The Lean tooling consists of the following:
  * `lean` type checks and compiles individual Lean files as well as providing information to programmer tools about files that are currently being written.
    Normally, `lean` is invoked by other tools rather than directly by users.
  * Plugins for editors, such as Visual Studio Code or Emacs, that communicate with `lean` and present its information conveniently.
- 
+
 Please refer to the [Lean manual](https://leanprover.github.io/lean4/doc/quickstart.html) for up-to-date instructions for installing Lean.
 
 # Typographical Conventions
 
 Code examples that are provided to Lean as _input_ are formatted like this:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean add1}}
 
 {{#example_in Examples/Intro.lean add1_7}}
 ```
 The last line above (beginning with `#eval`) is a command that instructs Lean to calculate an answer.
 Lean's replies are formatted like this:
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean add1_7}}
 ```
 Error messages returned by Lean are formatted like this:
-```Lean error
+```lean error
 {{#example_out Examples/Intro.lean add1_string}}
 ```
 

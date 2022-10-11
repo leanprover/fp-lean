@@ -33,7 +33,7 @@ editor, which will then report the result back. Typically, the result
 is found by putting the cursor or mouse pointer over `#eval`. For
 instance,
 
-```Lean
+```lean
 #eval {{#example_in Examples/Intro.lean three}}
 ```
 yields the value `{{#example_out Examples/Intro.lean three}}`.
@@ -41,7 +41,7 @@ yields the value `{{#example_out Examples/Intro.lean three}}`.
 Lean obeys the ordinary rules of precedence and associativity for
 arithmetic operators. That is,
 
-```Lean
+```lean
 {{#example_in Examples/Intro.lean orderOfOperations}}
 ```
 yields the value `{{#example_out Examples/Intro.lean orderOfOperations}}` rather than
@@ -53,7 +53,7 @@ programming languages use parentheses (e.g. `f(x)`) to apply a function to its
 arguments, Lean simply writes the function next to its
 arguments (e.g. `f x`). Function application is one of the most common operations,
 so it pays to keep it concise. Rather than writing
-```Lean
+```lean
 #eval String.append("Hello, ", "Lean!")
 ```
 to compute `{{#example_out Examples/Intro.lean stringAppendHello}}`,
@@ -97,13 +97,13 @@ evaluates to
 {{#example_eval Examples/Intro.lean stringAppend 1}}
 ```
 which evaluates to
-```Lean
+```lean
 {{#example_eval Examples/Intro.lean stringAppend 2}}
 ```
 which finally evaluates to `{{#example_eval Examples/Intro.lean stringAppend 3}}`.
 
 For the sake of brevity, a series of evaluation steps like this will sometimes be written with arrows between them:
-```Lean
+```lean
 {{#example_eval Examples/Intro.lean stringAppend}}
 ```
 
@@ -111,11 +111,11 @@ For the sake of brevity, a series of evaluation steps like this will sometimes b
 
 Asking Lean to evaluate a function application that is missing an argument will lead to an error message.
 In particular, the example
-```Lean
+```lean
 {{#example_in Examples/Intro.lean stringAppendReprFunction}}
 ```
 yields a quite long error message:
-```Lean error
+```lean error
 {{#example_out Examples/Intro.lean stringAppendReprFunction}}
 ```
 
@@ -132,4 +132,4 @@ then enter them into Lean to check your work.
  * `String.append "A" (String.append "B" "C")`
  * `String.append (String.append "A" "B") "C"`
  * `if 3 == 3 then 5 else 7`
- * `if 3 == 4 then "equal" else "not equal"` 
+ * `if 3 == 4 then "equal" else "not equal"`

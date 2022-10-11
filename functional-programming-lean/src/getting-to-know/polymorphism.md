@@ -13,7 +13,7 @@ These type arguments can be used in the datatype or definition, which allows the
 The `Point` structure requires that both the `x` and `y` fields are `Float`s.
 There is, however, nothing about points that require a specific representation for each coordinate.
 A polymorphic version of `Point`, called `PPoint`, can take a type as an argument, and then use that type for both fields:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean PPoint}}
 ```
 Just as a function definition's arguments are written immediately after the name being defined, a structure's arguments are written immediately after the structure's name.
@@ -21,7 +21,7 @@ It is customary to use Greek letters to name type arguments in Lean when no more
 `Type` is a type that describes other types, so `Nat`, `List String`, and `PPoint Int` all have type `Type`.
 
 Just like `List`, `PPoint` can be used by providing a specific type as its argument:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean natPoint}}
 ```
 In this example, both fields are expected to be `Nat`s.
@@ -32,58 +32,58 @@ Definitions may also take types as arguments, which makes them polymorphic.
 The function `replaceX` replaces the `x` field of a `PPoint` with a new value.
 In order to allow `replaceX` to work with _any_ polymorphic point, it must be polymorphic itself.
 This is achieved by having its first argument be the type of the point's fields, with later arguments referring back to the first argument's name.
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean replaceX}}
 ```
 In other words, when the types of the arguments `point` and `newX` mention `α`, they are referring to _whichever type was provided as the first argument_.
 This is similar to the way that function argument names refer to the values that were provided when they occur in the function's body.
 
 This can be seen by asking Lean to check the type of `replaceX`, and then asking it to check the type of `replaceX Nat`.
-```Lean
+```lean
 {{#example_in Examples/Intro.lean replaceXT}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean replaceXT}}
 ```
 This function type includes the _name_ of the first argument, and later arguments in the type refer back to this name.
 Just as the value of a function application is found by replacing the argument name with the provided argument value in the function's body, the type of a function application is found by replacing the argument's name with the provided value in the function's return type.
 Providing the first argument, `Nat`, causes all occurrences of `α` in the remainder of the type to be replaced with `Nat`:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean replaceXNatT}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean replaceXNatT}}
 ```
 Because the remaining arguments are not explicitly named, no further substitution occurs as more arguments are provided:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean replaceXNatOriginT}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean replaceXNatOriginT}}
 ```
-```Lean
+```lean
 {{#example_in Examples/Intro.lean replaceXNatOriginFiveT}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean replaceXNatOriginFiveT}}
 ```
 The fact that the type of the whole function application expression was determined by passing a type as an argument has no bearing on the ability to evaluate it.
-```Lean
+```lean
 {{#example_in Examples/Intro.lean replaceXNatOriginFiveV}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean replaceXNatOriginFiveV}}
 ```
 
 Polymorphic functions work by taking a named type argument and having later types refer to the argument's name.
 However, there's nothing special about type arguments that allows them to be named.
 Given a datatype that represents positive or negative signs:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean Sign}}
 ```
 it is possible to write a function whose argument is a sign.
 If the argument is positive, the function returns a `Nat`, while if it's negative, it returns an `Int`:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean posOrNegThree}}
 ```
 Because types are first class and can be computed using the ordinary rules of the Lean language, they can be computed by pattern-matching against a datatype.
@@ -94,12 +94,12 @@ When Lean is checking this function, it uses the fact that the function's body p
 Lean's standard library includes a canonical linked list datatype, called `List`, and special syntax that makes it more convenient to use.
 Lists are written in square brackets.
 For instance, a list that contains the prime numbers less than 10 can be written:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean primesUnder10}}
 ```
 
 Behind the scenes, `List` is an inductive datatype, defined like this:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean List}}
 ```
 The actual definition in the standard library is slightly different, because it uses features that have not yet been presented, but it is substantially similar.
@@ -110,7 +110,7 @@ The constructor `nil` represents empty lists, and the constructor `cons` represe
 The first argument to `cons` is the head of the list, and the second argument is its tail.
 
 The `primesUnder10` example can be written more explicitly by using `List`'s constructors directly:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean explicitPrimesUnder10}}
 ```
 These two definitions are completely equivalent, but `primesUnder10` is much easier to read than `explicitPrimesUnder10`.
@@ -127,7 +127,7 @@ It should compute like this:
 
 The definition of `length` is both polymorphic (because it takes the list entry type as an argument) and recursive (because it refers to itself).
 Generally, functions follow the shape of the data: recursive datatypes lead to recursive functions, and polymorphic datatypes lead to polymorphic functions.
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean length1}}
 ```
 
@@ -135,7 +135,7 @@ Names such as `xs` and `ys` are conventionally used to stand for lists of unknow
 The `s` in the name indicates that they are plural, so they are pronounced "exes" and "whys" rather than "x s" and "y s".
 
 To make it easier to read functions on lists, the bracket notation `[]` can be used to pattern-match against `nil`, and an infix `::` can be used in place of `cons`:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean length2}}
 ```
 
@@ -146,34 +146,34 @@ Indeed, in most languages, the compiler is perfectly capable of determining type
 This is also the case in Lean.
 Arguments can be declared _implicit_ by wrapping them in curly braces instead of parentheses when defining a function.
 For instance, a version of `replaceX` with an implicit type argument looks like this:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean replaceXImp}}
 ```
 It can be used with `natOrigin` without providing `Nat` explicitly, because Lean can _infer_ the value of `α` from the later arguments:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean replaceXImpNat}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean replaceXImpNat}}
 ```
 
 Similarly, `length` can be redefined to take the entry type implicitly:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean lengthImp}}
 ```
 This `length` function can be applied directly to `primesUnder10`:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean lengthImpPrimes}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean lengthImpPrimes}}
 ```
 
 In the standard library, Lean calls this function `List.length`, which means that the dot syntax that is used for structure field access can also be used to find the length of a list:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean lengthDotPrimes}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean lengthDotPrimes}}
 ```
 
@@ -181,10 +181,10 @@ In the standard library, Lean calls this function `List.length`, which means tha
 Just as C# and Java require type arguments to provided explicitly from time to time, Lean is not always capable of finding implicit arguments.
 In these cases, they can be provided using their names.
 For instance, a version of `List.length` that only works for lists of integers can be specified by setting `α` to `Int`:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean lengthExpNat}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean lengthExpNat}}
 ```
 
@@ -205,7 +205,7 @@ Introducing a new type to represent nullability means that the type system ensur
 
 `Option` has two constructors, called `some` and `none`, that respectively represent the non-null and null versions of the underlying type.
 The non-null constructor, `some`, contains the underlying value, while `none` takes no arguments:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean Option}}
 ```
 
@@ -222,7 +222,7 @@ The question mark is part of the name, and is not related to the use of question
 In the definition of `List.head?`, an underscore is used to represent the tail of the list.
 In patterns, underscores match anything at all, but do not introduce variables to refer to the matched data.
 Using underscores instead of names is a way to clearly communicate to readers that part of the input is ignored.
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean headHuh}}
 ```
 A Lean naming convention is to define operations that might fail in groups using the suffixes `?` for a version that returns an `Option`, `!` for a version that crashes when provided with invalid input, and `D` for a version that returns a default value when the operation would otherwise fail.
@@ -230,17 +230,17 @@ For instance, `head` requires the caller to provide mathematical evidence that t
 The question mark and exclamation mark are part of the name, not special syntax, as Lean's naming rules are more liberal than many languages.
 
 Because `head?` is defined in the `List` namespace, it can be used with accessor notation:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean headSome}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean headSome}}
 ```
 However, attempting to test it on the empty list leads to two errors:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean headNoneBad}}
 ```
-```Lean error
+```lean error
 {{#example_out Examples/Intro.lean headNoneBad}}
 
 {{#example_out Examples/Intro.lean headNoneBad2}}
@@ -251,10 +251,10 @@ In Lean's output, `?m.XYZ` represents a part of a program that could not be infe
 These unknown parts are called _metavariables_, and they occur in some error messages.
 In order to evaluate an expression, Lean needs to be able to find its type, and the type was unavailable because the empty list does not have any entries from which the type can be found.
 Explicitly providing a type allows Lean to proceed:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean headNone}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean headNone}}
 ```
 The error messages provide a useful clue.
@@ -273,7 +273,7 @@ Additionally, some libraries are sufficiently generic that there is no more spec
 Finally, the standard library contains a variety of convenience functions that make it easier to work with the built-in pair type.
 
 The standard pair structure is called `Prod`.
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean Prod}}
 ```
 Lists are used so frequently that there is special syntax to make them more readable.
@@ -281,17 +281,17 @@ For the same reason, both the product type and its constructor have special synt
 The type `Prod α β` is typically written `α × β`, mirroring the usual notation for a Cartesian product of sets.
 Similarly, the usual mathematical notation for pairs is available for `Prod`.
 In other words, instead of writing:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean fivesStruct}}
 ```
 it suffices to write:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean fives}}
 ```
 
 Both notations are right-associative.
 This means that the following definitions are equivalent:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean sevens}}
 
 {{#example_decl Examples/Intro.lean sevensNested}}
@@ -308,7 +308,7 @@ Like `Prod`, `Sum` should be used either when writing very generic code, for a v
 In most situations, it is more readable and maintainable to use a custom inductive type.
 
 Values of type `Sum α β` are either the constructor `inl` applied to a value of type `α` or the constructor `inr` applied to a value of type `β`:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean Sum}}
 ```
 These names are abbreviations for "left injection" and "right injection", respectively.
@@ -316,18 +316,18 @@ Just as the Cartesian product notation is used for `Prod`, a "circled plus" nota
 There is no special syntax for `Sum.inl` and `Sum.inr`.
 
 For instance, if pet names can either be dog names or cat names, then a type for them can be introduced as a sum of strings:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean PetName}}
 ```
 In a real program, it would usually be better to define a custom inductive datatype for this purpose with informative constructor names.
 Here, `Sum.inl` is to be used for dog names, and `Sum.inr` is to be used for cat names.
 These constructors can be used to write a list of animal names:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean animals}}
 ```
 Pattern matching can be used to distinguish between the two constructors.
 For instance, a function that counts the number of dogs in a list of animal names (that is, the number of `Sum.inl` constructors) looks like this:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean howManyDogs}}
 ```
 Function calls are evaluated before infix operators, so `howManyDogs morePets + 1` is the same as `(howManyDogs morePets) + 1`.
@@ -338,14 +338,14 @@ As expected, `{{#example_in Examples/Intro.lean dogCount}}` yields `{{#example_o
 `Unit` is a type with just one argumentless constructor, called `unit`.
 In other words, it describes only a single value, which consists of said constructor applied to no arguments whatsoever.
 `Unit` is defined as follows:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean Unit}}
 ```
 
 On its own, `Unit` is not particularly useful.
 However, in polymorphic code, it can be used as a placeholder for data that is missing.
 For instance, the following inductive datatype represents arithmetic expressions:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean ArithExpr}}
 ```
 The type argument `ann` stands for annotations, and each constructor is annotated.
@@ -387,11 +387,11 @@ Not all definable structures or inductive types can have the type `Type`.
 In particular, if a constructor takes an arbitrary type as an argument, then the inductive type must have a different type.
 These errors usually state something about "universe levels".
 For example, for this inductive type:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean TypeInType}}
 ```
 Lean gives the following error:
-```Lean error
+```lean error
 {{#example_out Examples/Intro.lean TypeInType}}
 ```
 A later chapter describes why this is the case, and how to modify definitions to make them work.
@@ -399,28 +399,28 @@ For now, try making the type an argument to the inductive type as a whole, rathe
 
 Similarly, if a constructor's argument is a function that takes the datatype being defined as an argument, then the definition is rejected.
 For example:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean Positivity}}
 ```
 yields the message:
-```Lean error
+```lean error
 {{#example_out Examples/Intro.lean Positivity}}
 ```
 For technical reasons, allowing these datatypes could make it possible to undermine Lean's internal logic, making it unsuitable for use as a theorem prover.
 
 Forgetting an argument to an inductive type can also yield a confusing message.
 For instance, the argument `α` is not passed to `MyType` in `ctor`'s type:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean MissingTypeArg}}
 ```
 Lean replies with the following error:
-```Lean error
+```lean error
 {{#example_out Examples/Intro.lean MissingTypeArg}}
 ```
 This error occurs because Lean contains an extensible set of rules for "punning" between different types, which allows convenient mathematical notation such as using a type that represents an algebraic structure in a context where its carrier set is expected.
 The error message is saying that `MyType`'s type, which is `Type → Type`, has no such rules.
 The same message can appear when type arguments are omitted in other contexts, such as in a type signature for a definition:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean MyTypeDef}}
 
 {{#example_in Examples/Intro.lean MissingTypeArg2}}
@@ -430,7 +430,7 @@ The same message can appear when type arguments are omitted in other contexts, s
 
  * Write a function to find the last entry in a list. It should return an `Option`.
  * Write a function that finds the first entry in a list that satisfies a given predicate. Start the definition with `def List.findFirst? {α : Type} (xs : List α) (predicate : α → Bool) : Option α :=`
- * Write a function `Prod.swap` that swaps the two fields in a pair. Start the definition with `def Prod.swap {α β : Type} (pair : α × β) : β × α :=` 
+ * Write a function `Prod.swap` that swaps the two fields in a pair. Start the definition with `def Prod.swap {α β : Type} (pair : α × β) : β × α :=`
  * Rewrite the `PetName` example to use a custom datatype and compare it to the version that uses `Sum`.
  * Write a function `zip` that combines two lists into a list of pairs. The resulting list should be as long as the shortest input list. Start the definition with `def zip {α β : Type} (xs : List α) (ys : List β) : List (α × β) :=`.
  * Write a polymorphic function `take` that returns the first _n_ entries in a list, where _n_ is a `Nat`. If the list contains fewer than `n` entries, then the resulting list should be the input list. `{{#example_in Examples/Intro.lean takeThree}}` should yield `{{#example_out Examples/Intro.lean takeThree}}`, and `{{#example_in Examples/Intro.lean takeOne}}` should yield `{{#example_out Examples/Intro.lean takeOne}}`.

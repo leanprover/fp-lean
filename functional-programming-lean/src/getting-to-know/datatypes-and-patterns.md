@@ -19,7 +19,7 @@ When programming, inductive datatypes are consumed through pattern matching and 
 
 Many of the built-in types are actually inductive datatypes in the standard library.
 For instance, `Bool` is an inductive datatype:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean Bool}}
 ```
 This definition has two main parts.
@@ -40,7 +40,7 @@ class False : Bool {}
 However, the specifics of these representations are fairly different. In particular, each non-abstract class creates both a new type and new ways of allocating data. In the object-oriented example, `True` and `False` are both types that are more specific than `Bool`, while the Lean definition introduces only the new type `Bool`.
 
 The type `Nat` of non-negative integers is an inductive datatype:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean Nat}}
 ```
 Here, `zero` represents 0, while `succ` represents the successor of some other number.
@@ -76,7 +76,7 @@ The instance-of check determines which code to run, ensuring that the data neede
 In Lean, both of these purposes are simultaneously served by _pattern matching_.
 
 An example of a function that uses pattern matching is `isZero`, which is a function that returns `true` when its argument is `Nat.zero`, or false otherwise.
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean isZero}}
 ```
 The `match` expression is provided the function's argument `n` for destructuring.
@@ -84,12 +84,12 @@ If `n` was constructed by `Nat.zero`, then the first branch of the pattern match
 If `n` was constructed by `Nat.succ`, then the second branch is taken, and the result is `false`.
 
 Step-by-step, evaluation of `{{#example_eval Examples/Intro.lean isZeroZeroSteps 0}}` proceeds as follows:
-```Lean
+```lean
 {{#example_eval Examples/Intro.lean isZeroZeroSteps}}
 ```
 
 Evaluation of `{{#example_eval Examples/Intro.lean isZeroFiveSteps 0}}` proceeds similarly:
-```Lean
+```lean
 {{#example_eval Examples/Intro.lean isZeroFiveSteps}}
 ```
 
@@ -99,24 +99,24 @@ That smaller number can then be used to compute the final result of the expressi
 
 Just as the successor of some number _n_ is one greater than _n_ (that is, _n_ + 1), the predecessor of a number is one less than it.
 If `pred` is a function that finds the predecessor of a `Nat`, then it should be the case that the following examples find the expected result:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean predFive}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean predFive}}
 ```
-```Lean
+```lean
 {{#example_in Examples/Intro.lean predBig}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean predBig}}
 ```
 Because `Nat` cannot represent negative numbers, `0` is a bit of a conundrum.
 Usually, when working with `Nat`, operators that would ordinarily produce a negative number are redefined to produce `0` itself:
-```Lean
+```lean
 {{#example_in Examples/Intro.lean predZero}}
 ```
-```Lean info
+```lean info
 {{#example_out Examples/Intro.lean predZero}}
 ```
 
@@ -124,17 +124,17 @@ To find the predecessor of a `Nat`, the first step is to check which constructor
 If it was `Nat.zero`, then the result is `Nat.zero`.
 If it was `Nat.succ`, then the name `k` is used to refer to the `Nat` underneath it.
 And this `Nat` is the desired predecessor, so the result of the `Nat.succ` branch is `k`.
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean pred}}
 ```
 Applying this function to `5` yields the following steps:
-```Lean
+```lean
 {{#example_eval Examples/Intro.lean predFiveSteps}}
 ```
 
 Pattern matching can be used with structures as well as with sum types.
 For instance, a function that extracts the third dimension from a `Point3D` can be written as follows:
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean depth}}
 ```
 In this case, it would have been much simpler to just use the `z` accessor, but structure patterns are occasionally the simplest way to write a function.
@@ -152,7 +152,7 @@ In this case, `zero` is even.
 Non-recursive branches of the code like this one are called _base cases_.
 The successor of an odd number is even, and the successor of an even number is odd.
 This means that a number built with `succ` is even if and only if its argument is not even.
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean even}}
 ```
 
@@ -166,29 +166,29 @@ From a programming perspective, this rules out accidental infinite loops.
 But this feature is especially important when proving theorems, where infinite loops cause major difficulties.
 A consequence of this is that Lean will not accept a version of `even` that attempts to invoke itself recursively on the original number:
 
-```Lean
+```lean
 {{#example_in Examples/Intro.lean evenLoops}}
 ```
 The important part of the error message is that Lean could not determine that the recursive function always reaches a base case (because it doesn't).
-```Lean error
+```lean error
 {{#example_out Examples/Intro.lean evenLoops}}
 ```
 
 Even though addition takes two arguments, only one of them needs to be inspected.
 To add zero to a number _n_, just return _n_.
 To add the successor of _k_ to _n_, take the successor of the result of adding _k_ to _n_.
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean plus}}
 ```
 In the definition of `plus`, the name `k'` is chosen to indicate that it is connected to, but not identical with, the argument `k`.
 For instance, walking through the evaluation of `{{#example_eval Examples/Intro.lean plusThreeTwo 0}}` yields the following steps:
-```Lean
+```lean
 {{#example_eval Examples/Intro.lean plusThreeTwo}}
 ```
 
 One way to think about addition is that _n_ + _k_ applies `Nat.succ` _k_ times to _n_.
 Similarly, multiplication _n_ × _k_ adds _n_ to itself _k_ times and subtraction _n_ - _k_ takes _n_'s predecessor _k_ times.
-```Lean
+```lean
 {{#example_decl Examples/Intro.lean times}}
 
 {{#example_decl Examples/Intro.lean minus}}
@@ -198,14 +198,14 @@ Not every function can be easily written using structural recursion.
 The understanding of addition as iterated `Nat.succ`, multiplication as iterated addition, and subtraction as iterated predecessor suggests an implementation of division as iterated subtraction.
 In this case, if the numerator is less that the divisor, the result is zero.
 Otherwise, the result is the successor of dividing the numerator minus the divisor by the divisor.
-```Lean
+```lean
 {{#example_in Examples/Intro.lean div}}
 ```
 This program terminates for all inputs, as it always makes progress towards the base case.
 However, it is not structurally recursive, because it doesn't follow the pattern of finding a result for zero and transforming a result for a smaller `Nat` into a result for its successor.
 In particular, the recursive invocation of the function is applied to the result of another function call, rather than to an input constructor's argument.
 Thus, Lean rejects it with the following message:
-```Lean error
+```lean error
 {{#example_out Examples/Intro.lean div}}
 ```
 This message means that `div` requires a manual proof of termination.
