@@ -1,3 +1,5 @@
+(require 'project)
+
 (defun fp-lean--wrap (start end)
   (if (use-region-p)
       (progn (save-excursion
@@ -49,16 +51,44 @@
 
 (defun fp-lean-code ()
   (interactive)
-  (insert "```Lean")
-  (newline)
-  (save-excursion
-    (newline)
-    (insert "```")))
+  (fp-lean--wrap "```lean" "```"))
+
+(defun fp-lean-info ()
+  (interactive)
+  (fp-lean--wrap "```output info" "```"))
+
+(defun fp-lean-text-error ()
+  (interactive)
+  (fp-lean--wrap "```output error" "```"))
+
 
 (defvar-local fp-lean--current-file nil)
 
+(defun fp-lean--examples-dir ()
+  "Get the root of the examples."
+  (file-name-as-directory (concat (file-name-as-directory (project-root (project-current))) "examples")))
+
+(defun fp-lean--make-file-examples-relative (filename)
+  "Make a FILENAME be relative to the Lean examples for the book."
+  (file-relative-name (expand-file-name filename) (fp-lean--examples-dir)))
+
 (defun fp-lean-get-file ()
-  (read-string (if fp-lean--current-file (format "File (%s): " fp-lean--current-file) "File: ") nil nil fp-lean--current-file))
+  "Get the examples filename to use, defaulting to the last one."
+  (fp-lean--make-file-examples-relative
+   (read-file-name
+    (if fp-lean--current-file
+        (format "File (%s): " fp-lean--current-file)
+      "File: ")
+    (fp-lean--examples-dir)
+    fp-lean--current-file
+    'confirm
+    fp-lean--current-file
+    (lambda (f)
+      (and
+       (or (file-directory-p f)
+           (string= (file-name-extension f) "lean"))
+       (not (string-suffix-p "~" f)))))))
+
 
 (defun fp-lean-text-decl (file name)
   "Insert a declaration from FILE called NAME."
