@@ -5,18 +5,24 @@
       (progn (save-excursion
                (goto-char (region-beginning))
                (beginning-of-line)
-               (newline)
+               (unless (looking-at-p "^$")
+                 (newline))
                (insert start)
                (newline))
              (goto-char (region-end))
-             (end-of-line)
-             (newline)
+             (unless (looking-at-p "^$")
+               (end-of-line)
+               (newline))
              (insert end))
-    (beginning-of-line)
-    (newline)
+    (end-of-line)
+    (unless (looking-at-p "^$")
+      (newline))
     (insert start)
     (newline)
-    (insert end)))
+    (insert end)
+    (save-excursion (newline))
+    (beginning-of-line)
+    (save-excursion (newline))))
 
 (defun fp-lean-decl (name)
   "Use a book declaration called NAME."
@@ -74,47 +80,60 @@
 
 (defun fp-lean-get-file ()
   "Get the examples filename to use, defaulting to the last one."
-  (fp-lean--make-file-examples-relative
-   (read-file-name
-    (if fp-lean--current-file
-        (format "File (%s): " fp-lean--current-file)
-      "File: ")
-    (fp-lean--examples-dir)
-    fp-lean--current-file
-    'confirm
-    fp-lean--current-file
-    (lambda (f)
-      (and
-       (or (file-directory-p f)
-           (string= (file-name-extension f) "lean"))
-       (not (string-suffix-p "~" f)))))))
+  (read-file-name
+   (if fp-lean--current-file
+       (format "File (%s): " fp-lean--current-file)
+     "File: ")
+   (fp-lean--examples-dir)
+   fp-lean--current-file
+   'confirm
+   fp-lean--current-file
+   (lambda (f)
+     (and
+      (or (file-directory-p f)
+          (string= (file-name-extension f) "lean"))
+      (not (string-suffix-p "~" f))))))
 
+(defun fp-lean-name-from-file (filename)
+  "Get a name of a defined thing from FILENAME."
+  (completing-read "Name: "
+                   (with-temp-buffer
+                     (insert-file-contents filename)
+                     (let ((results (list)))
+                       (goto-char (point-min))
+                       (while (re-search-forward "{{{\s*\\([^\s]+\\)\s*}}}" nil t nil)
+                         (push (match-string 1) results))
+                       results))
+                   nil nil nil nil nil t))
+
+(defun fp-lean-get-file-and-name ()
+  "Read an examples file and a named anchor from it."
+  (let ((file (fp-lean-get-file)))
+    (list (fp-lean--make-file-examples-relative file)
+          (fp-lean-name-from-file file))))
 
 (defun fp-lean-text-decl (file name)
   "Insert a declaration from FILE called NAME."
-  (interactive
-   (list (fp-lean-get-file) (read-string "Name: ")))
+  (interactive (fp-lean-get-file-and-name))
   (setq fp-lean--current-file file)
   (insert (format "{{#example_decl %s %s}}" file name)))
 
 (defun fp-lean-text-example (file name)
   "Insert a declaration from FILE called NAME."
-  (interactive
-   (list (fp-lean-get-file) (read-string "Name: ")))
+  (interactive (fp-lean-get-file-and-name))
   (setq fp-lean--current-file file)
   (insert (format "{{#example_in %s %s}}" file name))
   (insert (format "{{#example_out %s %s}}" file name)))
 
 (defun fp-lean-text-interaction (file name)
   "Insert an example interaction from FILE called NAME."
-  (interactive
-   (list (fp-lean-get-file) (read-string "Name: ")))
+  (interactive (fp-lean-get-file-and-name))
   (setq fp-lean--current-file file)
-  (insert "```Lean")
+  (insert "```lean")
   (newline)
   (insert (format "{{#example_in %s %s}}" file name))
   (newline)
-  (insert "```\n```Lean info")
+  (insert "```\n```output info")
   (newline)
   (insert (format "{{#example_out %s %s}}" file name))
   (newline)
@@ -122,14 +141,13 @@
 
 (defun fp-lean-text-error (file name)
   "Insert an error example from FILE called NAME."
-  (interactive
-   (list (fp-lean-get-file) (read-string "Name: ")))
+  (interactive (fp-lean-get-file-and-name))
   (setq fp-lean--current-file file)
-  (insert "```Lean")
+  (insert "```lean")
   (newline)
   (insert (format "{{#example_in %s %s}}" file name))
   (newline)
-  (insert "```\n```Lean error")
+  (insert "```\n```output error")
   (newline)
   (insert (format "{{#example_out %s %s}}" file name))
   (newline)

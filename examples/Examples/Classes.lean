@@ -1114,6 +1114,255 @@ end FakeCoe
 similar datatypes Coe FakeCoe.Coe
 
 
+book declaration {{{ CoeOption }}}
+  instance : Coe α (Option α) where
+    coe x := some x
+stop book declaration
+
+namespace L
+
+
+book declaration {{{ lastHuh }}}
+  def List.last? : List α → Option α
+    | [] => none
+    | [x] => x
+    | _ :: x :: xs => last? (x :: xs)
+stop book declaration
+
+end L
+
+
+book declaration {{{ perhapsPerhapsPerhaps }}}
+  def perhapsPerhapsPerhaps : Option (Option (Option String)) :=
+    "Please don't tell me"
+stop book declaration
+
+expect info {{{ evalPerhaps }}}
+  #eval perhapsPerhapsPerhaps
+message
+  "some (some (some \"Please don't tell me\"))"
+end expect
+
+expect error {{{ ofNatBeforeCoe }}}
+  def perhapsPerhapsPerhapsNat : Option (Option (Option Nat)) :=
+    392
+message
+"failed to synthesize instance
+  OfNat (Option (Option (Option Nat))) 392"
+end expect
+
+book declaration {{{ CoeNEList }}}
+  instance : Coe (NonEmptyList α) (List α) where
+    coe
+      | { head := x, tail := xs } => x :: xs
+stop book declaration
+
+
+namespace Foo
+book declaration {{{ CoeDep }}}
+  class CoeDep (α : Type) (x : α) (β : Type) where
+    coe : β
+stop book declaration
+end Foo
+similar datatypes CoeDep Foo.CoeDep
+
+book declaration {{{ CoeDepListNEList }}}
+  instance : CoeDep (List α) (x :: xs) (NonEmptyList α) where
+    coe := { head := x, tail := xs }
+stop book declaration
+
+book declaration {{{ JSON }}}
+  inductive JSON where
+    | true : JSON
+    | false : JSON
+    | null : JSON
+    | string : String → JSON
+    | number : Float → JSON
+    | object : List (String × JSON) → JSON
+    | array : List JSON → JSON
+stop book declaration
+
+
+def escapeChar : Char → List Char
+  | '\\' => ['\\', '\\']
+  | '"' => ['\\', '"']
+  | '\r' => ['\\', 'r']
+  | '\n' => ['\\', 'n']
+  | '/' => ['\\', '/']
+  | '\t' => ['\\', 't']
+  | c => [c]
+
+def escape (str : String) : String := ⟨ str.data.bind escapeChar ⟩
+
+
+def mapCombineWith (f : α → β) (combine : β → β → β) (default : β) (xs : List α) : β :=
+  let rec go (acc : β) : List α → β
+       | [] => acc
+       | y :: ys => go (combine acc (f y)) ys
+  match xs with
+  | [] => default
+  | [x] => f x
+  | x :: x' :: xs => go (f x) (x' :: xs)
+
+
+partial def JSON.asString : JSON → String
+  | true => "true"
+  | false => "false"
+  | null => "null"
+  | string s => "\"" ++ escape s ++ "\""
+  | number n => n.toString
+  | object members =>
+    "{" ++ mapCombineWith (fun mem => "\"" ++ escape mem.fst ++ "\": " ++ asString mem.snd) (· ++ ", " ++ ·) "" members ++ "}"
+  | array elements =>
+    "[" ++ mapCombineWith asString (· ++ ", " ++ ·) "" elements ++ "]"
+
+
+
+book declaration {{{ Monoid }}}
+  structure Monoid where
+    Carrier : Type
+    neutral : Carrier
+    op : Carrier → Carrier → Carrier
+
+  def natMulMonoid : Monoid :=
+    { Carrier := Nat, neutral := 1, op := (· * ·) }
+
+  def natAddMonoid : Monoid :=
+    { Carrier := Nat, neutral := 0, op := (· + ·) }
+
+  def stringMonoid : Monoid :=
+    { Carrier := String, neutral := "", op := String.append }
+
+  def listMonoid (α : Type) : Monoid :=
+    { Carrier := List α, neutral := [], op := List.append }
+stop book declaration
+
+namespace MMM
+book declaration {{{ firstFoldMap }}}
+  def foldMap (M : Monoid) (f : α → M.Carrier) (xs : List α) : M.Carrier :=
+    let rec go (soFar : M.Carrier) : List α → M.Carrier
+      | [] => soFar
+      | y :: ys => go (M.op soFar (f y)) ys
+    go M.neutral xs
+stop book declaration
+end MMM
+
+
+book declaration {{{ CoeMonoid }}}
+  instance : CoeSort Monoid Type where
+    coe m := m.Carrier
+stop book declaration
+
+
+book declaration {{{ foldMap }}}
+  def foldMap (M : Monoid) (f : α → M) (xs : List α) : M :=
+    let rec go (soFar : M) : List α → M
+      | [] => soFar
+      | y :: ys => go (M.op soFar (f y)) ys
+    go M.neutral xs
+stop book declaration
+
+expect error {{{ notAType }}}
+  def five : "Type" := 5
+message
+"type expected
+failed to synthesize instance
+  CoeSort String ?m.30189"
+end expect
+
+expect error {{{ notAType2 }}}
+  def five : List := []
+message
+"type expected
+failed to synthesize instance
+  CoeSort (Type ?u.30187 → Type ?u.30187) ?m.30192"
+end expect
+
+
+namespace U
+
+book declaration {{{ CoeFun }}}
+  class CoeFun (α : Type) (makeFunction : outParam (α → Type)) where
+    coe : (x : α) → makeFunction x
+stop book declaration
+
+end U
+similar datatypes CoeFun U.CoeFun
+
+structure Adder where
+  howMuch : Nat
+
+instance : CoeFun Adder (fun _ => Nat → Nat) where
+  coe a := (· + a.howMuch)
+
+def add5 : Adder := ⟨5⟩
+
+#eval add5 3
+
+book declaration {{{ Serializer }}}
+  structure Serializer where
+    Contents : Type
+    serialize : Contents → JSON
+stop book declaration
+
+def Str : Serializer := { Contents := String, serialize := JSON.string }
+
+
+
+
+instance : CoeFun Serializer (fun s => s.Contents → JSON) where
+  coe s := s.serialize
+
+def buildResponse (title : String) (R : Serializer) (record : R.Contents) : JSON :=
+  JSON.object [
+    ("title", JSON.string title),
+    ("status", JSON.number 200),
+    ("record", R record)
+  ]
+
+
+
+#eval (buildResponse "Functional Programming in Lean" Str "Programming is fun!").asString
+
+
+namespace A
+expect error {{{ lastSpiderB }}}
+  def lastSpider :=
+    List.getLast? idahoSpiders
+message
+"application type mismatch
+  List.getLast? idahoSpiders
+argument
+  idahoSpiders
+has type
+  NonEmptyList String : Type
+but is expected to have type
+  List ?m.24087 : Type ?u.24085"
+end expect
+
+expect error {{{ lastSpiderC }}}
+  def lastSpider : Option String :=
+    idahoSpiders.getLast?
+message
+"invalid field 'getLast?', the environment does not contain 'NonEmptyList.getLast?'
+  idahoSpiders
+has type
+  NonEmptyList String"
+end expect
+
+
+book declaration {{{ lastSpiderA }}}
+  def lastSpider : Option String :=
+    List.getLast? idahoSpiders
+stop book declaration
+end A
+
+instance : CoeDep (List α) (x :: xs) (NonEmptyList α) where
+  coe := ⟨x, xs⟩
+
+
+
+
 book declaration {{{ CoePosNat }}}
   instance : Coe Pos Nat where
     coe x := x.toNat
