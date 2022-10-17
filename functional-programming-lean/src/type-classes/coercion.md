@@ -169,14 +169,10 @@ a JSON serializer is a structure that tracks the type it knows how to serialize 
 {{#example_decl Examples/Classes.lean Serializer}}
 ```
 
-
-
-
-
-
 ## Messages You May Meet
 
-Lean syntax that is overloaded with a type class, such as natural number literals, TODO
+Natural number literals are overloaded with the `OfNat` type class.
+Because coercions fire in cases where types don't match, rather than in cases of missing instances, a missing `OfNat` instance for a type does not cause a coercion from `Nat` to be applied:
 ```lean
 {{#example_in Examples/Classes.lean ofNatBeforeCoe}}
 ```

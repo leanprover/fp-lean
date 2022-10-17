@@ -1337,7 +1337,7 @@ argument
 has type
   NonEmptyList String : Type
 but is expected to have type
-  List ?m.24087 : Type ?u.24085"
+  List ?m.39453 : Type ?u.39451"
 end expect
 
 expect error {{{ lastSpiderC }}}
@@ -1379,3 +1379,50 @@ expect info {{{ checkDropPosCoe }}}
 message
   "List.drop (Pos.toNat 2) [1, 2, 3, 4] : List Nat"
 end expect
+
+
+book declaration {{{ trees }}}
+  structure Tree : Type where
+    latinName : String
+    commonNames : List String
+
+  def oak : Tree :=
+    ⟨"Quercus robur", ["common oak", "European oak"]⟩
+
+  def birch : Tree :=
+    { latinName := "Betula pendula",
+      commonNames := ["silver birch", "warty birch"]
+    }
+
+  def beech : Tree where
+    latinName := "Fagus sylvatica"
+    commonNames := ["European beech", "common beech"]
+stop book declaration
+
+
+
+book declaration {{{ Display }}}
+  class Display (α : Type) where
+    displayName : α → String
+
+  instance : Display Tree :=
+    ⟨Tree.latinName⟩
+
+  instance : Display Tree :=
+    { displayName := Tree.latinName }
+
+  instance : Display Tree where
+    displayName t := t.latinName
+stop book declaration
+
+book declaration {{{ birdExample }}}
+  example : NonEmptyList String :=
+    { head := "Sparrow",
+      tail := ["Duck", "Swan", "Magpie", "Eurasian coot", "Crow"]
+    }
+stop book declaration
+
+book declaration {{{ commAdd }}}
+  example (n : Nat) (k : Nat) : Bool :=
+    n + k == k + n
+stop book declaration
