@@ -1289,15 +1289,39 @@ stop book declaration
 end U
 similar datatypes CoeFun U.CoeFun
 
-structure Adder where
-  howMuch : Nat
 
-instance : CoeFun Adder (fun _ => Nat → Nat) where
-  coe a := (· + a.howMuch)
+book declaration {{{ Adder }}}
+  structure Adder where
+    howMuch : Nat
+stop book declaration
 
-def add5 : Adder := ⟨5⟩
+book declaration {{{ add5 }}}
+  def add5 : Adder := ⟨5⟩
+stop book declaration
 
-#eval add5 3
+expect error {{{ add5notfun }}}
+  #eval add5 3
+message
+"function expected at
+  add5
+term has type
+  Adder"
+end expect
+
+
+book declaration {{{ CoeFunAdder }}}
+  instance : CoeFun Adder (fun _ => Nat → Nat) where
+    coe a := (· + a.howMuch)
+stop book declaration
+
+
+expect info {{{ add53 }}}
+  #eval add5 3
+message
+  "8"
+end expect
+
+namespace Ser
 
 book declaration {{{ Serializer }}}
   structure Serializer where
@@ -1305,25 +1329,39 @@ book declaration {{{ Serializer }}}
     serialize : Contents → JSON
 stop book declaration
 
-def Str : Serializer := { Contents := String, serialize := JSON.string }
+
+book declaration {{{ StrSer }}}
+  def Str : Serializer :=
+    { Contents := String,
+      serialize := JSON.string
+    }
+stop book declaration
 
 
 
 
-instance : CoeFun Serializer (fun s => s.Contents → JSON) where
-  coe s := s.serialize
-
-def buildResponse (title : String) (R : Serializer) (record : R.Contents) : JSON :=
-  JSON.object [
-    ("title", JSON.string title),
-    ("status", JSON.number 200),
-    ("record", R record)
-  ]
+book declaration {{{ CoeFunSer }}}
+  instance : CoeFun Serializer (fun s => s.Contents → JSON) where
+    coe s := s.serialize
+stop book declaration
 
 
+book declaration {{{ buildResponse }}}
+  def buildResponse (title : String) (R : Serializer) (record : R.Contents) : JSON :=
+    JSON.object [
+      ("title", JSON.string title),
+      ("status", JSON.number 200),
+      ("record", R record)
+    ]
+stop book declaration
 
-#eval (buildResponse "Functional Programming in Lean" Str "Programming is fun!").asString
 
+expect info {{{ buildResponseStr }}}
+  #eval (buildResponse "Functional Programming in Lean" Str "Programming is fun!").asString
+message
+  "\"{\\\"title\\\": \\\"Functional Programming in Lean\\\", \\\"status\\\": 200.000000, \\\"record\\\": \\\"Programming is fun!\\\"}\""
+end expect
+end Ser
 
 namespace A
 expect error {{{ lastSpiderB }}}
@@ -1337,7 +1375,7 @@ argument
 has type
   NonEmptyList String : Type
 but is expected to have type
-  List ?m.39453 : Type ?u.39451"
+  List ?m.31276 : Type ?u.31274"
 end expect
 
 expect error {{{ lastSpiderC }}}

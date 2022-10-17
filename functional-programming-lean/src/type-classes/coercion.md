@@ -157,9 +157,33 @@ A type class called `CoeFun` can transform values from non-function types to fun
 The second parameter is itself a function that computes a type.
 In Lean, types are first-class and can be passed to functions or returned from them, just like anything else.
 
+For example, a function that adds a constant amount to its argument can be represented as a wrapper around the amount to add, rather than by defining an actual function:
+```lean
+{{#example_decl Examples/Classes.lean Adder}}
+```
+A function that adds five to its argument has a `5` in the `howMany` field:
+```lean
+{{#example_decl Examples/Classes.lean add5}}
+```
+This `Adder` type is not a function, and applying it to an argument results in an error:
+```lean
+{{#example_in Examples/Classes.lean add5notfun}}
+```
+```output error
+{{#example_out Examples/Classes.lean add5notfun}}
+```
+Defining a `CoeFun` instance causes Lean to transform the adder into a function with type `Nat → Nat`:
+```lean
+{{#example_decl Examples/Classes.lean CoeFunAdder}}
 
-For example, a function that adds a constant amount to its argument can be represented as
+{{#example_in Examples/Classes.lean add53}}
+```
+```output info
+{{#example_out Examples/Classes.lean add53}}
+```
+Because all `Adder`s should be transformed into `Nat → Nat` functions, the argument to `CoeFun`'s second parameter was ignored.
 
+When the value itself is needed to determine the right function type, then `CoeFun`'s second parameter is no longer ignored.
 For example, given the following representation of JSON values:
 ```lean
 {{#example_decl Examples/Classes.lean JSON}}
@@ -167,6 +191,25 @@ For example, given the following representation of JSON values:
 a JSON serializer is a structure that tracks the type it knows how to serialize along with the serialization code itself:
 ```lean
 {{#example_decl Examples/Classes.lean Serializer}}
+```
+A serializer for strings need only wrap the provided string in the `JSON.string` constructor:
+```lean
+{{#example_decl Examples/Classes.lean StrSer}}
+```
+Viewing JSON serializers as functions that serialize their argument requires extracting the inner type of serializable data:
+```lean
+{{#example_decl Examples/Classes.lean CoeFunSer}}
+```
+Given this instance, a serializer can be applied directly to an argument:
+```lean
+{{#example_decl Examples/Classes.lean buildResponse}}
+```
+The serializer can be passed directly to `buildResponse`:
+```lean
+{{#example_in Examples/Classes.lean buildResponseStr}}
+```
+```output info
+{{#example_out Examples/Classes.lean buildResponseStr}}
 ```
 
 ## Messages You May Meet
