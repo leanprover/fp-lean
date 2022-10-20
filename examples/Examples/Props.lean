@@ -63,14 +63,13 @@ def second (xs : List α) (ok : xs.length ≥ 3) : α :=
 
 example : String := second ["a", "b", "c", "d"] (by simp)
 
-example : 1 + 1 = 2 ∨ 3 < 5 := by simp
-example : ¬(1 + 1 = 5) := by simp
-
-example : True := True.intro
-example : True ∨ False := by simp
-example : False → True := by simp
-
-example (xs : List α) (ok : xs.length ≥ 3) : 2 < xs.length := by simp_arith [*]
+book declaration {{{ connectives }}}
+  theorem onePlusOneAndLessThan : 1 + 1 = 2 ∨ 3 < 5 := by simp
+  theorem notTwoEqualFive : ¬(1 + 1 = 5) := by simp
+  theorem trueIsTrue : True := True.intro
+  theorem trueOrFalse : True ∨ False := by simp
+  theorem falseImpliesTrue : False → True := by simp
+stop book declaration
 
 def foo : True ∧ True := And.intro True.intro True.intro
 def bar : True ∨ False := Or.inl True.intro

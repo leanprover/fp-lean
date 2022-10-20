@@ -19,7 +19,7 @@ However, attempting to extract the fourth element results in a compile-time erro
 This error message is saying Lean tried to automatically mathematically prove that `3 < List.length woodlandCritters`, which would mean that the lookup was safe, but that it could not do so.
 Out-of-bounds errors are a common class of bugs, and Lean uses its dual nature as a programming language and a theorem prover to rule out as many as possible.
 
-Understanding how this works requires understanding of three key ideas: propositions, proofs, and tactics.
+Understanding how this works requires an understanding of three key ideas: propositions, proofs, and tactics.
 
 ## Propositions and Proofs
 
@@ -34,7 +34,7 @@ All of the following are propositions:
  * Buenos Aires is the capital of South Korea
  * All birds can fly
 
-On the other hand, nonsense statements that don't even make sense are not propositions.
+On the other hand, nonsense statements are not propositions.
 None of the following are propositions:
 
  * 1 + green = ice cream
@@ -42,12 +42,12 @@ None of the following are propositions:
  * At least one gorg is a fleep
 
 Propositions come in two varieties: those that are purely mathematical, relying only on our definitions of concepts, and those that are facts about the world.
-Theorem provers like Lean are concerned with the former category, and have nothing to say about the flight capabilities of penguins or the legal status of capital cities.
+Theorem provers like Lean are concerned with the former category, and have nothing to say about the flight capabilities of penguins or the legal status of cities.
 
 A _proof_ is a convincing argument that a proposition is true.
 For mathematical propositions, these arguments make use of the definitions of the concepts that are involved as well as the rules of logical argumentation.
 Most proofs are written for people to understand, and leave out many tedious details.
-Computer-aided theorem provers like Lean are designed to allow mathematicians to write proofs while omitting many details, while the software fills in the missing explicit steps.
+Computer-aided theorem provers like Lean are designed to allow mathematicians to write proofs while omitting many details, while the software fills in the missing explicit steps, decreasing the likelihood of oversights or mistakes.
 
 In Lean, a program's type describes the ways it can be interacted with.
 For instance, a program of type `Nat → List String` is a function that takes a `Nat` argument and produces a list of strings.
@@ -70,12 +70,14 @@ On the other hand, `rfl` does not prove the false proposition "1 + 1 = 15":
 {{#example_out Examples/Props.lean onePlusOneIsFifteen}}
 ```
 This error message indicates that `rfl` can prove that two expressions are equal when both sides of the equality statement are already the same number.
-Because `1 + 1` evaluates directly to `2`, they are considered equivalent, which allows `onePlusOneIsTwo` to be accepted.
+Because `1 + 1` evaluates directly to `2`, they are considered to be the same, which allows `onePlusOneIsTwo` to be accepted.
 Just as `Type` describes types such as `Nat`, `String`, and `List (Nat × String × (Int → Float))` that represent data structures and functions, `Prop` describes propositions.
 
 When a proposition has been proven, it is called a _theorem_.
 In Lean, it is conventional to declare theorems with the `theorem` keyword instead of `def`.
-This helps readers see which declarations are proofs, and which are definitions.
+This helps readers see which declarations are intended to be read as mathematical proofs, and which are definitions.
+Generally speaking, with a proof, what matters is that there is evidence that a proposition is true, but it's not particularly important _which_ evidence was provided.
+With definitions, on the other hand, it matters very much which particular value is selected—after all, a definition of addition that always returns `0` is clearly wrong.
 
 The prior example could be rewritten as follows:
 ```lean
@@ -86,7 +88,9 @@ The prior example could be rewritten as follows:
 
 Proofs are normally written using _tactics_, rather than by providing evidence directly.
 Tactics are small programs that construct evidence for a proposition.
-These programs run in a _proof state_ that tracks the statement that is to be proved along with the assumptions that are available to prove it.
+These programs run in a _proof state_ that tracks the statement that is to be proved (called the _goal_) along with the assumptions that are available to prove it.
+Running a tactic on a goal results in a new proof state that contains new goals.
+The proof is complete when all goals have been proven.
 
 To write a proof with tactics, begin the definition with `by`.
 Writing `by` puts Lean into tactic mode until the end of the next indented block.
@@ -98,10 +102,10 @@ Written with tactics, `onePlusOneIsTwo` is still quite short:
 The `simp` tactic, short for "simplify", is the workhorse of Lean proofs.
 It rewrites the goal to as simple a form as possible, taking care of parts of the proof that are small enough.
 In particular, it proves simple equality statements.
-Behind the scenes, a detailed formal proof is constructed, but `simp` frees users from having to read or write these details.
+Behind the scenes, a detailed formal proof is constructed, but using `simp` hides this complexity.
 
 Tactics are useful for a number of reasons:
- 1. Many proofs are complicated and tedious when written out down to the smallest detail, and tactics can automate these parts.
+ 1. Many proofs are complicated and tedious when written out down to the smallest detail, and tactics can automate these uninteresting parts.
  2. Proofs written with tactics are easier to maintain over time, because flexible automation can paper over small changes to definitions.
  3. Because a single tactic can prove many different theorems, Lean can use tactics behind the scenes to free users from writing proofs by hand. For instance, an array lookup requires a proof that the index is in bounds, and a tactic can typically construct that proof without the user needing to worry about it.
 
@@ -114,7 +118,7 @@ This tactic is `simp`, configured to take certain arithmetic identities into acc
 The basic building blocks of logic, such as "and", "or", "true", "false", and "not", are called _logical connectives_.
 Each connective defines what counts as evidence of its truth.
 For example, to prove a statement "_A_ and _B_", one must prove both _A_ and _B_.
-This means that evidence for "_A_ and _B_" is a pair of evidence for _A_ and evidence for _B_.
+This means that evidence for "_A_ and _B_" is a pair that contains both evidence for _A_ and evidence for _B_.
 Similarly, evidence for "_A_ or _B_" consists of either evidence for _A_ or evidence for _B_.
 
 In particular, most of these connectives are defined like datatypes, and they have constructors.
@@ -151,12 +155,15 @@ For instance, a proof that _A_ and _B_ implies _A_ or _B_ is a function that pul
 
 The `simp` tactic can prove theorems that use these connectives.
 For example:
+```lean
+{{#example_decl Examples/Props.lean connectives}}
+```
 
 ## Evidence as Arguments
 
 While `simp` does a great job proving propositions that involve equalities and inequalities of specific numbers, it is not very good at proving statements that involve variables.
 For instance, `simp` can prove that `4 < 15`, but it can't easily tell that because `x < 4`, it's also true that `x < 15`.
-Because index notation uses `simp` behind the scenes to prove that array access is safe, it can require a bit of hand-holding to make things work right.
+Because index notation uses `simp` behind the scenes to prove that array access is safe, it can require a bit of hand-holding.
 
 One of the easiest ways to make indexing notation work well is to have the function that performs a lookup into a data structure take the required evidence of safety as an argument.
 For instance, a function that returns the third entry in a list is not generally safe because lists might contain zero, one, or two entries:
@@ -206,6 +213,8 @@ There is also a version that crashes the program when the index is out of bounds
 ```output info
 {{#example_out Examples/Props.lean crittersBang}}
 ```
+Be careful!
+Because code that is run with `#eval` runs in the context of the Lean compiler, selecting the wrong index can crash your IDE.
 
 ## Messages You May Meet
 
@@ -220,7 +229,7 @@ This is due to a technical restriction that is part of keeping Lean usable as bo
 In particular, only programs whose types contain at least one value are allowed to crash.
 This is because a proposition in Lean is a kind of type that classifies evidence of its truth.
 False propositions have no such evidence.
-If a program with an empty type could crash, then that program could be used as a kind of fake evidence for a false proposition.
+If a program with an empty type could crash, then that crashing program could be used as a kind of fake evidence for a false proposition.
 
 Internally, Lean contains a table of types that are known to have at least one value.
 This error is saying that some arbitrary type `α` is not necessarily in that table.
