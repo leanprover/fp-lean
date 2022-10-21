@@ -161,4 +161,11 @@ For more information on default instance priorities, please consult the Lean man
 
 Define an instance of `HMul (PPoint α) α (PPoint α)` that multiplies both projections by the scalar.
 It should work for any type `α` for which there is a `Mul α` instance.
-For example, `{{#example_in Examples/Classes.lean HMulPPoint}}` should yield `{{#example_out Examples/Classes.lean HMulPPoint}}`.
+For example,
+```lean
+{{#example_in Examples/Classes.lean HMulPPoint}}
+```
+should yield
+```output info
+{{#example_out Examples/Classes.lean HMulPPoint}}
+```

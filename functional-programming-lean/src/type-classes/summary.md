@@ -10,7 +10,7 @@ However, each type requires its own implementation of the overloaded operation.
 This means that the behavior can vary based on which type is provided.
 
 A _type class_ has a name, parameters, and a body that consists of a number of names with types.
-The name is a way to refer to the overloaded operations, the parameters determine which aspects of the definitions can be overloaded, and the body describes the specific overloadable operations.
+The name is a way to refer to the overloaded operations, the parameters determine which aspects of the definitions can be overloaded, and the body provides the names and type signatures of the overloadable operations.
 Each overloadable operation is called a _method_ of the type class.
 Type classes may provide default implementations of some methods in terms of the others, freeing implementors from defining each overload by hand when it is not needed.
 
@@ -23,7 +23,7 @@ Parameters to a type class need not be types—they may also be ordinary values.
 The `OfNat` type class, used to overload natural number literals, takes the overloaded `Nat` itself as a parameter, which allows instances to restrict the allowed numbers.
 
 Instances may be marked with a `@[defaultInstance]` attribute.
-When an instance is a default instance, then it will be chosen as a fallback when Lean would otherwise fail to find an instance.
+When an instance is a default instance, then it will be chosen as a fallback when Lean would otherwise fail to find an instance due to the presence of metavariables in the type.
 
 ## Type Classes for Common Syntax
 

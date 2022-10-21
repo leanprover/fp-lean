@@ -12,7 +12,7 @@ Unlike Java, C, and Kotlin, the coercions are extensible by defining instances o
 ## Positive Numbers
 
 For example, every positive number corresponds to a natural number.
-The function `Pos.toNat` converts a `Pos` to the corresponding `Nat`:
+The function `Pos.toNat` that was defined earlier converts a `Pos` to the corresponding `Nat`:
 ```lean
 {{#example_decl Examples/Classes.lean posToNat}}
 ```
@@ -24,6 +24,7 @@ Applying `List.drop` to a `Pos`, however, leads to a type error:
 ```output error
 {{#example_out Examples/Classes.lean dropPos}}
 ```
+Because the author of `List.drop` did not make it a method of a type class, it can't be overridden by defining a new instance.
 
 The type class `Coe` describes overloaded ways of coercing from one type to another:
 ```lean
@@ -95,7 +96,7 @@ For example, any `List` that is not actually empty can be coerced to a `NonEmpty
 In mathematics, it is common to have a concept that consists of a set equipped with additional structure.
 For example, a monoid is some set _S_, an element _s_ of _S_, and an associative binary operator on _S_, such that _s_ is neutral on the left and right of the operator.
 _S_ is referred to as the "carrier set" of the monoid.
-The natural numbers with zero and addition form a monoid, for instance, because addition is associative and adding zero to any number is the identity.
+The natural numbers with zero and addition form a monoid, because addition is associative and adding zero to any number is the identity.
 Similarly, the natural numbers with one and multiplication also form a monoid.
 Monoids are also widely used in functional programming: lists, the empty list, and the append operator form a monoid, as do strings, the empty string, and string append:
 ```lean
@@ -140,6 +141,15 @@ Additionally, it can occur when a non-type is used in a context where a type is 
 {{#example_out Examples/Classes.lean notAType}}
 ```
 These errors occur because Lean tries and fails to find a way to coerce these non-types into types.
+
+Another useful example of `CoeSort` is used to bridge the gap between `Bool` and `Prop`.
+As discussed in [the section on ordering and equality](standard-classes.md#equality-and-ordering), Lean's `if` expression expects the condition to be a decidable proposition rather than a `Bool`.
+Programs typically need to be able to branch based on Boolean values, however.
+Rather than have two kinds of `if` expression, the Lean standard library defines a coercion from `Bool` to the proposition that the `Bool` in question is equal to `true`:
+```lean
+{{#example_decl Examples/Classes.lean CoeBoolProp}}
+```
+In this case, the sort in question is `Prop` rather than `Type`.
 
 ## Coercing to Functions
 
@@ -233,7 +243,6 @@ As Abelson and Sussman wrote in the preface to _Structure and Interpretation of 
 > Programs must be written for people to read, and only incidentally for machines to execute.
 
 Coercions, used wisely, are a valuable means of achieving readable code that can serve as the basis for communication with domain experts.
-
 APIs that rely heavily on coercions have a number of important limitations, however.
 Think carefully about these limitations before using coercions in your own libraries.
 

@@ -504,19 +504,19 @@ end bookExample
 evaluation steps {{{ bAndDesugar }}}
   x &&& y
   ===>
-  AndOp.and x y
+  HAnd.hAnd x y
 end evaluation steps
 
 evaluation steps {{{ bOrDesugar }}}
   x ||| y
   ===>
-  OrOp.or x y
+  HOr.hOr x y
 end evaluation steps
 
 evaluation steps {{{ bXorDesugar }}}
   x ^^^ y
   ===>
-  Xor.xor x y
+  HXor.hXor x y
 end evaluation steps
 
 evaluation steps {{{ complementDesugar }}}
@@ -528,13 +528,13 @@ end evaluation steps
 evaluation steps {{{ shrDesugar }}}
   x >>> y
   ===>
-  ShiftRight.shiftRight x y
+  HShiftRight.hShiftRight x y
 end evaluation steps
 
 evaluation steps {{{ shlDesugar }}}
   x <<< y
   ===>
-  ShiftLeft.shiftLeft x y
+  HShiftLeft.hShiftLeft x y
 end evaluation steps
 
 evaluation steps {{{ beqDesugar }}}
@@ -601,7 +601,7 @@ expect error {{{ hPlusOops }}}
   #eval HPlus.hPlus (3 : Pos) (5 : Nat)
 message
 "typeclass instance problem is stuck, it is often due to metavariables
-  HPlus Pos Nat ?m.7227"
+  HPlus Pos Nat ?m.7302"
 end expect
 
 
@@ -779,6 +779,15 @@ theorem atLeastThreeSpiders : idahoSpiders.inBounds 2 := by simp
 theorem notSixSpiders : ¬idahoSpiders.inBounds 5 := by simp
 stop book declaration
 
+namespace Demo
+book declaration {{{ GetElem }}}
+  class GetElem (coll : Type) (idx : Type) (item : outParam Type) (inBounds : outParam (coll → idx → Prop)) where
+    getElem : (c : coll) → (i : idx) → inBounds c i → item
+stop book declaration
+end Demo
+
+similar datatypes GetElem Demo.GetElem
+
 book declaration {{{ GetElemNEList }}}
   instance : GetElem (NonEmptyList α) Nat α NonEmptyList.inBounds where
     getElem := NonEmptyList.get
@@ -795,7 +804,7 @@ end bookExample
 expect error {{{ tenthSpider }}}
   idahoSpiders[9]
 message
-  "failed to prove index is valid, possible solutions:
+"failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
   - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
@@ -807,7 +816,7 @@ end expect
 
 
 book declaration {{{ ListPosElem }}}
-  instance : GetElem (List α) Pos α (fun n k => n.length > k.toNat) where
+  instance : GetElem (List α) Pos α (fun list n => list.length > n.toNat) where
     getElem (xs : List α) (i : Pos) ok := xs[i.toNat]
 stop book declaration
 
@@ -936,6 +945,33 @@ book declaration {{{ HashablePos }}}
     hash := hashPos
 stop book declaration
 
+
+book declaration {{{ TreeHash }}}
+  inductive Tree (α : Type) where
+    | leaf : Tree α
+    | branch : Tree α → α → Tree α → Tree α
+
+  def eqTree [BEq α] : Tree α → Tree α → Bool
+    | Tree.leaf, Tree.leaf =>
+      true
+    | Tree.branch l x r, Tree.branch l2 x2 r2 =>
+      x == x2 && eqTree l l2 && eqTree r r2
+    | _, _ =>
+      false
+
+  instance [BEq α] : BEq (Tree α) where
+    beq := eqTree
+
+  def hashTree [Hashable α] : Tree α → UInt64
+    | Tree.leaf =>
+      0
+    | Tree.branch left x right =>
+      mixHash 1 (mixHash (hashTree left) (mixHash (hash x) (hashTree right)))
+
+  instance [Hashable α] : Hashable (Tree α) where
+    hash := hashTree
+stop book declaration
+
 book declaration {{{ HashableNonEmptyList }}}
   instance [Hashable α] : Hashable (NonEmptyList α) where
     hash xs := mixHash (hash xs.head) (hash xs.tail)
@@ -1018,7 +1054,7 @@ bookExample {{{ mapOption }}}
 end bookExample
 
 bookExample {{{ mapListList }}}
-  List.reverse <$> [[1, 2, 3], [4, 5, 6]]
+  Functor.map List.reverse [[1, 2, 3], [4, 5, 6]]
   ===>
   [[3, 2, 1], [6, 5, 4]]
 end bookExample
@@ -1210,7 +1246,7 @@ partial def JSON.asString : JSON → String
   | false => "false"
   | null => "null"
   | string s => "\"" ++ escape s ++ "\""
-  | number n => n.toString
+  | number n => n.toString.dropRightWhile (· == '0') |>.dropRightWhile (· == '.')
   | object members =>
     "{" ++ mapCombineWith (fun mem => "\"" ++ escape mem.fst ++ "\": " ++ asString mem.snd) (· ++ ", " ++ ·) "" members ++ "}"
   | array elements =>
@@ -1279,11 +1315,17 @@ failed to synthesize instance
 end expect
 
 
+book declaration {{{ CoeBoolProp }}}
+  instance : CoeSort Bool Prop where
+    coe b := b = true
+stop book declaration
+
+
 namespace U
 
 book declaration {{{ CoeFun }}}
-  class CoeFun (α : Type) (makeFunction : outParam (α → Type)) where
-    coe : (x : α) → makeFunction x
+  class CoeFun (α : Type) (makeFunctionType : outParam (α → Type)) where
+    coe : (x : α) → makeFunctionType x
 stop book declaration
 
 end U
@@ -1338,8 +1380,6 @@ book declaration {{{ StrSer }}}
 stop book declaration
 
 
-
-
 book declaration {{{ CoeFunSer }}}
   instance : CoeFun Serializer (fun s => s.Contents → JSON) where
     coe s := s.serialize
@@ -1359,7 +1399,7 @@ stop book declaration
 expect info {{{ buildResponseStr }}}
   #eval (buildResponse "Functional Programming in Lean" Str "Programming is fun!").asString
 message
-  "\"{\\\"title\\\": \\\"Functional Programming in Lean\\\", \\\"status\\\": 200.000000, \\\"record\\\": \\\"Programming is fun!\\\"}\""
+  "\"{\\\"title\\\": \\\"Functional Programming in Lean\\\", \\\"status\\\": 200, \\\"record\\\": \\\"Programming is fun!\\\"}\""
 end expect
 end Ser
 

@@ -1,7 +1,7 @@
 # Positive Numbers
 
 In some applications, only positive numbers make sense.
-For instance, compilers and interpreters typically use one-indexed line and column numbers for source positions, and a datatype that represents only non-empty lists will never report a length of zero.
+For example, compilers and interpreters typically use one-indexed line and column numbers for source positions, and a datatype that represents only non-empty lists will never report a length of zero.
 Rather than relying on natural numbers, and littering the code with assertions that the number is not zero, it can be useful to design a datatype that represents only positive numbers.
 
 One way to represent positive numbers is very similar to `Nat`, except with `one` as the base case instead of `zero`:
@@ -9,7 +9,7 @@ One way to represent positive numbers is very similar to `Nat`, except with `one
 {{#example_decl Examples/Classes.lean Pos}}
 ```
 This datatype represents exactly the intended set of values, but it is not very convenient to use.
-For instance, numeric literals are rejected:
+For example, numeric literals are rejected:
 ```lean
 {{#example_in Examples/Classes.lean sevenOops}}
 ```
@@ -40,12 +40,12 @@ This indicates that the error is due to an overloaded operation that has not bee
 
 ## Classes and Instances
 
-A type class consists of a name, some arguments, and a collection of _methods_.
-The arguments describe the types for which overloadable operations are being defined, and the methods are the type signatures of the overloadable operations.
+A type class consists of a name, some parameters, and a collection of _methods_.
+The parameters describe the types for which overloadable operations are being defined, and the methods are the names and type signatures of the overloadable operations.
 Once again, there is a terminology clash with object-oriented languages.
 In object-oriented programming, a method is essentially a function that is connected to a particular object in memory, with special access to the object's private state.
 Objects are interacted with via their methods.
-In Lean, the term "method" refers to an operation that has been declared to be overloadable, and has no special connection to objects or values or private fields.
+In Lean, the term "method" refers to an operation that has been declared to be overloadable, with no special connection to objects or values or private fields.
 
 One way to overload addition is to define a type class named `Plus`, with an addition method named `plus`.
 Once an instance of `Plus` for `Nat` has been defined, it becomes possible to add two `Nat`s using `Plus.plus`:
@@ -107,7 +107,7 @@ These errors mean that Lean was unable to find an instance for a given type clas
 
 Lean's built-in addition operator is syntactic sugar for a type class called `HAdd`, which flexibly allows the arguments to addition to have different types.
 `HAdd` is short for _heterogeneous addition_.
-For instance, an `HAdd` instance can be written to allow a `Nat` to be added to a `Float`, resulting in a new `Float`.
+For example, an `HAdd` instance can be written to allow a `Nat` to be added to a `Float`, resulting in a new `Float`.
 When a programmer writes `{{#example_eval Examples/Classes.lean plusDesugar 0}}`, it is interpreted as meaning `{{#example_eval Examples/Classes.lean plusDesugar 1}}`.
 
 While an understanding the full generality of `HAdd` relies on features that are discussed in [another section in this chapter](out-params.md), there is a simpler type class called `Add` that does not allow the types of the arguments to be mixed.
@@ -124,10 +124,10 @@ Defining an instance of `Add Pos` allows `Pos` values to use ordinary addition s
 
 Another useful built-in class is called `ToString`.
 Instances of `ToString` provide a standard way of converting values from a given type into strings.
-For instance, a `ToString` instance is used when a value occurs in an interpolated string, and it determines how the `IO.println` function used at the [beginning of the description of `IO`](../hello-world/running-a-program.html#running-a-program) will display a value.
+For example, a `ToString` instance is used when a value occurs in an interpolated string, and it determines how the `IO.println` function used at the [beginning of the description of `IO`](../hello-world/running-a-program.html#running-a-program) will display a value.
 
 For example, one way to convert a `Pos` into a `String` is to reveal its inner structure.
-The function `posToString` takes a `Bool` that determines whether to parenthesize uses of `Pos.succ`, which should be `true` in the initial call to the function, and `false` in all recursive calls.
+The function `posToString` takes a `Bool` that determines whether to parenthesize uses of `Pos.succ`, which should be `true` in the initial call to the function and `false` in all recursive calls.
 ```lean
 {{#example_decl Examples/Classes.lean posToStringStructure}}
 ```
