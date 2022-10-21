@@ -170,7 +170,7 @@ message
   - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
-α : Type ?u.4181
+α : Type ?u.3852
 xs : List α
 ⊢ 2 < List.length xs"
 end expect

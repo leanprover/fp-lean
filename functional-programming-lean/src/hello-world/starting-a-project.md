@@ -58,11 +58,11 @@ The items in the Lakefile allow things like source file locations, module hierar
 Generally speaking, however, the defaults are reasonable.
 
 Libraries, executables, and custom targets are all called _targets_.
-By default, `lake build` builds those targets that are annotated with `@[defaultTarget]`.
+By default, `lake build` builds those targets that are annotated with `@[default_target]`.
 This annotation is an _attribute_, which is metadata that can be associated with a Lean declaration.
 Attributes are similar to Java annotations or C# and Rust attributes.
 They are used pervasively throughout Lean.
-To build a target that is not annotated with `@[defaultTarget]`, specify the target's name as an argument after `lake build`.
+To build a target that is not annotated with `@[default_target]`, specify the target's name as an argument after `lake build`.
 
 ## Libraries and Imports
 

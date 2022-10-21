@@ -9,7 +9,7 @@ lean_lib Greeting {
   -- add library configuration options here
 }
 
-@[defaultTarget]
+@[default_target]
 lean_exe greeting {
   root := `Main
 }

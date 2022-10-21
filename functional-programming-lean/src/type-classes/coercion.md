@@ -125,23 +125,6 @@ With this coercion, the type signatures become less bureaucratic:
 {{#example_decl Examples/Classes.lean foldMap}}
 ```
 
-Most Lean programs do not implement new instances of `CoeSort`, especially when they are not working with algebraic structures.
-However, as described in [the section on polymorphism](../getting-to-know/polymorphism.md), it occurs in error messages when a type constructor like `List` is used without an argument:
-```lean
-{{#example_in Examples/Classes.lean notAType2}}
-```
-```output error
-{{#example_out Examples/Classes.lean notAType2}}
-```
-Additionally, it can occur when a non-type is used in a context where a type is expected:
-```lean
-{{#example_in Examples/Classes.lean notAType}}
-```
-```output error
-{{#example_out Examples/Classes.lean notAType}}
-```
-These errors occur because Lean tries and fails to find a way to coerce these non-types into types.
-
 Another useful example of `CoeSort` is used to bridge the gap between `Bool` and `Prop`.
 As discussed in [the section on ordering and equality](standard-classes.md#equality-and-ordering), Lean's `if` expression expects the condition to be a decidable proposition rather than a `Bool`.
 Programs typically need to be able to branch based on Boolean values, however.

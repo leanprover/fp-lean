@@ -317,7 +317,7 @@ end bookExample
 expect info {{{ printlnMetas }}}
   #check IO.println
 message
-"IO.println : ?m.3630 → IO Unit"
+"IO.println : ?m.3615 → IO Unit"
 end expect
 
 expect info {{{ printlnNoMetas }}}
@@ -601,7 +601,7 @@ expect error {{{ hPlusOops }}}
   #eval HPlus.hPlus (3 : Pos) (5 : Nat)
 message
 "typeclass instance problem is stuck, it is often due to metavariables
-  HPlus Pos Nat ?m.7302"
+  HPlus Pos Nat ?m.7158"
 end expect
 
 
@@ -649,12 +649,12 @@ end expect
 expect info {{{ plusFiveMeta }}}
   #check HPlus.hPlus (5 : Nat)
 message
-  "HPlus.hPlus 5 : ?m.7428 → ?m.7430"
+  "HPlus.hPlus 5 : ?m.7323 → ?m.7325"
 end expect
 
 
 book declaration {{{ defaultAdd }}}
-  @[defaultInstance]
+  @[default_instance]
   instance [Add α] : HPlus α α α where
     hPlus := Add.add
 stop book declaration
@@ -947,29 +947,29 @@ stop book declaration
 
 
 book declaration {{{ TreeHash }}}
-  inductive Tree (α : Type) where
-    | leaf : Tree α
-    | branch : Tree α → α → Tree α → Tree α
+  inductive BinTree (α : Type) where
+    | leaf : BinTree α
+    | branch : BinTree α → α → BinTree α → BinTree α
 
-  def eqTree [BEq α] : Tree α → Tree α → Bool
-    | Tree.leaf, Tree.leaf =>
+  def eqBinTree [BEq α] : BinTree α → BinTree α → Bool
+    | BinTree.leaf, BinTree.leaf =>
       true
-    | Tree.branch l x r, Tree.branch l2 x2 r2 =>
-      x == x2 && eqTree l l2 && eqTree r r2
+    | BinTree.branch l x r, BinTree.branch l2 x2 r2 =>
+      x == x2 && eqBinTree l l2 && eqBinTree r r2
     | _, _ =>
       false
 
-  instance [BEq α] : BEq (Tree α) where
-    beq := eqTree
+  instance [BEq α] : BEq (BinTree α) where
+    beq := eqBinTree
 
-  def hashTree [Hashable α] : Tree α → UInt64
-    | Tree.leaf =>
+  def hashBinTree [Hashable α] : BinTree α → UInt64
+    | BinTree.leaf =>
       0
-    | Tree.branch left x right =>
-      mixHash 1 (mixHash (hashTree left) (mixHash (hash x) (hashTree right)))
+    | BinTree.branch left x right =>
+      mixHash 1 (mixHash (hashBinTree left) (mixHash (hash x) (hashBinTree right)))
 
-  instance [Hashable α] : Hashable (Tree α) where
-    hash := hashTree
+  instance [Hashable α] : Hashable (BinTree α) where
+    hash := hashBinTree
 stop book declaration
 
 book declaration {{{ HashableNonEmptyList }}}
@@ -1298,23 +1298,6 @@ book declaration {{{ foldMap }}}
     go M.neutral xs
 stop book declaration
 
-expect error {{{ notAType }}}
-  def five : "Type" := 5
-message
-"type expected
-failed to synthesize instance
-  CoeSort String ?m.30189"
-end expect
-
-expect error {{{ notAType2 }}}
-  def five : List := []
-message
-"type expected
-failed to synthesize instance
-  CoeSort (Type ?u.30187 → Type ?u.30187) ?m.30192"
-end expect
-
-
 book declaration {{{ CoeBoolProp }}}
   instance : CoeSort Bool Prop where
     coe b := b = true
@@ -1415,7 +1398,7 @@ argument
 has type
   NonEmptyList String : Type
 but is expected to have type
-  List ?m.31276 : Type ?u.31274"
+  List ?m.33046 : Type ?u.33044"
 end expect
 
 expect error {{{ lastSpiderC }}}

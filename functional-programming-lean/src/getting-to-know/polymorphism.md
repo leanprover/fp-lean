@@ -409,7 +409,7 @@ yields the message:
 For technical reasons, allowing these datatypes could make it possible to undermine Lean's internal logic, making it unsuitable for use as a theorem prover.
 
 Forgetting an argument to an inductive type can also yield a confusing message.
-For instance, the argument `α` is not passed to `MyType` in `ctor`'s type:
+For example, when the argument `α` is not passed to `MyType` in `ctor`'s type:
 ```lean
 {{#example_in Examples/Intro.lean MissingTypeArg}}
 ```
@@ -417,8 +417,9 @@ Lean replies with the following error:
 ```output error
 {{#example_out Examples/Intro.lean MissingTypeArg}}
 ```
-This error occurs because Lean contains an extensible set of rules for "punning" between different types, which allows convenient mathematical notation such as using a type that represents an algebraic structure in a context where its carrier set is expected.
-The error message is saying that `MyType`'s type, which is `Type → Type`, has no such rules.
+The error message is saying that `MyType`'s type, which is `Type → Type`, does not itself describe types.
+`MyType` requires an argument to become an actual honest-to-goodness type.
+
 The same message can appear when type arguments are omitted in other contexts, such as in a type signature for a definition:
 ```lean
 {{#example_decl Examples/Intro.lean MyTypeDef}}

@@ -861,7 +861,7 @@ end expect
 expect info {{{ replaceXImpT }}}
   #check replaceX
 message
-  "replaceX : PPoint ?m.16938 → ?m.16938 → PPoint ?m.16938"
+  "replaceX : PPoint ?m.13159 → ?m.13159 → PPoint ?m.13159"
 end expect
 
 book declaration {{{ lengthImp }}}
@@ -1029,18 +1029,18 @@ expect error {{{ headNoneBad }}}
   #eval [].head?
 message
 "don't know how to synthesize implicit argument
-  @List.nil ?m.22906
+  @List.nil ?m.19125
 context:
-⊢ Type ?u.22903"
+⊢ Type ?u.19122"
 end expect
 
 expect error {{{ headNoneBad2 }}}
   #eval [].head?
 message
 "don't know how to synthesize implicit argument
-  @_root_.List.head? ?m.22906 []
+  @_root_.List.head? ?m.19125 []
 context:
-⊢ Type ?u.22903"
+⊢ Type ?u.19122"
 end expect
 
 
@@ -1200,9 +1200,8 @@ expect error {{{ MissingTypeArg }}}
   inductive MyType (α : Type) : Type where
     | ctor : α → MyType
 message
-"type expected
-failed to synthesize instance
-  CoeSort (Type → Type) ?m.32363"
+"type expected, got
+  (MyType : Type → Type)"
 end expect
 
 book declaration {{{ MyTypeDef }}}
@@ -1213,9 +1212,8 @@ stop book declaration
 expect error {{{ MissingTypeArg2 }}}
   def ofFive : MyType := ctor 5
 message
-"type expected
-failed to synthesize instance
-  CoeSort (Type → Type) ?m.32602"
+"type expected, got
+  (MyType : Type → Type)"
 end expect
 
 -- Example solution
@@ -1624,7 +1622,7 @@ end bookExample
 expect error {{{ pointPosEvalNoType }}}
   #eval ⟨1, 2⟩
 message
-"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.41162"
+"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.33767"
 end expect
 
 expect info {{{ pointPosWithType }}}

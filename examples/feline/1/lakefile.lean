@@ -5,7 +5,7 @@ package feline {
   -- add package configuration options here
 }
 
-@[defaultTarget]
+@[default_target]
 lean_exe feline {
   root := `Main
 }

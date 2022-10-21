@@ -134,7 +134,7 @@ yields a type that contains two metavariables, one for the remaining argument an
 ```
 
 In the vast majority of cases, when someone supplies one argument to addition, the other argument will have the same type.
-To make this instance into a default instance, apply the `defaultInstance` attribute:
+To make this instance into a default instance, apply the `default_instance` attribute:
 ```lean
 {{#example_decl Examples/Classes.lean defaultAdd}}
 ```

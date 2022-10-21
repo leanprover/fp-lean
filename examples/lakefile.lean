@@ -9,7 +9,7 @@ lean_lib Examples {
   -- add lib config here
 }
 
-@[defaultTarget]
+@[default_target]
 lean_exe examples {
   root := `Main
 }
