@@ -8,6 +8,10 @@ This version of the text is written for Lean 4 release `{{#lean_version}}`.
 
 ## Release history
 
+### October, 2022
+
+This release completes the chapter on type classes. In addition, a short interlude introducing propositions, proofs, and tactics has been added just before the chapter on type classes, because a small amount of familiarity with the concepts helps to understand some of the standard library type classes.
+
 ### September, 2022
 
 This release adds the first half of a chapter on type classes, which are Lean's mechanism for overloading operators and an important means of organizing code and structuring libraries. Additionally, the second chapter has been updated to account for changes in Lean's stream API.
