@@ -205,7 +205,7 @@ results in
 ## Functors
 
 A polymorphic type is a _functor_ if it has an overload for a function named `map` that transforms every element contained in it by a function.
-While most languages use this terminology, C#'s equivalent to `map` is called `Select`.
+While most languages use this terminology, C#'s equivalent to `map` is called `System.Linq.Enumerable.Select`.
 For example, mapping a function over a list constructs a new list in which each entry from the starting list has been replaced by the result of the function on that entry.
 Mapping a function `f` over an `Option` leaves `none` untouched, and replaces `some x` with `some (f x)`.
 
