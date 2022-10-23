@@ -29,7 +29,7 @@
   - [Coercions](type-classes/coercion.md)
   - [Additional Conveniences](type-classes/conveniences.md)
   - [Summary](type-classes/summary.md)
-- [Monads]()
+- [Monads](./monads.md)
 - [IO Revisited]()
 - [Monad Transformers]()
 - [Programming with Dependent Types]()
