@@ -1,64 +1,93 @@
 import Examples.Support
 
 namespace Monads.Option
-def first (xs : List α) : Option α :=
-  xs[0]?
 
-def firstThird (xs : List α) : Option (α × α) :=
-  match xs[0]? with
-  | none => none
-  | some first =>
-    match xs[2]? with
-    | none => none
-    | some third =>
-      some (first, third)
 
-def firstThirdFifth (xs : List α) : Option (α × α × α) :=
-  match xs[0]? with
-  | none => none
-  | some first =>
-    match xs[2]? with
+book declaration {{{ first }}}
+  def first (xs : List α) : Option α :=
+    xs[0]?
+stop book declaration
+
+
+book declaration {{{ firstThird }}}
+  def firstThird (xs : List α) : Option (α × α) :=
+    match xs[0]? with
     | none => none
-    | some third =>
-      match xs[4]? with
+    | some first =>
+      match xs[2]? with
       | none => none
-      | some fifth =>
-        some (first, third, fifth)
+      | some third =>
+        some (first, third)
+stop book declaration
 
-def firstThirdFifthSeventh (xs : List α) : Option (α × α × α × α) :=
-  match xs[0]? with
-  | none => none
-  | some first =>
-    match xs[2]? with
+
+book declaration {{{ firstThirdFifth }}}
+  def firstThirdFifth (xs : List α) : Option (α × α × α) :=
+    match xs[0]? with
     | none => none
-    | some third =>
-      match xs[4]? with
+    | some first =>
+      match xs[2]? with
       | none => none
-      | some fifth =>
-        match xs[6]? with
+      | some third =>
+        match xs[4]? with
         | none => none
-        | some seventh =>
-          some (first, third, fifth, seventh)
+        | some fifth =>
+          some (first, third, fifth)
+stop book declaration
 
-def andThen (opt : Option α) (next : α → Option β) : Option β :=
-  match opt with
-  | none => none
-  | some x => next x
 
-def firstThird' (xs : List α) : Option (α × α) :=
-  andThen xs[0]? <|
-  fun first  => andThen xs[2]? <|
-  fun third => some (first, third)
+book declaration {{{ firstThirdFifthSeventh }}}
+  def firstThirdFifthSeventh (xs : List α) : Option (α × α × α × α) :=
+    match xs[0]? with
+    | none => none
+    | some first =>
+      match xs[2]? with
+      | none => none
+      | some third =>
+        match xs[4]? with
+        | none => none
+        | some fifth =>
+          match xs[6]? with
+          | none => none
+          | some seventh =>
+            some (first, third, fifth, seventh)
+stop book declaration
+
+namespace M
+book declaration {{{ andThenOption }}}
+  def andThen (opt : Option α) (next : α → Option β) : Option β :=
+    match opt with
+    | none => none
+    | some x => next x
+stop book declaration
+
+
+book declaration {{{ firstThirdandThen }}}
+  def firstThird (xs : List α) : Option (α × α) :=
+    andThen xs[0]? fun first =>
+    andThen xs[2]? fun third =>
+    some (first, third)
+stop book declaration
 
 infixl:55 " ~~> " => andThen
 
-def ok (x : α) : Option α := some x
-
-def firstThird'' (xs : List α) : Option (α × α) :=
+def firstThirdInfix (xs : List α) : Option (α × α) :=
   xs[0]? ~~> fun first =>
   xs[2]? ~~> fun third =>
-  ok (first, third)
+  some (first, third)
+
+def firstThirdFifthSeventh (xs : List α) : Option (α × α × α × α) :=
+  xs[0]? ~~> fun first =>
+  xs[2]? ~~> fun third =>
+  xs[4]? ~~> fun fifth =>
+  xs[6]? ~~> fun seventh =>
+  some (first, third, fifth, seventh)
+
+end M
+
 end Monads.Option
+
+
 
 namespace Monads.Err
 
