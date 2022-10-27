@@ -69,20 +69,66 @@ book declaration {{{ firstThirdandThen }}}
     some (first, third)
 stop book declaration
 
-infixl:55 " ~~> " => andThen
+namespace ExplicitParens
+book declaration {{{ firstThirdandThenExpl }}}
+  def firstThird (xs : List α) : Option (α × α) :=
+    andThen xs[0]? (fun first =>
+      andThen xs[2]? (fun third =>
+        some (first, third)))
+stop book declaration
+end ExplicitParens
 
-def firstThirdInfix (xs : List α) : Option (α × α) :=
-  xs[0]? ~~> fun first =>
-  xs[2]? ~~> fun third =>
-  some (first, third)
+namespace Fixity
+axiom w : Nat
+axiom x : Nat
+axiom y : Nat
+axiom z : Nat
 
-def firstThirdFifthSeventh (xs : List α) : Option (α × α × α × α) :=
-  xs[0]? ~~> fun first =>
-  xs[2]? ~~> fun third =>
-  xs[4]? ~~> fun fifth =>
-  xs[6]? ~~> fun seventh =>
-  some (first, third, fifth, seventh)
+bookExample {{{ plusFixity }}}
+  w + x + y + z
+  ===>
+  (((w + x) + y) + z)
+end bookExample
 
+bookExample {{{ powFixity }}}
+  w ^ x ^ y ^ z
+  ===>
+  (w ^ (x ^ (y ^ z)))
+end bookExample
+
+bookExample {{{ plusTimesPrec }}}
+  x + y * z
+  ===>
+  x + (y * z)
+end bookExample
+
+
+end Fixity
+
+
+
+book declaration {{{ andThenOptArr }}}
+  infixl:55 " ~~> " => andThen
+stop book declaration
+
+
+
+book declaration {{{ firstThirdInfix }}}
+  def firstThirdInfix (xs : List α) : Option (α × α) :=
+    xs[0]? ~~> fun first =>
+    xs[2]? ~~> fun third =>
+    some (first, third)
+stop book declaration
+
+
+book declaration {{{ firstThirdFifthSeventInfix }}}
+  def firstThirdFifthSeventh (xs : List α) : Option (α × α × α × α) :=
+    xs[0]? ~~> fun first =>
+    xs[2]? ~~> fun third =>
+    xs[4]? ~~> fun fifth =>
+    xs[6]? ~~> fun seventh =>
+    some (first, third, fifth, seventh)
+stop book declaration
 end M
 
 end Monads.Option
