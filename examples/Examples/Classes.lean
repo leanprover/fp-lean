@@ -1145,13 +1145,27 @@ book declaration {{{ Coe }}}
   class Coe (α : Type) (β : Type) where
     coe : α → β
 stop book declaration
+
+book declaration {{{ CoeTail }}}
+  class CoeTail (α : Type) (β : Type) where
+    coe : α → β
+stop book declaration
+
+book declaration {{{ CoeHead }}}
+  class CoeHead (α : Type) (β : Type) where
+    coe : α → β
+stop book declaration
+
 end FakeCoe
 
 similar datatypes Coe FakeCoe.Coe
+similar datatypes CoeTail FakeCoe.CoeTail
+similar datatypes CoeHead FakeCoe.CoeHead
+
 
 
 book declaration {{{ CoeOption }}}
-  instance : Coe α (Option α) where
+  instance : CoeTail α (Option α) where
     coe x := some x
 stop book declaration
 
@@ -1168,16 +1182,18 @@ stop book declaration
 end L
 
 
-book declaration {{{ perhapsPerhapsPerhaps }}}
+expect error {{{ perhapsPerhapsPerhaps }}}
   def perhapsPerhapsPerhaps : Option (Option (Option String)) :=
     "Please don't tell me"
-stop book declaration
-
-expect info {{{ evalPerhaps }}}
-  #eval perhapsPerhapsPerhaps
 message
-  "some (some (some \"Please don't tell me\"))"
+"type mismatch
+  \"Please don't tell me\"
+has type
+  String : Type
+but is expected to have type
+  Option (Option (Option String)) : Type"
 end expect
+
 
 expect error {{{ ofNatBeforeCoe }}}
   def perhapsPerhapsPerhapsNat : Option (Option (Option Nat)) :=
@@ -1422,11 +1438,32 @@ instance : CoeDep (List α) (x :: xs) (NonEmptyList α) where
   coe := ⟨x, xs⟩
 
 
+book declaration {{{ CoercionCycle }}}
+  inductive A where
+    | a
 
+  inductive B where
+    | b
+
+  instance : Coe A B where
+    coe _ := B.b
+
+  instance : Coe B A where
+    coe _ := A.a
+
+  instance : Coe Unit A where
+    coe _ := A.a
+
+  def b : B := Unit.unit
+stop book declaration
 
 book declaration {{{ CoePosNat }}}
   instance : Coe Pos Nat where
     coe x := x.toNat
+stop book declaration
+
+book declaration {{{ posInt }}}
+  def one : Int := Pos.one
 stop book declaration
 
 expect info {{{ dropPosCoe }}}
