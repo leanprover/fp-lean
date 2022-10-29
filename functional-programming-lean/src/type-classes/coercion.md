@@ -47,26 +47,45 @@ Using `#check` shows the result of the instance search that was used behind the 
 {{#example_out Examples/Classes.lean checkDropPosCoe}}
 ```
 
-## Options and Chaining Coercions
+## Chaining Coercions
 
-The `Option` type can be used similarly to nullable types in C# and Kotlin: the `none` constructor represents the absence of a value.
-The Lean standard library defines an instance of `Coe α (Option α)` that wraps the argument to `coe` in `some`:
+When searching for coercions, Lean will attempt to assemble a coercion out of a chain of smaller coercions.
+For example, there is already a coercion from `Nat` to `Int`.
+Because of that instance, combined with the `Coe Pos Nat` instance, the following code is accepted:
 ```lean
-{{#example_decl Examples/Classes.lean CoeOption}}
+{{#example_decl Examples/Classes.lean posInt}}
 ```
+This definition uses two coercions: from `Pos` to `Nat`, and then from `Nat` to `Int`.
+
+The Lean compiler does not get stuck in the presence of circular coercions.
+For example, even if two types `A` and `B` can be coerced to one another, their mutual coercions can be used to find a path:
+```lean
+{{#example_decl Examples/Classes.lean CoercionCycle}}
+```
+
+Some coercions, however, should only be applied once.
+The `Option` type can be used similarly to nullable types in C# and Kotlin: the `none` constructor represents the absence of a value.
+The Lean standard library defines a coercion from any type `α` to `Option α` that wraps the value in in `some`.
 This allows option types to be used in manner even more similar to nullable types, because `some` can be omitted.
 For instance, the function `List.getLast?` that finds the last entry in a list can be written without a `some` around the return value `x`:
 ```lean
 {{#example_decl Examples/Classes.lean lastHuh}}
 ```
-Instance search finds the `Coe` instance, and inserts a call to `coe`, which wraps the argument in `some`.
+Instance search finds the coercion, and inserts a call to `coe`, which wraps the argument in `some`.
 
-Coercions may also be chained.
-For instance, a `String` may be used in a context that expects an `Option (Option (Option String))`:
+However, rather than defining a `Coe α (Option α)` instance, the library defines an instance of a class called `CoeTail`.
+Unlike `Coe`, `CoeTail` is consulted only as the last step in a sequence of coercions, and it is used at most once:
 ```lean
-{{#example_decl Examples/Classes.lean perhapsPerhapsPerhaps}}
+{{#example_decl Examples/Classes.lean CoeOption}}
 ```
-The result of `{{#example_in Examples/Classes.lean evalPerhaps}}` is `{{#example_out Examples/Classes.lean evalPerhaps}}`, demonstrating that `Coe.coe` was used three times.
+This means that the following definition is rejected, as it would require multiple uses of the coercion:
+```lean
+{{#example_in Examples/Classes.lean perhapsPerhapsPerhaps}}
+```
+```output error
+{{#example_out Examples/Classes.lean perhapsPerhapsPerhaps}}
+```
+Similarly, there is a `CoeHead` class that is used at most once at the beginning of a chain of coercions.
 
 ## Non-Empty Lists and Dependent Coercions
 
@@ -245,4 +264,11 @@ More generally, when a coercion is not applied for some reason, the user receive
 
 Finally, coercions are not applied in the context of field accessor notation.
 This means that there is still an important difference between expressions that need to be coerced and those that don't, and this difference is visible to users of your API.
+
+## Some Gory Details
+
+This chapter described a somewhat simplified picture of the coercion system.
+In fact, `Coe` is one of three type classes that are used to coerce ordinary expressions from one type to another.
+There are also `CoeHead`, instances of which are applied at most once at the beginning of a chain of coercions, and `CoeTail`, which is applied at most once following the other coercions.
+
 
