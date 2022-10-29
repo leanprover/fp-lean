@@ -110,7 +110,7 @@ Lean's built-in addition operator is syntactic sugar for a type class called `HA
 For example, an `HAdd` instance can be written to allow a `Nat` to be added to a `Float`, resulting in a new `Float`.
 When a programmer writes `{{#example_eval Examples/Classes.lean plusDesugar 0}}`, it is interpreted as meaning `{{#example_eval Examples/Classes.lean plusDesugar 1}}`.
 
-While an understanding the full generality of `HAdd` relies on features that are discussed in [another section in this chapter](out-params.md), there is a simpler type class called `Add` that does not allow the types of the arguments to be mixed.
+While an understanding of the full generality of `HAdd` relies on features that are discussed in [another section in this chapter](out-params.md), there is a simpler type class called `Add` that does not allow the types of the arguments to be mixed.
 The Lean libraries are set up so that an instance of `Add` will be found when searching for an instance of `HAdd` in which both arguments have the same type.
 
 Defining an instance of `Add Pos` allows `Pos` values to use ordinary addition syntax:
@@ -162,7 +162,7 @@ Additionally, if a type has a `ToString` instance, then it can be used to displa
 
 For multiplication, there is a type class called `HMul` that allows mixed argument types, just like `HAdd`.
 Just as `{{#example_eval Examples/Classes.lean plusDesugar 0}}` is interpreted as `{{#example_eval Examples/Classes.lean plusDesugar 1}}`, `{{#example_eval Examples/Classes.lean timesDesugar 0}}` is interpreted as `{{#example_eval Examples/Classes.lean timesDesugar 1}}`.
-For the common case of multiplication of two arguments with the same time, a `Mul` instance suffices.
+For the common case of multiplication of two arguments with the same type, a `Mul` instance suffices.
 
 An instance of `Mul` allows ordinary multiplication syntax to be used with `Pos`:
 ```lean
@@ -228,7 +228,7 @@ On the other hand, out-of-bounds literals are still not allowed:
 ```
 
 For `Pos`, the `OfNat` instance should work for _any_ `Nat` other than `Nat.zero`.
-Another way to phrase this is to say that for all natural numbers `n`, the instance should work for `n + 1`
+Another way to phrase this is to say that for all natural numbers `n`, the instance should work for `n + 1`.
 Just as names like `α` automatically become implicit arguments to functions that Lean fills out on its own, instances can take automatic implicit arguments.
 In this instance, the argument `n` stands for any `Nat`, and the instance is defined for a `Nat` that's one greater:
 ```lean

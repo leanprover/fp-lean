@@ -16,7 +16,7 @@ Instances of `HAdd Nat Pos Pos` and `HAdd Pos Nat Pos` allow ordinary addition n
 ```lean
 {{#example_decl Examples/Classes.lean haddInsts}}
 ```
-For instance, given the above two instances, the following examples work:
+Given the above two instances, the following examples work:
 ```lean
 {{#example_in Examples/Classes.lean posNatEx}}
 ```
