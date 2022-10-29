@@ -746,7 +746,7 @@ end bookExample
 book declaration {{{ NEListGetHuh }}}
   def NonEmptyList.get? : NonEmptyList α → Nat → Option α
     | xs, 0 => some xs.head
-    | {head := _, tail := []}, n + 1 => none
+    | {head := _, tail := []}, _ + 1 => none
     | {head := _, tail := h :: t}, n + 1 => get? {head := h, tail := t} n
 stop book declaration
 
@@ -887,7 +887,7 @@ expect error {{{ funEqDec }}}
   if (fun (x : Nat) => 1 + x) = (Nat.succ ·) then "yes" else "no"
 message
 "failed to synthesize instance
-  Decidable ((fun x => 1 + x) = fun a => Nat.succ a)"
+  Decidable ((fun x => 1 + x) = fun x => Nat.succ x)"
 end expect
 
 bookExample : Nat {{{ ifProp }}}
@@ -1414,7 +1414,7 @@ argument
 has type
   NonEmptyList String : Type
 but is expected to have type
-  List ?m.33046 : Type ?u.33044"
+  List ?m.32988 : Type ?u.32986"
 end expect
 
 expect error {{{ lastSpiderC }}}
@@ -1454,7 +1454,7 @@ book declaration {{{ CoercionCycle }}}
   instance : Coe Unit A where
     coe _ := A.a
 
-  def b : B := Unit.unit
+  def coercedToB : B := Unit.unit
 stop book declaration
 
 book declaration {{{ CoePosNat }}}
@@ -1463,7 +1463,7 @@ book declaration {{{ CoePosNat }}}
 stop book declaration
 
 book declaration {{{ posInt }}}
-  def one : Int := Pos.one
+  def oneInt : Int := Pos.one
 stop book declaration
 
 expect info {{{ dropPosCoe }}}

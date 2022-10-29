@@ -1,5 +1,7 @@
 import Examples.Support
 
+set_option linter.unusedVariables false
+
 bookExample {{{ three }}}
   1 + 2
   ===>
@@ -861,7 +863,7 @@ end expect
 expect info {{{ replaceXImpT }}}
   #check replaceX
 message
-  "replaceX : PPoint ?m.13159 → ?m.13159 → PPoint ?m.13159"
+  "replaceX : PPoint ?m.13164 → ?m.13164 → PPoint ?m.13164"
 end expect
 
 book declaration {{{ lengthImp }}}
@@ -1029,18 +1031,18 @@ expect error {{{ headNoneBad }}}
   #eval [].head?
 message
 "don't know how to synthesize implicit argument
-  @List.nil ?m.19125
+  @List.nil ?m.19130
 context:
-⊢ Type ?u.19122"
+⊢ Type ?u.19127"
 end expect
 
 expect error {{{ headNoneBad2 }}}
   #eval [].head?
 message
 "don't know how to synthesize implicit argument
-  @_root_.List.head? ?m.19125 []
+  @_root_.List.head? ?m.19130 []
 context:
-⊢ Type ?u.19122"
+⊢ Type ?u.19127"
 end expect
 
 
@@ -1622,7 +1624,7 @@ end bookExample
 expect error {{{ pointPosEvalNoType }}}
   #eval ⟨1, 2⟩
 message
-"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.33767"
+"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.33784"
 end expect
 
 expect info {{{ pointPosWithType }}}
