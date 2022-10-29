@@ -297,6 +297,7 @@ Using `State` and its helpers, local mutable state can be simulated:
 ```lean
 {{#example_decl Examples/Monads.lean numberMonadicish}}
 ```
+Because `State` simulates only a single local variable, `get` and `set` don't need to refer to any particular variable name.
 
 ## Monads: A Functional Design Pattern
 
