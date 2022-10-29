@@ -94,7 +94,7 @@ The API's clients are freed from the burden of plumbing together all of the nece
 The type of `{{#example_in Examples/Classes.lean ofNatType}}` may be surprising.
 It is `{{#example_out Examples/Classes.lean ofNatType}}`, in which the `Nat` argument `n` occurs as an explicit function argument.
 In the declaration of the method, however, `ofNat` simply has type `α`.
-This seeming discrepancy is because the declaring a type class really results in the following:
+This seeming discrepancy is because declaring a type class really results in the following:
 
  * A structure type to contain the implementation of each overloaded operation
  * A namespace with the same name as the class
@@ -103,7 +103,7 @@ This seeming discrepancy is because the declaring a type class really results in
 This is analogous to the way that declaring a new structure also declares accessor functions.
 The primary difference is that a structure's accessors take the structure value as an explicit argument, while the type class methods take the instance value as an instance implicit to be found automatically by Lean.
 
-In order for the Lean to find an instance, its arguments must be available.
+In order for Lean to find an instance, its arguments must be available.
 This means that each argument to the type class must be an argument to the method that occurs before the instance.
 It is most convenient when these arguments are implicit, because Lean does the work of discovering their values.
 For example, `{{#example_in Examples/Classes.lean addType}}` has the type `{{#example_out Examples/Classes.lean addType}}`.
