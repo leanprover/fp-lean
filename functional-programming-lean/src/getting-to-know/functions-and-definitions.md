@@ -138,7 +138,7 @@ and
 ```
 are accepted without issue.
 
-Behind the scenes, some definitions are internally marked as being unfoldable during during overload resolution, while others are not.
+Behind the scenes, some definitions are internally marked as being unfoldable during overload resolution, while others are not.
 Definitions that are to be unfolded are called _reducible_.
 Control over reducibility is essential to allow Lean to scale: fully unfolding all definitions can result in very large types that are slow for a machine to process and difficult for users to understand.
 Definitions produced with `abbrev` are marked as reducible.
