@@ -248,7 +248,7 @@ Coercions, used wisely, are a valuable means of achieving readable code that can
 APIs that rely heavily on coercions have a number of important limitations, however.
 Think carefully about these limitations before using coercions in your own libraries.
 
-First off,coercions are only applied in contexts where enough type information is available for Lean to know all of the types involved, because there are no output parameters in the coercion type classes. This means that a return type annotation on a function can be the difference between a type error and a successfully applied coercion.
+First off, coercions are only applied in contexts where enough type information is available for Lean to know all of the types involved, because there are no output parameters in the coercion type classes. This means that a return type annotation on a function can be the difference between a type error and a successfully applied coercion.
 For example, the coercion from non-empty lists to lists makes the following program work:
 ```lean
 {{#example_decl Examples/Classes.lean lastSpiderA}}
