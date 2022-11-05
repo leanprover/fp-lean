@@ -199,3 +199,42 @@ def evalOpState (op : Prim Empty) (x : Int) (y : Int) : State Nat Int :=
 #eval evaluate evalOpExcept (Expr.prim Prim.plus (Expr.const 2) (Expr.prim (Prim.other CanFail.div) (Expr.const 3) (Expr.const 0)))
 #eval evaluate evalOpWithLog (Expr.prim Prim.plus (Expr.const 2) (Expr.prim Prim.times (Expr.const 3) (Expr.const 5)))
 #eval evaluate evalOpId (Expr.prim Prim.plus (Expr.const 2) (Expr.prim Prim.times (Expr.const 3) (Expr.const 5)))
+
+inductive Many (α : Type) where
+  | nil : Many α
+  | cons : α → (Unit → Many α) → Many α
+
+def Many.append : Many α → Many α → Many α
+  | .nil, ys => ys
+  | .cons x xs, ys => .cons x (fun ⟨⟩ => append (xs ⟨⟩) ys)
+
+def Many.bind : Many α → (α → Many β) → Many β
+  | .nil, _ => .nil
+  | .cons x more, f => (f x).append (bind (more ⟨⟩) f)
+
+instance : Monad Many where
+  pure x := .cons x (fun ⟨⟩ => .nil)
+  bind := Many.bind
+
+def Many.fromList : List α → Many α
+  | [] => .nil
+  | x :: xs => .cons x (fun ⟨⟩ => fromList xs)
+
+def Many.take : Nat → Many α → List α
+  | 0, _ => []
+  | _ + 1, .nil => []
+  | n + 1, .cons x xs => x :: (xs ⟨⟩).take n
+
+inductive ManyPrim
+  | both
+  | neither
+
+def evalOpMany (op : Prim ManyPrim) (x : Int) (y : Int) : Many Int :=
+  match op with
+  | Prim.plus => pure (x + y)
+  | Prim.minus => pure (x - y)
+  | Prim.times => pure (x * y)
+  | Prim.other ManyPrim.both => Many.fromList [x, y]
+  | Prim.other ManyPrim.neither => Many.nil
+
+#eval evaluate evalOpMany (Expr.prim Prim.plus (Expr.const 2) (Expr.prim (Prim.other ManyPrim.both) (Expr.const 3) (Expr.const 5))) |> Many.take 5
