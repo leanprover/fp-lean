@@ -88,17 +88,17 @@ In the case of `firstThirdFifthSeventh`, it is likely relevant for a user to kno
 
 This is typically accomplished by defining a datatype that can be an error or a result, and translating functions with exceptions into functions that return this datatype:
 ```lean
-{{#example_decl Examples/Monads.lean Err}}
+{{#example_decl Examples/Monads.lean Except}}
 ```
 The type variable `ε` stands for the type of errors that can be produced by the function.
 Callers are expected to handle both errors and successes, which makes the type variable `ε` a bit like checked exceptions in Java.
 
-Similarly to `Option`, `Err` can be used to indicate a failure to find an entry in a list.
+Similarly to `Option`, `Except` can be used to indicate a failure to find an entry in a list.
 In this case, the error type is a `String`:
 ```lean
-{{#example_decl Examples/Monads.lean getErr}}
+{{#example_decl Examples/Monads.lean getExcept}}
 ```
-Looking up an in-bounds value yields an `Err.success`:
+Looking up an in-bounds value yields an `Except.ok`:
 ```lean
 {{#example_decl Examples/Monads.lean ediblePlants}}
 
@@ -107,7 +107,7 @@ Looking up an in-bounds value yields an `Err.success`:
 ```output info
 {{#example_out Examples/Monads.lean success}}
 ```
-Looking up an out-of-bounds value yields an `Err.failure`:
+Looking up an out-of-bounds value yields an `Except.failure`:
 ```lean
 {{#example_in Examples/Monads.lean failure}}
 ```
@@ -117,56 +117,56 @@ Looking up an out-of-bounds value yields an `Err.failure`:
 
 A single list lookup can conveniently return a value or an error:
 ```lean
-{{#example_decl Examples/Monads.lean firstErr}}
+{{#example_decl Examples/Monads.lean firstExcept}}
 ```
 However, performing two list lookups requires handling potential failures:
 ```lean
-{{#example_decl Examples/Monads.lean firstThirdErr}}
+{{#example_decl Examples/Monads.lean firstThirdExcept}}
 ```
 Adding another list lookup to the function requires still more error handling:
 ```lean
-{{#example_decl Examples/Monads.lean firstThirdFifthErr}}
+{{#example_decl Examples/Monads.lean firstThirdFifthExcept}}
 ```
 And one more list lookup begins to become quite unmanageable:
 ```lean
-{{#example_decl Examples/Monads.lean firstThirdFifthSeventhErr}}
+{{#example_decl Examples/Monads.lean firstThirdFifthSeventhExcept}}
 ```
 
 Once again, a common pattern can be factored out into a helper.
 Each step through the function checks for an error, and only proceeds with the rest of the computation if the result was a success.
-A new version of `andThen` can be defined for `Err`:
+A new version of `andThen` can be defined for `Except`:
 ```lean
-{{#example_decl Examples/Monads.lean andThenErr}}
+{{#example_decl Examples/Monads.lean andThenExcept}}
 ```
 Just as with `Option`, this version of `andThen` allows a more concise definition of `firstThird`:
 ```lean
-{{#example_decl Examples/Monads.lean firstThirdAndThenErr}}
+{{#example_decl Examples/Monads.lean firstThirdAndThenExcept}}
 ```
 
-In both the `Option` and `Err` case, there are two repeating patterns: there is the checking of intermediate results at each step, which has been factored out into `andThen`, and there is the final successful result, which is `some` or `Err.success`, respectively.
+In both the `Option` and `Except` case, there are two repeating patterns: there is the checking of intermediate results at each step, which has been factored out into `andThen`, and there is the final successful result, which is `some` or `Except.ok`, respectively.
 For the sake of convenience, success can be factored out into a helper called `ok`:
 ```lean
-{{#example_decl Examples/Monads.lean okErr}}
+{{#example_decl Examples/Monads.lean okExcept}}
 ```
 Similarly, failure can be factored out into a helper called `fail`:
 ```lean
-{{#example_decl Examples/Monads.lean failErr}}
+{{#example_decl Examples/Monads.lean failExcept}}
 ```
 Using `ok` and `fail` makes `get` a little more readable:
 ```lean
-{{#example_decl Examples/Monads.lean getErrEffects}}
+{{#example_decl Examples/Monads.lean getExceptEffects}}
 ```
 
 
 After adding the infix declaration for `andThen`, `firstThird` can be just as concise as the version that returns an `Option`:
 ```lean
-{{#example_decl Examples/Monads.lean andThenErrInfix}}
+{{#example_decl Examples/Monads.lean andThenExceptInfix}}
 
-{{#example_decl Examples/Monads.lean firstThirdInfixErr}}
+{{#example_decl Examples/Monads.lean firstThirdInfixExcept}}
 ```
 The technique scales similarly to larger functions:
 ```lean
-{{#example_decl Examples/Monads.lean firstThirdFifthSeventInfixErr}}
+{{#example_decl Examples/Monads.lean firstThirdFifthSeventInfixExcept}}
 ```
 
 ## Logging
@@ -210,7 +210,7 @@ Here, however, it is an operation that simply returns a value without logging an
 ```lean
 {{#example_decl Examples/Monads.lean okWithLog}}
 ```
-Just as `Err` provides `fail` as a possibility, `WithLog` should allow items to be added to a log.
+Just as `Except` provides `fail` as a possibility, `WithLog` should allow items to be added to a log.
 This has no interesting return value associated with it, so it returns `Unit`:
 ```lean
 {{#example_decl Examples/Monads.lean save}}
@@ -268,7 +268,7 @@ Just as the Python example uses an outer function that establishes a mutable var
 ```lean
 {{#example_decl Examples/Monads.lean numberDirect}}
 ```
-This code, like the `none`-propagating `Option` code, the `failure`-propagating `Err` code, and the log-accumulating `WithLog` code, commingles two concerns: propagating the value of the counter, and actually traversing the tree to find the result.
+This code, like the `none`-propagating `Option` code, the `failure`-propagating `Except` code, and the log-accumulating `WithLog` code, commingles two concerns: propagating the value of the counter, and actually traversing the tree to find the result.
 Just as in those cases, an `andThen` helper can be defined to propagate state from one step of a computation to another.
 The first step is to give a name to the pattern of taking an input state as an argument and returning an output state together with a value:
 ```lean
@@ -302,7 +302,7 @@ Because `State` simulates only a single local variable, `get` and `set` don't ne
 ## Monads: A Functional Design Pattern
 
 Each of these examples has consisted of:
- * A polymorphic type, such as `Option`, `Err ε`, `WithLog logged`, or `State σ`
+ * A polymorphic type, such as `Option`, `Except ε`, `WithLog logged`, or `State σ`
  * An operator `andThen` that takes care of some repetitive aspect of sequencing programs that have this type
  * An operator `ok` that is (in some sense) the most boring way to use the type
  * A collection of other operations, such as `none`, `fail`, `save`, and `get`, that name ways of using the type
@@ -310,5 +310,5 @@ Each of these examples has consisted of:
 This style of API is called a _monad_.
 While the idea of monads is derived from a branch of mathematics called category theory, no understanding of category theory is needed in order to use them for programming.
 The key idea of monads is that each monad encodes a particular kind of side effect using the tools provided by the pure functional language Lean.
-For example, `Option` represents programs that can fail by returning `none`, `Err` represents programs that can throw exceptions, `WithLog` represents programs that accumulate a log while running, and `State` represents programs with a single mutable variable.
+For example, `Option` represents programs that can fail by returning `none`, `Except` represents programs that can throw exceptions, `WithLog` represents programs that accumulate a log while running, and `State` represents programs with a single mutable variable.
 

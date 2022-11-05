@@ -133,22 +133,24 @@ end M
 
 end Monads.Option
 
-
-book declaration {{{ Err }}}
-  inductive Err (ε : Type) (α : Type) where
-    | failure : ε → Err ε α
-    | success : α → Err ε α
+namespace FakeExcept
+book declaration {{{ Except }}}
+  inductive Except (ε : Type) (α : Type) where
+    | error : ε → Except ε α
+    | ok : α → Except ε α
   deriving BEq, Hashable, Repr
 stop book declaration
+end FakeExcept
+similar datatypes FakeExcept.Except Except
 
 namespace Monads.Err
 
 
-book declaration {{{ getErr }}}
-  def get (xs : List α) (i : Nat) : Err String α :=
+book declaration {{{ getExcept }}}
+  def get (xs : List α) (i : Nat) : Except String α :=
     match xs[i]? with
-    | none => Err.failure s!"Index {i} not found (maximum is {xs.length - 1})"
-    | some x => Err.success x
+    | none => Except.error s!"Index {i} not found (maximum is {xs.length - 1})"
+    | some x => Except.ok x
 stop book declaration
 
 
@@ -160,100 +162,100 @@ stop book declaration
 expect info {{{ success }}}
   #eval get ediblePlants 2
 message
-  "Err.success \"sea buckthorn\""
+  "Except.ok \"sea buckthorn\""
 end expect
 
 expect info {{{ failure }}}
   #eval get ediblePlants 4
 message
-  "Err.failure \"Index 4 not found (maximum is 3)\""
+  "Except.error \"Index 4 not found (maximum is 3)\""
 end expect
 
 
-book declaration {{{ firstErr }}}
-  def first (xs : List α) : Err String α :=
+book declaration {{{ firstExcept }}}
+  def first (xs : List α) : Except String α :=
     get xs 0
 stop book declaration
 
 
-book declaration {{{ firstThirdErr }}}
-  def firstThird (xs : List α) : Err String (α × α) :=
+book declaration {{{ firstThirdExcept }}}
+  def firstThird (xs : List α) : Except String (α × α) :=
     match get xs 0 with
-    | Err.failure msg => Err.failure msg
-    | Err.success first =>
+    | Except.error msg => Except.error msg
+    | Except.ok first =>
       match get xs 2 with
-      | Err.failure msg => Err.failure msg
-      | Err.success third =>
-        Err.success (first, third)
+      | Except.error msg => Except.error msg
+      | Except.ok third =>
+        Except.ok (first, third)
 stop book declaration
 
 
-book declaration {{{ firstThirdFifthErr }}}
-  def firstThirdFifth (xs : List α) : Err String (α × α × α) :=
+book declaration {{{ firstThirdFifthExcept }}}
+  def firstThirdFifth (xs : List α) : Except String (α × α × α) :=
     match get xs 0 with
-    | Err.failure msg => Err.failure msg
-    | Err.success first =>
+    | Except.error msg => Except.error msg
+    | Except.ok first =>
       match get xs 2 with
-      | Err.failure msg => Err.failure msg
-      | Err.success third =>
+      | Except.error msg => Except.error msg
+      | Except.ok third =>
         match get xs 4 with
-        | Err.failure msg => Err.failure msg
-        | Err.success fifth =>
-          Err.success (first, third, fifth)
+        | Except.error msg => Except.error msg
+        | Except.ok fifth =>
+          Except.ok (first, third, fifth)
 stop book declaration
 
 
-book declaration {{{ firstThirdFifthSeventhErr }}}
-  def firstThirdFifthSeventh (xs : List α) : Err String (α × α × α × α) :=
+book declaration {{{ firstThirdFifthSeventhExcept }}}
+  def firstThirdFifthSeventh (xs : List α) : Except String (α × α × α × α) :=
     match get xs 0 with
-    | Err.failure msg => Err.failure msg
-    | Err.success first =>
+    | Except.error msg => Except.error msg
+    | Except.ok first =>
       match get xs 2 with
-      | Err.failure msg => Err.failure msg
-      | Err.success third =>
+      | Except.error msg => Except.error msg
+      | Except.ok third =>
         match get xs 4 with
-        | Err.failure msg => Err.failure msg
-        | Err.success fifth =>
+        | Except.error msg => Except.error msg
+        | Except.ok fifth =>
           match get xs 6 with
-          | Err.failure msg => Err.failure msg
-          | Err.success seventh =>
-            Err.success (first, third, fifth, seventh)
+          | Except.error msg => Except.error msg
+          | Except.ok seventh =>
+            Except.ok (first, third, fifth, seventh)
 stop book declaration
 
 
-book declaration {{{ andThenErr }}}
-  def andThen (attempt : Err e α) (next : α → Err e β) : Err e β :=
+book declaration {{{ andThenExcept }}}
+  def andThen (attempt : Except e α) (next : α → Except e β) : Except e β :=
     match attempt with
-    | Err.failure msg => Err.failure msg
-    | Err.success x => next x
+    | Except.error msg => Except.error msg
+    | Except.ok x => next x
 stop book declaration
 
 namespace AndThen
-book declaration {{{ firstThirdAndThenErr }}}
-  def firstThird' (xs : List α) : Err String (α × α) :=
+book declaration {{{ firstThirdAndThenExcept }}}
+  def firstThird' (xs : List α) : Except String (α × α) :=
     andThen (get xs 0) fun first  =>
     andThen (get xs 2) fun third =>
-    Err.success (first, third)
+    Except.ok (first, third)
 stop book declaration
 end AndThen
 
 
 
-book declaration {{{ andThenErrInfix }}}
+book declaration {{{ andThenExceptInfix }}}
   infixl:55 " ~~> " => andThen
 stop book declaration
 
-book declaration {{{ okErr }}}
-  def ok (x : α) : Err ε α := Err.success x
+book declaration {{{ okExcept }}}
+  def ok (x : α) : Except ε α := Except.ok x
 stop book declaration
 
-book declaration {{{ failErr }}}
-  def fail (err : ε) : Err ε α := Err.failure err
+book declaration {{{ failExcept }}}
+  def fail (err : ε) : Except ε α := Except.error err
 stop book declaration
 
 namespace Eff
-book declaration {{{ getErrEffects }}}
-  def get (xs : List α) (i : Nat) : Err String α :=
+book declaration {{{ getExceptEffects }}}
+  def get (xs : List α) (i : Nat) : Except String α :=
     match xs[i]? with
     | none => fail s!"Index {i} not found (maximum is {xs.length - 1})"
     | some x => ok x
@@ -261,15 +263,15 @@ stop book declaration
 end Eff
 
 namespace WithInfix
-book declaration {{{ firstThirdInfixErr }}}
-  def firstThird (xs : List α) : Err String (α × α) :=
+book declaration {{{ firstThirdInfixExcept }}}
+  def firstThird (xs : List α) : Except String (α × α) :=
     get xs 0 ~~> fun first =>
     get xs 2 ~~> fun third =>
     ok (first, third)
 stop book declaration
 
-book declaration {{{ firstThirdFifthSeventInfixErr }}}
-  def firstThirdFifthSeventh (xs : List α) : Err String (α × α × α × α) :=
+book declaration {{{ firstThirdFifthSeventInfixExcept }}}
+  def firstThirdFifthSeventh (xs : List α) : Except String (α × α × α × α) :=
     get xs 0 ~~> fun first =>
     get xs 2 ~~> fun third =>
     get xs 4 ~~> fun fifth =>
@@ -340,6 +342,7 @@ book declaration {{{ WithLog }}}
     val : α
 stop book declaration
 
+deriving instance Repr for WithLog
 
 book declaration {{{ andThenWithLog }}}
   def andThen (result : WithLog α β) (next : β → WithLog α γ) : WithLog α γ :=
