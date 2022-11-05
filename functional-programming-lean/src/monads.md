@@ -310,3 +310,5 @@ Each of these examples has consisted of:
 This style of API is called a _monad_.
 While the idea of monads is derived from a branch of mathematics called category theory, no understanding of category theory is needed in order to use them for programming.
 The key idea of monads is that each monad encodes a particular kind of side effect using the tools provided by the pure functional language Lean.
+For example, `Option` represents programs that can fail by returning `none`, `Err` represents programs that can throw exceptions, `WithLog` represents programs that accumulate a log while running, and `State` represents programs with a single mutable variable.
+

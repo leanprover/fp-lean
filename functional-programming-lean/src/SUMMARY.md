@@ -30,6 +30,7 @@
   - [Additional Conveniences](type-classes/conveniences.md)
   - [Summary](type-classes/summary.md)
 - [Monads](./monads.md)
+  - [The Monad Type Class](./monads/class.md)
 - [IO Revisited]()
 - [Monad Transformers]()
 - [Programming with Dependent Types]()
