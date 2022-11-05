@@ -173,7 +173,7 @@ For example, a function that adds a constant amount to its argument can be repre
 ```lean
 {{#example_decl Examples/Classes.lean Adder}}
 ```
-A function that adds five to its argument has a `5` in the `howMany` field:
+A function that adds five to its argument has a `5` in the `howMuch` field:
 ```lean
 {{#example_decl Examples/Classes.lean add5}}
 ```
@@ -265,10 +265,5 @@ More generally, when a coercion is not applied for some reason, the user receive
 Finally, coercions are not applied in the context of field accessor notation.
 This means that there is still an important difference between expressions that need to be coerced and those that don't, and this difference is visible to users of your API.
 
-## Some Gory Details
-
-This chapter described a somewhat simplified picture of the coercion system.
-In fact, `Coe` is one of three type classes that are used to coerce ordinary expressions from one type to another.
-There are also `CoeHead`, instances of which are applied at most once at the beginning of a chain of coercions, and `CoeTail`, which is applied at most once following the other coercions.
 
 

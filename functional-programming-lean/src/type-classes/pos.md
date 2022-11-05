@@ -250,7 +250,7 @@ This makes it possible to use natural number literals for positive numbers, but 
 ### Another Representation
 
 An alternative way to represent a positive number is as the successor of some `Nat`.
-Replace the definition of `Pos` with the following structure:
+Replace the definition of `Pos` with a structure whose constructor is named `succ` that contains a `Nat`:
 ```lean
 {{#example_decl Examples/Classes.lean AltPos}}
 ```
