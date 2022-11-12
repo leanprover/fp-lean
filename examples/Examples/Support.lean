@@ -139,8 +139,8 @@ elab_rules : command
         elabCommand cmd
         let afterState <- get
         let newMessages := afterState.messages.msgs.toList
-        let newErrors := newMessages.filter fun m => m.severity == MessageSeverity.error
-        let errStrings <- newErrors.mapM fun err => err.data.toString
+        let newErrors := newMessages.filter (·.severity == MessageSeverity.error)
+        let errStrings <- newErrors.mapM (·.data.toString)
         unless errStrings.containsBy (messagesMatch desiredError) do
           throwError "The desired error {desiredError} was not found in\n{errStrings}"
       finally
