@@ -59,11 +59,11 @@
   (interactive)
   (fp-lean--wrap "```lean" "```"))
 
-(defun fp-lean-info ()
+(defun fp-lean-output-info ()
   (interactive)
   (fp-lean--wrap "```output info" "```"))
 
-(defun fp-lean-text-error ()
+(defun fp-lean-output-error ()
   (interactive)
   (fp-lean--wrap "```output error" "```"))
 
@@ -73,6 +73,12 @@
 (defun fp-lean--examples-dir ()
   "Get the root of the examples."
   (file-name-as-directory (concat (file-name-as-directory (project-root (project-current))) "examples")))
+
+(defun fp-lean--mdbook-dir ()
+  "Get the root of the mdbook project."
+  (file-name-as-directory
+   (concat (file-name-as-directory (project-root (project-current)))
+           "functional-programming-lean")))
 
 (defun fp-lean--make-file-examples-relative (filename)
   "Make a FILENAME be relative to the Lean examples for the book."
@@ -152,3 +158,40 @@
   (insert (format "{{#example_out %s %s}}" file name))
   (newline)
   (insert "```"))
+
+(defvar fp-lean-process nil
+  "Process under which the book is being served (to avoid duplication).")
+
+(defun fp-lean-serve-book ()
+  "Start or restart the server."
+  (interactive)
+  (let ((buffer (if (processp fp-lean-process)
+                    (process-buffer fp-lean-process)
+                  "*FP-Lean-Server*")))
+    (when fp-lean-process
+      (when (processp fp-lean-process)
+        (let ((buf (process-buffer fp-lean-process)))
+          (when (and buf (buffer-live-p buf))
+            (with-current-buffer buf
+              (goto-char (point-max))
+              (insert "\n")
+              (insert (format-time-string "%Y-%m-%d %H:%M:%S - Process killed" (current-time))))))
+        (kill-process fp-lean-process))
+      (setq fp-lean-process nil))
+    (let* ((default-directory (fp-lean--mdbook-dir)))
+      (setq fp-lean-process (start-process "Lean book server" buffer "mdbook" "serve"))
+      (message "Lean book server running in buffer %s" (buffer-name (process-buffer fp-lean-process))))))
+
+(defun fp-lean-ensure-server ()
+   "Ensure a server is running."
+  (interactive)
+  (unless (and fp-lean-process
+               (processp fp-lean-process)
+               (process-live-p fp-lean-process))
+    (fp-lean-serve-book)))
+
+(defun fp-lean-browse-book ()
+  "Open the book."
+  (interactive)
+  (fp-lean-ensure-server)
+  (browse-url "localhost:3000"))
