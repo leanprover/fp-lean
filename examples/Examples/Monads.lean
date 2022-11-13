@@ -1,4 +1,5 @@
 import Examples.Support
+import Examples.Classes
 
 namespace Monads.Option
 
@@ -287,12 +288,12 @@ end Monads.Err
 
 
 
-book declaration {{{ Tree }}}
-  inductive Tree (α : Type) where
-    | leaf : Tree α
-    | branch : Tree α → α → Tree α → Tree α
-  deriving BEq, Hashable, Repr
-stop book declaration
+-- book declaration {{{ Tree }}}
+--   inductive Tree (α : Type) where
+--     | leaf : Tree α
+--     | branch : Tree α → α → Tree α → Tree α
+--   deriving BEq, Hashable, Repr
+-- stop book declaration
 
 namespace Monads.Writer
 
@@ -326,9 +327,9 @@ stop book declaration
 end MoreMonadic
 
 book declaration {{{ preorderSum }}}
-  def preorderSum : Tree Int → List Int × Int
-    | Tree.leaf => ([], 0)
-    | Tree.branch l x r =>
+  def preorderSum : BinTree Int → List Int × Int
+    | BinTree.leaf => ([], 0)
+    | BinTree.branch l x r =>
       let (leftVisited, leftSum) := preorderSum l
       let (hereVisited, hereSum) := ([x], x)
       let (rightVisited, rightSum) := preorderSum r
@@ -376,9 +377,9 @@ stop book declaration
 
 
 book declaration {{{ preorderSumAndThen }}}
-  def preorderSum : Tree Int → WithLog Int Int
-    | Tree.leaf => ok 0
-    | Tree.branch l x r =>
+  def preorderSum : BinTree Int → WithLog Int Int
+    | BinTree.leaf => ok 0
+    | BinTree.branch l x r =>
       andThen (preorderSum l) fun leftSum =>
       andThen (save x) fun ⟨⟩ =>
       andThen (preorderSum r) fun rightSum =>
@@ -404,9 +405,9 @@ book declaration {{{ withInfixLogging }}}
       sumAndFindEvens is ~~> fun sum =>
       ok (i + sum)
 
-  def preorderSum : Tree Int → WithLog Int Int
-    | Tree.leaf => ok 0
-    | Tree.branch l x r =>
+  def preorderSum : BinTree Int → WithLog Int Int
+    | BinTree.leaf => ok 0
+    | BinTree.branch l x r =>
       preorderSum l ~~> fun leftSum =>
       save x ~~> fun ⟨⟩ =>
       preorderSum r ~~> fun rightSum =>
@@ -421,7 +422,7 @@ namespace Monads.State
 
 
 book declaration {{{ aTree }}}
-  open Tree in
+  open BinTree in
   def aTree :=
     branch
       (branch
@@ -432,26 +433,32 @@ book declaration {{{ aTree }}}
       (branch leaf "e" leaf)
 stop book declaration
 
-
+-- TODO include in text
+deriving instance Repr for BinTree
 
 book declaration {{{ numberDirect }}}
-  def number (t : Tree α) : Tree (Nat × α) :=
-    let rec helper (n : Nat) : Tree α → (Nat × Tree (Nat × α))
-      | Tree.leaf => (n, Tree.leaf)
-      | Tree.branch left x right =>
+  def number (t : BinTree α) : BinTree (Nat × α) :=
+    let rec helper (n : Nat) : BinTree α → (Nat × BinTree (Nat × α))
+      | BinTree.leaf => (n, BinTree.leaf)
+      | BinTree.branch left x right =>
         let (k, numberedLeft) := helper n left
         let (i, numberedRight) := helper (k+1) right
-        (i, Tree.branch numberedLeft (k, x) numberedRight)
+        (i, BinTree.branch numberedLeft (k, x) numberedRight)
     (helper 0 t).snd
 stop book declaration
+
+
 
 expect info {{{ numberATree }}}
   #eval number aTree
 message
-"Tree.branch
-  (Tree.branch (Tree.branch (Tree.leaf) (0, \"a\") (Tree.branch (Tree.leaf) (1, \"b\") (Tree.leaf))) (2, \"c\") (Tree.leaf))
+"BinTree.branch
+  (BinTree.branch
+    (BinTree.branch (BinTree.leaf) (0, \"a\") (BinTree.branch (BinTree.leaf) (1, \"b\") (BinTree.leaf)))
+    (2, \"c\")
+    (BinTree.leaf))
   (3, \"d\")
-  (Tree.branch (Tree.leaf) (4, \"e\") (Tree.leaf))"
+  (BinTree.branch (BinTree.leaf) (4, \"e\") (BinTree.leaf))"
 end expect
 
 
@@ -493,15 +500,15 @@ namespace Monadicish
 
 
 book declaration {{{ numberMonadicish }}}
-  def number (t : Tree α) : Tree (Nat × α) :=
-    let rec helper : Tree α → State Nat (Tree (Nat × α))
-      | Tree.leaf => ok Tree.leaf
-      | Tree.branch left x right =>
+  def number (t : BinTree α) : BinTree (Nat × α) :=
+    let rec helper : BinTree α → State Nat (BinTree (Nat × α))
+      | BinTree.leaf => ok BinTree.leaf
+      | BinTree.branch left x right =>
         helper left ~~> fun numberedLeft =>
         get ~~> fun n =>
         set (n + 1) ~~> fun ⟨⟩ =>
         helper right ~~> fun numberedRight =>
-        ok (Tree.branch numberedLeft (n, x) numberedRight)
+        ok (BinTree.branch numberedLeft (n, x) numberedRight)
     (helper t 0).snd
 stop book declaration
 

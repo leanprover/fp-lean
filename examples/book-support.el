@@ -50,6 +50,18 @@
            nil)))
     (or arbitrary-message "")))
 
+(defun fp-lean-save-arbitrary-flycheck-message-to-kill-ring ()
+  "Add an arbitrary Flycheck message from the active region or around point to the kill ring."
+  (interactive)
+  (let ((arbitrary-message
+         (if (use-region-p)
+             (car (fp-lean--flycheck-messages-in (region-beginning) (region-end)))
+           (car (fp-lean--flycheck-messages-in (point) (point))))))
+    (if arbitrary-message
+        (kill-new arbitrary-message)
+      (error "No Flycheck output found here"))))
+
+
 (defun fp-lean--escape (string)
   "Escape STRING for Lean."
   (replace-regexp-in-string

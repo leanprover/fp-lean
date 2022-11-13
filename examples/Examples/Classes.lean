@@ -317,7 +317,7 @@ end bookExample
 expect info {{{ printlnMetas }}}
   #check IO.println
 message
-"IO.println : ?m.3615 → IO Unit"
+"IO.println : ?m.3611 → IO Unit"
 end expect
 
 expect info {{{ printlnNoMetas }}}
@@ -601,7 +601,7 @@ expect error {{{ hPlusOops }}}
   #eval HPlus.hPlus (3 : Pos) (5 : Nat)
 message
 "typeclass instance problem is stuck, it is often due to metavariables
-  HPlus Pos Nat ?m.7158"
+  HPlus Pos Nat ?m.7154"
 end expect
 
 
@@ -649,7 +649,7 @@ end expect
 expect info {{{ plusFiveMeta }}}
   #check HPlus.hPlus (5 : Nat)
 message
-  "HPlus.hPlus 5 : ?m.7323 → ?m.7325"
+  "HPlus.hPlus 5 : ?m.7319 → ?m.7321"
 end expect
 
 
@@ -1414,7 +1414,7 @@ argument
 has type
   NonEmptyList String : Type
 but is expected to have type
-  List ?m.32988 : Type ?u.32986"
+  List ?m.32982 : Type ?u.32980"
 end expect
 
 expect error {{{ lastSpiderC }}}

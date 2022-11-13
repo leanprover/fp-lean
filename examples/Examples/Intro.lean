@@ -1624,7 +1624,7 @@ end bookExample
 expect error {{{ pointPosEvalNoType }}}
   #eval ⟨1, 2⟩
 message
-"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.33784"
+"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.33776"
 end expect
 
 expect info {{{ pointPosWithType }}}

@@ -5,7 +5,7 @@ import Lean.Data.PersistentArray
 syntax withPosition("book" "declaration" "{{{" ws ident ws "}}}" (command*) "stop" "book" "declaration") : command
 
 elab_rules : command
-  | `(book declaration {{{ $name:ident }}} $decls* stop book declaration) => do
+  | `(book declaration {{{ $_name:ident }}} $decls* stop book declaration) => do
     for decl in decls do
       Lean.Elab.Command.elabCommand decl.raw
 
@@ -26,7 +26,7 @@ stop book declaration
 syntax withPosition("bookExample" "{{{" ws ident ws "}}}" colGt term:10 colGt "===>" colGt term:10 "end bookExample") : command
 
 elab_rules : command
-  | `(bookExample {{{ $name:ident }}} $x:term ===> $y:term end bookExample) =>
+  | `(bookExample {{{ $_name:ident }}} $x:term ===> $y:term end bookExample) =>
     open Lean.Elab.Command in
     open Lean.Elab.Term in
     open Lean.Meta in liftTermElabM <| withDeclName `bookExample do
@@ -39,7 +39,7 @@ elab_rules : command
 syntax withPosition("bookExample" ":" term "{{{" ws ident ws "}}}" colGt term:10 colGt "===>" colGt term:10 "end bookExample") : command
 
 elab_rules : command
-  | `(bookExample : $type:term {{{ $name:ident }}} $x:term ===> $y:term end bookExample) =>
+  | `(bookExample : $type:term {{{ $_name:ident }}} $x:term ===> $y:term end bookExample) =>
     open Lean.Elab.Command in
     open Lean.Elab.Term in
     open Lean.Meta in liftTermElabM <| withDeclName `bookExample do
@@ -124,7 +124,7 @@ macro_rules
     `(expect error {{{ $name }}} def x := $expr message $msg end expect)
   | `(expect error $expr:term message $msg:str end expect) =>
     `(expect error def x := $expr message $msg end expect)
-  | `(expect error {{{ $name:ident }}} $cmd:command message $msg:str end expect) =>
+  | `(expect error {{{ $_name:ident }}} $cmd:command message $msg:str end expect) =>
     `(expect error  $cmd:command message $msg:str end expect)
 
 elab_rules : command
@@ -162,7 +162,7 @@ syntax withPosition("expect" "info" "{{{" ws ident ws "}}}" colGt command "messa
 syntax withPosition("expect" "info" colGt command "message" str "end" "expect") : command
 
 macro_rules
-  | `(expect info {{{ $name:ident }}} $cmd:command message $msg:str end expect) =>
+  | `(expect info {{{ $_name:ident }}} $cmd:command message $msg:str end expect) =>
     `(expect info $cmd:command message $msg:str end expect)
 
 elab_rules : command
@@ -241,7 +241,9 @@ elab_rules : command
     open Lean.Elab.Term in
     open Lean in
     open Lean.Meta in do
-      let expected <- liftTermElabM <| withDeclName name.raw.getId <| elabTerm ty none
+      let expected <- liftTermElabM <| withDeclName name.raw.getId <|
+        elabTerm ty none <* synthesizeSyntheticMVarsNoPostponing
+
       let mut current : Option Syntax := none
       for item in exprs do
         if let some v := current then

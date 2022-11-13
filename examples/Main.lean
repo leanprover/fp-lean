@@ -4,6 +4,8 @@ import Examples.Cat
 import Examples.Props
 import Examples.Classes
 import Examples.Classes.Even
+import Examples.Monads
+import Examples.Monads.Class
 
 
 def main : IO Unit := IO.println "The code here is for the book"

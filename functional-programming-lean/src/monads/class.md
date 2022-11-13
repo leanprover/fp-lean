@@ -32,7 +32,7 @@ Given example lists of slow mammals and fast birds, this implementation of `firs
 {{#example_out Examples/Monads/Class.lean someFast}}
 ```
 
-After renaming `Except`'s lookup function `get` to something more readable, the very same  implementation of `firstThirdFifthSeventh` can be used with `Except` as well:
+After renaming `Except`'s lookup function `get` to something more specific, the very same  implementation of `firstThirdFifthSeventh` can be used with `Except` as well:
 ```lean
 {{#example_decl Examples/Monads/Class.lean getOrExcept}}
 
@@ -49,10 +49,97 @@ After renaming `Except`'s lookup function `get` to something more readable, the 
 ```
 The fact that `m` must have a `Monad` instance means that the `>>=` and `pure` operations are available.
 
+
 ## General Monad Operations
 
-Because many different type constructors are monads, functions that are polymorphic over _any_ monad are very powerful.
-For example, the function `mapM` is a version of `map` that uses a `Monad` to sequence and combine the results of applying a function.
+Because many different types are monads, functions that are polymorphic over _any_ monad are very powerful.
+For example, the function `mapM` is a version of `map` that uses a `Monad` to sequence and combine the results of applying a function:
+```lean
+{{#example_decl Examples/Monads/Class.lean mapM}}
+```
+The return type of the function argument `f` determines which `Monad` instance will be used.
+In other words, `mapM` can be used for functions that produce logs, for functions that can fail, or for functions that use mutable state.
+Because `f`'s type determines the available effects, they can be tightly controlled by API designers.
+
+As described in [this chapter's introduction](../monads.md#numbering-tree-nodes), `State σ α` represents programs that make use of a mutable variable of type `σ` and return a value of type `α`.
+These programs are actually functions from a starting state to a pair of a value and a final state.
+The `Monad` class requires that its parameter expect a single type argument—that is, it should be a `Type → Type`.
+This means that the instance for `State` should mention the state type `σ`, which becomes a parameter to the instance:
+```lean
+{{#example_decl Examples/Monads/Class.lean StateMonad}}
+```
+This means that the type of the state cannot change between calls to `get` and `set` that are sequence using `bind`, which is a reasonable rule for stateful computations.
+The operator `increment` increases a saved state by a given amount, returning the old value:
+```lean
+{{#example_decl Examples/Monads/Class.lean increment}}
+```
+
+Using `mapM` with `increment` results in a program that computes the sum of the entries in a list.
+More specifically, the mutable variable contains the sum so far, while the resulting list contains a running sum.
+In other words, `{{#example_in Examples/Monads/Class.lean mapMincrement}}` has type `{{#example_out Examples/Monads/Class.lean mapMincrement}}`, and expanding the definition of `State` yields `{{#example_out Examples/Monads/Class.lean mapMincrement2}}`.
+It takes an initial sum as an argument, which should be `0`:
+```lean
+{{#example_in Examples/Monads/Class.lean mapMincrementOut}}
+```
+```output info
+{{#example_out Examples/Monads/Class.lean mapMincrementOut}}
+```
+
+A [logging effect](../monads.md#logging) can be represented using `WithLog`.
+Just like `State`, its `Monad` instance is polymorphic with respect to the type of the logged data:
+```lean
+{{#example_decl Examples/Monads/Class.lean MonadWriter}}
+```
+`saveIfEven` is a function that logs even numbers but returns its argument unchanged:
+```lean
+{{#example_decl Examples/Monads/Class.lean saveIfEven}}
+```
+Using this function with `mapM` results in a log containing even numbers paired with an unchanged input list:
+```lean
+{{#example_in Examples/Monads/Class.lean mapMsaveIfEven}}
+```
+```output info
+{{#example_out Examples/Monads/Class.lean mapMsaveIfEven}}
+```
+
+
+
+## The Identity Monad
+
+Monads encode programs with effects, such as failure, exceptions, or logging, into explicit representations as data and functions.
+Sometimes, however, an API will be written to use a monad for flexibility, but the API's client may not require any encoded effects.
+The _identity monad_ is a monad that has no effects, and allows pure code to be used with monadic APIs:
+```lean
+{{#example_decl Examples/Monads/Class.lean IdMonad}}
+```
+The type of `pure` should be `α → Id α`, but `Id α` reduces to just `α`.
+Similarly, the type of `bind` should be `α → (α → Id β) → Id β`.
+Because this reduces to `α → (α → β) → β`, the second argument can be applied to the first to find the result.
+
+With the identity monad, `mapM` becomes equivalent to `map`.
+To call it this way, however, Lean requires a hint that the intended monad is `Id`:
+```lean
+{{#example_in Examples/Monads/Class.lean mapMId}}
+```
+```output info
+{{#example_out Examples/Monads/Class.lean mapMId}}
+```
+Omitting the hint results in an error:
+```lean
+{{#example_in Examples/Monads/Class.lean mapMIdNoHint}}
+```
+```output error
+{{#example_out Examples/Monads/Class.lean mapMIdNoHint}}
+```
+In this error, the application of one metavariable to another indicates that Lean doesn't run the type-level computation backwards.
+The return type of the function is expected to be the monad applied to some other type.
+Similarly, using `mapM` with a function that does not itself require type class instance synthesis results in an "instance problem stuck" message:
+```lean
+{{#example_in Examples/Monads/Class.lean mapMIdId}}
+```
+```output error
+{{#example_out Examples/Monads/Class.lean mapMIdId}}
+```
 
 
 ## The Monad Contract
@@ -61,4 +148,10 @@ First, `pure` should be a left identity of `bind`.
 That is, `bind (pure v) f` should be the same as `f v`.
 Secondly, `pure` should be a right identity of `bind`, so `bind v pure` is the same as `v`.
 Finally, `bind` should be associative, so `bind (bind v f) g` is the same as `bind v (fun x => bind (f x) g)`.
+
+This contract specifies the expected properties of programs with effects more generally.
+Because `pure` has no effects, sequencing its effects with `bind` shouldn't change the result.
+The associative property of `bind` basically says that the sequencing bookkeeping itself doesn't matter, so long as the order in which things are happening is preserved.
+
+## Example: Arithmetic in Monads
 

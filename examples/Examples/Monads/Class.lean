@@ -1,5 +1,6 @@
 import Examples.Support
 import Examples.Monads
+import Examples.Monads.Many
 
 namespace Class
 book declaration {{{ FakeMonad }}}
@@ -72,42 +73,160 @@ message
 end expect
 end Errs
 
+
+namespace IdentMonad
+
+
+book declaration {{{ IdMonad }}}
+  def Id (t : Type) : Type := t
+
+  instance : Monad Id where
+    pure x := x
+    bind x f := f x
+stop book declaration
+
+end IdentMonad
+
+
 namespace MyListStuff
 
 
-def mapM [Monad m] (f : α → m β) : List α → m (List β)
-  | [] => pure []
-  | x :: xs =>
-    f x >>= fun hd =>
-    mapM f xs >>= fun tl =>
-    pure (hd :: tl)
+
+book declaration {{{ mapM }}}
+  def mapM [Monad m] (f : α → m β) : List α → m (List β)
+    | [] => pure []
+    | x :: xs =>
+      f x >>= fun hd =>
+      mapM f xs >>= fun tl =>
+      pure (hd :: tl)
+stop book declaration
 
 open Monads.State (State get set)
 
-instance : Monad (State σ) where
-  pure x := fun s => (s, x)
-  bind first next :=
-    fun s =>
-      let (s', x) := first s
-      next x s'
+book declaration {{{ StateMonad }}}
+  instance : Monad (State σ) where
+    pure x := fun s => (s, x)
+    bind first next :=
+      fun s =>
+        let (s', x) := first s
+        next x s'
+stop book declaration
 
-def increment (howMuch : Int) : State Int Int :=
-  get >>= fun i =>
-  set (i + howMuch) >>= fun ⟨⟩ =>
-  pure i
 
-#eval (mapM increment [1, 2, 3, 4]) 0
+book declaration {{{ increment }}}
+  def increment (howMuch : Int) : State Int Int :=
+    get >>= fun i =>
+    set (i + howMuch) >>= fun ⟨⟩ =>
+    pure i
+stop book declaration
 
-open Monads.Writer (WithLog save)
+bookExample type {{{ mapMincrement }}}
+  mapM increment
+  ===>
+  List Int → State Int (List Int)
+end bookExample
 
-instance : Monad (WithLog logged) where
-  pure x := {log := [], val := x}
-  bind result next :=
-    let {log := thisOut, val := thisRes} := result
-    let {log := nextOut, val := nextRes} := next thisRes
-    {log := thisOut ++ nextOut, val := nextRes}
+bookExample type {{{ mapMincrement2 }}}
+  mapM increment
+  ===>
+  List Int → Int → (Int × List Int)
+end bookExample
 
-#eval mapM save [1, 2, 3, 4]
+
+expect info {{{ mapMincrementOut }}}
+  #eval mapM increment [1, 2, 3, 4, 5] 0
+message
+  "(15, [0, 1, 3, 6, 10])"
+end expect
+
+-- TODO fix error about unknown universe levels here
+-- evaluation steps : (State Int (List Int) : Type) {{{ mapMincrOutSteps }}}
+--   mapM increment [1, 2]
+--   ===>
+--   match [1, 2] with
+--   | [] => pure []
+--   | x :: xs =>
+--     increment x >>= fun hd =>
+--     mapM increment xs >>= fun tl =>
+--     pure (hd :: tl)
+--   ===>
+--   increment 1 >>= fun hd =>
+--   mapM increment [2] >>= fun tl  =>
+--   pure (hd :: tl)
+--   ===>
+--   (get >>= fun i =>
+--    set (i + 1) >>= fun ⟨⟩ =>
+--    pure i) >>= fun hd =>
+--   mapM increment [2] >>= fun tl =>
+--   pure (hd :: tl)
+-- end evaluation steps
+
+-- TODO same
+-- evaluation steps : (State Int (List Int) : Type) {{{ mapMincrOutSteps }}}
+--   mapM increment []
+--   ===>
+--   match [] with
+--   | [] => pure []
+--   | x :: xs =>
+--     increment x >>= fun hd =>
+--     mapM increment xs >>= fun tl =>
+--     pure (hd :: tl)
+--   ===>
+--   pure []
+--   ===>
+--   fun s => ([], s)
+-- end evaluation steps
+
+open Monads.Writer (WithLog save isEven)
+
+
+book declaration {{{ MonadWriter }}}
+  instance : Monad (WithLog logged) where
+    pure x := {log := [], val := x}
+    bind result next :=
+      let {log := thisOut, val := thisRes} := result
+      let {log := nextOut, val := nextRes} := next thisRes
+      {log := thisOut ++ nextOut, val := nextRes}
+stop book declaration
+
+
+book declaration {{{ saveIfEven }}}
+  def saveIfEven (i : Int) : WithLog Int Int :=
+    (if isEven i then
+      save i
+     else pure ⟨⟩) >>= fun ⟨⟩ =>
+    pure i
+stop book declaration
+
+
+expect info {{{ mapMsaveIfEven }}}
+  #eval mapM saveIfEven [1, 2, 3, 4, 5]
+message
+  "{ log := [2, 4], val := [1, 2, 3, 4, 5] }"
+end expect
+
+expect info {{{ mapMId }}}
+  #eval mapM (m := Id) (· + 1) [1, 2, 3, 4, 5]
+message
+  "[2, 3, 4, 5, 6]"
+end expect
+
+
+
+expect error {{{ mapMIdNoHint }}}
+  #eval mapM (· + 1) [1, 2, 3, 4, 5]
+message
+"failed to synthesize instance
+  HAdd Nat Nat (?m.7879 ?m.7881)"
+end expect
+
+
+expect error {{{ mapMIdId }}}
+  #eval mapM (fun x => x) [1, 2, 3, 4, 5]
+message
+"typeclass instance problem is stuck, it is often due to metavariables
+  Monad ?m.7879"
+end expect
 
 end MyListStuff
 
@@ -167,8 +286,7 @@ def evalOpWithLog (op : Prim Empty) (x : Int) (y : Int) : WithLog (Prim Empty ×
   | Prim.minus => pure (x - y)
   | Prim.times => pure (x * y)
 
-instance : Repr Empty where
-  reprPrec (x : Empty) := x.rec
+deriving instance Repr for Empty
 
 def evalOpId (op : Prim Empty) (x : Int) (y : Int) : Id Int :=
   match op with
@@ -177,13 +295,6 @@ def evalOpId (op : Prim Empty) (x : Int) (y : Int) : Id Int :=
   | Prim.times => pure (x * y)
 
 open Monads.State (State get set)
-
-instance : Monad (State σ) where
-  pure x := fun s => (s, x)
-  bind first next :=
-    fun s =>
-      let (s', x) := first s
-      next x s'
 
 def evalOpState (op : Prim Empty) (x : Int) (y : Int) : State Nat Int :=
   get >>= fun i =>
@@ -200,30 +311,6 @@ def evalOpState (op : Prim Empty) (x : Int) (y : Int) : State Nat Int :=
 #eval evaluate evalOpWithLog (Expr.prim Prim.plus (Expr.const 2) (Expr.prim Prim.times (Expr.const 3) (Expr.const 5)))
 #eval evaluate evalOpId (Expr.prim Prim.plus (Expr.const 2) (Expr.prim Prim.times (Expr.const 3) (Expr.const 5)))
 
-inductive Many (α : Type) where
-  | nil : Many α
-  | cons : α → (Unit → Many α) → Many α
-
-def Many.append : Many α → Many α → Many α
-  | .nil, ys => ys
-  | .cons x xs, ys => .cons x (fun ⟨⟩ => append (xs ⟨⟩) ys)
-
-def Many.bind : Many α → (α → Many β) → Many β
-  | .nil, _ => .nil
-  | .cons x more, f => (f x).append (bind (more ⟨⟩) f)
-
-instance : Monad Many where
-  pure x := .cons x (fun ⟨⟩ => .nil)
-  bind := Many.bind
-
-def Many.fromList : List α → Many α
-  | [] => .nil
-  | x :: xs => .cons x (fun ⟨⟩ => fromList xs)
-
-def Many.take : Nat → Many α → List α
-  | 0, _ => []
-  | _ + 1, .nil => []
-  | n + 1, .cons x xs => x :: (xs ⟨⟩).take n
 
 inductive ManyPrim
   | both
