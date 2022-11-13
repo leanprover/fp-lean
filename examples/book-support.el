@@ -1,4 +1,6 @@
 (require 'project)
+(require 'cl-extra)
+(require 'flycheck)
 
 (defun fp-lean--wrap (start end)
   (if (use-region-p)
@@ -24,6 +26,39 @@
     (beginning-of-line)
     (save-excursion (newline))))
 
+(defun fp-lean--flycheck-overlay-info (overlay)
+  "Return the Flycheck info from OVERLAY, or nil if none."
+  (overlay-get overlay 'flycheck-error))
+
+(defun fp-lean--flycheck-message-at (where)
+  "Get the Flycheck message at WHERE, returning nil if none."
+  (let ((info (cl-some #'fp-lean--flycheck-overlay-info (overlays-at where))))
+    (if info (flycheck-error-message info) nil)))
+
+(defun fp-lean--flycheck-messages-in (beg end)
+  "Get the Flycheck messages between BEG and END."
+  (cl-loop for overlay in (overlays-in beg end)
+           for info = (fp-lean--flycheck-overlay-info overlay)
+           when info
+           collect (flycheck-error-message info)))
+
+(defun fp-lean--arbitrary-flycheck-message ()
+  "Select an arbitrary Flycheck message from the region if it's active."
+  (let ((arbitrary-message
+         (if (use-region-p)
+             (car (fp-lean--flycheck-messages-in (region-beginning) (region-end)))
+           nil)))
+    (or arbitrary-message "")))
+
+(defun fp-lean--escape (string)
+  "Escape STRING for Lean."
+  (replace-regexp-in-string
+   "\""
+   "\\\""
+   (replace-regexp-in-string "\\\\" "\\\\" string nil 'literal)
+   nil
+   'literal))
+
 (defun fp-lean-decl (name)
   "Use a book declaration called NAME."
   (interactive "MName: ")
@@ -32,12 +67,17 @@
 (defun fp-lean-info (name)
   "Expect info named NAME."
   (interactive "MName: ")
-  (fp-lean--wrap (format "expect info {{{ %s }}}" name) "message\n\"\"\nend expect"))
+  (let ((msg (fp-lean--escape (fp-lean--arbitrary-flycheck-message))))
+   (fp-lean--wrap (format "expect info {{{ %s }}}" name)
+                  (format "message\n\"%s\"\nend expect" msg))))
 
 (defun fp-lean-error (name)
   "Expect error named NAME."
   (interactive "MName: ")
-  (fp-lean--wrap (format "expect error {{{ %s }}}" name) "message\n\"\"\nend expect"))
+  (let ((msg (fp-lean--escape (fp-lean--arbitrary-flycheck-message))))
+    (fp-lean--wrap
+     (format "expect error {{{ %s }}}" name)
+     (format "message\n\"%s\"\nend expect" msg))))
 
 (defun fp-lean-eval (name)
   "Evaluation steps named NAME."
