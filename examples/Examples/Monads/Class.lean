@@ -230,43 +230,517 @@ end expect
 
 end MyListStuff
 
-inductive Expr (op : Type) where
-  | const : Int → Expr op
-  | prim : op → Expr op → Expr op → Expr op
 
-inductive Prim (special : Type) where
-  | plus
-  | minus
-  | times
-  | other : special → Prim special
-  deriving Repr
 
-def evaluate [Monad m] (evalOp : op → Int → Int → m Int) : Expr op → m Int
-  | Expr.const i => pure i
-  | Expr.prim op x y =>
-    evaluate evalOp x >>= fun xv =>
-    evaluate evalOp y >>= fun yv =>
-    evalOp op xv yv
+book declaration {{{ ExprArith }}}
+  inductive Expr (op : Type) where
+    | const : Int → Expr op
+    | prim : op → Expr op → Expr op → Expr op
 
-inductive CanFail where | div
 
-def evalOpOption : Prim CanFail → Int → Int → Option Int
-  | Prim.plus, x, y => pure (x + y)
-  | Prim.minus, x, y => pure (x - y)
-  | Prim.times, x, y => pure (x * y)
-  | Prim.other CanFail.div, x, y =>
-    if y == 0 then
-      none
-    else pure (x / y)
+  inductive Arith where
+    | plus
+    | minus
+    | times
+    | div
+stop book declaration
 
-def evalOpExcept : Prim CanFail → Int → Int → Except String Int
-  | Prim.plus, x, y => pure (x + y)
-  | Prim.minus, x, y => pure (x - y)
-  | Prim.times, x, y => pure (x * y)
-  | Prim.other CanFail.div, x, y =>
-    if y == 0 then
-      Except.error "Division by 0"
-    else pure (x / y)
+book declaration {{{ twoPlusThree }}}
+  open Expr in
+  open Arith in
+  def twoPlusThree : Expr Arith :=
+    prim plus (const 2) (const 3)
+stop book declaration
+
+
+book declaration {{{ exampleArithExpr }}}
+  open Expr in
+  open Arith in
+  def fourteenDivided : Expr Arith :=
+    prim div (const 14) (prim minus (const 45) (prim times (const 5) (const 9)))
+stop book declaration
+
+namespace One
+book declaration {{{ evaluateOptionCommingled }}}
+  def evaluateOption : Expr Arith → Option Int
+    | Expr.const i => pure i
+    | Expr.prim p e1 e2 =>
+      evaluateOption e1 >>= fun v1 =>
+      evaluateOption e2 >>= fun v2 =>
+      match p with
+      | Arith.plus => pure (v1 + v2)
+      | Arith.minus => pure (v1 - v2)
+      | Arith.times => pure (v1 * v2)
+      | Arith.div => if v2 == 0 then none else pure (v1 / v2)
+stop book declaration
+end One
+
+namespace Two
+
+book declaration {{{ evaluateOptionSplit }}}
+  def applyPrim : Arith → Int → Int → Option Int
+    | Arith.plus, x, y => pure (x + y)
+    | Arith.minus, x, y => pure (x - y)
+    | Arith.times, x, y => pure (x * y)
+    | Arith.div, x, y => if y == 0 then none else pure (x / y)
+
+  def evaluateOption : Expr Arith → Option Int
+    | Expr.const i => pure i
+    | Expr.prim p e1 e2 =>
+      evaluateOption e1 >>= fun v1 =>
+      evaluateOption e2 >>= fun v2 =>
+      applyPrim p v1 v2
+stop book declaration
+
+
+expect info {{{ fourteenDivOption }}}
+  #eval evaluateOption fourteenDivided
+message
+"none"
+end expect
+
+end Two
+
+
+namespace Three
+
+book declaration {{{ evaluateExcept }}}
+  def applyPrim : Arith → Int → Int → Except String Int
+    | Arith.plus, x, y => pure (x + y)
+    | Arith.minus, x, y => pure (x - y)
+    | Arith.times, x, y => pure (x * y)
+    | Arith.div, x, y =>
+      if y == 0 then
+        Except.error s!"Tried to divide {x} by zero"
+      else pure (x / y)
+
+
+  def evaluateExcept : Expr Arith → Except String Int
+    | Expr.const i => pure i
+    | Expr.prim p e1 e2 =>
+      evaluateExcept e1 >>= fun v1 =>
+      evaluateExcept e2 >>= fun v2 =>
+      applyPrim p v1 v2
+stop book declaration
+
+end Three
+
+namespace Four
+
+
+book declaration {{{ evaluateM }}}
+  def applyPrimOption : Arith → Int → Int → Option Int
+    | Arith.plus, x, y => pure (x + y)
+    | Arith.minus, x, y => pure (x - y)
+    | Arith.times, x, y => pure (x * y)
+    | Arith.div, x, y =>
+      if y == 0 then
+        none
+      else pure (x / y)
+
+  def applyPrimExcept : Arith → Int → Int → Except String Int
+    | Arith.plus, x, y => pure (x + y)
+    | Arith.minus, x, y => pure (x - y)
+    | Arith.times, x, y => pure (x * y)
+    | Arith.div, x, y =>
+      if y == 0 then
+        Except.error s!"Tried to divide {x} by zero"
+      else pure (x / y)
+
+  def evaluateM [Monad m] (applyPrim : Arith → Int → Int → m Int): Expr Arith → m Int
+    | Expr.const i => pure i
+    | Expr.prim p e1 e2 =>
+      evaluateM applyPrim e1 >>= fun v1 =>
+      evaluateM applyPrim e2 >>= fun v2 =>
+      applyPrim p v1 v2
+stop book declaration
+
+expect info {{{ evaluateMOption }}}
+  #eval evaluateM applyPrimOption fourteenDivided
+message
+"none"
+end expect
+
+
+expect info {{{ evaluateMExcept }}}
+  #eval evaluateM applyPrimExcept fourteenDivided
+message
+"Except.error \"Tried to divide 14 by zero\""
+end expect
+
+
+end Four
+
+namespace FourPointFive
+book declaration {{{ evaluateMRefactored }}}
+  def applyDivOption (x : Int) (y : Int) : Option Int :=
+      if y == 0 then
+        none
+      else pure (x / y)
+
+  def applyDivExcept (x : Int) (y : Int) : Except String Int :=
+      if y == 0 then
+        Except.error s!"Tried to divide {x} by zero"
+      else pure (x / y)
+
+  def applyPrim [Monad m] (applyDiv : Int → Int → m Int) : Arith → Int → Int → m Int
+    | Arith.plus, x, y => pure (x + y)
+    | Arith.minus, x, y => pure (x - y)
+    | Arith.times, x, y => pure (x * y)
+    | Arith.div, x, y => applyDiv x y
+
+  def evaluateM [Monad m] (applyDiv : Int → Int → m Int): Expr Arith → m Int
+    | Expr.const i => pure i
+    | Expr.prim p e1 e2 =>
+      evaluateM applyDiv e1 >>= fun v1 =>
+      evaluateM applyDiv e2 >>= fun v2 =>
+      applyPrim applyDiv p v1 v2
+stop book declaration
+
+end FourPointFive
+
+example : Four.evaluateM Four.applyPrimOption = FourPointFive.evaluateM FourPointFive.applyDivOption := by
+  funext e
+  induction e with
+  | const => simp [Four.evaluateM, FourPointFive.evaluateM]
+  | prim p e1 e2 ih1 ih2 =>
+    simp [Four.evaluateM, FourPointFive.evaluateM, *]
+    rfl
+
+example : Four.evaluateM Four.applyPrimExcept = FourPointFive.evaluateM FourPointFive.applyDivExcept := by
+  funext e
+  induction e with
+  | const => simp [Four.evaluateM, FourPointFive.evaluateM]
+  | prim p e1 e2 ih1 ih2 =>
+    simp [Four.evaluateM, FourPointFive.evaluateM, *]
+    rfl
+
+
+book declaration {{{ PrimCanFail }}}
+  inductive Prim (special : Type) where
+    | plus
+    | minus
+    | times
+    | other : special → Prim special
+
+  inductive CanFail where
+    | div
+stop book declaration
+
+
+
+book declaration {{{ evaluateMMorePoly }}}
+  def divOption : CanFail → Int → Int → Option Int
+    | CanFail.div, x, y => if y == 0 then none else pure (x / y)
+
+  def divExcept : CanFail → Int → Int → Except String Int
+    | CanFail.div, x, y =>
+      if y == 0 then
+        Except.error s!"Tried to divide {x} by zero"
+      else pure (x / y)
+
+  def applyPrim [Monad m] (applySpecial : special → Int → Int → m Int) : Prim special → Int → Int → m Int
+    | Prim.plus, x, y => pure (x + y)
+    | Prim.minus, x, y => pure (x - y)
+    | Prim.times, x, y => pure (x * y)
+    | Prim.other op, x, y => applySpecial op x y
+
+  def evaluateM [Monad m] (applySpecial : special → Int → Int → m Int): Expr (Prim special) → m Int
+    | Expr.const i => pure i
+    | Expr.prim p e1 e2 =>
+      evaluateM applySpecial e1 >>= fun v1 =>
+      evaluateM applySpecial e2 >>= fun v2 =>
+      applyPrim applySpecial p v1 v2
+stop book declaration
+
+
+book declaration {{{ applyEmpty }}}
+  def applyEmpty [Monad m] (op : Empty) (_ : Int) (_ : Int) : m Int :=
+    op.rec
+stop book declaration
+
+
+expect info {{{ evalId }}}
+  open Expr Prim in
+  #eval evaluateM (m := Id) applyEmpty (prim plus (const 5) (const (-14)))
+message
+"-9"
+end expect
+
+book declaration {{{ NeedsSearch }}}
+  inductive NeedsSearch
+    | div
+    | choose
+
+  def applySearch : NeedsSearch → Int → Int → Many Int
+    | NeedsSearch.choose, x, y =>
+      Many.fromList [x, y]
+    | NeedsSearch.div, x, y =>
+      if y == 0 then
+        Many.none
+      else Many.one (x / y)
+stop book declaration
+
+section
+
+book declaration {{{ opening }}}
+  open Expr Prim NeedsSearch
+stop book declaration
+
+
+expect info {{{ searchA }}}
+  #eval (evaluateM applySearch (prim plus (const 1) (prim (other choose) (const 2) (const 5)))).takeAll
+message
+"[3, 6]"
+end expect
+
+
+expect info {{{ searchB }}}
+  #eval (evaluateM applySearch (prim plus (const 1) (prim (other div) (const 2) (const 0)))).takeAll
+message
+"[]"
+end expect
+
+
+expect info {{{ searchC }}}
+  #eval (evaluateM applySearch (prim (other div) (const 90) (prim plus (prim (other choose) (const (-5)) (const 5)) (const 5)))).takeAll
+message
+  "[9]"
+end expect
+
+end
+
+
+
+book declaration {{{ Reader }}}
+  def Reader (ρ : Type) (α : Type) : Type := ρ → α
+
+  def read : Reader ρ ρ := fun env => env
+stop book declaration
+
+namespace Temp
+
+
+expect error {{{ readerbind0 }}}
+  def Reader.bind {ρ : Type} {α : Type} {β : Type}
+    (result : ρ → α) (next : α → ρ → β) : ρ → β :=
+    _
+message
+"don't know how to synthesize placeholder
+context:
+ρ α β : Type
+result : ρ → α
+next : α → ρ → β
+⊢ ρ → β"
+end expect
+
+expect error {{{ readerbind1 }}}
+  def Reader.bind {ρ : Type} {α : Type} {β : Type}
+    (result : ρ → α) (next : α → ρ → β) : ρ → β :=
+    fun env => _
+message
+"don't know how to synthesize placeholder
+context:
+ρ α β : Type
+result : ρ → α
+next : α → ρ → β
+env : ρ
+⊢ β"
+end expect
+
+expect error {{{ readerbind2a }}}
+  def Reader.bind {ρ : Type} {α : Type} {β : Type}
+    (result : ρ → α) (next : α → ρ → β) : ρ → β :=
+    fun env => next _ _
+message
+"don't know how to synthesize placeholder
+context:
+ρ α β : Type
+result : ρ → α
+next : α → ρ → β
+env : ρ
+⊢ α"
+end expect
+
+
+expect error {{{ readerbind2b }}}
+  def Reader.bind {ρ : Type} {α : Type} {β : Type}
+    (result : ρ → α) (next : α → ρ → β) : ρ → β :=
+    fun env => next _ _
+message
+"don't know how to synthesize placeholder
+context:
+ρ α β : Type
+result : ρ → α
+next : α → ρ → β
+env : ρ
+⊢ ρ"
+end expect
+
+
+expect error {{{ readerbind3 }}}
+  def Reader.bind {ρ : Type} {α : Type} {β : Type}
+    (result : ρ → α) (next : α → ρ → β) : ρ → β :=
+    fun env => next (result _) _
+message
+"don't know how to synthesize placeholder
+context:
+ρ α β : Type
+result : ρ → α
+next : α → ρ → β
+env : ρ
+⊢ ρ"
+end expect
+
+
+book declaration {{{ readerbind4 }}}
+  def Reader.bind {ρ : Type} {α : Type} {β : Type}
+    (result : ρ → α) (next : α → ρ → β) : ρ → β :=
+    fun env => next (result env) env
+stop book declaration
+
+end Temp
+
+
+book declaration {{{ Readerbind }}}
+  def Reader.bind (result : Reader ρ α) (next : α → Reader ρ β) : Reader ρ β :=
+    fun env => next (result env) env
+stop book declaration
+
+namespace TTT
+axiom α : Type
+axiom β : Type
+axiom ρ : Type
+bookExample type {{{ readerBindType }}}
+  Reader.bind
+  ===>
+  Reader ρ α → (α → Reader ρ β) → Reader ρ β
+end bookExample
+bookExample {{{ readerBindTypeEval }}}
+  Reader ρ α → (α → Reader ρ β) → Reader ρ β
+  ===>
+  (ρ → α) → (α → ρ → β) → ρ → β
+end bookExample
+
+
+end TTT
+
+book declaration {{{ ReaderPure }}}
+  def Reader.pure (x : α) : Reader ρ α := fun _ => x
+stop book declaration
+
+
+namespace MonadLaws
+axiom α : Type
+axiom ρ : Type
+axiom β : Type
+axiom γ : Type
+axiom v : α
+axiom r : Reader ρ α
+axiom f : α → Reader ρ β
+axiom g : β → Reader ρ γ
+
+evaluation steps {{{ ReaderMonad1 }}}
+  Reader.bind (Reader.pure v) f
+  ===>
+  fun env => f ((Reader.pure v) env) env
+  ===>
+  fun env => f ((fun _ => v) env) env
+  ===>
+  fun env => f v env
+  ===>
+  f v
+end evaluation steps
+
+evaluation steps {{{ ReaderMonad2 }}}
+  Reader.bind r Reader.pure
+  ===>
+  fun env => Reader.pure (r env) env
+  ===>
+  fun env => (fun _ => (r env)) env
+  ===>
+  fun env => r env
+end evaluation steps
+
+evaluation steps {{{ ReaderMonad3a }}}
+  Reader.bind (Reader.bind r f) g
+  ===>
+  fun env => g ((Reader.bind r f) env) env
+  ===>
+  fun env => g ((fun env' => f (r env') env') env) env
+  ===>
+  fun env => g (f (r env) env) env
+end evaluation steps
+
+evaluation steps {{{ ReaderMonad3b }}}
+  Reader.bind r (fun x => Reader.bind (f x) g)
+  ===>
+  Reader.bind r (fun x => fun env => g (f x env) env)
+  ===>
+  fun env => (fun x => fun env' => g (f x env') env') (r env) env
+  ===>
+  fun env => (fun env' => g (f (r env) env') env') env
+  ===>
+  fun env => g (f (r env) env) env
+end evaluation steps
+
+
+end MonadLaws
+
+book declaration {{{ MonadReaderInst }}}
+  instance : Monad (Reader ρ) where
+    pure x := fun _ => x
+    bind x f := fun env => f (x env) env
+stop book declaration
+
+instance : LawfulMonad (Reader ρ) where
+  map_const := by
+    simp [Functor.mapConst, Function.comp, Functor.map]
+  id_map x := by
+    simp [Functor.map]
+  seqLeft_eq x y := by
+    simp [SeqLeft.seqLeft, Seq.seq, Functor.map]
+  seqRight_eq x y := by
+    simp [SeqRight.seqRight, Seq.seq, Functor.map]
+  pure_seq g x := by
+    simp [Seq.seq, Functor.map, pure]
+  bind_pure_comp f x := by
+    simp [Functor.map, bind, pure]
+  bind_map f x := by
+    simp [Seq.seq, bind, Functor.map]
+  pure_bind x f := by
+    simp [pure, bind]
+  bind_assoc x f g := by
+    simp [bind]
+
+
+
+book declaration {{{ Env }}}
+  abbrev Env : Type := List (String × (Int → Int → Int))
+stop book declaration
+
+
+book declaration {{{ applyPrimReader }}}
+  def applyPrimReader (op : String) (x : Int) (y : Int) : Reader Env Int :=
+    read >>= fun env =>
+    match env.lookup op with
+    | none => pure 0
+    | some f => pure (f x y)
+stop book declaration
+
+
+book declaration {{{ exampleEnv }}}
+  def exampleEnv : Env := [("max", max), ("mod", (· % ·))]
+stop book declaration
+
+expect info {{{ readerEval }}}
+  open Expr Prim in
+  #eval evaluateM applyPrimReader (prim (other "max") (prim plus (const 5) (const 4)) (prim times (const 3) (const 2))) exampleEnv
+message
+"9"
+end expect
+
+namespace Exercises
 
 open Monads.Writer (WithLog save)
 
@@ -277,51 +751,79 @@ instance : Monad (WithLog logged) where
     let {log := nextOut, val := nextRes} := next thisRes
     {log := thisOut ++ nextOut, val := nextRes}
 
+
+book declaration {{{ ReprInstances }}}
 deriving instance Repr for WithLog
-
-def evalOpWithLog (op : Prim Empty) (x : Int) (y : Int) : WithLog (Prim Empty × Int × Int) Int :=
-  save (op, x, y) >>= fun ⟨⟩ =>
-  match op with
-  | Prim.plus => pure (x + y)
-  | Prim.minus => pure (x - y)
-  | Prim.times => pure (x * y)
-
 deriving instance Repr for Empty
+deriving instance Repr for Prim
+stop book declaration
 
-def evalOpId (op : Prim Empty) (x : Int) (y : Int) : Id Int :=
-  match op with
-  | Prim.plus => pure (x + y)
-  | Prim.minus => pure (x - y)
-  | Prim.times => pure (x * y)
+book declaration {{{ ToTrace }}}
+  inductive ToTrace (α : Type) : Type where
+    | trace : α → ToTrace α
+stop book declaration
 
-open Monads.State (State get set)
+def applyTraced : ToTrace (Prim Empty) → Int → Int → WithLog (Prim Empty × Int × Int) Int
+  | ToTrace.trace op, x, y =>
+    save (op, x, y) >>= fun ⟨⟩ =>
+    applyPrim applyEmpty op x y
 
-def evalOpState (op : Prim Empty) (x : Int) (y : Int) : State Nat Int :=
-  get >>= fun i =>
-  set (i + 1) >>= fun ⟨⟩ =>
-  match op with
-  | Prim.plus => pure (x + y)
-  | Prim.minus => pure (x - y)
-  | Prim.times => pure (x * y)
-
-#eval evaluate evalOpOption (Expr.prim Prim.plus (Expr.const 2) (Expr.prim (Prim.other CanFail.div) (Expr.const 3) (Expr.const 5)))
-#eval evaluate evalOpOption (Expr.prim Prim.plus (Expr.const 2) (Expr.prim (Prim.other CanFail.div) (Expr.const 3) (Expr.const 0)))
-#eval evaluate evalOpExcept (Expr.prim Prim.plus (Expr.const 2) (Expr.prim (Prim.other CanFail.div) (Expr.const 3) (Expr.const 5)))
-#eval evaluate evalOpExcept (Expr.prim Prim.plus (Expr.const 2) (Expr.prim (Prim.other CanFail.div) (Expr.const 3) (Expr.const 0)))
-#eval evaluate evalOpWithLog (Expr.prim Prim.plus (Expr.const 2) (Expr.prim Prim.times (Expr.const 3) (Expr.const 5)))
-#eval evaluate evalOpId (Expr.prim Prim.plus (Expr.const 2) (Expr.prim Prim.times (Expr.const 3) (Expr.const 5)))
+bookExample type {{{ applyTracedType }}}
+  applyTraced
+  ===>
+  ToTrace (Prim Empty) → Int → Int → WithLog (Prim Empty × Int × Int) Int
+end bookExample
 
 
-inductive ManyPrim
-  | both
-  | neither
 
-def evalOpMany (op : Prim ManyPrim) (x : Int) (y : Int) : Many Int :=
-  match op with
-  | Prim.plus => pure (x + y)
-  | Prim.minus => pure (x - y)
-  | Prim.times => pure (x * y)
-  | Prim.other ManyPrim.both => Many.fromList [x, y]
-  | Prim.other ManyPrim.neither => Many.nil
+expect info {{{ evalTraced }}}
+  open Expr Prim ToTrace in
+  #eval evaluateM applyTraced (prim (other (trace times)) (prim (other (trace plus)) (const 1) (const 2)) (prim (other (trace minus)) (const 3) (const 4)))
+message
+"{ log := [(Prim.plus, 1, 2), (Prim.minus, 3, 4), (Prim.times, 3, -1)], val := -3 }"
+end expect
 
-#eval evaluate evalOpMany (Expr.prim Prim.plus (Expr.const 2) (Expr.prim (Prim.other ManyPrim.both) (Expr.const 3) (Expr.const 5))) |> Many.take 5
+book declaration {{{ ReaderFail }}}
+def ReaderOption (ρ : Type) (α : Type) : Type := ρ → Option α
+
+def ReaderExcept (ε : Type) (ρ : Type) (α : Type) : Type := ρ → Except ε α
+stop book declaration
+
+
+
+end Exercises
+
+
+-- def evalOpWithLog (op : Prim Empty) (x : Int) (y : Int) : WithLog (Prim Empty × Int × Int) Int :=
+--   save (op, x, y) >>= fun ⟨⟩ =>
+--   match op with
+--   | Prim.plus => pure (x + y)
+--   | Prim.minus => pure (x - y)
+--   | Prim.times => pure (x * y)
+
+--
+
+-- def evalOpId (op : Prim Empty) (x : Int) (y : Int) : Id Int :=
+--   match op with
+--   | Prim.plus => pure (x + y)
+--   | Prim.minus => pure (x - y)
+--   | Prim.times => pure (x * y)
+
+-- open Monads.State (State get set)
+
+-- def evalOpState (op : Prim Empty) (x : Int) (y : Int) : State Nat Int :=
+--   get >>= fun i =>
+--   set (i + 1) >>= fun ⟨⟩ =>
+--   match op with
+--   | Prim.plus => pure (x + y)
+--   | Prim.minus => pure (x - y)
+--   | Prim.times => pure (x * y)
+
+-- deriving instance Repr for Prim
+
+-- #eval evaluate evalOpOption (Expr.prim Prim.plus (Expr.const 2) (Expr.prim (Prim.other CanFail.div) (Expr.const 3) (Expr.const 5)))
+-- #eval evaluate evalOpOption (Expr.prim Prim.plus (Expr.const 2) (Expr.prim (Prim.other CanFail.div) (Expr.const 3) (Expr.const 0)))
+-- #eval evaluate evalOpExcept (Expr.prim Prim.plus (Expr.const 2) (Expr.prim (Prim.other CanFail.div) (Expr.const 3) (Expr.const 5)))
+-- #eval evaluate evalOpExcept (Expr.prim Prim.plus (Expr.const 2) (Expr.prim (Prim.other CanFail.div) (Expr.const 3) (Expr.const 0)))
+-- #eval evaluate evalOpWithLog (Expr.prim Prim.plus (Expr.const 2) (Expr.prim Prim.times (Expr.const 3) (Expr.const 5)))
+-- #eval evaluate evalOpId (Expr.prim Prim.plus (Expr.const 2) (Expr.prim Prim.times (Expr.const 3) (Expr.const 5)))

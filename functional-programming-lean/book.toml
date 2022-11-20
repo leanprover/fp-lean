@@ -18,6 +18,7 @@ command = "python -X utf8 scripts/lean-version.py"
 
 [output.html]
 additional-css = ["custom.css", "pygments.css"]
+mathjax-support = true
 
 #[output.pandoc]
 #command = "python -X utf8 ../../scripts/one-markdown.py"
