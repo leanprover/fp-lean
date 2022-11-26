@@ -88,4 +88,4 @@ Using nested actions, `number` can be made much more concise:
 ## Exercises
 
  * Rewrite `evaluateM`, its helpers, and the different specific use cases using `do`-notation instead of explicit calls to `>>=`.
- * 
+ * Rewrite `firstThirdFifthSeventh` using nested actions.

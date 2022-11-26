@@ -8,6 +8,11 @@ Monads have two operations, which are the equivalent of `ok` and `andThen`:
 This definition is slightly simplified.
 The actual definition in the Lean library is somewhat more involved, and will be presented later.
 
+The `Monad` instances for `Option` and `Except` can be created by adapting the definitions of their respective `andThen` operations:
+```lean
+{{#example_decl Examples/Monads/Class.lean MonadOptionExcept}}
+```
+
 As an example, `firstThirdFifthSeventh` was defined separately for `Option α` and `Except String α` return types.
 Now, it can be defined polymorphically for _any_ monad.
 It does, however, require a lookup function as an argument, because different monads might fail to find a result in different ways.
@@ -152,3 +157,28 @@ Finally, `bind` should be associative, so `bind (bind v f) g` is the same as `bi
 This contract specifies the expected properties of programs with effects more generally.
 Because `pure` has no effects, sequencing its effects with `bind` shouldn't change the result.
 The associative property of `bind` basically says that the sequencing bookkeeping itself doesn't matter, so long as the order in which things are happening is preserved.
+
+## Exercises
+
+### Mapping on a Tree
+
+Define a function `BinTree.mapM`.
+By analogy to `mapM` for lists, this function should apply a monadic function to each data entry in a tree, as a preorder traversal.
+The type signature should be:
+```
+def BinTree.mapM [Monad m] (f : α → m β) : BinTree α → m (BinTree β)
+```
+
+
+### The Option Monad Contract
+
+First, write a convincing argument that the `Monad` instance for `Option` satisfies the monad contract.
+Then, consider the following instance:
+```lean
+{{#example_decl Examples/Monads/Class.lean badOptionMonad}}
+```
+Both methods have the correct type.
+Why does this instance violate the monad contract?
+
+
+

@@ -1106,14 +1106,14 @@ hljs.registerLanguage("lean", function(hljs) {
   var LEAN_KEYWORDS = {
     $pattern: /#?\w+/,
     keyword:
-      'theorem|10 def class structure instance set_option ' +
+      'theorem|10 def abbrev class structure instance set_option ' +
       'example inductive coinductive ' +
       'axiom constant ' +
       'partial unsafe private protected ' +
       'if then else ' +
       'universe variable ' +
       'import open export prelude renaming hiding ' +
-      'calc match with do by let extends ' +
+      'calc match nomatch with do by let extends ' +
       'for in unless try catch finally mutual mut return continue break where rec ' +
       'syntax macro_rules macro deriving ' +
       'fun ' +

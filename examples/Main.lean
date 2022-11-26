@@ -8,6 +8,8 @@ import Examples.Monads
 import Examples.Monads.Class
 import Examples.Monads.Many
 import Examples.Monads.Do
+import Examples.Monads.IO
+import Examples.Monads.Conveniences
 
 
 def main : IO Unit := IO.println "The code here is for the book"

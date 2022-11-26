@@ -6,6 +6,8 @@ However, while using the `Monad` API does impose a syntactic cost on a program, 
  1. Programs must be honest about which effects they use in their types. A quick glance at a type signature describes _everything_ that the program can do, rather than just what it accepts and what it returns.
  2. Not every language provides the same effects. For example, only some language have exceptions. Other languages have unique, exotic effects, such as [Icon's searching over multiple values](https://www2.cs.arizona.edu/icon/) and Scheme or Ruby's continuations. Because monads can encode _any_ effect, programmers can choose which ones are the best fit for a given application, rather than being stuck with what the language developers provided.
 
+One example of a program that can make sense in a variety of monads is an evaluator for arithmetic expressions.
+
 ### Arithmetic Expressions
 
 An arithmetic expression is either a literal integer or a primitive binary operator applied to two expressions. The operators are addition, subtraction, multiplication, and division:
@@ -90,7 +92,7 @@ The type `Empty` has no constructors, and thus no values, like the `Nothing` typ
 In Scala and Kotlin, `Nothing` can represent computations that never return a result, such as functions that crash the program, throw exceptions, or always fall into infinite loops.
 An argument to a function or method of type `Nothing` indicates dead code, as there will never be a suitable argument value.
 Lean doesn't support infinite loops and exceptions, but `Empty` is still useful as an indication to the type system that a function cannot be called.
-The function `Empty.rec` allows a function to indicate that it will not return a result due to the impossibility of being provided with an argument.
+Using the syntax `nomatch E` when `E` is an expression whose type has no constructors indicates to Lean that the current expression need not return a result, because it could never have been called. 
 
 Using `Empty` as the parameter to `Prim` indicates that there are no additional cases beyond `Prim.plus`, `Prim.minus`, and `Prim.times`, because it is impossible to come up with a value of type `Empty` to place in the `Prim.other` constructor.
 Because a function to apply an operator of type `Empty` to two integers can never be called, it doesn't need to return a result.
@@ -147,7 +149,7 @@ It can be convenient to start a search process with a list of values.
 ```lean
 {{#example_decl Examples/Monads/Many.lean fromList}}
 ```
-Similarly, once a search has been specified, it can be convenient to extract either a set number of values, or all the values:
+Similarly, once a search has been specified, it can be convenient to extract either a number of values, or all the values:
 ```lean
 {{#example_decl Examples/Monads/Many.lean take}}
 ```
@@ -259,7 +261,15 @@ Using functions as a monad is typically called a _reader_ monad.
 When evaluating expressions in the reader monad, the following rules are used:
  * Constants \\( n \\) evaluate to constant functions \\( λ e . n \\),
  * Arithmetic operators evaluate to functions that pass their arguments on, so \\( f + g \\) evaluates to \\( λ e . f(e) + g(e) \\), and
- * Custom operators evaluate to the result of applying the environment to the arguments, so \\( f \\ \\mathrm{OP}\\ g \\) evaluates to \\( λ e . e(f(e), g(e)) \\).
+ * Custom operators evaluate to the result of applying the custom operator to the arguments, so \\( f \\ \\mathrm{OP}\\ g \\) evaluates to
+   \\[
+     λ e .
+     \\begin{cases}
+     h(f(e), g(e)) & \\mathrm{if}\\ e\\ \\mathrm{contains}\\ (\\mathrm{OP}, h) \\\\
+     0 & \\mathrm{otherwise}
+     \\end{cases}
+   \\]
+   with \\( 0 \\) serving as a fallback in case an unknown operator is applied.
 
 To define the reader monad in Lean, the first step is to define the `Reader` type and the effect that allows users to get ahold of the environment:
 ```lean
@@ -381,18 +391,19 @@ Luckily, `exampleEnv` is available:
 {{#example_out Examples/Monads/Class.lean readerEval}}
 ```
 
+Like `Many`, `Reader` is an example of an effect that is difficult to encode in most languages, but type classes and monads make it just as convenient as any other effect.
+The dynamic or special variables found in Common Lisp, Clojure, and Emacs Lisp can be used like `Reader`.
+Similarly, Scheme and Racket's parameter objects are an effect that exactly correspond to `Reader`.
+The Kotlin idiom of context objects can solve a similar problem, but they are fundamentally a means of passing function arguments automatically, so this idiom is more like the encoding as a reader monad than it is an effect in the language.
 
 ## Exercises
 
-#### Programs with Monads
+### Checking Contracts
 
-TODO insert some simpler programs written with various concrete monads
+Check the monad contract for `State σ` and `Except ε`.
 
-#### Checking Contracts
 
-Check the monad contract for `State σ`, `Option`, and `Except ε`.
-
-#### Readers with Failure
+### Readers with Failure
 Adapt the reader monad example so that it can also indicate failure when the custom operator is not defined, rather than just returning zero.
 In other words, given these definitions:
 ```lean
@@ -404,7 +415,7 @@ do the following:
  3. Write `Monad` instances for `ReaderOption` and `ReaderExcept`
  4. Define suitable `applyPrim` operators and test them with `evaluateM` on some example expressions
 
-#### A Tracing Evaluator
+### A Tracing Evaluator
 
 The `WithLog` type can be used with the evaluator to add optional tracing of some operations.
 In particular, the type `ToTrace` can serve as a signal to trace a given operator:

@@ -22,7 +22,7 @@ For example, a function that mirrors a binary tree can be written:
 ```lean
 {{#example_decl Examples/Monads/Conveniences.lean mirrorOld}}
 ```
-Omitting the namespaces makes it significantly shorter:
+Omitting the namespaces makes it significantly shorter, at the cost of making the program harder to read in contexts like code review tools that don't include the Lean compiler:
 ```lean
 {{#example_decl Examples/Monads/Conveniences.lean mirrorNew}}
 ```

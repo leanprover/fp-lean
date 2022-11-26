@@ -68,7 +68,7 @@ Peeling back another layer, `EIO` is itself defined in terms of a simpler struct
 ```output info
 {{#example_out Examples/Monads/IO.lean printEIO}}
 ```
-The `EStateM` monad includes both errors and state - it's a combination of `Except` and `State`.
+The `EStateM` monad includes both errors and state—it's a combination of `Except` and `State`.
 It is defined using another type, `EStateM.Result`:
 ```lean
 {{#example_in Examples/Monads/IO.lean printEStateM}}

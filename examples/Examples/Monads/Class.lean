@@ -11,6 +11,21 @@ stop book declaration
 end Class
 
 
+book declaration {{{ MonadOptionExcept }}}
+  instance : Monad Option where
+    pure x := some x
+    bind opt next :=
+      match opt with
+      | none => none
+      | some x => next x
+
+  instance : Monad (Except ε) where
+    pure x := Except.ok x
+    bind attempt next :=
+      match attempt with
+      | Except.error e => Except.error e
+      | Except.ok x => next x
+stop book declaration
 
 book declaration {{{ firstThirdFifthSeventhMonad }}}
   def firstThirdFifthSeventh [Monad m] (lookup : List α → Nat → m α) (xs : List α) : m (α × α × α × α) :=
@@ -217,7 +232,7 @@ expect error {{{ mapMIdNoHint }}}
   #eval mapM (· + 1) [1, 2, 3, 4, 5]
 message
 "failed to synthesize instance
-  HAdd Nat Nat (?m.7879 ?m.7881)"
+  HAdd Nat Nat (?m.9086 ?m.9088)"
 end expect
 
 
@@ -225,7 +240,7 @@ expect error {{{ mapMIdId }}}
   #eval mapM (fun x => x) [1, 2, 3, 4, 5]
 message
 "typeclass instance problem is stuck, it is often due to metavariables
-  Monad ?m.7879"
+  Monad ?m.9086"
 end expect
 
 end MyListStuff
@@ -456,7 +471,7 @@ stop book declaration
 
 book declaration {{{ applyEmpty }}}
   def applyEmpty [Monad m] (op : Empty) (_ : Int) (_ : Int) : m Int :=
-    op.rec
+    nomatch op
 stop book declaration
 
 
@@ -698,9 +713,9 @@ instance : LawfulMonad (Reader ρ) where
     simp [Functor.mapConst, Function.comp, Functor.map]
   id_map x := by
     simp [Functor.map]
-  seqLeft_eq x y := by
+  seqLeft_eq x _ := by
     simp [SeqLeft.seqLeft, Seq.seq, Functor.map]
-  seqRight_eq x y := by
+  seqRight_eq _ y := by
     simp [SeqRight.seqRight, Seq.seq, Functor.map]
   pure_seq g x := by
     simp [Seq.seq, Functor.map, pure]
@@ -741,6 +756,27 @@ message
 end expect
 
 namespace Exercises
+
+def BinTree.mapM [Monad m] (f : α → m β) : BinTree α → m (BinTree β)
+  | .leaf => pure .leaf
+  | .branch l x r =>
+    mapM f l >>= fun l' =>
+    f x >>= fun x' =>
+    mapM f r >>= fun r' =>
+    pure (BinTree.branch l' x' r')
+
+namespace Busted
+
+
+
+book declaration {{{ badOptionMonad }}}
+  instance : Monad Option where
+    pure x := some x
+    bind opt next := none
+stop book declaration
+
+end Busted
+
 
 open Monads.Writer (WithLog save)
 
