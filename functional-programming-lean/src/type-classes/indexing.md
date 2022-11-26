@@ -6,7 +6,7 @@ This syntax is also governed by a type class, and it can be used for a variety o
 ## Arrays
 For instance, Lean arrays are much more efficient than linked lists for most purposes.
 In Lean, the type `Array α` is a dynamically-sized array holding values of type `α`, much like a Java `ArrayList`, a C++ `std::vector`, or a Rust `Vec`.
-Unlike `List`, arrays occupy a contiguous region of memory, which is much better for processor caches.
+Unlike `List`, which has a pointer indirection on each use of the `cons` constructor, arrays occupy a contiguous region of memory, which is much better for processor caches.
 Also, looking up a value in an array takes constant time, while lookup in a linked list takes time proportional to the index being accessed.
 
 In pure functional languages like Lean, it is not possible to mutate a given position in a data structure.
