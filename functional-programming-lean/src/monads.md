@@ -68,7 +68,7 @@ According to the declaration of `~~>`, both `+` and `*` have higher precedence, 
 Typically, figuring out the most convenient precedences for a group of operators requires some experimentation and a large collection of examples.
 
 Following the new infix operator is a double arrow `=>`, which specifies the named function to be used for the infix operator.
-Lean's standard library uses this feature to define `+` and `*` as infix operators that point at `HAdd.hAdd` and `HMul.hMul`, respectively, allowing type classes to be used for overloading.
+Lean's standard library uses this feature to define `+` and `*` as infix operators that point at `HAdd.hAdd` and `HMul.hMul`, respectively, allowing type classes to be used to overloading the infix operators.
 Here, however, `andThen` is just an ordinary function.
 
 Having defined an infix operator for `andThen`, `firstThird` can be rewritten in a way that brings the "pipeline" feeling of `none`-checks front and center:
@@ -86,12 +86,12 @@ Pure functional languages such as Lean have no built-in exception mechanism for 
 However, functional programs certainly need to handle errors.
 In the case of `firstThirdFifthSeventh`, it is likely relevant for a user to know just how long the list was and where the lookup failed.
 
-This is typically accomplished by defining a datatype that can be an error or a result, and translating functions with exceptions into functions that return this datatype:
+This is typically accomplished by defining a datatype that can be either an error or a result, and translating functions with exceptions into functions that return this datatype:
 ```lean
 {{#example_decl Examples/Monads.lean Except}}
 ```
 The type variable `ε` stands for the type of errors that can be produced by the function.
-Callers are expected to handle both errors and successes, which makes the type variable `ε` a bit like checked exceptions in Java.
+Callers are expected to handle both errors and successes, which makes the type variable `ε` play a role that is a bit like that of a list of checked exceptions in Java.
 
 Similarly to `Option`, `Except` can be used to indicate a failure to find an entry in a list.
 In this case, the error type is a `String`:
@@ -180,12 +180,10 @@ The function `sumAndFindEvens` computes the sum of a list while remembering the 
 {{#example_decl Examples/Monads.lean sumAndFindEvensDirect}}
 ```
 This function is a simplified example of a common pattern.
-Many programs need to traverse a data structure once, while computing both a main result and some kind of tertiary extra result.
+Many programs need to traverse a data structure once, while both computing a main result and accumulating some kind of tertiary extra result.
 One example of this is logging: a program that is an `IO` action can always log to a file on disk, but because the disk is outside of the mathematical world of Lean functions, it becomes much more difficult to prove things about logs based on `IO`.
 Another example is a function that computes the sum of all the nodes in a tree with a preorder traversal, while simultaneously recording each nodes visited:
 ```lean
-{{#example_decl Examples/Monads.lean Tree}}
-
 {{#example_decl Examples/Monads.lean preorderSum}}
 ```
 
@@ -261,14 +259,14 @@ and its numbering is:
 
 Even though Lean does not have mutable variables, a workaround exists.
 From the point of view of the rest of the world, the mutable variable can be thought of as having two relevant aspects: its value when the function is called, and its value when the function returns.
-In other words, a function that uses a mutable variable can be seen as a function that takes the mutable variable's starting value as an argument, and returns a pair of the variable's final value and the function's result.
+In other words, a function that uses a mutable variable can be seen as a function that takes the mutable variable's starting value as an argument, returning a pair of the variable's final value and the function's result.
 This final value can then be passed as an argument to the next step.
 
 Just as the Python example uses an outer function that establishes a mutable variable and an inner helper function that changes the variable, a Lean version of the function uses an outer function that provides the variable's starting value and explicitly returns the function's result along with an inner helper function that threads the variable's value while computing the numbered tree:
 ```lean
 {{#example_decl Examples/Monads.lean numberDirect}}
 ```
-This code, like the `none`-propagating `Option` code, the `failure`-propagating `Except` code, and the log-accumulating `WithLog` code, commingles two concerns: propagating the value of the counter, and actually traversing the tree to find the result.
+This code, like the `none`-propagating `Option` code, the `error`-propagating `Except` code, and the log-accumulating `WithLog` code, commingles two concerns: propagating the value of the counter, and actually traversing the tree to find the result.
 Just as in those cases, an `andThen` helper can be defined to propagate state from one step of a computation to another.
 The first step is to give a name to the pattern of taking an input state as an argument and returning an output state together with a value:
 ```lean

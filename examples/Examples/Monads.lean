@@ -288,12 +288,6 @@ end Monads.Err
 
 
 
--- book declaration {{{ Tree }}}
---   inductive Tree (α : Type) where
---     | leaf : Tree α
---     | branch : Tree α → α → Tree α → Tree α
---   deriving BEq, Hashable, Repr
--- stop book declaration
 
 namespace Monads.Writer
 
@@ -442,7 +436,7 @@ book declaration {{{ numberDirect }}}
       | BinTree.leaf => (n, BinTree.leaf)
       | BinTree.branch left x right =>
         let (k, numberedLeft) := helper n left
-        let (i, numberedRight) := helper (k+1) right
+        let (i, numberedRight) := helper (k + 1) right
         (i, BinTree.branch numberedLeft (k, x) numberedRight)
     (helper 0 t).snd
 stop book declaration

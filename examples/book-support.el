@@ -247,3 +247,15 @@
   (interactive)
   (fp-lean-ensure-server)
   (browse-url "localhost:3000"))
+
+(defun fp-lean-text-link (md-file)
+  "Insert a link to another chapter or section in MD-FILE."
+  (interactive
+   (list (read-file-name "Markdown file: " nil nil 'confirm)))
+  (insert "[")
+  (save-excursion
+    (insert "](")
+    (insert (file-relative-name md-file))
+    (insert ")")))
+
+;;; book-support.el ends here
