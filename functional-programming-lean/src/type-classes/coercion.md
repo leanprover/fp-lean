@@ -218,11 +218,55 @@ Given this instance, a serializer can be applied directly to an argument:
 ```
 The serializer can be passed directly to `buildResponse`:
 ```lean
+{{#example_in Examples/Classes.lean buildResponseOut}}
+```
+```output info
+{{#example_out Examples/Classes.lean buildResponseOut}}
+```
+
+### Aside: JSON as a String
+
+It can be a bit difficult to understand JSON when encoded as Lean objects.
+To help make sure that the serialized response was what was expected, it can be convenient to write a simple converter from `JSON` to `String`.
+The first step is to simplify the display of numbers.
+`JSON` doesn't distinguish between integers and floating point numbers, and the type `Float` is used to represent both.
+In Lean, `Float.toString` includes a number of trailing zeros:
+```lean
+{{#example_in Examples/Classes.lean fiveZeros}}
+```
+```output info
+{{#example_out Examples/Classes.lean fiveZeros}}
+```
+The solution is to write a little function that cleans up the presentation by dropping all trailing zeros, followed by a trailing decimal point:
+```lean
+{{#example_decl Examples/Classes.lean dropDecimals}}
+```
+With this definition, `{{#example_in Examples/Classes.lean dropDecimalExample}}` yields `{{#example_out Examples/Classes.lean dropDecimalExample}}`, and `{{#example_in Examples/Classes.lean dropDecimalExample2}}` yields `{{#example_out Examples/Classes.lean dropDecimalExample2}}`.
+
+The next step is to define a helper function to append a list of strings with a separator in between them:
+```lean
+{{#example_decl Examples/Classes.lean Stringseparate}}
+```
+This function is useful to account for comma-separated elements in JSON arrays and objects.
+`{{#example_in Examples/Classes.lean sep2ex}}` yields `{{#example_out Examples/Classes.lean sep2ex}}`, `{{#example_in Examples/Classes.lean sep1ex}}` yields `{{#example_out Examples/Classes.lean sep1ex}}`, and `{{#example_in Examples/Classes.lean sep0ex}}` yields `{{#example_out Examples/Classes.lean sep0ex}}`.
+
+Finally, a string escaping procedure is needed for JSON strings, so that the Lean string containing `"Hello!"` can be output as `"\"Hello!\""`.
+Happily, Lean contains a function for escaping JSON strings already, called `Lean.Json.escape`.
+
+The function that emits a string from a `JSON` value is declared `partial` because Lean cannot see that it terminates.
+This is because recursive calls to `asString` occur in functions that are being applied by `List.map`, and this pattern of recursion is complicated enough that Lean cannot see that the recursive calls are actually being performed on smaller values.
+In an application that just needs to produce JSON strings and doesn't need to mathematically reason about the process, having the function be `partial` is not likely to cause problems.
+```lean
+{{#example_decl Examples/Classes.lean JSONasString}}
+```
+With this definition, the output of serialization is easier to read:
+```lean
 {{#example_in Examples/Classes.lean buildResponseStr}}
 ```
 ```output info
 {{#example_out Examples/Classes.lean buildResponseStr}}
 ```
+
 
 ## Messages You May Meet
 

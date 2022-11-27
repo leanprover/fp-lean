@@ -1232,43 +1232,92 @@ book declaration {{{ JSON }}}
     | number : Float → JSON
     | object : List (String × JSON) → JSON
     | array : List JSON → JSON
+  deriving Repr
 stop book declaration
 
 
-def escapeChar : Char → List Char
-  | '\\' => ['\\', '\\']
-  | '"' => ['\\', '"']
-  | '\r' => ['\\', 'r']
-  | '\n' => ['\\', 'n']
-  | '/' => ['\\', '/']
-  | '\t' => ['\\', 't']
-  | c => [c]
 
-def escape (str : String) : String := ⟨ str.data.bind escapeChar ⟩
+expect info {{{ fiveZeros }}}
+  #eval (5 : Float).toString
+message
+"\"5.000000\""
+end expect
 
 
-def mapCombineWith (f : α → β) (combine : β → β → β) (default : β) (xs : List α) : β :=
-  let rec go (acc : β) : List α → β
-       | [] => acc
-       | y :: ys => go (combine acc (f y)) ys
-  match xs with
-  | [] => default
-  | [x] => f x
-  | x :: x' :: xs => go (f x) (x' :: xs)
+book declaration {{{ Stringseparate }}}
+  def String.separate (sep : String) (strings : List String) : String :=
+    match strings with
+    | [] => ""
+    | x :: xs => String.join (x :: xs.map (sep ++ ·))
+stop book declaration
 
 
-partial def JSON.asString : JSON → String
-  | true => "true"
-  | false => "false"
-  | null => "null"
-  | string s => "\"" ++ escape s ++ "\""
-  | number n => n.toString.dropRightWhile (· == '0') |>.dropRightWhile (· == '.')
-  | object members =>
-    "{" ++ mapCombineWith (fun mem => "\"" ++ escape mem.fst ++ "\": " ++ asString mem.snd) (· ++ ", " ++ ·) "" members ++ "}"
-  | array elements =>
-    "[" ++ mapCombineWith asString (· ++ ", " ++ ·) "" elements ++ "]"
+
+expect info {{{ sep2ex }}}
+  #eval ", ".separate ["1", "2"]
+message
+"\"1, 2\""
+end expect
 
 
+expect info {{{ sep1ex }}}
+  #eval ", ".separate ["1"]
+message
+"\"1\""
+end expect
+
+
+expect info {{{ sep0ex }}}
+  #eval ", ".separate []
+message
+"\"\""
+end expect
+
+book declaration {{{ dropDecimals }}}
+  def dropDecimals (numString : String) : String :=
+    if numString.contains '.' then
+      let noTrailingZeros := numString.dropRightWhile (· == '0')
+      noTrailingZeros.dropRightWhile (· == '.')
+    else numString
+stop book declaration
+
+
+expect info {{{ dropDecimalExample }}}
+  #eval dropDecimals (5 : Float).toString
+message
+"\"5\""
+end expect
+
+expect info {{{ dropDecimalExample2 }}}
+  #eval dropDecimals (5.2 : Float).toString
+message
+"\"5.2\""
+end expect
+
+
+
+expect info {{{ escapeQuotes }}}
+  #eval Lean.Json.escape "\"Hello!\""
+message
+"\"\\\\\\\"Hello!\\\\\\\"\""
+end expect
+
+
+book declaration {{{ JSONasString }}}
+  partial def JSON.asString (val : JSON) : String :=
+    match val with
+    | true => "true"
+    | false => "false"
+    | null => "null"
+    | string s => "\"" ++ Lean.Json.escape s ++ "\""
+    | number n => dropDecimals n.toString
+    | object members =>
+      let memberToString mem :=
+        "\"" ++ Lean.Json.escape mem.fst ++ "\": " ++ asString mem.snd
+      "{" ++ ", ".separate (members.map memberToString) ++ "}"
+    | array elements =>
+      "[" ++ ", ".separate (elements.map asString) ++ "]"
+stop book declaration
 
 book declaration {{{ Monoid }}}
   structure Monoid where
@@ -1395,6 +1444,18 @@ book declaration {{{ buildResponse }}}
 stop book declaration
 
 
+
+expect info {{{ buildResponseOut }}}
+  #eval buildResponse "Functional Programming in Lean" Str "Programming is fun!"
+message
+"JSON.object
+  [(\"title\", JSON.string \"Functional Programming in Lean\"),
+   (\"status\", JSON.number 200.000000),
+   (\"record\", JSON.string \"Programming is fun!\")]"
+end expect
+
+
+
 expect info {{{ buildResponseStr }}}
   #eval (buildResponse "Functional Programming in Lean" Str "Programming is fun!").asString
 message
@@ -1414,7 +1475,7 @@ argument
 has type
   NonEmptyList String : Type
 but is expected to have type
-  List ?m.32982 : Type ?u.32980"
+  List ?m.32938 : Type ?u.32936"
 end expect
 
 expect error {{{ lastSpiderC }}}
