@@ -62,10 +62,12 @@ class ContainerContext:
             directory = found.group('dir')
             command = found.group('command')
             show = found.group('show')
+            the_dir = f'{container_dir}{os.path.sep}examples{os.path.sep}{directory}'
+            os.makedirs(the_dir, exist_ok=True)
             try:
                 val = subprocess.run(command,
                                      shell=True,
-                                     cwd=f'{container_dir}{os.path.sep}examples{os.path.sep}{directory}',
+                                     cwd=the_dir,
                                      check=True,
                                      capture_output=True,
                                      env=self.env_with_examples_path())
