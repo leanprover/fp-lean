@@ -20,6 +20,7 @@ file_contents_re = re.compile(r'\{\{#file_contents\s+\{(?P<container>[^}]+)\}\s*
 def mangle(string):
     return string.replace('-', '---').replace('/', '-slash-')
 
+
 class ContainerContext:
 
     def __init__(self, project_root):
@@ -40,6 +41,12 @@ class ContainerContext:
         with open(f"{self.project_root}{os.path.sep}examples{os.path.sep}lean-toolchain", 'r') as f:
             return f.read().strip()
 
+    def env_with_examples_path(self):
+        new_env = os.environ.copy()
+        new_env["PATH"] = f"{self.project_root}/examples/build/bin" + os.pathsep + new_env["PATH"]
+        return new_env
+
+
     def ensure_container(self, name):
         if name not in self.containers:
             tmp = tempfile.TemporaryDirectory(prefix=mangle(name))
@@ -56,7 +63,12 @@ class ContainerContext:
             command = found.group('command')
             show = found.group('show')
             try:
-                val = subprocess.run(command, shell=True, cwd=f'{container_dir}{os.path.sep}examples{os.path.sep}{directory}', check=True, capture_output=True)
+                val = subprocess.run(command,
+                                     shell=True,
+                                     cwd=f'{container_dir}{os.path.sep}examples{os.path.sep}{directory}',
+                                     check=True,
+                                     capture_output=True,
+                                     env=self.env_with_examples_path())
             except subprocess.CalledProcessError as e:
                 eprint("Output:")
                 eprint(e.output)

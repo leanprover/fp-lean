@@ -7,6 +7,10 @@ title = "Functional Programming in Lean"
 
 [build]
 
+[preprocessor.buildexamples]
+command = "python -X utf8 scripts/build-examples.py"
+before = ["leanexample", "commands"]
+
 [preprocessor.leanexample]
 command = "python -X utf8 scripts/example.py"
 

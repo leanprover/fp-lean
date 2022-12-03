@@ -8,6 +8,10 @@ This version of the text is written for Lean 4 release `{{#lean_version}}`.
 
 ## Release history
 
+### December, 2022
+
+This release adds a chapter on monad transformers, accompanied with improvements to the description of monads.
+
 ### November, 2022
 This release adds a chapter on programming with monads. Additionally, the example of using JSON in the coercions section has been updated to include the complete code.
 

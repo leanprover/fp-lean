@@ -13,3 +13,8 @@ lean_lib Examples {
 lean_exe examples {
   root := `Main
 }
+
+@[default_target]
+lean_exe doug {
+  root := `Examples.Doug1
+}

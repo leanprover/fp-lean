@@ -138,19 +138,21 @@
 
 (defun fp-lean-get-file ()
   "Get the examples filename to use, defaulting to the last one."
-  (read-file-name
-   (if fp-lean--current-file
-       (format "File (%s): " fp-lean--current-file)
-     "File: ")
-   (fp-lean--examples-dir)
-   fp-lean--current-file
-   'confirm
-   fp-lean--current-file
-   (lambda (f)
-     (and
-      (or (file-directory-p f)
-          (string= (file-name-extension f) "lean"))
-      (not (string-suffix-p "~" f))))))
+  (let ((default-directory (fp-lean--examples-dir)))
+    (expand-file-name
+     (read-file-name
+      (if fp-lean--current-file
+          (format "File (%s): " fp-lean--current-file)
+        "File: ")
+      (fp-lean--examples-dir)
+      (and fp-lean--current-file (fp-lean--make-file-examples-relative fp-lean--current-file))
+      'confirm
+      (and fp-lean--current-file (fp-lean--make-file-examples-relative fp-lean--current-file))
+      (lambda (f)
+        (and
+         (or (file-directory-p f)
+             (string= (file-name-extension f) "lean"))
+         (not (string-suffix-p "~" f))))))))
 
 (defun fp-lean-name-from-file (filename)
   "Get a name of a defined thing from FILENAME."
