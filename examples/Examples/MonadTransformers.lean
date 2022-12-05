@@ -133,6 +133,15 @@ book declaration {{{ toEntry }}}
       pure (some (if (← path.isDir) then .dir name else .file name))
 stop book declaration
 
+
+book declaration {{{ doList }}}
+  def doList [Monad m] : List α → (α → m Unit) → m Unit
+    | [], _ => pure ()
+    | x :: xs, action => do
+      action x
+      doList xs action
+stop book declaration
+
 namespace Old
 
 
@@ -144,18 +153,9 @@ book declaration {{{ OldShowFile }}}
     IO.println (cfg.dirName dir)
 stop book declaration
 
-
-book declaration {{{ doList }}}
-  def doList : (List α) → (α → IO Unit) → IO Unit
-    | [], _ => pure ()
-    | x :: xs, action => do
-      action x
-      doList xs action
-stop book declaration
-
 book declaration {{{ OldDirTree }}}
   partial def dirTree (cfg : Config) (path : System.FilePath) : IO Unit := do
-    match (← toEntry path) with
+    match ← toEntry path with
     | none => pure ()
     | some (.file name) => showFileName cfg name
     | some (.dir name) =>
@@ -185,72 +185,109 @@ end Old
 
 namespace Readerish
 
-def ConfigIO (β : Type) (α : Type) : Type := β → IO α
 
-instance : Monad (ConfigIO β) where
-  pure x := fun _ => pure x
-  bind m f := fun cfg => do
-    let v ← m cfg
-    f v cfg
+book declaration {{{ ConfigIO }}}
+  def ConfigIO (α : Type) : Type :=
+    Config → IO α
 
-def config {β : Type} : ConfigIO β β := fun x => pure x
+  instance : Monad ConfigIO where
+    pure x := fun _ => pure x
+    bind result next := fun cfg => do
+      let v ← result cfg
+      next v cfg
+stop book declaration
 
-def locally (change : β → γ) (action : ConfigIO γ α) : ConfigIO β α :=
-  fun cfg => action (change cfg)
 
-def io (action : IO α) : ConfigIO β α :=
-  fun _ => action
+book declaration {{{ currentConfig }}}
+  def currentConfig : ConfigIO Config :=
+    fun cfg => pure cfg
+stop book declaration
 
-def showFileName (file : String) : ConfigIO Config Unit := do
-  io (IO.println ((← config).fileName file))
 
-def showDirName (dir : String) : ConfigIO Config Unit := do
-  io (IO.println ((← config).dirName dir))
+book declaration {{{ locally }}}
+  def locally (change : Config → Config) (action : ConfigIO α) : ConfigIO α :=
+    fun cfg => action (change cfg)
+stop book declaration
 
-def doList : (List α) → (α → ConfigIO β Unit) → ConfigIO β Unit
-  | [], _ => pure ()
-  | x :: xs, action => do
-    action x
-    doList xs action
 
-def inDir (cfg : Config) : Config :=
-  {cfg with currentPrefix := cfg.preDir ++ " " ++ cfg.currentPrefix}
+book declaration {{{ runIO }}}
+  def runIO (action : IO α) : ConfigIO α :=
+    fun _ => action
+stop book declaration
 
-partial def dirTree (path : System.FilePath) : ConfigIO Config Unit := do
-  match path.fileName with
-  | none => pure ()
-  | some name =>
-    if !(← io path.isDir) then
-      showFileName name
-    else
-      showDirName name
-      let contents ← io path.readDir
-      locally inDir (doList contents.toList (fun d => dirTree d.path))
+
+book declaration {{{ MedShowFileDir }}}
+  def showFileName (file : String) : ConfigIO Unit := do
+    runIO (IO.println ((← currentConfig).fileName file))
+
+  def showDirName (dir : String) : ConfigIO Unit := do
+    runIO (IO.println ((← currentConfig).dirName dir))
+stop book declaration
+
+
+
+book declaration {{{ MedDirTree }}}
+  partial def dirTree (path : System.FilePath) : ConfigIO Unit := do
+    match ← runIO (toEntry path) with
+      | none => pure ()
+      | some (.file name) => showFileName name
+      | some (.dir name) =>
+        showDirName name
+        let contents ← runIO path.readDir
+        locally (·.inDirectory)
+          (doList contents.toList fun d =>
+            dirTree d.path)
+stop book declaration
+
+
+book declaration {{{ MedMain }}}
+  def main (args : List String) : IO UInt32 := do
+      match configFromArgs args with
+      | some config =>
+        dirTree (← IO.currentDir) config
+        pure 0
+      | none =>
+        IO.eprintln s!"Didn't understand argument(s) {" ".separate args}\n"
+        IO.eprintln usage
+        pure 1
+stop book declaration
+
+-- #eval main ["--ascii"]
+
 end Readerish
 
 namespace T
 
-abbrev ConfigIO (β : Type) (α : Type) : Type := ReaderT β IO α
+abbrev ConfigIO (α : Type) : Type := ReaderT Config IO α
 
-def showFileName (file : String) : ConfigIO Config Unit := do
+def showFileName (file : String) : ConfigIO Unit := do
   IO.println s!"{(← read).currentPrefix} {file}"
 
-def showDirName (dir : String) : ConfigIO Config Unit := do
+def showDirName (dir : String) : ConfigIO Unit := do
   IO.println s!"{(← read).currentPrefix} {dir}/"
 
-def inDir (cfg : Config) : Config :=
-  {cfg with currentPrefix := cfg.preDir ++ " " ++ cfg.currentPrefix}
+  partial def dirTree (path : System.FilePath) : ConfigIO Unit := do
+    match ← toEntry path with
+      | none => pure ()
+      | some (.file name) => showFileName name
+      | some (.dir name) =>
+        showDirName name
+        let contents ← path.readDir
+        withReader (·.inDirectory)
+          (doList contents.toList fun d =>
+            dirTree d.path)
 
-partial def dirTree (path : System.FilePath) : ConfigIO Config Unit := do
-  match path.fileName with
-  | none => pure ()
-  | some name =>
-    if !(← path.isDir) then
-      showFileName name
-    else
-      showDirName name
-      for d in (← path.readDir) do dirTree d.path
-
+book declaration {{{ NewMain }}}
+  def main (args : List String) : IO UInt32 := do
+      match configFromArgs args with
+      | some config =>
+        dirTree (← IO.currentDir) config
+        pure 0
+      | none =>
+        IO.eprintln s!"Didn't understand argument(s) {" ".separate args}\n"
+        IO.eprintln usage
+        pure 1
+stop book declaration
 end T
 
 end DirTree
@@ -261,6 +298,10 @@ namespace MyVersions
 def ReaderT (ρ : Type) (m : Type → Type) (α : Type) : Type :=
   ρ → m α
 
+def StateT (σ : Type) (m : Type → Type) (α : Type) : Type :=
+  σ → m (α × σ)
+
 end MyVersions
 
 example : ReaderT = MyVersions.ReaderT := by rfl
+example : StateT = MyVersions.StateT := by rfl
