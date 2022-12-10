@@ -36,11 +36,12 @@
   - [The `IO` Monad](./monads/io.md)
   - [Additional Conveniences](monads/conveniences.md)
   - [Summary](monads/summary.md)
+- [Interlude: Functors, Applicative Functors, and Monads](functor-applicative-monad.md)
 - [Monad Transformers](monad-transformers.md)
   - [Combining IO and Reader](monad-transformers/reader-io.md)
   - [A Monad Construction Kit](monad-transformers/transformers.md)
   - [More `do` Features](do.md)
-  - [Functors, Applicative Functors, and Sequencing]()
+
   - [Additional Conveniences]()
   - [Summary]()
 - [Programming with Dependent Types]()
