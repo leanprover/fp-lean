@@ -234,6 +234,8 @@ evaluation steps {{{ foo }}}
   4
 end evaluation steps
 
+
+
 syntax withPosition("evaluation" "steps" ":" term "{{{" ws ident ws "}}}" sepBy1(colGt term, "===>") "end" "evaluation" "steps"): command
 elab_rules : command
   | `(evaluation steps : $ty {{{ $name }}} $[ $exprs ]===>* end evaluation steps) =>
@@ -260,6 +262,49 @@ evaluation steps : IO Unit {{{ thingy }}}
   ===>
   IO.println "5"
 end evaluation steps
+
+declare_syntax_cat eqSteps
+
+syntax term : eqSteps
+syntax term "={" "}=" eqSteps : eqSteps
+
+syntax withPosition("equational" "steps" "{{{" ws ident ws "}}}" (colGt eqSteps) "stop" "equational" "steps") : command
+
+partial def getSteps : Lean.Syntax → Lean.Elab.Command.CommandElabM (List Lean.Syntax)
+  | `(eqSteps|$t:term) => pure [t]
+  | `(eqSteps|$t:term ={ }= $more:eqSteps) => do
+    return (t :: (← getSteps more))
+  | other => throwError "Invalid equational steps {other}"
+
+elab_rules : command
+  | `(equational steps {{{ $name }}} $stepStx:eqSteps stop equational steps) =>
+    open Lean.Elab.Command in
+    open Lean.Elab.Term in
+    open Lean in
+    open Lean.Meta in do
+      let exprs ← getSteps stepStx
+            let mut current : Option Syntax := none
+      for item in exprs do
+        if let some v := current then
+          liftTermElabM <| withDeclName name.raw.getId do
+            let x <- elabTerm item none
+            let y <- elabTerm v none
+            synthesizeSyntheticMVarsNoPostponing
+            unless (← isDefEq x y) do
+              throwError "Example equational step {y} ===> {x} is incorrect\n----------\n\t {(← whnf y)}\n ≠\n\t {(← whnf x)}\n----------\n\t {(← reduceAll y)}\n ≠\n\t {(← reduceAll x)}"
+        current := some item
+
+equational steps {{{ foo }}}
+  1 + 1
+  ={
+  -- Compute forwards
+  }=
+  2
+  ={
+  -- Compute backwards
+  }=
+  0 + 2
+stop equational steps
 
 def zipSameLength : List α → List β → Option (List (α × β))
   | [], [] => some []
