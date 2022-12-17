@@ -1118,6 +1118,20 @@ end FakeFunctor
 similar datatypes FakeFunctor.Functor Functor
 
 
+namespace Whatevs
+axiom α : Type
+axiom β : Type
+axiom γ : Type
+axiom f : β → γ
+axiom g : α → β
+
+bookExample {{{ compDef }}}
+  f ∘ g
+  ===>
+  fun y => f (g y)
+end bookExample
+
+end Whatevs
 -- Coercions
 
 
@@ -1475,7 +1489,7 @@ argument
 has type
   NonEmptyList String : Type
 but is expected to have type
-  List ?m.32938 : Type ?u.32936"
+  List ?m.32964 : Type ?u.32962"
 end expect
 
 expect error {{{ lastSpiderC }}}

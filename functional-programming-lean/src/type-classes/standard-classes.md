@@ -277,6 +277,7 @@ Specifically, `Functor` instances should follow two rules:
 
 More formally, the first rule says that `id <$> x` equals `x`.
 The second rule says that `map (fun y => f (g y)) x` equals `map f (map g x)`.
+The composition `{{#example_out Examples/Classes.lean compDef}}` can also be written `{{#example_in Examples/Classes.lean compDef}}`.
 These rules prevent implementations of `map` that move the data around or delete some of it.
 
 

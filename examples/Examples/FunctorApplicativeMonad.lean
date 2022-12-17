@@ -1,5 +1,6 @@
 import Examples.Support
 import Examples.Classes
+import Examples.Monads.Class
 
 
 book declaration {{{ MythicalCreature }}}
@@ -55,6 +56,33 @@ stop book declaration
 
 #eval troll.large
 
+namespace Blurble
+book declaration {{{ troll2 }}}
+  def troll : Monster := {large := true, vulnerability := "sunlight"}
+stop book declaration
+end Blurble
+
+
+namespace Foo
+expect error {{{ wrongTroll1 }}}
+  def troll : Monster := ⟨true, "sunlight"⟩
+message
+"application type mismatch
+  Monster.mk true
+argument
+  true
+has type
+  Bool : Type
+but is expected to have type
+  MythicalCreature : Type"
+end expect
+
+
+book declaration {{{ troll3 }}}
+  def troll : Monster := ⟨⟨true⟩, "sunlight"⟩
+stop book declaration
+end Foo
+
 
 expect error {{{ trollLargeNoDot }}}
   #eval MythicalCreature.large troll
@@ -90,24 +118,38 @@ book declaration {{{ elf }}}
 stop book declaration
 
 
-book declaration {{{ fitsInDoor }}}
-  def fitsInDoor (creature : MythicalCreature) : Bool :=
-    !creature.large
+book declaration {{{ SizedCreature }}}
+  inductive Size where
+    | small
+    | medium
+    | large
+  deriving BEq
+
+  structure SizedCreature extends MythicalCreature where
+    size : Size
+    large := size == Size.large
 stop book declaration
 
-expect error {{{ fitsInDoorElf }}}
-  fitsInDoor nisse
-message
-"application type mismatch
-  fitsInDoor nisse
-argument
-  nisse
-has type
-  Helper : Type
-but is expected to have type
-  MythicalCreature : Type"
-end expect
+book declaration {{{ nonsenseCreature }}}
+  def nonsenseCreature : SizedCreature where
+    large := false
+    size := .large
+stop book declaration
 
+
+book declaration {{{ sizesMatch }}}
+  def SizesMatch (sc : SizedCreature) : Prop :=
+    sc.large == (sc.size == Size.large)
+stop book declaration
+
+
+book declaration {{{ huldresize }}}
+  def huldre : SizedCreature where
+    size := .medium
+
+  example : SizesMatch huldre := by
+    simp [SizesMatch]
+stop book declaration
 
 book declaration {{{ small }}}
   def MythicalCreature.small (c : MythicalCreature) : Bool := !c.large
@@ -149,9 +191,91 @@ but is expected to have type
   MythicalCreature : Type"
 end expect
 
+namespace VariousTypes
 
-#eval fitsInDoor nisse.toMythicalCreature
-#eval fitsInDoor troll.toMythicalCreature
+axiom f : Type → Type
+axiom m : Type → Type
+@[instance] axiom instF : Applicative f
+@[instance] axiom instM : Monad m
+axiom α : Type
+axiom β : Type
+
+bookExample type {{{ pureType }}}
+  pure
+  <===
+  {α : Type} → α → f α
+end bookExample
+
+bookExample type {{{ seqType }}}
+  Seq.seq
+  <===
+  f (α → β) → (Unit → f α) → f β
+end bookExample
+
+bookExample type {{{ bindType }}}
+  Bind.bind
+  <===
+  m α → (α → m β) → m β
+end bookExample
+
+
+end VariousTypes
+
+namespace OwnInstances
+
+book declaration {{{ ApplicativeOption }}}
+  instance : Applicative Option where
+    pure x := .some x
+    seq f x :=
+      match f with
+      | none => none
+      | some g => g <$> x ⟨⟩
+stop book declaration
+
+book declaration {{{ ApplicativeExcept }}}
+  instance : Applicative (Except ε) where
+    pure x := .ok x
+    seq f x :=
+      match f with
+      | .error e => .error e
+      | .ok g => g <$> x ⟨⟩
+stop book declaration
+
+book declaration {{{ ApplicativeReader }}}
+  instance : Applicative (Reader ρ) where
+    pure x := fun _ => x
+    seq f x :=
+      fun env =>
+        f env (x ⟨⟩ env)
+stop book declaration
+
+book declaration {{{ ApplicativeId }}}
+  instance : Applicative Id where
+    pure x := x
+    seq f x := f (x ⟨⟩)
+stop book declaration
+
+end OwnInstances
+
+bookExample type {{{ somePlus }}}
+  some Plus.plus
+  <===
+  Option (Nat → Nat → Nat)
+end bookExample
+
+bookExample type {{{ somePlusFour }}}
+  some Plus.plus <*> some 4
+  <===
+  Option (Nat → Nat)
+end bookExample
+
+bookExample type {{{ somePlusFourSeven }}}
+  some Plus.plus <*> some 4 <*> some 7
+  <===
+  Option Nat
+end bookExample
+
+
 
 structure NotApplicative (α : Type) where
   impossible : Empty
@@ -166,12 +290,61 @@ instance : LawfulFunctor NotApplicative where
   comp_map g h x := nomatch x.impossible
 
 
-structure Pair (α β : Type) : Type where
-  first : α
-  second : β
 
-instance : Functor (Pair α) where
-  map f x := ⟨x.first, f x.second⟩
+book declaration {{{ Pair }}}
+  structure Pair (α β : Type) : Type where
+    first : α
+    second : β
+stop book declaration
+
+bookExample type {{{ PairType }}}
+  Pair
+  ===>
+  Type → Type → Type
+end bookExample
+
+
+book declaration {{{ FunctorPair }}}
+  instance : Functor (Pair α) where
+    map f x := ⟨x.first, f x.second⟩
+stop book declaration
+
+namespace CheckFunctorPair
+axiom α : Type
+axiom β : Type
+axiom γ : Type
+axiom δ : Type
+axiom x : α
+axiom y : β
+axiom f : γ → δ
+axiom g : β → γ
+
+evaluation steps {{{ checkPairMapId }}}
+  id <$> Pair.mk x y
+  ===>
+  Pair.mk x (id y)
+  ===>
+  Pair.mk x y
+end evaluation steps
+
+evaluation steps {{{ checkPairMapComp1 }}}
+  f <$> g <$> Pair.mk x y
+  ===>
+  f <$> Pair.mk x (g y)
+  ===>
+  Pair.mk x (f (g y))
+end evaluation steps
+
+evaluation steps {{{ checkPairMapComp2 }}}
+  (f ∘ g) <$> Pair.mk x y
+  ===>
+  Pair.mk x ((f ∘ g) y)
+  ===>
+  Pair.mk x (f (g y))
+end evaluation steps
+
+
+end CheckFunctorPair
 
 instance : LawfulFunctor (Pair α) where
   id_map x := by
@@ -182,7 +355,124 @@ instance : LawfulFunctor (Pair α) where
     cases x
     simp [Function.comp, Functor.map]
 
-def Pair.pure (x : β) : Pair α β := _
+
+expect error {{{ Pairpure }}}
+  def Pair.pure (x : β) : Pair α β := _
+message
+"don't know how to synthesize placeholder
+context:
+β α : Type
+x : β
+⊢ Pair α β"
+end expect
+
+
+
+expect error {{{ Pairpure2 }}}
+  def Pair.pure (x : β) : Pair α β := Pair.mk _ x
+message
+"don't know how to synthesize placeholder for argument 'first'
+context:
+β α : Type
+x : β
+⊢ α"
+end expect
+
+namespace ApplicativeOptionLaws
+
+axiom α : Type
+axiom β : Type
+axiom γ : Type
+axiom δ : Type
+
+axiom x : α
+axiom g : α → β
+axiom f : β → γ
+
+evaluation steps {{{ OptionHomomorphism1 }}}
+  some (· ∘ ·) <*> some f <*> some g <*> some x
+  ===>
+  some (f ∘ ·) <*> some g <*> some x
+  ===>
+  some (f ∘ g) <*> some x
+  ===>
+  some ((f ∘ g) x)
+  ===>
+  some (f (g x))
+end evaluation steps
+
+evaluation steps {{{ OptionHomomorphism2 }}}
+  some f <*> (some g <*> some x)
+  ===>
+  some f <*> (some (g x))
+  ===>
+  some (f (g x))
+end evaluation steps
+
+
+end ApplicativeOptionLaws
+
+namespace ApplicativeOptionLaws2
+
+axiom α : Type
+axiom β : Type
+
+axiom x : α
+axiom y : α
+axiom f : α → β
+
+evaluation steps {{{ OptionPureSeq }}}
+  some f <*> some x
+  ===>
+  f <$> some x
+  ===>
+  some (f x)
+end evaluation steps
+
+
+end ApplicativeOptionLaws2
+
+
+namespace ApplicativeToFunctor
+
+book declaration {{{ ApplicativeMap }}}
+  def map [Applicative f] (g : α → β) (x : f α) : f β :=
+    pure g <*> x
+stop book declaration
+
+
+
+book declaration {{{ ApplicativeExtendsFunctorOne }}}
+  class Applicative (f : Type → Type) extends Functor f where
+    pure : α → f α
+    seq : f (α → β) → (Unit → f α) → f β
+    map g x := seq (pure g) (fun ⟨⟩ => x)
+stop book declaration
+
+end ApplicativeToFunctor
+
+namespace MonadApplicative
+
+
+book declaration {{{ MonadSeq }}}
+  def seq [Monad m] (f : m (α → β)) (x : Unit → m α) : m β := do
+    let g ← f
+    let y ← x ⟨⟩
+    pure (g y)
+stop book declaration
+
+end MonadApplicative
+
+namespace MonadApplicativeDesugar
+book declaration {{{ MonadSeqDesugar }}}
+  def seq [Monad m] (f : m (α → β)) (x : Unit → m α) : m β := do
+    f >>= fun g =>
+    x ⟨⟩ >>= fun y =>
+    pure (g y)
+stop book declaration
+
+end MonadApplicativeDesugar
+
 
 theorem NonEmptyList.append_assoc (xs ys zs : NonEmptyList α) : (xs ++ ys) ++ zs = xs ++ (ys ++ zs) := by
   cases xs with
@@ -317,3 +607,4 @@ deriving instance Repr for CheckedInput
 #eval check 2022 {name := "David", birthYear := "1984"}
 #eval check 2022 {name := "", birthYear := "2045"}
 #eval check 2022 {name := "David", birthYear := "nineteen eighty four"}
+
