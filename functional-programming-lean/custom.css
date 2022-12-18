@@ -28,3 +28,20 @@ code.error:before {
 code.error {
   color: #ff0000;
 }
+
+.equational {
+  width: 80%;
+  margin: auto;
+}
+.equational pre {
+  margin: 0;
+}
+.equational div.term, .equational div.explanation {
+  display: block;
+}
+.equational .explanation code {
+  font-style: normal;
+}
+.equational .explanation {
+  padding-left: 1.5em !important;
+}

@@ -150,10 +150,30 @@ Replacing `do`-notation with explicit uses of `>>=` makes it easier to apply the
 To check that this definition respects identity, check that `seq (pure id) (fun ⟨⟩ => v) = v`.
 The left hand side is equivalent to `pure id >>= fun g => (fun ⟨⟩ => v) ⟨⟩ >>= fun y => pure (g y)`.
 The unit function in the middle can be eliminated immediately, yielding `pure id >>= fun g => v >>= fun y => pure (g y)`.
-Using the fact that `pure` is a left identiy of `>>=`, this is the same as `v >>= fun y => pure (id y)`, which is `v >>= fun y => pure y`.
+Using the fact that `pure` is a left identity of `>>=`, this is the same as `v >>= fun y => pure (id y)`, which is `v >>= fun y => pure y`.
 Because `fun x => f x` is the same as `f`, this is the same as `v >>= pure`, and the fact that `pure` is a right identity of `>>=` can be used to get `v`.
 
-To check that it respects function composition, 
+This kind of informal reasoning can be made easier to read with a bit of reformatting.
+In the following chart, read "EXPR1 ={ REASON }= EXPR2" as "EXPR1 is the same as EXPR2 because REASON":
+{{#equations Examples/FunctorApplicativeMonad.lean mSeqRespId}}
+
+
+To check that it respects function composition, check that `pure (· ∘ ·) <*> u <*> v <*> w = u <*> (v <*> w)`.
+The first step is to replace `<*>` with this definition of `seq`.
+After that, a (somewhat long) series of steps that use the identity and associativity rules from the `Monad` contract is enough to get from one to the other:
+{{#equations Examples/FunctorApplicativeMonad.lean mSeqRespComp}}
+
+To check that sequencing pure operations is a no-op:
+{{#equations Examples/FunctorApplicativeMonad.lean mSeqPureNoOp}}
+
+And finally, to check that the ordering of pure operations doesn't matter:
+{{#equations Examples/FunctorApplicativeMonad.lean mSeqPureNoOrder}}
+
+This justifies a definition of `Monad` that extends `Applicative`, with a default definition of `seq`:
+```lean
+{{#example_decl Examples/FunctorApplicativeMonad.lean MonadExtends}}
+```
+`Applicative`'s own default definition of `map` means that every `Monad` instance automatically generates `Applicative` and `Functor` instances as well.
 
 ## Power vs Flexibility
 

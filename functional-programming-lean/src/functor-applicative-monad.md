@@ -16,3 +16,4 @@ Furthermore, there is an additional intermediate abstraction, called _applicativ
 The type class `Applicative` provides the overloadable operations of applicative functors.
 Every monad is an applicative functor, and every applicative functor is a functor, but the converses do not hold.
 
+

@@ -473,6 +473,260 @@ stop book declaration
 
 end MonadApplicativeDesugar
 
+equational steps {{{ testEq }}}
+  1 + 1
+  ={
+  -- Foo of `plus` and `stuff`
+  }=
+  2
+stop equational steps
+
+namespace MonadApplicativeProof1
+axiom m : Type → Type
+@[instance] axiom instM : Monad m
+@[instance] axiom instLM : LawfulMonad m
+axiom α : Type
+axiom v : m α
+
+equational steps {{{ mSeqRespId }}}
+  pure id >>= fun g => v >>= fun y => pure (g y)
+  ={
+  by simp [LawfulMonad.pure_bind]
+  -- `pure` is a left identity of `>>=`
+  }=
+  v >>= fun y => pure (id y)
+  ={
+  -- Reduce the call to `id`
+  }=
+  v >>= fun y => pure y
+  ={
+  -- `fun x => f x` is the same as `f`
+  }=
+  v >>= pure
+  ={
+  -- `pure` is a right identity of `>>=`
+  by simp [LawfulMonad.bind_pure_comp]
+  }=
+  v
+stop equational steps
+end MonadApplicativeProof1
+
+namespace MonadApplicativeProof2
+axiom m : Type → Type
+@[instance] axiom instM : Monad m
+@[instance] axiom instLM : LawfulMonad m
+axiom α : Type
+axiom β : Type
+axiom γ : Type
+axiom u : m (β → γ)
+axiom v : m (α → β)
+axiom w : m α
+
+open MonadApplicativeDesugar
+equational steps : m γ {{{ mSeqRespComp }}}
+  seq (seq (seq (pure (· ∘ ·)) (fun _ => u)) (fun _ => v)) (fun _ => w)
+  ={
+  -- Definition of `seq`
+  }=
+  ((pure (· ∘ ·) >>= fun f =>
+     u >>= fun x =>
+     pure (f x)) >>= fun g =>
+    v >>= fun y =>
+    pure (g y)) >>= fun h =>
+   w >>= fun z =>
+   pure (h z)
+  ={
+  by simp [LawfulMonad.pure_bind]
+  -- `pure` is a left identity of `>>=`
+  }=
+  ((u >>= fun x =>
+     pure (x ∘ ·)) >>= fun g =>
+     v >>= fun y =>
+    pure (g y)) >>= fun h =>
+   w >>= fun z =>
+   pure (h z)
+  ={
+  -- Insertion of parentheses for clarity
+  }=
+  ((u >>= fun x =>
+     pure (x ∘ ·)) >>= (fun g =>
+     v >>= fun y =>
+    pure (g y))) >>= fun h =>
+   w >>= fun z =>
+   pure (h z)
+  ={
+  by simp [LawfulMonad.bind_assoc]
+  -- Associativity of `>>=`
+  }=
+  (u >>= fun x =>
+    pure (x ∘ ·) >>= fun g =>
+   v  >>= fun y => pure (g y)) >>= fun h =>
+   w >>= fun z =>
+   pure (h z)
+  ={
+  by simp [LawfulMonad.pure_bind]
+  -- `pure` is a left identity of `>>=`
+  }=
+  (u >>= fun x =>
+    v >>= fun y =>
+    pure (x ∘ y)) >>= fun h =>
+   w >>= fun z =>
+   pure (h z)
+  ={
+  by simp [LawfulMonad.bind_assoc]
+  -- Associativity of `>>=`
+  }=
+  u >>= fun x =>
+  v >>= fun y =>
+  pure (x ∘ y) >>= fun h =>
+  w >>= fun z =>
+  pure (h z)
+  ={
+  by simp [LawfulMonad.pure_bind]
+  -- `pure` is a left identity of `>>=`
+  }=
+  u >>= fun x =>
+  v >>= fun y =>
+  w >>= fun z =>
+  pure ((x ∘ y) z)
+  ={
+  -- Definition of function composition
+  }=
+  u >>= fun x =>
+  v >>= fun y =>
+  w >>= fun z =>
+  pure (x (y z))
+  ={
+  -- Time to start moving backwards!
+  -- `pure` is a left identity of `>>=`
+    by simp [LawfulMonad.pure_bind]
+  }=
+  u >>= fun x =>
+  v >>= fun y =>
+  w >>= fun z =>
+  pure (y z) >>= fun q =>
+  pure (x q)
+  ={
+  by simp [LawfulMonad.bind_assoc]
+  -- Associativity of `>>=`
+  }=
+  u >>= fun x =>
+  v >>= fun y =>
+   (w >>= fun p =>
+    pure (y p)) >>= fun q =>
+   pure (x q)
+  ={
+  by simp [LawfulMonad.bind_assoc]
+  -- Associativity of `>>=`
+  }=
+  u >>= fun x =>
+   (v >>= fun y =>
+    w >>= fun q =>
+    pure (y q)) >>= fun z =>
+   pure (x z)
+  ={
+  -- This includes the definition of `seq`
+  }=
+  u >>= fun x =>
+  seq v (fun ⟨⟩ => w) >>= fun q =>
+  pure (x q)
+  ={
+  -- This also includes the definition of `seq`
+  }=
+  seq u (fun ⟨⟩ => seq v (fun ⟨⟩ => w))
+stop equational steps
+
+end MonadApplicativeProof2
+
+namespace MonadApplicativeProof3
+axiom m : Type → Type
+@[instance] axiom instM : Monad m
+@[instance] axiom instLM : LawfulMonad m
+axiom α : Type
+axiom β : Type
+axiom f : α → β
+axiom x : α
+
+open MonadApplicativeDesugar
+equational steps : m β {{{ mSeqPureNoOp }}}
+  seq (pure f) (fun ⟨⟩ => pure x)
+  ={
+  -- Replacing `seq` with its definition
+  }=
+  pure f >>= fun g =>
+  pure x >>= fun y =>
+  pure (g y)
+  ={
+  -- `pure` is a left identity of `>>=`
+  by simp [LawfulMonad.pure_bind]
+  }=
+  pure f >>= fun g =>
+  pure (g x)
+  ={
+  -- `pure` is a left identity of `>>=`
+  by simp [LawfulMonad.pure_bind]
+  }=
+  pure (f x)
+stop equational steps
+end MonadApplicativeProof3
+
+namespace MonadApplicativeProof4
+axiom m : Type → Type
+@[instance] axiom instM : Monad m
+@[instance] axiom instLM : LawfulMonad m
+axiom α : Type
+axiom β : Type
+axiom u : m (α → β)
+axiom x : α
+
+open MonadApplicativeDesugar
+equational steps : m β {{{ mSeqPureNoOrder }}}
+  seq u (fun ⟨⟩ => pure x)
+  ={
+  -- Definition of `seq`
+  }=
+  u >>= fun f =>
+  pure x >>= fun y =>
+  pure (f y)
+  ={
+  -- `pure` is a left identity of `>>=`
+  by simp [LawfulMonad.pure_bind]
+  }=
+  u >>= fun f =>
+  pure (f x)
+  ={
+  -- Clever replacement of one expression by an equivalent one that makes the rule match
+  }=
+  u >>= fun f =>
+  pure ((fun g => g x) f)
+  ={
+  -- `pure` is a left identity of `>>=`
+  by simp [LawfulMonad.pure_bind]
+  }=
+  pure (fun g => g x) >>= fun h =>
+  u >>= fun f =>
+  pure (h f)
+  ={
+  -- Definition of `seq`
+  }=
+  seq (pure (fun f => f x)) (fun ⟨⟩ => u)
+stop equational steps
+
+end MonadApplicativeProof4
+
+namespace FakeMonad
+
+
+book declaration {{{ MonadExtends }}}
+  class Monad (m : Type → Type) extends Applicative m where
+    bind : m α → (α → m β) → m β
+    seq f x :=
+      bind f fun g =>
+      bind (x ⟨⟩) fun y =>
+      pure (g y)
+stop book declaration
+
+end FakeMonad
 
 theorem NonEmptyList.append_assoc (xs ys zs : NonEmptyList α) : (xs ++ ys) ++ zs = xs ++ (ys ++ zs) := by
   cases xs with

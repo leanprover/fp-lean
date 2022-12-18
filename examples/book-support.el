@@ -178,6 +178,12 @@
   (setq fp-lean--current-file file)
   (insert (format "{{#example_decl %s %s}}" file name)))
 
+(defun fp-lean-text-equations (file name)
+  "Insert equations from FILE called NAME."
+  (interactive (fp-lean-get-file-and-name))
+  (setq fp-lean--current-file file)
+  (insert (format "{{#equations %s %s}}" file name)))
+
 (defun fp-lean-text-example (file name)
   "Insert a declaration from FILE called NAME."
   (interactive (fp-lean-get-file-and-name))

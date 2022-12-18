@@ -267,13 +267,28 @@ declare_syntax_cat eqSteps
 
 syntax term : eqSteps
 syntax term "={" "}=" eqSteps : eqSteps
+syntax term "={" term "}=" eqSteps : eqSteps
 
 syntax withPosition("equational" "steps" "{{{" ws ident ws "}}}" (colGt eqSteps) "stop" "equational" "steps") : command
+syntax withPosition("equational" "steps" ":" term "{{{" ws ident ws "}}}" (colGt eqSteps) "stop" "equational" "steps") : command
 
-partial def getSteps : Lean.Syntax → Lean.Elab.Command.CommandElabM (List Lean.Syntax)
-  | `(eqSteps|$t:term) => pure [t]
+inductive Steps where
+  | done : Lean.Syntax → Steps
+  | cons : Lean.Syntax → Option Lean.Syntax → Steps → Steps
+
+def Steps.process [Monad m] (forStep : Lean.Syntax × Option Lean.Syntax × Lean.Syntax → m Unit) : Steps → m Unit
+  | .done _ => pure ()
+  | .cons e1 why (.done e2) => forStep (e1, why, e2)
+  | .cons e1 why (.cons e2 why2 more) => do
+    forStep (e1, why, e2)
+    process forStep (.cons e2 why2 more)
+
+partial def getSteps : Lean.Syntax → Lean.Elab.Command.CommandElabM Steps
+  | `(eqSteps|$t:term) => pure (.done t)
   | `(eqSteps|$t:term ={ }= $more:eqSteps) => do
-    return (t :: (← getSteps more))
+    return (.cons t none (← getSteps more))
+  | `(eqSteps|$t:term ={ $why:term }= $more:eqSteps) => do
+    return (.cons t (some why) (← getSteps more))
   | other => throwError "Invalid equational steps {other}"
 
 elab_rules : command
@@ -283,21 +298,57 @@ elab_rules : command
     open Lean in
     open Lean.Meta in do
       let exprs ← getSteps stepStx
-            let mut current : Option Syntax := none
-      for item in exprs do
-        if let some v := current then
+      if let .done e := exprs then liftTermElabM <| withDeclName name.raw.getId do
+        let _ ← elabTerm e none
+      exprs.process fun
+        | (e1, why, e2) =>
           liftTermElabM <| withDeclName name.raw.getId do
-            let x <- elabTerm item none
-            let y <- elabTerm v none
+            let x ← elabTerm e1 none
+            let y ← elabTerm e2 none
             synthesizeSyntheticMVarsNoPostponing
-            unless (← isDefEq x y) do
-              throwError "Example equational step {y} ===> {x} is incorrect\n----------\n\t {(← whnf y)}\n ≠\n\t {(← whnf x)}\n----------\n\t {(← reduceAll y)}\n ≠\n\t {(← reduceAll x)}"
-        current := some item
+            match why with
+            | none =>
+              unless (← isDefEq x y) do
+                throwError "Example equational step {y} ===> {x} is incorrect\n----------\n\t {(← whnf y)}\n ≠\n\t {(← whnf x)}\n----------\n\t {(← reduceAll y)}\n ≠\n\t {(← reduceAll x)}"
+            | some p =>
+              let e1' : TSyntax `term := ⟨e1⟩
+              let e2' : TSyntax `term := ⟨e2⟩
+              let eq ← elabTermEnsuringType (← `($e1' = $e2')) (some (mkSort Level.zero))
+              let _ ← elabTermEnsuringType p (some eq)
+              synthesizeSyntheticMVarsNoPostponing
+  | `(equational steps : $ty {{{ $name }}} $stepStx:eqSteps stop equational steps) =>
+    open Lean.Elab.Command in
+    open Lean.Elab.Term in
+    open Lean in
+    open Lean.Meta in do
+      let expected ← liftTermElabM <| withDeclName name.raw.getId (elabType ty)
+      let exprs ← getSteps stepStx
+      if let .done e := exprs then liftTermElabM <| withDeclName name.raw.getId do
+        let _ ← elabTerm e none
+      exprs.process fun
+        | (e1, why, e2) =>
+          liftTermElabM <| withDeclName name.raw.getId do
+            let x ← elabTermEnsuringType e1 expected
+            let y ← elabTermEnsuringType e2 expected
+            synthesizeSyntheticMVarsNoPostponing
+            match why with
+            | none =>
+              unless (← isDefEq x y) do
+                throwErrorAt e1 "Example equational step {y} ===> {x} is incorrect\n----------\n\t {(← whnf y)}\n ≠\n\t {(← whnf x)}\n----------\n\t {(← reduceAll y)}\n ≠\n\t {(← reduceAll x)}"
+            | some p =>
+              let e1' : TSyntax `term := ⟨e1⟩
+              let e2' : TSyntax `term := ⟨e2⟩
+              let eq ← elabTermEnsuringType (← `(($e1' : $ty) = ($e2' : $ty))) (some (mkSort Level.zero))
+              let _ ← elabTermEnsuringType p (some eq)
+              synthesizeSyntheticMVarsNoPostponing
+
+
 
 equational steps {{{ foo }}}
   1 + 1
   ={
   -- Compute forwards
+  rfl
   }=
   2
   ={
