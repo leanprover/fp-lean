@@ -738,24 +738,33 @@ theorem NonEmptyList.append_assoc (xs ys zs : NonEmptyList α) : (xs ++ ys) ++ z
         simp [HAppend.hAppend, Append.append]
         apply List.append_assoc
 
-inductive Validate (ε α : Type) : Type where
-  | ok : α → Validate ε α
-  | errors : NonEmptyList ε → Validate ε α
 
-instance : Functor (Validate ε) where
-  map f
-   | .ok x => .ok (f x)
-   | .errors errs => .errors errs
+book declaration {{{ Validate }}}
+  inductive Validate (ε α : Type) : Type where
+    | ok : α → Validate ε α
+    | errors : NonEmptyList ε → Validate ε α
+stop book declaration
 
-instance : Applicative (Validate ε) where
-  pure := .ok
-  seq f x :=
-    match f with
-    | .ok g => Functor.map g (x ⟨⟩)
-    | .errors errs =>
-      match x ⟨⟩ with
-      | .ok _ => .errors errs
-      | .errors errs' => .errors (errs ++ errs')
+
+book declaration {{{ FunctorValidate }}}
+  instance : Functor (Validate ε) where
+    map f
+     | .ok x => .ok (f x)
+     | .errors errs => .errors errs
+stop book declaration
+
+
+book declaration {{{ ApplicativeValidate }}}
+  instance : Applicative (Validate ε) where
+    pure := .ok
+    seq f x :=
+      match f with
+      | .ok g => g <$> (x ⟨⟩)
+      | .errors errs =>
+        match x ⟨⟩ with
+        | .ok _ => .errors errs
+        | .errors errs' => .errors (errs ++ errs')
+stop book declaration
 
 instance : LawfulApplicative (Validate ε) where
   map_pure g x := by
@@ -810,55 +819,148 @@ a✝¹ a✝ : NonEmptyList ε
 ⊢ a✝¹ = a✝¹ ++ a✝"
 end expect
 
-def Validate.andThen (val1 : Validate ε α) (next : α → Validate ε β) : Validate ε β :=
-  match val1 with
-  | .errors errs => .errors errs
-  | .ok x => next x
-
-structure RawInput where
-  name : String
-  birthYear : String
-
-structure CheckedInput (thisYear : Nat) : Type where
-  name : {n : String // n ≠ ""}
-  birthYear : {y : Nat // y > 1900 ∧ y ≤ thisYear}
-
-def Field := String
-
-def checkName (name : String) : Validate (Field × String) {n : String // n ≠ ""} :=
-  if h : name = ""
-    then .errors ⟨("name", "Required"), []⟩
-    else .ok ⟨name, by assumption⟩
-
-def double_negation (notNot : ¬¬p) : p := by
-  by_cases p
-  case inl => assumption
-  case inr => contradiction
-
-def checkYearIsNat (year : String) : Validate (Field × String) Nat :=
-  let noWS := (year.dropWhile Char.isWhitespace).dropRightWhile Char.isWhitespace
-  match noWS.toNat? with
-  | none => .errors ⟨("birth year", "Must be digits"), []⟩
-  | .some n => pure n
-
-def checkBirthYear (thisYear year : Nat) : Validate (Field × String) {y : Nat // y > 1900 ∧ y ≤ thisYear} :=
-  if h : ¬(year > 1900)
-    then .errors ⟨("birth year", "Must be after 1900"), []⟩
-    else if h' : ¬(year ≤ thisYear)
-      then .errors ⟨("birth year", s!"Must be no later than {thisYear}"), []⟩
-      else .ok ⟨year, by constructor <;> simp [double_negation, *]⟩
+book declaration {{{ ValidateAndThen }}}
+  def Validate.andThen (val : Validate ε α) (next : α → Validate ε β) : Validate ε β :=
+    match val with
+    | .errors errs => .errors errs
+    | .ok x => next x
+stop book declaration
 
 
-def check (year : Nat) (input : RawInput) : Validate (Field × String) (CheckedInput year) :=
-  pure CheckedInput.mk <*>
-    checkName input.name <*>
-    (checkYearIsNat input.birthYear).andThen (checkBirthYear year)
+
+book declaration {{{ RawInput }}}
+  structure RawInput where
+    name : String
+    birthYear : String
+stop book declaration
+
+namespace SubtypeDemo
+book declaration {{{ Subtype }}}
+  structure Subtype {α : Type} (p : α → Prop) where
+    val : α
+    property : p val
+stop book declaration
+
+axiom α : Type
+axiom p : α → Prop
+
+bookExample {{{ subtypeSugar }}}
+  _root_.Subtype p
+  ===>
+  {x : α // p x}
+end bookExample
+
+bookExample {{{ subtypeSugar2 }}}
+  _root_.Subtype p
+  ===>
+  {x // p x}
+end bookExample
+
+end SubtypeDemo
+
+
+namespace FastPos
+book declaration {{{ FastPos }}}
+  def FastPos : Type := {x : Nat // x > 0}
+stop book declaration
+
+
+
+
+book declaration {{{ one }}}
+  def one : FastPos := ⟨1, by simp⟩
+stop book declaration
+
+
+book declaration {{{ OfNatFastPos }}}
+  instance : OfNat FastPos (n + 1) where
+    ofNat := ⟨n + 1, by simp_arith⟩
+stop book declaration
+
+def seven : FastPos := 7
+
+
+book declaration {{{ NatFastPos }}}
+  def Nat.asFastPos? (n : Nat) : Option FastPos :=
+    if h : n > 0 then
+      some ⟨n, h⟩
+    else none
+stop book declaration
+
+
+end FastPos
+
+book declaration {{{ CheckedInput }}}
+  structure CheckedInput (thisYear : Nat) : Type where
+    name : {n : String // n ≠ ""}
+    birthYear : {y : Nat // y > 1900 ∧ y ≤ thisYear}
+stop book declaration
+
+
+book declaration {{{ Field }}}
+  def Field := String
+stop book declaration
+
+
+book declaration {{{ reportError }}}
+  def reportError (f : Field) (msg : String) : Validate (Field × String) α :=
+    .errors { head := (f, msg), tail := [] }
+stop book declaration
+
+book declaration {{{ checkName }}}
+  def checkName (name : String) : Validate (Field × String) {n : String // n ≠ ""} :=
+    if h : name = "" then
+      reportError "name" "Required"
+    else pure ⟨name, h⟩
+stop book declaration
+
+
+book declaration {{{ checkYearIsNat }}}
+  def checkYearIsNat (year : String) : Validate (Field × String) Nat :=
+    let noWS := (year.dropWhile Char.isWhitespace).dropRightWhile Char.isWhitespace
+    match noWS.toNat? with
+    | none => reportError "birth year" "Must be digits"
+    | some n => pure n
+stop book declaration
+
+book declaration {{{ checkBirthYear }}}
+  def checkBirthYear (thisYear year : Nat) : Validate (Field × String) {y : Nat // y > 1900 ∧ y ≤ thisYear} :=
+    if h : year > 1900 then
+      if h' : year ≤ thisYear then
+        pure ⟨year, by simp [*]⟩
+      else reportError "birth year" s!"Must be no later than {thisYear}"
+    else reportError "birth year" "Must be after 1900"
+stop book declaration
+
+
+book declaration {{{ checkBirthYear }}}
+  def checkInput (year : Nat) (input : RawInput) : Validate (Field × String) (CheckedInput year) :=
+    pure CheckedInput.mk <*>
+      checkName input.name <*>
+      (checkYearIsNat input.birthYear).andThen fun birthYearAsNat =>
+        checkBirthYear year birthYearAsNat
+stop book declaration
 
 deriving instance Repr for NonEmptyList
 deriving instance Repr for Validate
 deriving instance Repr for CheckedInput
 
-#eval check 2022 {name := "David", birthYear := "1984"}
-#eval check 2022 {name := "", birthYear := "2045"}
-#eval check 2022 {name := "David", birthYear := "nineteen eighty four"}
 
+expect info {{{ checkDavid1984 }}}
+  #eval checkInput 2023 {name := "David", birthYear := "1984"}
+message
+"Validate.ok { name := \"David\", birthYear := 1984 }"
+end expect
+
+
+expect info {{{ checkBlank2045 }}}
+  #eval checkInput 2023 {name := "", birthYear := "2045"}
+message
+"Validate.errors { head := (\"name\", \"Required\"), tail := [(\"birth year\", \"Must be no later than 2023\")] }"
+end expect
+
+expect info {{{ checkDavidSyzygy }}}
+  #eval checkInput 2023 {name := "David", birthYear := "syzygy"}
+message
+"Validate.errors { head := (\"birth year\", \"Must be digits\"), tail := [] }"
+end expect

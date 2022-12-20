@@ -39,6 +39,7 @@
 - [Functors, Applicative Functors, and Monads](functor-applicative-monad.md)
   - [Structures and Inheritance](functor-applicative-monad/inheritance.md)
   - [Applicative Functors](functor-applicative-monad/applicative.md)
+  - [The Applicative Contract](functor-applicative-monad/applicative-contract.md)
 - [Monad Transformers](monad-transformers.md)
   - [Combining IO and Reader](monad-transformers/reader-io.md)
   - [A Monad Construction Kit](monad-transformers/transformers.md)
