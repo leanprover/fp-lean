@@ -964,3 +964,130 @@ expect info {{{ checkDavidSyzygy }}}
 message
 "Validate.errors { head := (\"birth year\", \"Must be digits\"), tail := [] }"
 end expect
+
+namespace SeqCounterexample
+
+
+book declaration {{{ counterexample }}}
+  def notFun : Validate String (Nat → String) :=
+    .errors { head := "First error", tail := [] }
+
+  def notArg : Validate String Nat :=
+    .errors { head := "Second error", tail := [] }
+stop book declaration
+
+evaluation steps : Validate String String {{{ realSeq }}}
+  notFun <*> notArg
+  ===>
+  match notFun with
+  | .ok g => g <$> notArg
+  | .errors errs =>
+    match notArg with
+    | .ok _ => .errors errs
+    | .errors errs' => .errors (errs ++ errs')
+  ===>
+  match notArg with
+  | .ok _ => .errors { head := "First error", tail := [] }
+  | .errors errs' => .errors ({ head := "First error", tail := [] } ++ errs')
+  ===>
+  .errors ({ head := "First error", tail := [] } ++ { head := "Second error", tail := []})
+  ===>
+  .errors { head := "First error", tail := ["Second error"]}
+end evaluation steps
+
+
+
+open MonadApplicative in
+evaluation steps : Validate String String {{{ fakeSeq }}}
+  seq notFun (fun ⟨⟩ => notArg)
+  ===>
+  notFun.andThen fun g =>
+  notArg.andThen fun y =>
+  pure (g y)
+  ===>
+  match notFun with
+  | .errors errs => .errors errs
+  | .ok val =>
+    (fun g =>
+      notArg.andThen fun y =>
+      pure (g y)) val
+  ===>
+  .errors { head := "First error", tail := [] }
+end evaluation steps
+
+
+end SeqCounterexample
+
+
+book declaration {{{ LegacyCheckedInput }}}
+  def NonEmptyString := {s : String // s ≠ ""}
+
+  inductive LegacyCheckedInput where
+    | humanBefore1970 :
+      (birthYear : {y : Nat // y > 999 ∧ y < 1970}) →
+      String →
+      LegacyCheckedInput
+    | humanAfter1970 :
+      (birthYear : {y : Nat // y > 1970}) →
+      NonEmptyString →
+      LegacyCheckedInput
+    | company :
+      NonEmptyString →
+      LegacyCheckedInput
+stop book declaration
+
+
+book declaration {{{ ValidateorElse }}}
+  def Validate.orElse (a : Validate ε α) (b : Unit → Validate ε α) : Validate ε α :=
+    match a with
+    | .ok x => .ok x
+    | .errors errs1 =>
+      match b ⟨⟩ with
+      | .ok x => .ok x
+      | .errors errs2 => .errors (errs1 ++ errs2)
+stop book declaration
+
+
+book declaration {{{ OrElseValidate }}}
+  instance : OrElse (Validate ε α) where
+    orElse := Validate.orElse
+stop book declaration
+
+def checkThat (condition : Bool) (field : Field) (msg : String) : Validate (Field × String) Unit :=
+  if condition then pure ⟨⟩ else reportError field msg
+
+def checkCompany (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
+  checkThat (input.birthYear == "FIRM") "birth year" "FIRM if a company" *>
+  .company <$> checkName input.name
+
+def checkSubtype {α : Type} (v : α) (p : α → Prop) [Decidable (p v)] (err : ε) : Validate ε {x : α // p x} :=
+  if h : p v then
+    pure ⟨v, h⟩
+  else
+    .errors { head := err, tail := [] }
+
+def checkHumanAfter1970 (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
+  (checkYearIsNat input.birthYear).andThen fun y =>
+    .humanAfter1970 <$>
+      checkSubtype y (· > 1970) ("birth year", "greater than 1970") <*>
+      checkSubtype input.name (· ≠ "") ("name", "Required")
+
+def checkHumanBefore1970 (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
+  (checkYearIsNat input.birthYear).andThen fun y =>
+    .humanBefore1970 <$>
+      checkSubtype y (fun x => x > 999 ∧ x < 1970) ("birth year", "less than 1970") <*>
+      pure input.name
+
+def checkLegacyInput (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
+  checkCompany input <|> checkHumanBefore1970 input <|> checkHumanAfter1970 input
+
+
+book declaration {{{ TreeError }}}
+  inductive TreeError where
+    | field : Field → String → TreeError
+    | path : String → TreeError → TreeError
+    | both : TreeError → TreeError → TreeError
+
+  instance : Append TreeError where
+    append := .both
+stop book declaration

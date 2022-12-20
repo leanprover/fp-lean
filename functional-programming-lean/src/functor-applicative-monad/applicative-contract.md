@@ -98,3 +98,30 @@ This justifies a definition of `Monad` that extends `Applicative`, with a defaul
 ```
 `Applicative`'s own default definition of `map` means that every `Monad` instance automatically generates `Applicative` and `Functor` instances as well.
 
+## Additional Stipulations
+
+In addition to adhering to the individual contracts associated with each type class, combined implementations `Functor`, `Applicative`x and `Monad` should work equivalently to these default implementations.
+In other words, a type that provides both `Applicative` and `Monad` instances should not have an implementation of `seq` that works differently from the version that the `Monad` instance generates as a default implementation.
+This is important because polymorphic functions may be refactored to replace a use of `>>=` with an equivalent use of `<*>`, or a use of `<*>` with an equivalent use of `>>=`.
+This refactoring should not change the meaning of programs that use this code.
+
+This rule explains why `Validate.andThen` should not be used to implement `bind` in a `Monad` instance.
+On its own, it obeys the monad contract.
+However, when it is used to implement `seq`, the behavior is not equivalent to `seq` itself.
+To see where they differ, take the example of two computations, both of which return errors.
+Start with an example of a case where two errors should be returned, one from validating a function (which could have just as well resulted from a prior argument to the function), and one from validating an argument:
+```lean
+{{#example_decl Examples/FunctorApplicativeMonad.lean counterexample}}
+```
+
+Combining them with the version of `<*>` from `Validate`'s `Applicative` instance results in both errors being reported to the user:
+```lean
+{{#example_eval Examples/FunctorApplicativeMonad.lean realSeq}}
+```
+
+Using the version of `seq` that was implemented with `>>=`, here rewritten to `andThen`, results in only the first error being available:
+```lean
+{{#example_eval Examples/FunctorApplicativeMonad.lean fakeSeq}}
+```
+
+
