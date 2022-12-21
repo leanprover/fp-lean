@@ -1020,7 +1020,7 @@ end SeqCounterexample
 
 
 book declaration {{{ LegacyCheckedInput }}}
-  def NonEmptyString := {s : String // s ≠ ""}
+  abbrev NonEmptyString := {s : String // s ≠ ""}
 
   inductive LegacyCheckedInput where
     | humanBefore1970 :
@@ -1034,6 +1034,7 @@ book declaration {{{ LegacyCheckedInput }}}
     | company :
       NonEmptyString →
       LegacyCheckedInput
+  deriving Repr
 stop book declaration
 
 
@@ -1047,40 +1048,161 @@ book declaration {{{ ValidateorElse }}}
       | .errors errs2 => .errors (errs1 ++ errs2)
 stop book declaration
 
+namespace FakeOrElse
+
+
+book declaration {{{ OrElse }}}
+  class OrElse (α : Type) where
+    orElse : α → (Unit → α) → α
+stop book declaration
+end FakeOrElse
+
+namespace SugaryOrElse
+
+axiom α : Type
+@[instance] axiom inst : OrElse α
+axiom E1 : α
+axiom E2 : α
+
+bookExample {{{ OrElseSugar }}}
+  E1 <|> E2
+  ===>
+  OrElse.orElse E1 (fun ⟨⟩ => E2)
+end bookExample
+
+
+end SugaryOrElse
 
 book declaration {{{ OrElseValidate }}}
   instance : OrElse (Validate ε α) where
     orElse := Validate.orElse
 stop book declaration
 
-def checkThat (condition : Bool) (field : Field) (msg : String) : Validate (Field × String) Unit :=
-  if condition then pure ⟨⟩ else reportError field msg
 
-def checkCompany (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
-  checkThat (input.birthYear == "FIRM") "birth year" "FIRM if a company" *>
-  .company <$> checkName input.name
+book declaration {{{ checkThat }}}
+  def checkThat (condition : Bool) (field : Field) (msg : String) : Validate (Field × String) Unit :=
+    if condition then pure ⟨⟩ else reportError field msg
+stop book declaration
 
-def checkSubtype {α : Type} (v : α) (p : α → Prop) [Decidable (p v)] (err : ε) : Validate ε {x : α // p x} :=
-  if h : p v then
-    pure ⟨v, h⟩
-  else
-    .errors { head := err, tail := [] }
 
-def checkHumanAfter1970 (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
-  (checkYearIsNat input.birthYear).andThen fun y =>
-    .humanAfter1970 <$>
-      checkSubtype y (· > 1970) ("birth year", "greater than 1970") <*>
-      checkSubtype input.name (· ≠ "") ("name", "Required")
+namespace Provisional
 
-def checkHumanBefore1970 (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
-  (checkYearIsNat input.birthYear).andThen fun y =>
-    .humanBefore1970 <$>
-      checkSubtype y (fun x => x > 999 ∧ x < 1970) ("birth year", "less than 1970") <*>
-      pure input.name
+book declaration {{{ checkCompanyProv }}}
+  def checkCompany (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
+    pure (fun ⟨⟩ name => .company name) <*>
+      checkThat (input.birthYear == "FIRM") "birth year" "FIRM if a company" <*>
+      checkName input.name
+stop book declaration
 
-def checkLegacyInput (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
-  checkCompany input <|> checkHumanBefore1970 input <|> checkHumanAfter1970 input
+end Provisional
 
+namespace SeqRightSugar
+
+axiom f : Type → Type
+axiom α : Type
+axiom β : Type
+@[instance] axiom inst : SeqRight f
+axiom E1 : f α
+axiom E2 : f β
+
+bookExample {{{ seqRightSugar }}}
+  E1 *> E2
+  ===>
+  SeqRight.seqRight E1 (fun ⟨⟩ => E2)
+end bookExample
+
+bookExample type {{{ seqRightType }}}
+  SeqRight.seqRight
+  <===
+  f α → (Unit → f β) → f β
+end bookExample
+
+end SeqRightSugar
+
+namespace FakeSeqRight
+
+
+book declaration {{{ ClassSeqRight }}}
+  class SeqRight (f : Type → Type) where
+    seqRight : f α → (Unit → f β) → f β
+stop book declaration
+
+end FakeSeqRight
+
+namespace Provisional2
+
+book declaration {{{ checkCompanyProv2 }}}
+  def checkCompany (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
+    checkThat (input.birthYear == "FIRM") "birth year" "FIRM if a company" *>
+    pure .company <*> checkName input.name
+stop book declaration
+
+end Provisional2
+
+
+book declaration {{{ checkCompany }}}
+  def checkCompany (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
+    checkThat (input.birthYear == "FIRM") "birth year" "FIRM if a company" *>
+    .company <$> checkName input.name
+stop book declaration
+
+
+book declaration {{{ checkSubtype }}}
+  def checkSubtype {α : Type} (v : α) (p : α → Prop) [Decidable (p v)] (err : ε) : Validate ε {x : α // p x} :=
+    if h : p v then
+      pure ⟨v, h⟩
+    else
+      .errors { head := err, tail := [] }
+stop book declaration
+
+
+book declaration {{{ checkHumanAfter1970 }}}
+  def checkHumanAfter1970 (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
+    (checkYearIsNat input.birthYear).andThen fun y =>
+      .humanAfter1970 <$>
+        checkSubtype y (· > 1970) ("birth year", "greater than 1970") <*>
+        checkName input.name
+stop book declaration
+
+
+book declaration {{{ checkHumanBefore1970 }}}
+  def checkHumanBefore1970 (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
+    (checkYearIsNat input.birthYear).andThen fun y =>
+      .humanBefore1970 <$>
+        checkSubtype y (fun x => x > 999 ∧ x < 1970) ("birth year", "less than 1970") <*>
+        pure input.name
+stop book declaration
+
+
+book declaration {{{ checkLegacyInput }}}
+  def checkLegacyInput (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
+    checkCompany input <|> checkHumanBefore1970 input <|> checkHumanAfter1970 input
+stop book declaration
+
+
+expect info {{{ trollGroomers }}}
+  #eval checkLegacyInput ⟨"Johnny's Troll Groomers", "FIRM"⟩
+message
+"Validate.ok (LegacyCheckedInput.company \"Johnny's Troll Groomers\")"
+end expect
+
+expect info {{{ johnny }}}
+  #eval checkLegacyInput ⟨"Johnny", "1963"⟩
+message
+"Validate.ok (LegacyCheckedInput.humanBefore1970 1963 \"Johnny\")"
+end expect
+
+
+expect info {{{ allFailures }}}
+  #eval checkLegacyInput ⟨"", "1970"⟩
+message
+"Validate.errors
+  { head := (\"birth year\", \"FIRM if a company\"),
+    tail := [(\"name\", \"Required\"),
+             (\"birth year\", \"less than 1970\"),
+             (\"birth year\", \"greater than 1970\"),
+             (\"name\", \"Required\")] }"
+end expect
 
 book declaration {{{ TreeError }}}
   inductive TreeError where
@@ -1091,3 +1213,74 @@ book declaration {{{ TreeError }}}
   instance : Append TreeError where
     append := .both
 stop book declaration
+
+namespace FakeAlternative
+
+
+
+book declaration {{{ FakeAlternative }}}
+  class Alternative (f : Type → Type) extends Applicative f where
+    failure : f α
+    orElse : f α → (Unit → f α) → f α
+stop book declaration
+
+
+book declaration {{{ AltOrElse }}}
+  instance [Alternative f] : OrElse (f α) where
+    orElse := Alternative.orElse
+stop book declaration
+end FakeAlternative
+
+
+book declaration {{{ AlternativeOption }}}
+  instance : Alternative Option where
+    failure := none
+    orElse
+      | some x, _ => some x
+      | none, y => y ⟨⟩
+stop book declaration
+
+book declaration {{{ AlternativeMany }}}
+  def Many.orElse : Many α → (Unit → Many α) → Many α
+    | .none, ys => ys ⟨⟩
+    | .more x xs, ys => .more x (fun ⟨⟩ => orElse (xs ⟨⟩) ys)
+
+  instance : Alternative Many where
+    failure := .none
+    orElse := Many.orElse
+stop book declaration
+
+namespace Guard
+
+
+book declaration {{{ guard }}}
+  def guard [Alternative f] (p : Prop) [Decidable p] : f Unit :=
+    if p then
+      pure ⟨⟩
+    else failure
+stop book declaration
+
+
+book declaration {{{ evenDivisors }}}
+  def Many.countdown : Nat → Many Nat
+    | 0 => .none
+    | n + 1 => .more n (fun ⟨⟩ => countdown n)
+
+  def evenDivisors (n : Nat) : Many Nat := do
+    let k ← Many.countdown (n + 1)
+    guard (k % 2 = 0)
+    guard (n % k = 0)
+    pure k
+stop book declaration
+
+
+expect info {{{ evenDivisors20 }}}
+  #eval (evenDivisors 20).takeAll
+message
+"[20, 10, 4, 2]"
+end expect
+
+end Guard
+
+
+#print Applicative

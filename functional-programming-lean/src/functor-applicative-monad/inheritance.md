@@ -44,7 +44,7 @@ The constructor `Monster.mk` takes a `MythicalCreature` as its argument:
 {{#example_out Examples/FunctorApplicativeMonad.lean MonsterMk}}
 ```
 In addition to defining functions to extract the value of each new field, a function `{{#example_in Examples/FunctorApplicativeMonad.lean MonsterToCreature}}` is defined with type `{{#example_out Examples/FunctorApplicativeMonad.lean MonsterToCreature}}`.
-This can be used to extract the underlying creature.
+This can be used to extract the underlying creature. TODO show that this is not upcasting - the additional structure is lost
 
 Just like the `where` syntax, curly-brace notation with field names also works with structure inheritance:
 ```lean

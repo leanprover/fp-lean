@@ -89,7 +89,7 @@ bookExample type {{{ listT }}}
   Type → Type
 end bookExample
 
-syntax withPosition("bookExample" "type" "{{{" ws ident ws "}}}" colGt term:10 colGt "<===" colGt term:10 "end bookExample") : command
+syntax withPosition("bookExample" "type" "{{{" ws ident ws "}}}" colGt term:10 colGt "<===" colGt term:0 "end bookExample") : command
 
 elab_rules : command
   | `(bookExample type {{{ $name:ident }}} $x:term <=== $y:term end bookExample) =>
