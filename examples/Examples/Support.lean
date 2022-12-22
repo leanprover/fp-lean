@@ -70,12 +70,12 @@ elab_rules : command
     open Lean.Elab.Command in
     open Lean.Elab.Term in
     open Lean.Meta in liftTermElabM <| withDeclName name.raw.getId do
-      let x ← elabTerm x none
-      let xType ← inferType x
-      let y ← elabTerm y none
+      let x' ← elabTerm x none
+      let xType ← inferType x'
+      let y' ← elabTerm y none
       synthesizeSyntheticMVarsNoPostponing
-      unless (← isDefEq xType y) do
-        throwError "Expected the type {y}, but got {← reduce xType}"
+      unless (← isDefEq xType y') do
+        throwErrorAt y "Expected the type {y'}, but got {← reduce xType}"
 
 bookExample type {{{ three }}}
   2 + 1
