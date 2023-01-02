@@ -141,6 +141,13 @@ book declaration {{{ MyList3 }}}
     | cons : α → MyList α → MyList α
 stop book declaration
 
+book declaration {{{ myListOfNat3 }}}
+  def myListOfNumbers : MyList Nat :=
+    .cons 0 (.cons 1 .nil)
+
+  def myListOfNat : MyList Type :=
+    .cons Nat .nil
+stop book declaration
 
 book declaration {{{ myListOfList3 }}}
   def myListOfList : MyList (Type → Type) :=
@@ -148,7 +155,31 @@ book declaration {{{ myListOfList3 }}}
 stop book declaration
 
 namespace Explicit
+
+bookExample type {{{ MyListDotZero }}}
+  MyList.{0}
+  ===>
+  Type → Type
+end bookExample
+bookExample type {{{ MyListDotOne }}}
+  MyList.{1}
+  ===>
+  Type 1 → Type 1
+end bookExample
+bookExample type {{{ MyListDotTwo }}}
+  MyList.{2}
+  ===>
+  Type 2 → Type 2
+end bookExample
+
+
 book declaration {{{ myListOfList3Expl }}}
+  def myListOfNumbers : MyList.{0} Nat :=
+    .cons 0 (.cons 1 .nil)
+
+  def myListOfNat : MyList.{1} Type :=
+    .cons Nat .nil
+
   def myListOfList : MyList.{1} (Type → Type) :=
     .cons MyList.{0} .nil
 stop book declaration
@@ -156,3 +187,82 @@ stop book declaration
 end Explicit
 
 end MyList3
+
+
+namespace MySum
+
+
+namespace Inflexible
+
+
+book declaration {{{ SumNoMax }}}
+  inductive Sum (α : Type u) (β : Type u) : Type u where
+    | inl : α → Sum α β
+    | inr : β → Sum α β
+stop book declaration
+
+
+book declaration {{{ SumPoly }}}
+  def stringOrNat : Sum String Nat := .inl "hello"
+
+  def typeOrType : Sum Type Type := .inr Nat
+stop book declaration
+
+expect error {{{ stringOrTypeLevels }}}
+  def stringOrType : Sum String Type := .inr Nat
+message
+"application type mismatch
+  Sum String Type
+argument
+  Type
+has type
+  Type 1 : Type 2
+but is expected to have type
+  Type : Type 1"
+end expect
+
+end Inflexible
+
+
+book declaration {{{ SumMax }}}
+  inductive Sum (α : Type u) (β : Type v) : Type (max u v) where
+    | inl : α → Sum α β
+    | inr : β → Sum α β
+stop book declaration
+
+
+book declaration {{{ stringOrTypeSum }}}
+  def stringOrType : Sum String Type := .inr Nat
+stop book declaration
+
+end MySum
+
+namespace PropStuff
+
+
+book declaration {{{ someTrueProps }}}
+  def someTruePropositions : List Prop := [
+    1 + 1 = 2,
+    "Hello, " ++ "world!" = "Hello, world!"
+  ]
+stop book declaration
+
+namespace Explicit
+
+book declaration {{{ someTruePropsExp }}}
+  def someTruePropositions : List.{0} Prop := [
+    1 + 1 = 2,
+    "Hello, " ++ "world!" = "Hello, world!"
+  ]
+stop book declaration
+
+end Explicit
+
+bookExample type {{{ ArrProp }}}
+  (n : Nat) → n + 0 = n
+  ===>
+  Prop
+end bookExample
+
+
+end PropStuff
