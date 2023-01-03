@@ -9,27 +9,62 @@ book declaration {{{ HonestFunctor }}}
     mapConst : {α β : Type u} → α → f β → f α := Function.comp map (Function.const _)
 stop book declaration
 
+namespace EEE
+axiom α : Type
+axiom f : Type → Type
+axiom β : Type
+@[instance] axiom inst : Functor f
+
+open Functor in
+bookExample : α → f β → f α {{{ unfoldCompConst }}}
+  (Function.comp map (Function.const _) : α → f β → f α)
+  ===>
+  fun (x : α) (y : f β) => map (fun _ => x) y
+end bookExample
+end EEE
+
+end F
+
+
+book declaration {{{ simpleConst }}}
+  def simpleConst  (x : α) (_ : β) : α := x
+stop book declaration
+
+#check simpleConst
+
+
+expect info {{{ mapConst }}}
+  #eval [1, 2, 3].map (simpleConst "same")
+message
+"[\"same\", \"same\", \"same\"]"
+end expect
+
+namespace F
 
 expect info {{{ FunctionConstType }}}
-  #check @Function.const
+  #check Function.const
 message
-"@Function.const : {α : Sort u_1} → (β : Sort u_2) → α → β → α"
+"Function.const.{u, v} {α : Sort u} (β : Sort v) (a : α) (a✝ : β) : α"
 end expect
 end F
 
 namespace F1
 
-class Functor (f : Type u → Type v) : Type (max (u+1) v) where
-  map : {α β : Type u} → (α → β) → f α → f β
 
+book declaration {{{ FunctorSimplified }}}
+  class Functor (f : Type u → Type v) : Type (max (u+1) v) where
+    map : {α β : Type u} → (α → β) → f α → f β
+stop book declaration
 end F1
 
 
 namespace F2
 
-inductive Functor (f : Type u → Type v) : Type (max (u+1) v) where
-  | mk : ({α β : Type u} → (α → β) → f α → f β) → Functor f
 
+book declaration {{{ FunctorDatatype }}}
+  inductive Functor (f : Type u → Type v) : Type (max (u+1) v) where
+    | mk : ({α β : Type u} → (α → β) → f α → f β) → Functor f
+stop book declaration
 end F2
 
 namespace A
@@ -44,7 +79,7 @@ class SeqRight (f : Type u → Type v) : Type (max (u+1) v) where
   seqRight : {α β : Type u} → f α → (Unit → f β) → f β
 
 
-class Pure (f : Type u → Type v) where
+class Pure (f : Type u → Type v) : Type (max (u+1) v) where
   pure {α : Type u} : α → f α
 
 class Applicative (f : Type u → Type v) extends Functor f, Pure f, Seq f, SeqLeft f, SeqRight f where
