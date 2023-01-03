@@ -43,6 +43,16 @@ stop book declaration
 end New
 
 
+book declaration {{{ BinTreeEmpty }}}
+  def BinTree.empty : BinTree α := .leaf
+stop book declaration
+
+expect info {{{ emptyDot }}}
+  #check (.empty : BinTree Nat)
+message
+"BinTree.empty : BinTree Nat"
+end expect
+
 book declaration {{{ Weekday }}}
   inductive Weekday where
     | monday

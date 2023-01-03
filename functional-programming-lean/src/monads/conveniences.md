@@ -13,7 +13,7 @@ can be written
 ```
 This is especially useful when the type signature is large.
 
-## Constructor Dot Notation
+## Leading Dot Notation
 
 The constructors of an inductive type are in a namespace.
 This allows multiple related inductive types to use the same constructor names, but it can lead to programs becoming verbose.
@@ -25,6 +25,17 @@ For example, a function that mirrors a binary tree can be written:
 Omitting the namespaces makes it significantly shorter, at the cost of making the program harder to read in contexts like code review tools that don't include the Lean compiler:
 ```lean
 {{#example_decl Examples/Monads/Conveniences.lean mirrorNew}}
+```
+
+Using the expected type of an expression to disambiguate a namespace is also applicable to names other than constructors.
+If `BinTree.empty` is defined as an alternative way of creating `BinTree`s, then it can also be used with dot notation:
+```lean
+{{#example_decl Examples/Monads/Conveniences.lean BinTreeEmpty}}
+
+{{#example_in Examples/Monads/Conveniences.lean emptyDot}}
+```
+```output info
+{{#example_out Examples/Monads/Conveniences.lean emptyDot}}
 ```
 
 ## Or-Patterns
