@@ -125,6 +125,9 @@ message
 Blast off!"
 end expect
 
+-- Verify claim in book made about guillemets. The following should work:
+def «def» := 5
+
 namespace Exercises
   book declaration {{{ ExMain }}}
     def main : IO Unit := do

@@ -129,8 +129,15 @@ book declaration {{{ add1 }}}
   def add1 (n : Nat) : Nat := n + 1
 stop book declaration
 
-expect info {{{ add1type }}}
+expect info {{{ add1sig }}}
   #check add1
+message
+"add1 (n : Nat) : Nat"
+end expect
+
+
+expect info {{{ add1type }}}
+  #check (add1)
 message
 "add1 : Nat → Nat"
 end expect
@@ -163,7 +170,7 @@ book declaration {{{ maximum }}}
 stop book declaration
 
 expect info {{{ maximumType }}}
-  #check maximum
+  #check (maximum)
 message
 "maximum : Nat → Nat → Nat"
 end expect
@@ -362,19 +369,19 @@ message
 end expect
 
 expect info {{{ Pointmk }}}
-  #check Point.mk
+  #check (Point.mk)
 message
 "Point.mk : Float → Float → Point"
 end expect
 
 expect info {{{ Pointx }}}
-  #check Point.x
+  #check (Point.x)
 message
 "Point.x : Point → Float"
 end expect
 
 expect info {{{ Pointy }}}
-  #check Point.y
+  #check (Point.y)
 message
 "Point.y : Point → Float"
 end expect
@@ -736,7 +743,7 @@ book declaration {{{ replaceX }}}
 stop book declaration
 
 expect info {{{ replaceXT }}}
-  #check replaceX
+  #check (replaceX)
 message
   "replaceX : (α : Type) → PPoint α → α → PPoint α"
 end expect
@@ -860,11 +867,6 @@ message
 "
 end expect
 
-expect info {{{ replaceXImpT }}}
-  #check replaceX
-message
-  "replaceX : PPoint ?m.13164 → ?m.13164 → PPoint ?m.13164"
-end expect
 
 book declaration {{{ lengthImp }}}
   def length {α : Type} (xs : List α) : Nat :=
@@ -1031,18 +1033,18 @@ expect error {{{ headNoneBad }}}
   #eval [].head?
 message
 "don't know how to synthesize implicit argument
-  @List.nil ?m.19130
+  @List.nil ?m.20283
 context:
-⊢ Type ?u.19127"
+⊢ Type ?u.20280"
 end expect
 
 expect error {{{ headNoneBad2 }}}
   #eval [].head?
 message
 "don't know how to synthesize implicit argument
-  @_root_.List.head? ?m.19130 []
+  @_root_.List.head? ?m.20283 []
 context:
-⊢ Type ?u.19127"
+⊢ Type ?u.20280"
 end expect
 
 
@@ -1532,13 +1534,13 @@ stop book declaration
 expect info {{{ tripleNamespace }}}
   #check NewNamespace.triple
 message
-  "NewNamespace.triple : Nat → Nat"
+  "NewNamespace.triple (x : Nat) : Nat"
 end expect
 
 expect info {{{ quadrupleNamespace }}}
   #check NewNamespace.quadruple
 message
-  "NewNamespace.quadruple : Nat → Nat"
+  "NewNamespace.quadruple (x : Nat) : Nat"
 end expect
 
 
@@ -1554,7 +1556,7 @@ expect info {{{ quadrupleNamespaceOpen }}}
   open NewNamespace in
   #check quadruple
 message
-  "quadruple : Nat → Nat"
+  "NewNamespace.quadruple (x : Nat) : Nat"
 end expect
 
 
@@ -1624,7 +1626,7 @@ end bookExample
 expect error {{{ pointPosEvalNoType }}}
   #eval ⟨1, 2⟩
 message
-"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.33774"
+"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.34750"
 end expect
 
 expect info {{{ pointPosWithType }}}

@@ -79,14 +79,14 @@ expect error {{{ fourteenOops }}}
   def fourteen : Pos := seven + seven
 message
 "failed to synthesize instance
-  HAdd Pos Pos ?m.299"
+  HAdd Pos Pos ?m.289"
 end expect
 
 expect error {{{ fortyNineOops }}}
   def fortyNine : Pos := seven * seven
 message
 "failed to synthesize instance
-  HMul Pos Pos ?m.299"
+  HMul Pos Pos ?m.289"
 end expect
 
 
@@ -315,9 +315,9 @@ end bookExample
 
 
 expect info {{{ printlnMetas }}}
-  #check IO.println
+  #check (IO.println)
 message
-"IO.println : ?m.3611 → IO Unit"
+"IO.println : ?m.3637 → IO Unit"
 end expect
 
 expect info {{{ printlnNoMetas }}}
@@ -601,7 +601,7 @@ expect error {{{ hPlusOops }}}
   #eval HPlus.hPlus (3 : Pos) (5 : Nat)
 message
 "typeclass instance problem is stuck, it is often due to metavariables
-  HPlus Pos Nat ?m.7154"
+  HPlus Pos Nat ?m.7542"
 end expect
 
 
@@ -649,7 +649,7 @@ end expect
 expect info {{{ plusFiveMeta }}}
   #check HPlus.hPlus (5 : Nat)
 message
-  "HPlus.hPlus 5 : ?m.7319 → ?m.7321"
+  "HPlus.hPlus 5 : ?m.7709 → ?m.7711"
 end expect
 
 
@@ -1179,7 +1179,7 @@ similar datatypes CoeHead FakeCoe.CoeHead
 
 
 book declaration {{{ CoeOption }}}
-  instance : CoeTail α (Option α) where
+  instance : Coe α (Option α) where
     coe x := some x
 stop book declaration
 
@@ -1196,17 +1196,11 @@ stop book declaration
 end L
 
 
-expect error {{{ perhapsPerhapsPerhaps }}}
+book declaration {{{ perhapsPerhapsPerhaps }}}
   def perhapsPerhapsPerhaps : Option (Option (Option String)) :=
     "Please don't tell me"
-message
-"type mismatch
-  \"Please don't tell me\"
-has type
-  String : Type
-but is expected to have type
-  Option (Option (Option String)) : Type"
-end expect
+stop book declaration
+
 
 
 expect error {{{ ofNatBeforeCoe }}}
@@ -1216,6 +1210,19 @@ message
 "failed to synthesize instance
   OfNat (Option (Option (Option Nat))) 392"
 end expect
+
+
+book declaration {{{ perhapsPerhapsPerhapsNat }}}
+  def perhapsPerhapsPerhapsNat : Option (Option (Option Nat)) :=
+    (392 : Nat)
+stop book declaration
+
+namespace Up
+book declaration {{{ perhapsPerhapsPerhapsNatUp }}}
+  def perhapsPerhapsPerhapsNat : Option (Option (Option Nat)) :=
+    ↑(392 : Nat)
+stop book declaration
+end Up
 
 book declaration {{{ CoeNEList }}}
   instance : Coe (NonEmptyList α) (List α) where
@@ -1489,7 +1496,7 @@ argument
 has type
   NonEmptyList String : Type
 but is expected to have type
-  List ?m.32964 : Type ?u.32962"
+  List ?m.34386 : Type"
 end expect
 
 expect error {{{ lastSpiderC }}}

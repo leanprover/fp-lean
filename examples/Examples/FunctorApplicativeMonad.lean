@@ -18,20 +18,20 @@ stop book declaration
 expect info {{{ MythicalCreatureMk }}}
   #check MythicalCreature.mk
 message
-"MythicalCreature.mk : Bool → MythicalCreature"
+"MythicalCreature.mk (large : Bool) : MythicalCreature"
 end expect
 
 expect info {{{ MythicalCreatureLarge }}}
   #check MythicalCreature.large
 message
-"MythicalCreature.large : MythicalCreature → Bool"
+"MythicalCreature.large (self : MythicalCreature) : Bool"
 end expect
 
 
 expect info {{{ MonsterMk }}}
   #check Monster.mk
 message
-"Monster.mk : MythicalCreature → String → Monster"
+"Monster.mk (toMythicalCreature : MythicalCreature) (vulnerability : String) : Monster"
 end expect
 
 bookExample type {{{ MonsterToCreature }}}

@@ -32,6 +32,8 @@ while the executable source `Main.lean` contains:
 {{#file_contents {lake} {first-lake/greeting/Main.lean} {first-lake/expected/Main.lean}}}
 ```
 The `import` line makes the contents of `Greeting.lean` available in `Main.lean`.
+Placing guillemets around a name, as in `«Greeting»`, allow it to contain spaces or other characters that are normally not allowed in Lean names, and it allows reserved keywords such as `if` or `def` to be used as ordinary names by writing `«if»` or `«def»`.
+This prevents issues when the package name provided to `lake new` contains such characters.
 
 To build the package, run the command `{{#command {first-lake/greeting} {lake} {lake build} }}`.
 After a number of build commands scroll by, the resulting binary has been placed in `build/bin`.
@@ -51,6 +53,8 @@ This initial Lakefile consists of three items:
  * a _package_ declaration, named `greeting`,
  * a _library_ declaration, named `Greeting`, and
  * an _executable_, also named `greeting`.
+
+Each of these names is enclosed in guillemets to allow users more freedom in picking package names.
 
 Each Lakefile will contain exactly one package, but any number of libraries or executables.
 Additionally, Lakefiles may contain _external libraries_, which are libraries not written in Lean to be statically linked with the resulting executable, _custom targets_, which are build targets that don't fit naturally into the library/executable taxonomy, _dependencies_, which are declarations of other Lean packages (either locally or from remote Git repositories), and _scripts_, which are essentially `IO` actions (similar to `main`), but that additionally have access to metadata about the package configuration.

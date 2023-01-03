@@ -349,7 +349,8 @@ To do this, place the `open ... in` prior to the command.
 ```output info
 {{#example_out Examples/Intro.lean quadrupleNamespaceOpen}}
 ```
-Finally, namespaces may be opened for _all_ following commands for the rest of the file.
+Function signatures show the name's full namespace.
+Namespaces may additionally be opened for _all_ following commands for the rest of the file.
 To do this, simply omit the `in` from a top-level usage of `open`.
 
 ## if let

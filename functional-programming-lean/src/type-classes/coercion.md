@@ -72,20 +72,32 @@ For instance, the function `List.getLast?` that finds the last entry in a list c
 {{#example_decl Examples/Classes.lean lastHuh}}
 ```
 Instance search finds the coercion, and inserts a call to `coe`, which wraps the argument in `some`.
-
-However, rather than defining a `Coe α (Option α)` instance, the library defines an instance of a class called `CoeTail`.
-Unlike `Coe`, `CoeTail` is consulted only as the last step in a sequence of coercions, and it is used at most once:
+These coercions can be chained, so that nested uses of `Option` don't require nested `some` constructors:
 ```lean
-{{#example_decl Examples/Classes.lean CoeOption}}
+{{#example_decl Examples/Classes.lean perhapsPerhapsPerhaps}}
 ```
-This means that the following definition is rejected, as it would require multiple uses of the coercion:
+
+Coercions are only activated automatically when Lean encounters a mismatch between an inferred type and a type that is imposed from the rest of the program.
+In cases with other errors, coercions are not activated.
+For example, if the error is that an instance is missing, coercions will not be used:
 ```lean
-{{#example_in Examples/Classes.lean perhapsPerhapsPerhaps}}
+{{#example_in Examples/Classes.lean ofNatBeforeCoe}}
 ```
 ```output error
-{{#example_out Examples/Classes.lean perhapsPerhapsPerhaps}}
+{{#example_out Examples/Classes.lean ofNatBeforeCoe}}
 ```
-Similarly, there is a `CoeHead` class that is used at most once at the beginning of a chain of coercions.
+
+This can be worked around by manually indicating the desired type to be used for `OfNat`:
+```lean
+{{#example_decl Examples/Classes.lean perhapsPerhapsPerhapsNat}}
+```
+Additionally, coercions can be manually inserted using an up arrow:
+```lean
+{{#example_decl Examples/Classes.lean perhapsPerhapsPerhapsNatUp}}
+```
+In some cases, this can be used to ensure that Lean finds the right instances.
+It can also make the programmer's intentions more clear.
+
 
 ## Non-Empty Lists and Dependent Coercions
 

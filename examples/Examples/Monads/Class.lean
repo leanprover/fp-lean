@@ -232,7 +232,7 @@ expect error {{{ mapMIdNoHint }}}
   #eval mapM (· + 1) [1, 2, 3, 4, 5]
 message
 "failed to synthesize instance
-  HAdd Nat Nat (?m.8896 ?m.8898)"
+  HAdd Nat Nat (?m.9353 ?m.9355)"
 end expect
 
 
@@ -240,7 +240,7 @@ expect error {{{ mapMIdId }}}
   #eval mapM (fun x => x) [1, 2, 3, 4, 5]
 message
 "typeclass instance problem is stuck, it is often due to metavariables
-  Monad ?m.8896"
+  Monad ?m.9353"
 end expect
 
 end MyListStuff
