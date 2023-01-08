@@ -1,1 +1,0 @@
-# A Monad Construction Kit

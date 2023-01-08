@@ -44,12 +44,6 @@
   - [Universes](functor-applicative-monad/universes.md)
   - [The Complete Definitions](functor-applicative-monad/complete.md)
   - [Summary](functor-applicative-monad/summary.md)
-- [Monad Transformers](monad-transformers.md)
-  - [Combining IO and Reader](monad-transformers/reader-io.md)
-  - [A Monad Construction Kit](monad-transformers/transformers.md)
-  - [More `do` Features](do.md)
-
-  - [Additional Conveniences]()
-  - [Summary]()
+- [Monad Transformers]()
 - [Programming with Dependent Types]()
 - [From Programming to Proving]()
