@@ -61,6 +61,18 @@ bookExample type {{{ Fun12Type }}}
   Type 3
 end bookExample
 
+bookExample type {{{ FunPropType }}}
+  (n : Nat) → n = n + 0
+  ===>
+  Prop
+end bookExample
+
+bookExample type {{{ FunTypePropType }}}
+  Type → 2 + 2 = 4
+  ===>
+  Prop
+end bookExample
+
 namespace MyList1
 
 

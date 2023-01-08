@@ -18,7 +18,7 @@ In particular, `Type` cannot itself be a `Type`.
 This would allow a logical paradox to be constructed and undermine Lean's usefulness as a theorem prover.
 
 The formal argument for this is known as _Girard's Paradox_.
-It is a version of a better-known paradox known as _Russell's Paradox_, which was used to show that early versions of set theory were inconsistent.
+It related to a better-known paradox known as _Russell's Paradox_, which was used to show that early versions of set theory were inconsistent.
 In these set theories, a set can be defined by a property.
 For example, one might have the set of all red things, the set of all fruit, the set of all natural numbers, or even the set of all sets.
 Given a set, one can ask whether a given element is contained in it.
@@ -51,6 +51,13 @@ Similarly, `{{#example_in Examples/Universes.lean Type1Type}}` is a `{{#example_
 
 Function types occupy the smallest universe that can contain both the argument type and the return type.
 This means that `{{#example_in Examples/Universes.lean NatNatType}}` is a `{{#example_out Examples/Universes.lean NatNatType}}`, `{{#example_in Examples/Universes.lean Fun00Type}}` is a `{{#example_out Examples/Universes.lean Fun00Type}}`, and `{{#example_in Examples/Universes.lean Fun12Type}}` is a `{{#example_out Examples/Universes.lean Fun12Type}}`.
+
+There is one exception to this rule.
+If the return type of a function is a `Prop`, then the whole function type is in `Prop`, even if the argument is in a larger universe such as `Type` or even `Type 1`.
+In particular, this means that predicates over values that have ordinary types are in `Prop`.
+For example, the type `{{#example_in Examples/Universes.lean FunPropType}}` represents a function from a `Nat` to evidence that it is equal to itself plus zero.
+Even though `Nat` is in `Type`, this function type is in `{{#example_out Examples/Universes.lean FunPropType}}` due to this rule.
+Similarly, even though `Type` is in `Type 1`, the function type `{{#example_in Examples/Universes.lean FunTypePropType}}` is still in `{{#example_out Examples/Universes.lean FunTypePropType}}`.
 
 ## User Defined Types
 
@@ -155,8 +162,8 @@ In positions where Lean expects a universe level, any of the following are allow
 
 ### Writing Universe-Polymorphic Definitions
 
-Until now, every datatype defined in this book has been in the smallest universe.
-When presenting polymorphic datatypes from the Lean standard library, such as `List` and `Sum`, this book created non-polymorphic versions of them.
+Until now, every datatype defined in this book has been in `Type`, the smallest universe of data.
+When presenting polymorphic datatypes from the Lean standard library, such as `List` and `Sum`, this book created non-universe-polymorphic versions of them.
 The real versions use universe polymorphism to enable code re-use between type-level and non-type-level programs.
 
 There are a few general guidelines to follow when writing universe-polymorphic types.
@@ -186,7 +193,11 @@ Filling out the universe argument explicitly demonstrates that `Prop` is a `Type
 
 Behind the scenes, `Prop` and `Type` are united into a single hierarchy called `Sort`.
 `Prop` is the same as `Sort 0`, `Type 0` is `Sort 1`, `Type 1` is `Sort 2`, and so forth.
+In fact, `Type u` is the same as `Sort (u+1)`.
 When writing programs with Lean, this is typically not relevant, but it may occur in error messages from time to time, and it explains the name of the `CoeSort` class.
+Additionally, having `Prop` as `Sort 0` allows one more universe operator to become useful.
+The universe level `imax u v` is `0` when `v` is `0`, or the larger of `u` or `v` otherwise.
+Together with `Sort`, this allows the special rule for functions that return `Prop`s to be used when writing code that should be as portable as possible between `Prop` and `Type` universes.
 
 ## Polymorphism in Practice
 

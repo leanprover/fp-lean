@@ -6,12 +6,14 @@ import Examples.Monads.Class
 book declaration {{{ MythicalCreature }}}
   structure MythicalCreature where
     large : Bool
+  deriving Repr
 stop book declaration
 
 
 book declaration {{{ Monster }}}
   structure Monster extends MythicalCreature where
     vulnerability : String
+  deriving Repr
 stop book declaration
 
 
@@ -42,9 +44,10 @@ end bookExample
 
 
 book declaration {{{ Helper }}}
- structure Helper extends MythicalCreature where
+  structure Helper extends MythicalCreature where
     assistance : String
     payment : String
+  deriving Repr
 stop book declaration
 
 
@@ -54,7 +57,18 @@ book declaration {{{ troll }}}
     vulnerability := "sunlight"
 stop book declaration
 
-#eval troll.large
+expect info {{{ checkTrollCast }}}
+  #check troll.toMythicalCreature
+message
+"troll.toMythicalCreature : MythicalCreature"
+end expect
+
+
+expect info {{{ evalTrollCast }}}
+  #eval troll.toMythicalCreature
+message
+"{ large := true }"
+end expect
 
 namespace Blurble
 book declaration {{{ troll2 }}}
@@ -97,6 +111,7 @@ but is expected to have type
   MythicalCreature : Type"
 end expect
 
+
 structure Aaa where
   a : Bool
 
@@ -118,6 +133,43 @@ book declaration {{{ elf }}}
 stop book declaration
 
 
+book declaration {{{ MonstrousAssistant }}}
+  structure MonstrousAssistant extends Monster, Helper where
+  deriving Repr
+stop book declaration
+
+
+expect info {{{ checkMonstrousAssistantMk }}}
+  #check MonstrousAssistant.mk
+message
+"MonstrousAssistant.mk (toMonster : Monster) (assistance payment : String) : MonstrousAssistant"
+end expect
+
+
+
+expect info {{{ checkMonstrousAssistantToHelper }}}
+  #check MonstrousAssistant.toHelper
+message
+"MonstrousAssistant.toHelper (self : MonstrousAssistant) : Helper"
+end expect
+
+
+expect info {{{ printMonstrousAssistantToHelper }}}
+  #print MonstrousAssistant.toHelper
+message
+"@[reducible] def MonstrousAssistant.toHelper : MonstrousAssistant → Helper :=
+fun self =>
+  { toMythicalCreature := self.toMonster.toMythicalCreature, assistance := self.assistance, payment := self.payment }"
+end expect
+
+book declaration {{{ domesticatedTroll }}}
+  def domesticatedTroll : MonstrousAssistant where
+    large := false
+    assistance := "heavy labor"
+    payment := "toy goats"
+    vulnerability := "sunlight"
+stop book declaration
+
 book declaration {{{ SizedCreature }}}
   inductive Size where
     | small
@@ -138,8 +190,8 @@ stop book declaration
 
 
 book declaration {{{ sizesMatch }}}
-  def SizesMatch (sc : SizedCreature) : Prop :=
-    sc.large == (sc.size == Size.large)
+  abbrev SizesMatch (sc : SizedCreature) : Prop :=
+    sc.large = (sc.size == Size.large)
 stop book declaration
 
 
@@ -148,7 +200,7 @@ book declaration {{{ huldresize }}}
     size := .medium
 
   example : SizesMatch huldre := by
-    simp [SizesMatch]
+    simp
 stop book declaration
 
 book declaration {{{ small }}}
@@ -199,6 +251,8 @@ axiom m : Type → Type
 @[instance] axiom instM : Monad m
 axiom α : Type
 axiom β : Type
+axiom E1 : f (α → β)
+axiom E2 : f α
 
 bookExample type {{{ pureType }}}
   pure
@@ -210,6 +264,12 @@ bookExample type {{{ seqType }}}
   Seq.seq
   <===
   f (α → β) → (Unit → f α) → f β
+end bookExample
+
+bookExample {{{ seqSugar }}}
+  E1 <*> E2
+  ===>
+  Seq.seq E1 (fun ⟨⟩ => E2)
 end bookExample
 
 bookExample type {{{ bindType }}}
@@ -524,7 +584,9 @@ axiom w : m α
 
 open MonadApplicativeDesugar
 equational steps : m γ {{{ mSeqRespComp }}}
-  seq (seq (seq (pure (· ∘ ·)) (fun _ => u)) (fun _ => v)) (fun _ => w)
+  seq (seq (seq (pure (· ∘ ·)) (fun _ => u))
+        (fun _ => v))
+    (fun _ => w)
   ={
   -- Definition of `seq`
   }=
@@ -933,7 +995,7 @@ book declaration {{{ checkBirthYear }}}
 stop book declaration
 
 
-book declaration {{{ checkBirthYear }}}
+book declaration {{{ checkInput }}}
   def checkInput (year : Nat) (input : RawInput) : Validate (Field × String) (CheckedInput year) :=
     pure CheckedInput.mk <*>
       checkName input.name <*>
@@ -1190,6 +1252,12 @@ expect info {{{ johnny }}}
   #eval checkLegacyInput ⟨"Johnny", "1963"⟩
 message
 "Validate.ok (LegacyCheckedInput.humanBefore1970 1963 \"Johnny\")"
+end expect
+
+expect info {{{ johnnyAnon }}}
+  #eval checkLegacyInput ⟨"", "1963"⟩
+message
+"Validate.ok (LegacyCheckedInput.humanBefore1970 1963 \"\")"
 end expect
 
 

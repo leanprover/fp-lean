@@ -4,13 +4,14 @@ An _applicative functor_ is a functor that has two additional operations availab
 `pure` is the same operator used in `Monad`, because `Monad` in fact inherits from `Applicative`.
 `seq` is much like `map`: it allows a function to be used in order to transform the contents of a datatype.
 However, with `seq`, the function is itself contained in the datatype: `{{#example_out Examples/FunctorApplicativeMonad.lean seqType}}`.
-The second argument has a type that begins with `Unit →` to allow the definition of `seq` to short-circuit.
+Having the function under the type `f` allows the `Applicative` instance to control how the function is applied, while `Functor.map` unconditionally applies a function.
+The second argument has a type that begins with `Unit →` to allow the definition of `seq` to short-circuit in cases where the function will never be applied.
 
 The value of this short-circuiting behavior can be seen in the instance of `Applicative Option`:
 ```lean
 {{#example_decl Examples/FunctorApplicativeMonad.lean ApplicativeOption}}
 ```
-In this case, if there is no function for `seq` to apply, then there is no need to compute its argument.
+In this case, if there is no function for `seq` to apply, then there is no need to compute its argument, so `x` is never called.
 The same consideration informs the instance of `Applicative` for `Except`:
 ```lean
 {{#example_decl Examples/FunctorApplicativeMonad.lean ApplicativeExcept}}
@@ -26,11 +27,13 @@ Successive uses of `bind` are like a sequence of statements in an imperative pro
 Following this analogy, `Applicative` captures function application in a language that has side effects.
 The arguments to a function in languages like Kotlin or C# are evaluated from left to right.
 Side effects performed by earlier arguments occur before those performed by later arguments.
-A function is not powerful enough to implement custom short-circuiting operators that depend on the specific value of an argument, however.
+A function is not powerful enough to implement custom short-circuiting operators that depend on the specific _value_ of an argument, however.
 
 Typically, `seq` is not invoked directly.
 Instead, the operator `<*>` is used.
 This operator wraps its second argument in `fun ⟨⟩ => ...`, simplifying the call site.
+In other words, `{{#example_in Examples/FunctorApplicativeMonad.lean seqSugar}}` is syntactic sugar for `{{#example_out Examples/FunctorApplicativeMonad.lean seqSugar}}`.
+
 
 The key feature that allows `seq` to be used with multiple arguments is that a multiple-argument Lean function is really a single-argument function that returns another function that's waiting for the rest of the arguments.
 In other words, if the first argument to `seq` is awaiting multiple arguments, then the result of the `seq` will be awaiting the rest.
@@ -85,14 +88,18 @@ After all, a caller could choose `α` to be `Empty`, which has no values at all.
 
 When validating user input to a form, it's generally considered to be best to provide many errors at once, rather than one error at a time.
 This allows the user to have an overview of what is needed to please the computer, rather than feeling badgered as they correct the errors field by field.
-Exceptions are not the right way to solve this, because they terminate the program at the first error.
+
+Ideally, validating user input will be visible in the type of the function that's doing the validating.
+It should return a datatype that is specific—checking that a text box contains a number should return an actual numeric type, for instance.
+A validation routine could throw an exception when the input does not pass validation.
+Exceptions have a major drawback, however: they terminate the program at the first error, making it impossible to accumulate a list of errors.
 
 On the other hand, the common design pattern of accumulating a list of errors and then failing when it is non-empty is also problematic.
-Ideally, validating user input will be visible in the type of the function that's doing the validating.
-It should return a datatype that is specific---checking that a text box contains a number should return an actual numeric type, for instance.
+A long nested sequences of `if` statements that validate each sub-section of the input data is hard to maintain, and it's easy to lose track of an error message or two.
+Ideally, validation can be performed using an API that enables a new value to be returned yet automatically tracks and accumulates error messages.
 
 An applicative functor called `Validate` provides one way to implement this style of API.
-Like the `Except` monad, `Validate` allows a new value to be constructed.
+Like the `Except` monad, `Validate` allows a new value to be constructed that characterizes the validated data accurately.
 Unlike `Except`, it allows multiple errors to be accumulated, without a risk of forgetting to check whether the list is empty.
 
 ### User Input
@@ -105,13 +112,15 @@ The business logic to be implemented is the following:
  2. The birth year must be numeric and non-negative
  3. The birth year must be greater than 1900, and less than or equal to the year in which the form is validated
  
+Representing these as a datatype will require a new feature, called _subtypes_.
+With this tool in hand, a validation framework can be written that uses an applicative functor to track errors, and these rules can be implemented in the framework.
  
 ### Subtypes
 Representing these conditions is easiest with one additional Lean type, called `Subtype`:
 ```lean
 {{#example_decl Examples/FunctorApplicativeMonad.lean Subtype}}
 ```
-This structure has two type parameters: a type of data `α` and a predicate over `α`.
+This structure has two type parameters: an implicit parameter that is the type of data `α`, and an explicit parameter `p` that is a predicate over `α`.
 A _predicate_ is a logical statement with a variable in it that can be replaced with a value to yield an actual statement, like the [parameter to `GetElem`](../type-classes/indexing.md#overloading-indexing) that describes what it means for an index to be in bounds for a lookup.
 In the case of `Subtype`, the predicate slices out some subset of the values of `α` for which the predicate holds.
 The structure's two fields are, respectively, a value from `α` and evidence that the value satisfies the predicate `p`.
@@ -157,7 +166,7 @@ In the `then` branch, `h` is bound to evidence that `n > 0`, and this evidence c
 ### Validated Input
 
 The validated user input is a structure that expresses the business logic using multiple techniques:
- * The structure type itself encodes the year in which it was checked for validity
+ * The structure type itself encodes the year in which it was checked for validity, so that `CheckedInput 2019` is not the same type as `CheckedInput 2020`
  * The birth year is represented as a `Nat` rather than a `String`
  * Subtypes are used to constrain the allowed values in the name and birth year fields
 ```lean
@@ -173,7 +182,7 @@ It looks very much like `Except`.
 The only difference is that the `error` constructor may contain more than one failure.
 
 Validate is a functor.
-Mapping a function over it transforms any successful value that might be present, just as with the `Functor` instance for `Except`:
+Mapping a function over it transforms any successful value that might be present, just as in the `Functor` instance for `Except`:
 ```lean
 {{#example_decl Examples/FunctorApplicativeMonad.lean FunctorValidate}}
 ```
@@ -207,7 +216,8 @@ This can be expressed using the function `andThen`:
 ```lean
 {{#example_decl Examples/FunctorApplicativeMonad.lean ValidateAndThen}}
 ```
-While this function's type signature makes it suitable to be used as `bind` in a `Monad` instance, there are good reasons not to do so. TODO ensure that they're mentioned after the contract bits
+While this function's type signature makes it suitable to be used as `bind` in a `Monad` instance, there are good reasons not to do so.
+They are described [in the section that describes the `Applicative` contract](applicative-contract.md#additional-stipulations).
 
 To check that the birth year is a number, a built-in function called `String.toNat? : String → Option Nat` is useful.
 It's most user-friendly to eliminate leading and trailing whitespace first:
@@ -246,7 +256,7 @@ Testing `checkInput` shows that it can indeed return multiple pieces of feedback
 
 
 Form validation with `checkInput` illustrates a key advantage of `Applicative` over `Monad`.
-Because `>>=` provides enough power to modify the rest of the program's execution based on the value from the first step, it must receive a value from the first step to pass on.
+Because `>>=` provides enough power to modify the rest of the program's execution based on the value from the first step, it _must_ receive a value from the first step to pass on.
 If no value is received (e.g. because an error has occurred), then `>>=` cannot execute the rest of the program.
 `Validate` demonstrates why it can be useful to run the rest of the program anyway: in cases where the earlier data isn't needed, running the rest of the program can yield useful information (in this case, more validation errors).
 `Applicative`'s `<*>` may run both of its arguments before recombining the results.

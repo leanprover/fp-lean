@@ -1,6 +1,6 @@
 # The Applicative Contract
 
-Just like fuctors, monads, and types that implement `BEq` and `Hashable`, `Applicative` has a set of rules that all instances should adhere to.
+Just like `Functor`, `Monad`, and types that implement `BEq` and `Hashable`, `Applicative` has a set of rules that all instances should adhere to.
 
 There are four rules that an applicative functor should follow:
 1. It should respect identity, so `pure id <*> v = v`
@@ -62,7 +62,7 @@ Once again, checking that the `Monad` contract implies the `Applicative` contrac
 
 The rest of this section consists of an argument that this implementation of `seq` based on `bind` in fact satisfies the `Applicative` contract.
 One of the beautiful things about functional programming is that this kind of argument can be worked out on a piece of paper with a pencil, using the kinds of evaluation rules from [the initial section on evaluating expressions](../getting-to-know/evaluating.md).
-Thinking about the meanings of the operations while reading these arguments can sometimes help with understanding; however, please feel free to skip them the first time through if they get overwhelming.
+Thinking about the meanings of the operations while reading these arguments can sometimes help with understanding.
 
 Replacing `do`-notation with explicit uses of `>>=` makes it easier to apply the `Monad` rules:
 ```lean

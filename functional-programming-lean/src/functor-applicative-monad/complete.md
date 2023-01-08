@@ -42,6 +42,7 @@ This type class's structure type is equivalent to the following inductive type:
 ```
 The implementation of the `map` method that is passed as an argument to `Functor.mk` contains a function that takes two types in `Type u` as arguments.
 This means that the type of the function itself is in `Type (u+1)`, so `Functor` must also be at a level that is at least `u+1`.
+Similarly, other arguments to the function have a type build by applying `f`, so it must also have a level that is at least `v`.
 All the type classes in this section share this property.
 
 ## Applicative
@@ -84,7 +85,14 @@ These default implementations should only be overridden with new functions that 
 The default implementations should be seen as specifications for correctness as well as automatically-created code.
 
 The default implementation for `seqLeft` is very compact.
-Replacing some of the names with their syntactic sugar or their definitions can provide another view on it, so `{{#example_in Examples/FunctorApplicativeMonad/ActualDefs.lean unfoldMapConstSeqLeft}}` becomes `{{#example_out Examples/FunctorApplicativeMonad/ActualDefs.lean unfoldMapConstSeqLeft}`.
+Replacing some of the names with their syntactic sugar or their definitions can provide another view on it, so:
+```lean
+{{#example_in Examples/FunctorApplicativeMonad/ActualDefs.lean unfoldMapConstSeqLeft}}
+```
+becomes
+```lean
+{{#example_out Examples/FunctorApplicativeMonad/ActualDefs.lean unfoldMapConstSeqLeft}}
+```
 How should `(fun x _ => x) <$> a` be understood?
 Here, `a` has type `f α`, and `f` is a functor.
 If `f` is `List`, then `{{#example_in Examples/FunctorApplicativeMonad/ActualDefs.lean mapConstList}}` evaluates to `{{#example_out Examples/FunctorApplicativeMonad/ActualDefs.lean mapConstList}}`.

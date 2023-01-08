@@ -6,7 +6,8 @@ namespace F
 book declaration {{{ HonestFunctor }}}
   class Functor (f : Type u → Type v) : Type (max (u+1) v) where
     map : {α β : Type u} → (α → β) → f α → f β
-    mapConst : {α β : Type u} → α → f β → f α := Function.comp map (Function.const _)
+    mapConst : {α β : Type u} → α → f β → f α :=
+      Function.comp map (Function.const _)
 stop book declaration
 
 namespace EEE

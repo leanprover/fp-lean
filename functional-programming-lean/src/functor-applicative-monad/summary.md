@@ -13,7 +13,11 @@ Both structures and classes may provide default values for fields (which are def
 Structures may inherit from other structures.
 Behind the scenes, a structure that inherits from another structure contains an instance of the original structure as a field.
 In other words, inheritance is implemented with composition.
+When multiple inheritance is used, only the unique fields from the additional parent structures are used to avoid a diamond problem, and the functions that would normally extract the parent value are instead organized to construct one.
 Record dot notation takes structure inheritance into account.
+
+Because type classes are just structures with some additional automation applied, all of these features are available in type classes.
+Together with default methods, this can be used to create a fine-grained hierarchy of interfaces that nonetheless does not impose a large burden on clients, because the small classes that the large classes inherit from can be automatically implemented.
 
 ## Applicative Functors
 

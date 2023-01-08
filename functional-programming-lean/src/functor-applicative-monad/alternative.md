@@ -6,10 +6,10 @@
 `Validate` can also be used in situations where there is more than one way for input to be acceptable.
 For the input form `RawInput`, an alternative set of business rules that implement conventions from a legacy system might be the following:
 
- 0. All human users must provide a birth year that is four digits.
- 1. Users born prior to 1970 do not need to provide names, due to incomplete older records.
- 2. Users born after 1970 must provide names.
- 3. Companies should enter `"FIRM"` as their year of birth instead and provide a company name.
+ 1. All human users must provide a birth year that is four digits.
+ 2. Users born prior to 1970 do not need to provide names, due to incomplete older records.
+ 3. Users born after 1970 must provide names.
+ 4. Companies should enter `"FIRM"` as their year of birth and provide a company name.
  
 No particular provision is made for users born in 1970.
 It is expected that they will either give up, lie about their year of birth, or call.
@@ -50,9 +50,9 @@ This definition of `checkCompany` uses `checkThat`, and then throws away the res
 ```lean
 {{#example_decl Examples/FunctorApplicativeMonad.lean checkCompanyProv}}
 ```
-However, this definition is quite noisy.
 
-It can be simplified using two improvements.
+However, this definition is quite noisy.
+It can be simplified in two ways.
 The first is to replace the first use of `<*>` with a specialized version that automatically ignores the value returned by the first argument, called `*>`.
 This operator is also controlled by a type class, called `SeqRight`, and `{{#example_in Examples/FunctorApplicativeMonad.lean seqRightSugar}}` is syntactic sugar for `{{#example_out Examples/FunctorApplicativeMonad.lean seqRightSugar}}`:
 ```lean
@@ -81,7 +81,7 @@ In the function's argument list, it's important that the type class `[Decidable 
 Otherwise, it would refer to an additional set of automatic implicit arguments, rather than to the manually-provided values.
 The `Decidable` instance is what allows the proposition `p v` to be checked using `if`.
 
-Checking both human cases is a combination of the tool discovered so far:
+The two human cases do not need any additional tools:
 ```lean
 {{#example_decl Examples/FunctorApplicativeMonad.lean checkHumanBefore1970}}
 
@@ -106,6 +106,12 @@ The successful cases return constructors of `LegacyCheckedInput`, as expected:
 ```output info
 {{#example_out Examples/FunctorApplicativeMonad.lean johnny}}
 ```
+```lean
+{{#example_in Examples/FunctorApplicativeMonad.lean johnnyAnon}}
+```
+```output info
+{{#example_out Examples/FunctorApplicativeMonad.lean johnnyAnon}}
+```
 
 The worst possible input returns all the possible failures:
 ```lean
@@ -119,7 +125,7 @@ The worst possible input returns all the possible failures:
 ## The `Alternative` Class
 
 Many types support a notion of failure and recovery.
-The `Many` monad from the section on [evaluating arithmetic expressions in a variety of monads#nondeterministic-search](../monads/arithmetic.md) is one such type, as is `Option`.
+The `Many` monad from the section on [evaluating arithmetic expressions in a variety of monads](../monads/arithmetic.md#nondeterministic-search) is one such type, as is `Option`.
 Both support failure without providing a reason (unlike, say, `Except` and `Validate`, which require some indication of what went wrong).
 
 The `Alternative` class describes applicative functors that have additional operators for failure and recovery:
