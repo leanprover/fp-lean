@@ -182,7 +182,8 @@ However, unlike datatypes, it typically doesn't matter _which_ evidence is provi
 On the other hand, it is very important that a program not only return a `Nat`, but that it's the _correct_ `Nat`.
 
 `Prop` is at the bottom of the universe hierarchy, and the type of `Prop` is `Type`.
-This means that lists of propositions have type `List Type`:
+This means that `Prop` is a suitable argument to provide to `List`, for the same reason that `Nat` is.
+Lists of propositions have type `List Prop`:
 ```lean
 {{#example_decl Examples/Universes.lean someTrueProps}}
 ```
