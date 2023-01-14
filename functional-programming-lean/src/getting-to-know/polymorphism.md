@@ -178,7 +178,7 @@ In the standard library, Lean calls this function `List.length`, which means tha
 ```
 
 
-Just as C# and Java require type arguments to provided explicitly from time to time, Lean is not always capable of finding implicit arguments.
+Just as C# and Java require type arguments to be provided explicitly from time to time, Lean is not always capable of finding implicit arguments.
 In these cases, they can be provided using their names.
 For instance, a version of `List.length` that only works for lists of integers can be specified by setting `α` to `Int`:
 ```lean
