@@ -191,6 +191,7 @@ The `Monad` instance for `ReaderT` is essentially the same as the `Monad` instan
 ```lean
 {{#example_decl Examples/MonadTransformers.lean MonadMyReaderT}}
 ```
+Definitions such as `ReaderT` that build an extended monad out of some underlying monad are called _monad transformers_.
 
 The next step is to eliminate uses of `runIO`.
 When Lean encounters a mismatch in monad types, it automatically attempts to use a type class called `MonadLift` to transform the actual monad into the expected monad.
@@ -239,7 +240,13 @@ With these definitions in place, the new version of `dirTree` can be written:
 Aside from replacing `locally` with `withReader`, it is the same as before.
 
 
-Replacing the custom `ConfigIO` type with `ReaderT` did not save a large number of lines of code in this section. TODO finish fordele/ulemper
+Replacing the custom `ConfigIO` type with `ReaderT` did not save a large number of lines of code in this section.
+However, rewriting the code using components from the standard library does have long-term benefits.
+First, readers who know about `ReaderT` don't need to take time to understand the `Monad` instance for `ConfigIO`, working backwards to the meaning of monad itself.
+Instead, they can be confident in their initial understanding.
+Next, adding further effects to the monad (such as a state effect to count the files in each directory and display a count at the end) requires far fewer changes to the code, because the monad transformers and `MonadLift` instances provided in the library work well together.
+Finally, using a set of type classes included in the standard library, polymorphic code can be written in such a way that it can work with a variety of monads without having to care about details like the order in which the monad transformers were applied.
+Just as some functions work in any monad, others can work in any monad that provides a certain type of state, or a certain type of exceptions, without having to specifically describe the _way_ in which a particular concrete monad provides the state or exceptions.
 
 ## Exercises
 
@@ -253,8 +260,3 @@ This option should be controlled with a `-a` command-line option.
 
 Modify `doug` so that it takes a starting directory as an additional command-line argument.
 
-### Support 
-
-### Monadic Error Handling
-
-Right now, errors such as invalid 

@@ -13,5 +13,7 @@ import Examples.Monads.Conveniences
 import Examples.FunctorApplicativeMonad
 import Examples.Universes
 import Examples.FunctorApplicativeMonad.ActualDefs
+import Examples.MonadTransformers
+import Examples.MonadTransformers.Defs
 
 def main : IO Unit := IO.println "The code here is for the book"

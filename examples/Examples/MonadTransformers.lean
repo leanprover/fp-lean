@@ -354,18 +354,4 @@ end T
 
 end DirTree
 
-
-namespace MyVersions
-
-def ReaderT (ρ : Type) (m : Type → Type) (α : Type) : Type :=
-  ρ → m α
-
-def StateT (σ : Type) (m : Type → Type) (α : Type) : Type :=
-  σ → m (α × σ)
-
-end MyVersions
-
-example : ReaderT = MyVersions.ReaderT := by rfl
-example : StateT = MyVersions.StateT := by rfl
-
 similar datatypes DirTree.T.MonadWithReader MonadWithReader

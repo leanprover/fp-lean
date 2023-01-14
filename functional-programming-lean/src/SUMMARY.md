@@ -48,8 +48,6 @@
   - [Combining IO and Reader](monad-transformers/reader-io.md)
   - [A Monad Construction Kit](monad-transformers/transformers.md)
   - [More `do` Features](do.md)
-
-  - [Additional Conveniences]()
-  - [Summary]()
+  - [Summary](summary.md)
 - [Programming with Dependent Types]()
 - [From Programming to Proving]()
