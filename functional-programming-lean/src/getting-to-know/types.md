@@ -45,7 +45,7 @@ For instance,
 
 evaluates to `{{#example_out Examples/Intro.lean oneMinusTwo}}` rather
 than `-1`. To use a type that can represent the negative integers,
-provide a it directly:
+provide it directly:
 
 ```lean
 #eval {{#example_in Examples/Intro.lean oneMinusTwoInt}}
