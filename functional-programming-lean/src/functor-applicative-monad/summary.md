@@ -3,7 +3,7 @@
 ## Type Classes and Structures
 
 Behind the scenes, type classes are represented by structures.
-Defining a class defines a structure, and additionally creates a empty table of instances.
+Defining a class defines a structure, and additionally creates an empty table of instances.
 Defining an instance creates a value that either has the structure as its type or is a function that can return the structure, and additionally adds an entry to the table.
 Instance search consists of constructing an instance by consulting the instance tables.
 Both structures and classes may provide default values for fields (which are default implementations of methods).

@@ -152,7 +152,7 @@ Subtypes are a two-edged sword.
 They allow efficient representation of validation rules, but they transfer the burden of maintaining these rules to the users of the library, who have to _prove_ that they are not violating important invariants.
 Generally, it's a good idea to use them internally to a library, providing an API to users that automatically ensures that all invariants are satisfied, with any necessary proofs being internal to the library.
 
-Checking whether an value of type `α` is in the subtype `{x : α // p x}` usually requires that the proposition `p x` be decidable.
+Checking whether a value of type `α` is in the subtype `{x : α // p x}` usually requires that the proposition `p x` be decidable.
 The [section on equality and ordering classes](../type-classes/standard-classes.md#equality-and-ordering) describes how decidable propositions can be used with `if`.
 When `if` is used with a decidable proposition, a name can be provided.
 In the `then` branch, the name is bound to evidence that the proposition is true, and in the `else` branch, it is bound to evidence that the proposition is false.
