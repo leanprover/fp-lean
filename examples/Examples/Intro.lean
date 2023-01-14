@@ -142,6 +142,12 @@ message
 "add1 : Nat → Nat"
 end expect
 
+bookExample type {{{ add1typeASCII }}}
+  add1
+  ===>
+  Nat -> Nat
+end bookExample
+
 expect info {{{ add1_7 }}}
   #eval add1 7
 message
@@ -174,6 +180,13 @@ expect info {{{ maximumType }}}
 message
 "maximum : Nat → Nat → Nat"
 end expect
+
+bookExample type {{{ maximumTypeASCII }}}
+  maximum
+  ===>
+  Nat -> Nat -> Nat
+end bookExample
+
 
 expect info {{{ maximum3Type }}}
   #check maximum 3
@@ -1033,18 +1046,18 @@ expect error {{{ headNoneBad }}}
   #eval [].head?
 message
 "don't know how to synthesize implicit argument
-  @List.nil ?m.20283
+  @List.nil ?m.20292
 context:
-⊢ Type ?u.20280"
+⊢ Type ?u.20289"
 end expect
 
 expect error {{{ headNoneBad2 }}}
   #eval [].head?
 message
 "don't know how to synthesize implicit argument
-  @_root_.List.head? ?m.20283 []
+  @_root_.List.head? ?m.20292 []
 context:
-⊢ Type ?u.20280"
+⊢ Type ?u.20289"
 end expect
 
 
@@ -1626,7 +1639,7 @@ end bookExample
 expect error {{{ pointPosEvalNoType }}}
   #eval ⟨1, 2⟩
 message
-"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.34750"
+"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.34759"
 end expect
 
 expect info {{{ pointPosWithType }}}
