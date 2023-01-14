@@ -135,10 +135,10 @@ stop book declaration
 
 
 book declaration {{{ doList }}}
-  def doList [Monad m] : List α → (α → m Unit) → m Unit
+  def doList [Applicative f] : List α → (α → f Unit) → f Unit
     | [], _ => pure ()
-    | x :: xs, action => do
-      action x
+    | x :: xs, action =>
+      action x *>
       doList xs action
 stop book declaration
 
@@ -256,16 +256,77 @@ stop book declaration
 
 end Readerish
 
+namespace MyMonadLift
+book declaration {{{ MyMonadLift }}}
+  class MonadLift (m : Type u → Type v) (n : Type u → Type w) where
+    monadLift : {α : Type u} → m α → n α
+stop book declaration
+end MyMonadLift
+
+similar datatypes DirTree.MyMonadLift.MonadLift MonadLift
+
 namespace T
 
-abbrev ConfigIO (α : Type) : Type := ReaderT Config IO α
+-- These are replicated here to make sure we don't forget any important declarations
+book declaration {{{ MyReaderT }}}
+  def ReaderT (ρ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
+    ρ → m α
+stop book declaration
 
-def showFileName (file : String) : ConfigIO Unit := do
-  IO.println s!"{(← read).currentPrefix} {file}"
 
-def showDirName (dir : String) : ConfigIO Unit := do
-  IO.println s!"{(← read).currentPrefix} {dir}/"
+book declaration {{{ MonadMyReaderT }}}
+  instance [Monad m] : Monad (ReaderT ρ m) where
+    pure x := fun _ => pure x
+    bind result next := fun env => do
+      let v ← result env
+      next v env
+stop book declaration
 
+book declaration {{{ MyReaderTread }}}
+ def read [Monad m] : ReaderT ρ m ρ :=
+    fun env => pure env
+stop book declaration
+
+
+book declaration {{{ ReaderTConfigIO }}}
+  abbrev ConfigIO (α : Type) : Type := ReaderT Config IO α
+stop book declaration
+
+
+book declaration {{{ MonadLiftReaderT }}}
+  instance : MonadLift m (ReaderT ρ m) where
+    monadLift action := fun _ => action
+stop book declaration
+
+
+book declaration {{{ showFileAndDir }}}
+  def showFileName (file : String) : ConfigIO Unit := do
+    IO.println s!"{(← read).currentPrefix} {file}"
+
+  def showDirName (dir : String) : ConfigIO Unit := do
+    IO.println s!"{(← read).currentPrefix} {dir}/"
+stop book declaration
+
+
+book declaration {{{ MyMonadWithReader }}}
+  class MonadWithReader (ρ : outParam (Type u)) (m : Type u → Type v) where
+    withReader {α : Type u} : (ρ → ρ) → m α → m α
+stop book declaration
+
+
+book declaration {{{ exportWithReader }}}
+  export MonadWithReader (withReader)
+stop book declaration
+
+
+book declaration {{{ ReaderTWithReader }}}
+  instance : MonadWithReader ρ (ReaderT ρ m) where
+    withReader change action :=
+      fun cfg => action (change cfg)
+stop book declaration
+
+
+book declaration {{{ readerTDirTree }}}
   partial def dirTree (path : System.FilePath) : ConfigIO Unit := do
     match ← toEntry path with
       | none => pure ()
@@ -276,6 +337,7 @@ def showDirName (dir : String) : ConfigIO Unit := do
         withReader (·.inDirectory)
           (doList contents.toList fun d =>
             dirTree d.path)
+stop book declaration
 
 book declaration {{{ NewMain }}}
   def main (args : List String) : IO UInt32 := do
@@ -306,3 +368,4 @@ end MyVersions
 example : ReaderT = MyVersions.ReaderT := by rfl
 example : StateT = MyVersions.StateT := by rfl
 
+similar datatypes DirTree.T.MonadWithReader MonadWithReader
