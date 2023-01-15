@@ -123,7 +123,69 @@ Lifting an action from `m` to `OptionT m` only requires wrapping `some` around t
 
 ## Exceptions
 
+The monad transformer version of `Except` is very similar to the monad transformer version of `Option`.
+Adding exceptions of type `ε` to some monadic action of type `m α` can be accomplished by adding exceptions to `α`, yielding type `m (Except ε α)`:
+```lean
+{{#example_decl Examples/MonadTransformers/Defs.lean ExceptT}}
+```
+`OptionT` provides `mk` and `run` functions to guide the type checker towards the correct `Monad` instances.
+This trick is also useful for `ExceptT`:
+```lean
+{{#example_decl Examples/MonadTransformers/Defs.lean ExceptTFakeStruct}}
+```
+The `Monad` instance for `ExceptT` is also very similar to the instance for `OptionT`.
+The only difference is that it propagates a specific error value, rather than `none`:
+```lean
+{{#example_decl Examples/MonadTransformers/Defs.lean MonadExceptT}}
+```
 
+The type signatures of `ExceptT.mk` and `ExceptT.run` contain a subtle detail: they annotate the universe levels of `α` and `ε` explicitly.
+If they are not explicitly annotated, then Lean generates a more general type signature in which they have distinct polymorphic universe variables.
+However, the definition of `ExceptT` expects them to be in the same universe, because they can both be provided as arguments to `m`.
+This can lead to a problem in the `Monad` instance where the universe level solver fails to find a working solution:
+```lean
+{{#example_decl Examples/MonadTransformers/Defs.lean ExceptTNoUnis}}
+
+{{#example_in Examples/MonadTransformers/Defs.lean MonadMissingUni}}
+```
+```output error
+{{#example_out Examples/MonadTransformers/Defs.lean MonadMissingUni}}
+```
+This kind of error message is typically caused by underconstrained universe variables.
+Diagnosing it can be tricky, but a good first step is to look for reused universe variables in some definitions that are not reused in others.
+
+Unlike `Option`, the `Except` datatype is typically not used as a data structure.
+It is always used as a control structure with its `Monad` instance.
+This means that it is reasonable to lift `Except ε` actions into `ExceptT ε m`, as well as actions from the underlying monad `m`.
+Lifting `Except` actions into `ExceptT` actions is done by wrapping them in `m`'s `pure`, because an action that only has exception effects cannot have any effects from the monad `m`:
+```lean
+{{#example_decl Examples/MonadTransformers/Defs.lean ExceptTLiftExcept}}
+```
+Because actions from `m` do not have any exceptions in them, their value should be wrapped in `Except.ok`.
+This can be accomplished using the fact that `Functor` is a superclass of `Monad`, so applying a function to the result of any monadic computation can be accomplished using `Functor.map`:
+```lean
+{{#example_decl Examples/MonadTransformers/Defs.lean ExceptTLiftM}}
+```
+
+### Type Classes for Exceptions
+
+Exception handling fundamentally consists of two operations: the ability to throw exceptions, and the ability to recover from them.
+Thus far, this has been accomplished using the constructors of `Except` and pattern matching, respectively.
+However, this ties a program that uses exceptions to one specific encoding of the exception handling effect.
+Using a type class to capture these operations allows a program that uses exceptions to be used in _any_ monad that supports throwing and catching.
+
+Throwing an exception should take an exception as an argument, and it should be allowed in any context where a monadic action is requested.
+The "any context" part of the specification can be written as a type by writing `m α`—because there's no way to produce a value of any arbitrary type, the `throw` operation must be doing something that causes control to leave that part of the program.
+Catching an exception should accept any monadic action together with a handler, and the handler should explain how to get back to the action's type from an exception:
+```lean
+{{#example_decl Examples/MonadTransformers/Defs.lean MonadExcept}}
+```
+
+TODO explain universe levels on MonadExcept and why they differ from ExceptT
+
+Show for Except, ExceptT, OptionT
+
+Why MonadExcept and MonadExceptOf (stack two)
 
 ## State
 
@@ -134,3 +196,14 @@ Lifting an action from `m` to `OptionT m` only requires wrapping `some` around t
 Here show the difference between StateT Except and ExceptT State, and argue both that it's a strength and a limitation so readers can understand fully and make up their own minds
 
 Show correctness pitfalls of MTL-style programs that rely on the right order
+
+
+## Exercises
+
+### Monad Contract
+
+Using pencil and paper, check that the rules of the monad transformer contract are satisfied for each monad transformer in this section.
+
+### Logging Transformer
+
+Define a monad transformer version of `WithLog`.

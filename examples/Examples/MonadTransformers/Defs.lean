@@ -184,4 +184,67 @@ end Opt
 namespace Ex
 
 
+book declaration {{{ ExceptT }}}
+  def ExceptT (ε : Type u) (m : Type u → Type v) (α : Type u) : Type v :=
+    m (Except ε α)
+stop book declaration
+
+namespace Huh
+
+book declaration {{{ ExceptTNoUnis }}}
+  def ExceptT.mk (x : m (Except ε α)) : ExceptT ε m α := x
+stop book declaration
+
+expect error {{{ MonadMissingUni }}}
+  instance {ε : Type u} {m : Type u → Type v} [Monad m] : Monad (ExceptT ε m) where
+    pure x := ExceptT.mk (pure (Except.ok x))
+    bind result next := ExceptT.mk do
+      match (← result) with
+      | .error e => pure (.error e)
+      | .ok x => next x
+message
+"stuck at solving universe constraint
+  max ?u.12321 ?u.12322 =?= u
+while trying to unify
+  ExceptT ε m α✝
+with
+  (ExceptT ε m α✝) ε m α✝"
+end expect
+end Huh
+
+book declaration {{{ ExceptTFakeStruct }}}
+  def ExceptT.mk {ε α : Type u} (x : m (Except ε α)) : ExceptT ε m α := x
+
+  def ExceptT.run {ε α : Type u} (x : ExceptT ε m α) : m (Except ε α) := x
+stop book declaration
+
+book declaration {{{ MonadExceptT }}}
+  instance {ε : Type u} {m : Type u → Type v} [Monad m] : Monad (ExceptT ε m) where
+    pure x := ExceptT.mk (pure (Except.ok x))
+    bind result next := ExceptT.mk do
+      match ← result with
+      | .error e => pure (.error e)
+      | .ok x => next x
+stop book declaration
+
+
+book declaration {{{ ExceptTLiftExcept }}}
+  instance [Monad m] : MonadLift (Except ε) (ExceptT ε m) where
+    monadLift action := ExceptT.mk (pure action)
+stop book declaration
+
+
+book declaration {{{ ExceptTLiftM }}}
+  instance [Monad m] : MonadLift m (ExceptT ε m) where
+    monadLift action := ExceptT.mk (.ok <$> action)
+stop book declaration
+
+
+book declaration {{{ MonadExcept }}}
+  class MonadExcept (ε : outParam (Type u)) (m : Type v → Type w) where
+    throw : ε → m α
+    tryCatch : m α → (ε → m α) → m α
+stop book declaration
+
+
 end Ex
