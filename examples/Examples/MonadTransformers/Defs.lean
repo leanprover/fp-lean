@@ -239,12 +239,72 @@ book declaration {{{ ExceptTLiftM }}}
     monadLift action := ExceptT.mk (.ok <$> action)
 stop book declaration
 
-
+namespace MyMonadExcept
 book declaration {{{ MonadExcept }}}
   class MonadExcept (ε : outParam (Type u)) (m : Type v → Type w) where
     throw : ε → m α
     tryCatch : m α → (ε → m α) → m α
 stop book declaration
+end MyMonadExcept
+
+
+book declaration {{{ ErrEx }}}
+  inductive Err where
+    | divByZero
+    | notANumber : String → Err
+stop book declaration
+
+
+book declaration {{{ divBackend }}}
+  def divBackend [Monad m] [MonadExcept Err m] (n k : Int) : m Int :=
+    if k == 0 then
+      throw .divByZero
+    else pure (n / k)
+stop book declaration
+
+
+book declaration {{{ asNumber }}}
+  def asNumber [Monad m] [MonadExcept Err m] (s : String) : m Int :=
+    match s.toInt? with
+    | none => throw (.notANumber s)
+    | some i => pure i
+stop book declaration
+
+namespace Verbose
+book declaration {{{ divFrontend }}}
+  def divFrontend [Monad m] [MonadExcept Err m] (n k : String) : m String :=
+    tryCatch (do pure (toString (← divBackend (← asNumber n) (← asNumber k))))
+      fun
+        | .divByZero => pure "Division by zero!"
+        | .notANumber s => pure "Not a number: \"{s}\""
+stop book declaration
+end Verbose
+
+book declaration {{{ divFrontendSugary }}}
+  def divFrontend [Monad m] [MonadExcept Err m] (n k : String) : m String :=
+    try
+      pure (toString (← divBackend (← asNumber n) (← asNumber k)))
+    catch
+      | .divByZero => pure "Division by zero!"
+      | .notANumber s => pure "Not a number: \"{s}\""
+stop book declaration
+
+example : @Verbose.divFrontend = @divFrontend := by rfl
+
+
+bookExample type {{{ OptionExcept }}}
+  inferInstance
+  <===
+  MonadExcept Unit Option
+end bookExample
 
 
 end Ex
+
+namespace St
+
+def StateT (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
+  σ → m (α × σ)
+
+
+end St

@@ -181,13 +181,44 @@ Catching an exception should accept any monadic action together with a handler, 
 {{#example_decl Examples/MonadTransformers/Defs.lean MonadExcept}}
 ```
 
-TODO explain universe levels on MonadExcept and why they differ from ExceptT
+The universe levels on `MonadExcept` differ from those of `ExceptT`.
+In `ExceptT`, both `ε` and `α` have the same level, while `MonadExcept` imposes no such limitation.
+This is because `MonadExcept` never places an exception value inside of `m`.
+The most general universe signature recognizes the fact that `ε` and `α` are completely independent in this definition.
+Being more general means that the type class can be instantiated for a wider variety of types.
 
-Show for Except, ExceptT, OptionT
+An example program that uses `MonadExcept` is a simple division service.
+The program is divided into two parts: a frontend that supplies a user interface based on strings that handles errors, and a backend that actually does the division.
+Both the frontend and the backend can throw exceptions, the former for ill-formed input and the latter for division by zero errors.
+The exceptions are an inductive type:
+```lean
+{{#example_decl Examples/MonadTransformers/Defs.lean ErrEx}}
+```
+The backend checks for zero, and divides if it can:
+```lean
+{{#example_decl Examples/MonadTransformers/Defs.lean divBackend}}
+```
+The frontend's helper `asNumber` throws an exception if the string it is passed is not a number.
+The overall frontend converts its inputs to `Int`s and calls the backend, handling exceptions by returning a friendly string error:
+```lean
+{{#example_decl Examples/MonadTransformers/Defs.lean asNumber}}
 
-Why MonadExcept and MonadExceptOf (stack two)
+{{#example_decl Examples/MonadTransformers/Defs.lean divFrontend}}
+```
+Throwing and catching exceptions is common enough that Lean provides a special syntax for using `MonadExcept`.
+Just as `+` is short for `HAdd.hAdd`, `try` and `catch` can be used as shorthand for the `tryCatch` method:
+```lean
+{{#example_decl Examples/MonadTransformers/Defs.lean divFrontendSugary}}
+```
+
+In addition to `Except` and `ExceptT`, there are useful `MonadExcept` instances for other types that may not seem like exceptions at first glance.
+For example, failure due to `Option` can be seen as throwing an exception that contains no data whatsoever, so there is an instance of `{{#example_out Examples/MonadTransformers/Defs.lean OptionExcept}}` that allows `try ... catch ...` syntax to be used with `Option`.
 
 ## State
+
+A simulation of mutable state is added to a monad by having monadic actions accept a starting state as an argument and return a final state together with their result.
+The bind operator for a state monad provides the final state of one action as an argument to the next action, threading the state through the program.
+This pattern can also be expressed as a monad transformer:
 
 ## Transformers and `Id`
 
