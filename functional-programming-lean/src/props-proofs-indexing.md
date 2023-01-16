@@ -54,7 +54,8 @@ In Lean, a program's type describes the ways it can be interacted with.
 For instance, a program of type `Nat → List String` is a function that takes a `Nat` argument and produces a list of strings.
 In other words, each type specifies what counts as a program with that type.
 
-In Lean, propositions are a kind of type that describes what counts as evidence that it is true.
+In Lean, propositions are in fact types.
+They specify what counts as evidence that the statement is true.
 The proposition is proved by providing this evidence.
 On the other hand, if the proposition is false, then it will be impossible to construct this evidence.
 
