@@ -3,7 +3,7 @@
 ## Evaluation vs Execution
 
 Side effects are aspects of program execution that go beyond the evaluation of mathematical expressions, such as reading files, throwing exceptions, or triggering industrial machinery.
-While most language allow side effects to occur during evaluation, Lean does not.
+While most languages allow side effects to occur during evaluation, Lean does not.
 Instead, Lean has a type called `IO` that represents _descriptions_ of programs that use side effects.
 These descriptions are then executed by the language's run-time system, which invokes the Lean expression evaluator to carry out specific computations.
 Values of type `IO α` are called _`IO` actions_.
