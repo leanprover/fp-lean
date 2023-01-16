@@ -303,8 +303,18 @@ end Ex
 
 namespace St
 
-def StateT (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
-  σ → m (α × σ)
+
+book declaration {{{ DefStateT }}}
+  def StateT (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
+    σ → m (α × σ)
+stop book declaration
+
+instance [Monad m] : Monad (StateT σ m) where
+  pure x := fun s => pure (x, s)
+  bind result next := fun s => do
+    let (v, s') ← result s
+    next v s'
+
 
 
 end St

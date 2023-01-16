@@ -5,10 +5,10 @@ In addition to providing a convenient syntax for programs with monads, `do`-nota
 
 ## Early Return
 
-## Exceptions
-
 ## Single-Branched `if`
+
+## Mutable Variables
 
 ## Loops
 
-## Mutable Variables
+

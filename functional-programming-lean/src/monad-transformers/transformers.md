@@ -219,8 +219,44 @@ For example, failure due to `Option` can be seen as throwing an exception that c
 A simulation of mutable state is added to a monad by having monadic actions accept a starting state as an argument and return a final state together with their result.
 The bind operator for a state monad provides the final state of one action as an argument to the next action, threading the state through the program.
 This pattern can also be expressed as a monad transformer:
+```lean
+
+```
+
+
+Once again, the monad instance is very similar to that for `State`.
+The only difference is that the input and output states are manipulated in the underlying monad, rather than with pure code:
+```lean
+
+```
+
+The corresponding type class has `get` and `set` methods.
+One downside of `get` and `set` is that it becomes too easy to `set` the wrong state when updating it.
+TODO example
+While using a nested action for the call to `get` would solve this problem, it can't solve all such problems.
+For example, a function might update a field on a structure based on the values of two other fields.
+This would require two separate nested-action calls to `get`.
+Because the Lean compiler contains optimizations that are only effective when there is a single reference to a value, duplicating the references to the state might lead to code that is significantly slower than code that binds the value.
+Both the potential performance problem and the potential bug can be worked around by using `modifyGet`, which combines reading the state, computing a new state, and deriving a value from the state into a single operation.
+```lean
+
+```
+
+
+## `Of` Classes and `The` Functions
+
+Thus far, each monad type class that takes extra information, like the type of exceptions for `MonadExcept` or the type of the state for `MonadState`, has this type of extra information as an output parameter.
+For simple programs, this is generally convenient, because a monad that combines one use each of `StateT`, `ReaderT`, and `ExceptT` has only a single state type, environment type, and exception type.
+As monads grow in complexity, however, they may involve multiple states or errors types.
+In this case, the use of an output parameter makes it impossible to target both states in the same `do`-block.
+
 
 ## Transformers and `Id`
+
+The identity monad `Id` is the monad that has no effects whatsoever, to be used in contexts that expect a monad for some reason but where none is actually necessary.
+Another use of `Id` is to serve as the bottom of a stack of monad transformers.
+For instance, `StateT σ Id` works just like `State σ`.
+
 
 ## Order Matters
 
@@ -238,3 +274,12 @@ Using pencil and paper, check that the rules of the monad transformer contract a
 ### Logging Transformer
 
 Define a monad transformer version of `WithLog`.
+Also define the corresponding type class `MonadWithLog`, and write a program that combines logging and exceptions.
+
+### Counting Files
+
+Modify `doug`'s monad with `StateT` such that it counts the number of directories and files seen.
+At the end of execution, it should display a report like:
+```
+  Viewed 38 files in 5 directories.
+```
