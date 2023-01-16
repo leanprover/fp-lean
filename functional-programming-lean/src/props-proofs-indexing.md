@@ -47,7 +47,8 @@ Theorem provers like Lean are concerned with the former category, and have nothi
 A _proof_ is a convincing argument that a proposition is true.
 For mathematical propositions, these arguments make use of the definitions of the concepts that are involved as well as the rules of logical argumentation.
 Most proofs are written for people to understand, and leave out many tedious details.
-Computer-aided theorem provers like Lean are designed to allow mathematicians to write proofs while omitting many details, while the software fills in the missing explicit steps, decreasing the likelihood of oversights or mistakes.
+Computer-aided theorem provers like Lean are designed to allow mathematicians to write proofs while omitting many details, and it is the software's responsibility to fill in the missing explicit steps.
+This decreases the likelihood of oversights or mistakes.
 
 In Lean, a program's type describes the ways it can be interacted with.
 For instance, a program of type `Nat → List String` is a function that takes a `Nat` argument and produces a list of strings.
