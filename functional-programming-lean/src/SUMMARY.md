@@ -47,6 +47,7 @@
 - [Monad Transformers](monad-transformers.md)
   - [Combining IO and Reader](monad-transformers/reader-io.md)
   - [A Monad Construction Kit](monad-transformers/transformers.md)
+  - [Ordering Monad Transformers](monad-transformers/order.md)
   - [More `do` Features](monad-transformers/do.md)
   - [Additional Conveniences](monad-transformers/conveniences.md)
   - [Summary](monad-transformers/summary.md)

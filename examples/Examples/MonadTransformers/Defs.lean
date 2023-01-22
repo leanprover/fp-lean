@@ -276,7 +276,7 @@ book declaration {{{ divFrontend }}}
     tryCatch (do pure (toString (← divBackend (← asNumber n) (← asNumber k))))
       fun
         | .divByZero => pure "Division by zero!"
-        | .notANumber s => pure "Not a number: \"{s}\""
+        | .notANumber s => pure s!"Not a number: \"{s}\""
 stop book declaration
 end Verbose
 
@@ -286,7 +286,7 @@ book declaration {{{ divFrontendSugary }}}
       pure (toString (← divBackend (← asNumber n) (← asNumber k)))
     catch
       | .divByZero => pure "Division by zero!"
-      | .notANumber s => pure "Not a number: \"{s}\""
+      | .notANumber s => pure s!"Not a number: \"{s}\""
 stop book declaration
 
 example : @Verbose.divFrontend = @divFrontend := by rfl
@@ -309,12 +309,245 @@ book declaration {{{ DefStateT }}}
     σ → m (α × σ)
 stop book declaration
 
-instance [Monad m] : Monad (StateT σ m) where
-  pure x := fun s => pure (x, s)
-  bind result next := fun s => do
-    let (v, s') ← result s
-    next v s'
 
+book declaration {{{ MonadStateT }}}
+  instance [Monad m] : Monad (StateT σ m) where
+    pure x := fun s => pure (x, s)
+    bind result next := fun s => do
+      let (v, s') ← result s
+      next v s'
+stop book declaration
+
+instance [Monad m] : MonadStateOf σ (StateT σ m) where
+  get := fun s => pure (s, s)
+  set s' := fun _ => pure (⟨⟩, s')
+  modifyGet f := fun s => pure (f s)
 
 
 end St
+
+
+namespace StEx
+
+
+book declaration {{{ countLetters }}}
+  structure LetterCounts where
+    vowels : Nat
+    consonants : Nat
+  deriving Repr
+
+  inductive Err where
+    | notALetter : Char → Err
+  deriving Repr
+
+  def vowels :=
+    let lowerVowels := "aeiuoy"
+    lowerVowels ++ lowerVowels.map (·.toUpper)
+
+  def consonants :=
+    let lowerConsonants := "bcdfghjklmnpqrstvwxz"
+    lowerConsonants ++ lowerConsonants.map (·.toUpper )
+
+  def countLetters (str : String) : StateT LetterCounts (Except Err) Unit :=
+    let rec loop (chars : List Char) := do
+      match chars with
+      | [] => pure ⟨⟩
+      | c :: cs =>
+        let st ← get
+        let st' ←
+          if c.isAlpha then
+            if vowels.contains c then
+              pure {st with vowels := st.vowels + 1}
+            else if consonants.contains c then
+              pure {st with consonants := st.consonants + 1}
+            else -- modified or non-English letter
+              pure st
+          else throw (.notALetter c)
+        set st'
+        loop cs
+    loop str.toList
+stop book declaration
+
+namespace Modify
+
+book declaration {{{ countLettersModify }}}
+  def countLetters (str : String) : StateT LetterCounts (Except Err) Unit :=
+    let rec loop (chars : List Char) := do
+      match chars with
+      | [] => pure ⟨⟩
+      | c :: cs =>
+        if c.isAlpha then
+          if vowels.contains c then
+            modify fun st => {st with vowels := st.vowels + 1}
+          else if consonants.contains c then
+            modify fun st => {st with consonants := st.consonants + 1}
+          else -- modified or non-English letter
+            pure ⟨⟩
+        else throw (.notALetter c)
+        loop cs
+    loop str.toList
+stop book declaration
+
+book declaration {{{ modify }}}
+  def modify [MonadState σ m] (f : σ → σ) : m Unit :=
+    modifyGet fun s => (⟨⟩, f s)
+stop book declaration
+
+end Modify
+
+namespace Reorder
+
+book declaration {{{ countLettersClassy }}}
+  def countLetters [Monad m] [MonadState LetterCounts m] [MonadExcept Err m] (str : String) : m Unit :=
+    let rec loop (chars : List Char) := do
+      match chars with
+      | [] => pure ⟨⟩
+      | c :: cs =>
+        if c.isAlpha then
+          if vowels.contains c then
+            modify fun st => {st with vowels := st.vowels + 1}
+          else if consonants.contains c then
+            modify fun st => {st with consonants := st.consonants + 1}
+          else -- modified or non-English letter
+            pure ⟨⟩
+        else throw (.notALetter c)
+        loop cs
+    loop str.toList
+stop book declaration
+
+
+book declaration {{{ SomeMonads }}}
+  abbrev M1 := StateT LetterCounts (ExceptT Err Id)
+  abbrev M2 := ExceptT Err (StateT LetterCounts Id)
+stop book declaration
+
+
+expect info {{{ countLettersM1Ok }}}
+  #eval countLetters (m := M1) "hello" ⟨0, 0⟩
+message
+"Except.ok ((), { vowels := 2, consonants := 3 })"
+end expect
+
+
+expect info {{{ countLettersM2Ok }}}
+  #eval countLetters (m := M2) "hello" ⟨0, 0⟩
+message
+"(Except.ok (), { vowels := 2, consonants := 3 })"
+end expect
+
+
+expect info {{{ countLettersM1Error }}}
+  #eval countLetters (m := M1) "hello!" ⟨0, 0⟩
+message
+"Except.error (StEx.Err.notALetter '!')"
+end expect
+
+expect info {{{ countLettersM2Error }}}
+  #eval countLetters (m := M2) "hello!" ⟨0, 0⟩
+message
+"(Except.error (StEx.Err.notALetter '!'), { vowels := 2, consonants := 3 })"
+end expect
+
+
+
+
+book declaration {{{ countWithFallback }}}
+  def countWithFallback [Monad m] [MonadState LetterCounts m] [MonadExcept Err m] (str : String) : m Unit :=
+    try
+      countLetters str
+    catch _ =>
+      countLetters "Fallback"
+stop book declaration
+
+
+expect info {{{ countWithFallbackM1Ok }}}
+  #eval countWithFallback (m := M1) "hello" ⟨0, 0⟩
+message
+"Except.ok ((), { vowels := 2, consonants := 3 })"
+end expect
+
+
+expect info {{{ countWithFallbackM2Ok }}}
+  #eval countWithFallback (m := M2) "hello" ⟨0, 0⟩
+message
+"(Except.ok (), { vowels := 2, consonants := 3 })"
+end expect
+
+
+expect info {{{ countWithFallbackM1Error }}}
+  #eval countWithFallback (m := M1) "hello!" ⟨0, 0⟩
+message
+"Except.ok ((), { vowels := 2, consonants := 6 })"
+end expect
+
+
+expect info {{{ countWithFallbackM2Error }}}
+  #eval countWithFallback (m := M2) "hello!" ⟨0, 0⟩
+message
+"(Except.ok (), { vowels := 4, consonants := 9 })"
+end expect
+
+axiom α : Type
+axiom σ : Type
+axiom σ' : Type
+
+bookExample {{{ M1eval }}}
+  M1 α
+  ===>
+  LetterCounts → Except Err (α × LetterCounts)
+end bookExample
+
+bookExample {{{ M2eval }}}
+  M2 α
+  ===>
+  LetterCounts → Except Err α × LetterCounts
+end bookExample
+
+
+bookExample {{{ StateTDoubleA }}}
+  StateT σ (StateT σ' Id) α
+  ===>
+  σ → σ' → ((α × σ) × σ')
+end bookExample
+
+bookExample {{{ StateTDoubleB }}}
+  StateT σ' (StateT σ Id) α
+  ===>
+  σ' → σ → ((α × σ') × σ)
+end bookExample
+
+
+end Reorder
+
+namespace Cls
+
+
+book declaration {{{ MonadState }}}
+  class MonadState (σ : outParam (Type u)) (m : Type u → Type v) : Type (max (u+1) v) where
+    get : m σ
+    set : σ → m PUnit
+    modifyGet : (σ → α × σ) → m α
+stop book declaration
+
+end Cls
+
+
+universe u
+universe v
+bookExample type {{{ getTheType }}}
+  getThe
+  ===>
+  (σ : Type u) → {m : Type u → Type v} → [MonadStateOf σ m] → m σ
+end bookExample
+
+bookExample type {{{ modifyTheType }}}
+  modifyThe
+  ===>
+  (σ : Type u) → {m : Type u → Type v} → [MonadStateOf σ m] → (σ → σ) → m PUnit
+end bookExample
+
+
+
+end StEx
+
+similar datatypes MonadState StEx.Cls.MonadState

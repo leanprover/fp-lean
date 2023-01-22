@@ -220,28 +220,46 @@ A simulation of mutable state is added to a monad by having monadic actions acce
 The bind operator for a state monad provides the final state of one action as an argument to the next action, threading the state through the program.
 This pattern can also be expressed as a monad transformer:
 ```lean
-
+{{#example_decl Examples/MonadTransformers/Defs.lean DefStateT}}
 ```
 
 
 Once again, the monad instance is very similar to that for `State`.
-The only difference is that the input and output states are manipulated in the underlying monad, rather than with pure code:
+The only difference is that the input and output states are passed around and returned in the underlying monad, rather than with pure code:
 ```lean
-
+{{#example_decl Examples/MonadTransformers/Defs.lean MonadStateT}}
 ```
 
 The corresponding type class has `get` and `set` methods.
 One downside of `get` and `set` is that it becomes too easy to `set` the wrong state when updating it.
-TODO example
+This is because retrieving the state, updating it, and saving the updated state is a natural way to write some programs.
+For example, the following program counts the number of diacritic-free English vowels and consonants in a string of letters:
+```lean
+{{#example_decl Examples/MonadTransformers/Defs.lean countLetters}}
+```
+It would be very easy to write `set st` instead of `set st'`.
+In a large program, this kind of mistake can lead to difficult-to-diagnose bugs.
+
 While using a nested action for the call to `get` would solve this problem, it can't solve all such problems.
 For example, a function might update a field on a structure based on the values of two other fields.
 This would require two separate nested-action calls to `get`.
-Because the Lean compiler contains optimizations that are only effective when there is a single reference to a value, duplicating the references to the state might lead to code that is significantly slower than code that binds the value.
-Both the potential performance problem and the potential bug can be worked around by using `modifyGet`, which combines reading the state, computing a new state, and deriving a value from the state into a single operation.
+Because the Lean compiler contains optimizations that are only effective when there is a single reference to a value, duplicating the references to the state might lead to code that is significantly slower.
+Both the potential performance problem and the potential bug can be worked around by using `modify`, which transforms the state using a function:
 ```lean
-
+{{#example_decl Examples/MonadTransformers/Defs.lean countLettersModify}}
+```
+The type class contains a function akin to `modify` called `modifyGet`, which allows the function to both compute a return value and transform an old state in a single step.
+The function returns a pair in which the first element is the return value, and the second element is the new state; `modify` just adds the constructor of `Unit` to the pair used in `modifyGet`:
+```lean
+{{#example_decl Examples/MonadTransformers/Defs.lean modify}}
 ```
 
+The definition of `MonadState` is as follows:
+```lean
+{{#example_decl Examples/MonadTransformers/Defs.lean MonadState}}
+```
+`PUnit` is a version of the `Unit` type that is universe-polymorphic to allow it to be in `Type u` instead of `Type`.
+While it would be possible to provide a default implementation of `modifyGet` in terms of `get` and `set`, it would not admit the optimizations that make `modifyGet` useful in the first place, rendering the method useless.
 
 ## `Of` Classes and `The` Functions
 
@@ -250,19 +268,23 @@ For simple programs, this is generally convenient, because a monad that combines
 As monads grow in complexity, however, they may involve multiple states or errors types.
 In this case, the use of an output parameter makes it impossible to target both states in the same `do`-block.
 
+For these cases, there are additional type classes in which the extra information is not an output parameter.
+These versions of the type classes use the word `Of` in the name.
+For example, `MonadStateOf` is like `MonadState`, but without an `outParam` modifier.
+
+Similarly, there are versions of the type class methods that accept the type of the extra information as an _explicit_, rather than implicit, argument.
+For `MonadStateOf`, there are `{{#example_in Examples/MonadTransformers/Defs.lean getTheType}}` with type `{{#example_out Examples/MonadTransformers/Defs.lean getTheType}}` and `{{#example_in Examples/MonadTransformers/Defs.lean modifyTheType}}` with type `{{#example_out Examples/MonadTransformers/Defs.lean modifyTheType}}`.
+There is no `setThe` because the type of the new state is enough to decide which surrounding state monad transformer to use.
+
+In the Lean standard library, there are instances of the non-`Of` versions of the classes defined in terms of the instances of the versions with `Of`.
+In other words, implementing the `Of` version yields implementations of both.
+It's generally a good idea to implement the `Of` version, and then start writing programs using the non-`Of` versions of the class, transitioning to the `Of` version if the output parameter becomes inconvenient.
 
 ## Transformers and `Id`
 
 The identity monad `Id` is the monad that has no effects whatsoever, to be used in contexts that expect a monad for some reason but where none is actually necessary.
 Another use of `Id` is to serve as the bottom of a stack of monad transformers.
 For instance, `StateT σ Id` works just like `State σ`.
-
-
-## Order Matters
-
-Here show the difference between StateT Except and ExceptT State, and argue both that it's a strength and a limitation so readers can understand fully and make up their own minds
-
-Show correctness pitfalls of MTL-style programs that rely on the right order
 
 
 ## Exercises
