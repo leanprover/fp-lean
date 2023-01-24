@@ -103,9 +103,47 @@ From another perspective, `List.find?` is most clear as a loop.
 After all, the program consults the entries in order until a satisfactory one is found, at which point it terminates.
 If the loop terminates without having returned, the answer is `none`.
 
+Lean includes a type class that describes looping over a container type in some monad.
+This class is called `ForM`:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean ForM}}
+```
+This class is quite general.
+The parameter `m` is a monad with some desired effects, `γ` is the collection to be looped over, and `α` is the type of elements from the collection.
+Typically, `m` is allowed to be any monad, but it is possible to have a data structure that e.g. only supports looping in `IO`.
+The method `forM` takes a collection, a monadic action to be run for its effects on each element from the collection, and is then responsible for running the actions.
 
+The instance for `List` allows `m` to be any monad, it sets `γ` to be `List α`, and sets the class's `α` to be the same `α` found in the list:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean ListForM}}
+```
+The instance for `Many` is very similar:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean ManyForM}}
+```
 
+Because `γ` can be any type at all, `ForM` can support non-polymorphic collections.
+A very simple collection is one of the natural numbers less than some given number, in reverse order:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean AllLessThan}}
+```
+Its `forM` operator applies the provided action to each smaller `Nat`:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean AllLessThanForM}}
+```
+Running `IO.println` on each number less than five can be accomplished with `forM`:
+```lean
+{{#example_in Examples/MonadTransformers/Do.lean AllLessThanForMRun}}
+```
+```output info
+{{#example_out Examples/MonadTransformers/Do.lean AllLessThanForMRun}}
+```
 
+* for loops (start by explaining with ForM, then show ForIn)
+
+* An IO-only ForM (maybe bytes from a file handle?)
+
+* ForIn
 
 ## Mutable Variables
 
