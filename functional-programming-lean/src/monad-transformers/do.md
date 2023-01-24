@@ -63,6 +63,36 @@ The `do`-block in `List.find?` that uses early return is translated to a `do`-bl
 {{#example_decl Examples/MonadTransformers/Do.lean desugaredFindHuh}}
 ```
 
+Another situation in which early return is useful is command-line applications that terminate early if the arguments or input are incorrect.
+Many programs being with a section that validates arguments and inputs before proceeding to the main body of the program.
+The following version of [the greeting program `hello-name`](../hello-world/running-a-program.md) checks that no command-line arguments were provided:
+```lean
+{{#include ../../../examples/early-return/EarlyReturn.lean:main}}
+```
+Running it with no arguments and typing the name `David` yields the same result as the previous version:
+```
+$ {{#command {early-return} {early-return} {./run} {lean --run EarlyReturn.lean}}}
+{{#command_out {early-return} {./run} }}
+```
+
+Providing the name as a command-line argument instead of an answer causes an error:
+```
+$ {{#command {early-return} {early-return} {./too-many-args} {lean --run EarlyReturn.lean David}}}
+{{#command_out {early-return} {./too-many-args} }}
+```
+
+And providing no name causes the other error:
+```
+$ {{#command {early-return} {early-return} {./no-name} {lean --run EarlyReturn.lean}}}
+{{#command_out {early-return} {./no-name} }}
+```
+
+The program that uses early return avoids needing to nest the control flow, as is done in this version that does not use early return:
+```lean
+{{#include ../../../examples/early-return/EarlyReturn.lean:nestedmain}}
+```
+
+
 ## Loops
 
 Just as every program with mutable state can be rewritten to a program that passes the state as arguments, every loop can be rewritten as a recursive function.
@@ -79,10 +109,11 @@ If the loop terminates without having returned, the answer is `none`.
 
 ## Mutable Variables
 
-
+ * Good demo
 
 
 
 
 ## Imperative or Functional Programming?
 
+ * Why not both?

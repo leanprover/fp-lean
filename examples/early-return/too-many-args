@@ -1,0 +1,6 @@
+#!/usr/bin/expect -f
+log_user 0
+spawn lean --run EarlyReturn.lean David
+log_user 1
+
+expect "Expected no arguments, but got 1"
