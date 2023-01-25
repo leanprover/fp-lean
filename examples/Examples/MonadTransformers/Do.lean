@@ -2,6 +2,7 @@ import Examples.Support
 
 import Examples.MonadTransformers.Defs
 import Examples.Monads.Many
+import Examples.FunctorApplicativeMonad
 
 namespace StEx
 namespace FancyDo
@@ -103,6 +104,17 @@ def List.lookup [BEq k] (key : k) : List (k × α) → Option α
 
 
 
+book declaration {{{ greet }}}
+  def greet (name : String) : String :=
+    "Hello, " ++ Id.run do return name
+stop book declaration
+
+bookExample {{{ greetDavid }}}
+  greet "David"
+  ===>
+  "Hello, David"
+end bookExample
+
 
 end EarlyReturn
 
@@ -120,6 +132,7 @@ book declaration {{{ ManyForM }}}
   instance : ForM m (Many α) α where
     forM := Many.forM
 stop book declaration
+
 
 namespace Loops
 
@@ -178,16 +191,102 @@ message
 0"
 end expect
 
+
+book declaration {{{ ForInIOAllLessThan }}}
+  instance : ForIn m AllLessThan Nat where
+    forIn := ForM.forIn
+stop book declaration
+
+namespace Transformed
+
+book declaration {{{ OptionTExec }}}
+  def OptionT.exec [Applicative m] (action : OptionT m α) : m Unit :=
+    action *> pure ()
+stop book declaration
+
+
+book declaration {{{ OptionTcountToThree }}}
+  def countToThree (n : Nat) : IO Unit :=
+    let nums : AllLessThan := ⟨n⟩
+    OptionT.exec (forM nums fun i => do
+      if i < 3 then failure else IO.println i)
+stop book declaration
+
+
+expect info {{{ optionTCountSeven }}}
+  #eval countToThree 7
+message
+"6
+5
+4
+3"
+end expect
+end Transformed
+
+
+book declaration {{{ countToThree }}}
+  def countToThree (n : Nat) : IO Unit := do
+    let nums : AllLessThan := ⟨n⟩
+    for i in nums do
+      if i < 3 then break
+      IO.println i
+stop book declaration
+
+
+expect info {{{ countSevenFor }}}
+  #eval countToThree 7
+message
+"6
+5
+4
+3"
+end expect
+
+
+
+book declaration {{{ parallelLoop }}}
+def parallelLoop := do
+  for x in ["currant", "gooseberry", "rowan"], y in [4, 5, 6, 7] do
+    IO.println (x, y)
+stop book declaration
+
+
+expect info {{{ parallelLoopOut }}}
+  #eval parallelLoop
+message
+"(currant, 4)
+(gooseberry, 5)
+(rowan, 6)"
+end expect
+
+book declaration {{{ findHuh }}}
   def List.find? (p : α → Bool) (xs : List α) : Option α := do
     for x in xs do
       if p x then return x
     failure
+stop book declaration
 
+namespace Cont
+book declaration {{{ findHuhCont }}}
+  def List.find? (p : α → Bool) (xs : List α) : Option α := do
+    for x in xs do
+      if not (p x) then continue
+      return x
+    failure
+stop book declaration
+end Cont
+
+example : List.find? p xs = Cont.List.find? p xs := by
+  induction xs <;> simp [List.find?, Cont.List.find?, bind]
+
+
+book declaration {{{ ListCount }}}
   def List.count (p : α → Bool) (xs : List α) : Nat := Id.run do
     let mut found := 0
     for x in xs do
       if p x then found := found + 1
     return found
+stop book declaration
 
 end Loops
 

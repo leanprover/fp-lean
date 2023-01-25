@@ -92,6 +92,14 @@ The program that uses early return avoids needing to nest the control flow, as i
 {{#include ../../../examples/early-return/EarlyReturn.lean:nestedmain}}
 ```
 
+One important difference between early return in Lean and early return in imperative languages is that Lean's early return applies only to the current `do`-block.
+When the entire definition of a function is in the same `do` block, this difference doesn't matter.
+But if `do` occurs underneath some other structures, then the difference becomes apparent.
+For example, given the following definition of `greet`:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean greet}}
+```
+the expression `{{#example_in Examples/MonadTransformers/Do.lean greetDavid}}` evaluates to `{{#example_out Examples/MonadTransformers/Do.lean greetDavid}}`, not just `"David"`.
 
 ## Loops
 
@@ -102,6 +110,8 @@ When no more entries remain, the answer is `none`.
 From another perspective, `List.find?` is most clear as a loop.
 After all, the program consults the entries in order until a satisfactory one is found, at which point it terminates.
 If the loop terminates without having returned, the answer is `none`.
+
+### Looping with ForM
 
 Lean includes a type class that describes looping over a container type in some monad.
 This class is called `ForM`:
@@ -139,19 +149,119 @@ Running `IO.println` on each number less than five can be accomplished with `for
 {{#example_out Examples/MonadTransformers/Do.lean AllLessThanForMRun}}
 ```
 
-* for loops (start by explaining with ForM, then show ForIn)
+An example `ForM` instance that works only in a particular monad one that loops over the lines read from an IO stream, such as standard input:
+```lean
+{{#include ../../../examples/formio/ForMIO.lean:LinesOf}}
+```
+The definition of `forM` is marked `partial` because there is no guarantee that the stream is finite.
+In this case, `IO.FS.Stream.getLine` works only in the `IO` monad, so no other monad can be used for looping.
 
-* An IO-only ForM (maybe bytes from a file handle?)
+This example program uses this looping construct to filter out lines that don't contain letters:
+```lean
+{{#include ../../../examples/formio/ForMIO.lean:main}}
+```
+The file `test-data` contains:
+```
+{{#include ../../../examples/formio/test-data}}
+```
+Invoking this program, which is stored in `ForMIO.lean`, yields the following output:
+```
+$ {{#command {formio} {formio} {lean --run ForMIO.lean < test-data}}}
+{{#command_out {formio} {lean --run ForMIO.lean < test-data} {formio/expected}}}
+```
 
-* ForIn
+### Stopping Iteration
+
+Terminating a loop early is difficult to do with `forM`.
+Writing a function that iterates over the `Nat`s in an `AllLessThan` only until `3` is reached requires a means of stopping the loop partway through.
+One way to achieve this is to use `forM` with the `OptionT` monad transformer.
+The first step is to define `OptionT.exec`, which discards information about both the return value and whether or not the transformed computation succeeded:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean OptionTExec}}
+```
+Then, failure in the `OptionT` instance of `Alternative` can be used to terminate looping early:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean OptionTcountToThree}}
+```
+A quick test demonstrates that this solution works:
+```lean
+{{#example_in Examples/MonadTransformers/Do.lean optionTCountSeven}}
+```
+```output info
+{{#example_out Examples/MonadTransformers/Do.lean optionTCountSeven}}
+```
+
+However, this code is not so easy to read.
+Terminating a loop early is a common task, and Lean provides more syntactic sugar to make this easier.
+This same function can also be written as follows:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean countToThree}}
+```
+Testing it reveals it works just like the prior version:
+```lean
+{{#example_in Examples/MonadTransformers/Do.lean countSevenFor}}
+```
+```output info
+{{#example_out Examples/MonadTransformers/Do.lean countSevenFor}}
+```
+
+At the time of writing, the `for ... in ... do ...` syntax desugars to the use of a type class called `ForIn`, which is a somewhat more complicated version of `ForM` that keeps track of state and early termination.
+However, there is a plan to refactor `for` loops to use the simpler `ForM`, with monad transformers inserted as necessary.
+In the meantime, an adapter is provided that converts a `ForM` instance into a `ForIn` instance, called `ForM.forIn`.
+To enable `for` loops based on a `ForM` instance, add something like the following, with appropriate replacements for `AllLessThan` and `Nat`:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean ForInIOAllLessThan}}
+```
+Note, however, that this adapter only works for `ForM` instances that keep the monad unconstrained, as most of them do.
+
+Early return is supported in `for` loops.
+The translation of `do` blocks with early return into a use of an exception monad transformer applies equally well underneath `forM` as the earlier use of `OptionT` to halt iteration.
+This version of `List.find?` makes use of both:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean findHuh}}
+```
+
+In addition to `break`, `for` loops support `continue` to skip the rest of the loop body in an iteration.
+An alternative (but confusing) formulation of `List.find?` skips elements that don't satisfy the check:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean findHuhCont}}
+```
+
+Finally, `for` loops support iterating over multiple collections in parallel, by separating the `in` clauses with commas.
+Looping halts when the first collection runs out of elements, so the declaration:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean parallelLoop}}
+```
+produces three lines of output:
+```lean
+{{#example_in Examples/MonadTransformers/Do.lean parallelLoopOut}}
+```
+```output info
+{{#example_out Examples/MonadTransformers/Do.lean parallelLoopOut}}
+```
 
 ## Mutable Variables
 
+In addition to early `return`, `else`-less `if`, and `for` loops, Lean supports local mutable variables within a `do` block.
+
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean ListCount}}
+```
+
+
  * Good demo
 
+ * Local only!
 
+## What counts as a `do` block?
 
+ * Show scoping of effects WRT looping constructs and their false `do` keywords
+ * also nested definitions can't access the effects
+ * Limitation rules out hard-to-think-about programs
 
 ## Imperative or Functional Programming?
 
+ * This whole book, we've talked up FP, and now we go imperative. What gives?
  * Why not both?
+ * A matter of perspective
+ * Also, Lean's imperative features are local only, and desugar down to things that one can reason about (effects that cross definition boundaries are still in type signatures)
