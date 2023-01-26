@@ -231,7 +231,7 @@ To check that the provided year is in the expected range, nested uses of the evi
 
 Finally, these three components can be combined using `seq`:
 ```lean
-{{#example_decl Examples/FunctorApplicativeMonad.lean checkBirthYear}}
+{{#example_decl Examples/FunctorApplicativeMonad.lean checkInput}}
 ```
 
 Testing `checkInput` shows that it can indeed return multiple pieces of feedback:
