@@ -348,7 +348,7 @@ equational steps {{{ foo }}}
   1 + 1
   ={
   -- Compute forwards
-  rfl
+  by rfl
   }=
   2
   ={
