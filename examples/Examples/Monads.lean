@@ -315,7 +315,7 @@ book declaration {{{ sumAndFindEvensDirectish }}}
     | [] => ([], 0)
     | i :: is =>
       let (moreEven, sum) := sumAndFindEvens is
-      let (evenHere, ⟨⟩) := (if isEven i then [i] else [], Unit.unit)
+      let (evenHere, ()) := (if isEven i then [i] else [], ())
       (evenHere ++ moreEven, sum + i)
 stop book declaration
 end MoreMonadic
@@ -354,7 +354,7 @@ stop book declaration
 
 book declaration {{{ save }}}
   def save (data : α) : WithLog α Unit :=
-    {log := [data], val := ⟨⟩}
+    {log := [data], val := ()}
 stop book declaration
 
 namespace WithAndThen
@@ -364,7 +364,7 @@ book declaration {{{ sumAndFindEvensAndThen }}}
   def sumAndFindEvens : List Int → WithLog Int Int
     | [] => ok 0
     | i :: is =>
-      andThen (if isEven i then save i else ok ⟨⟩) fun ⟨⟩ =>
+      andThen (if isEven i then save i else ok ()) fun () =>
       andThen (sumAndFindEvens is) fun sum =>
       ok (i + sum)
 stop book declaration
@@ -375,7 +375,7 @@ book declaration {{{ preorderSumAndThen }}}
     | BinTree.leaf => ok 0
     | BinTree.branch l x r =>
       andThen (preorderSum l) fun leftSum =>
-      andThen (save x) fun ⟨⟩ =>
+      andThen (save x) fun () =>
       andThen (preorderSum r) fun rightSum =>
       ok (leftSum + x + rightSum)
 stop book declaration
@@ -395,7 +395,7 @@ book declaration {{{ withInfixLogging }}}
   def sumAndFindEvens : List Int → WithLog Int Int
     | [] => ok 0
     | i :: is =>
-      (if isEven i then save i else ok ⟨⟩) ~~> fun ⟨⟩ =>
+      (if isEven i then save i else ok ()) ~~> fun () =>
       sumAndFindEvens is ~~> fun sum =>
       ok (i + sum)
 
@@ -403,7 +403,7 @@ book declaration {{{ withInfixLogging }}}
     | BinTree.leaf => ok 0
     | BinTree.branch l x r =>
       preorderSum l ~~> fun leftSum =>
-      save x ~~> fun ⟨⟩ =>
+      save x ~~> fun () =>
       preorderSum r ~~> fun rightSum =>
       ok (leftSum + x + rightSum)
 stop book declaration
@@ -470,7 +470,7 @@ stop book declaration
 
 book declaration {{{ set }}}
   def set (s : σ) : State σ Unit :=
-    fun _ => (s, ⟨⟩)
+    fun _ => (s, ())
 stop book declaration
 
 
@@ -500,7 +500,7 @@ book declaration {{{ numberMonadicish }}}
       | BinTree.branch left x right =>
         helper left ~~> fun numberedLeft =>
         get ~~> fun n =>
-        set (n + 1) ~~> fun ⟨⟩ =>
+        set (n + 1) ~~> fun () =>
         helper right ~~> fun numberedRight =>
         ok (BinTree.branch numberedLeft (n, x) numberedRight)
     (helper t 0).snd

@@ -11,7 +11,7 @@ book declaration {{{ countLettersNoElse }}}
   def countLetters (str : String) : StateT LetterCounts (Except Err) Unit :=
     let rec loop (chars : List Char) := do
       match chars with
-      | [] => pure ⟨⟩
+      | [] => pure ()
       | c :: cs =>
         if c.isAlpha then
           if vowels.contains c then
@@ -31,7 +31,7 @@ namespace ThenDoUnless
 
 book declaration {{{ count }}}
 def count [Monad m] [MonadState Nat m] (p : α → m Bool) : List α → m Unit
-  | [] => pure ⟨⟩
+  | [] => pure ()
   | x :: xs => do
     if ← p x then
       modify (· + 1)
@@ -41,7 +41,7 @@ stop book declaration
 
 book declaration {{{ countNot }}}
 def countNot [Monad m] [MonadState Nat m] (p : α → m Bool) : List α → m Unit
-  | [] => pure ⟨⟩
+  | [] => pure ()
   | x :: xs => do
     unless ← p x do
       modify (· + 1)
@@ -127,7 +127,7 @@ book declaration {{{ ManyForM }}}
     | Many.none, _ => pure ()
     | Many.more first rest, action => do
       action first
-      forM (rest ⟨⟩) action
+      forM (rest ()) action
 
   instance : ForM m (Many α) α where
     forM := Many.forM

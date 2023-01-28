@@ -1536,7 +1536,7 @@ book declaration {{{ CoercionCycle }}}
   instance : Coe Unit A where
     coe _ := A.a
 
-  def coercedToB : B := Unit.unit
+  def coercedToB : B := ()
 stop book declaration
 
 book declaration {{{ CoePosNat }}}

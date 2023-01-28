@@ -70,8 +70,8 @@ Replacing `do`-notation with explicit uses of `>>=` makes it easier to apply the
 ```
 
 
-To check that this definition respects identity, check that `seq (pure id) (fun ⟨⟩ => v) = v`.
-The left hand side is equivalent to `pure id >>= fun g => (fun ⟨⟩ => v) ⟨⟩ >>= fun y => pure (g y)`.
+To check that this definition respects identity, check that `seq (pure id) (fun () => v) = v`.
+The left hand side is equivalent to `pure id >>= fun g => (fun () => v) () >>= fun y => pure (g y)`.
 The unit function in the middle can be eliminated immediately, yielding `pure id >>= fun g => v >>= fun y => pure (g y)`.
 Using the fact that `pure` is a left identity of `>>=`, this is the same as `v >>= fun y => pure (id y)`, which is `v >>= fun y => pure y`.
 Because `fun x => f x` is the same as `f`, this is the same as `v >>= pure`, and the fact that `pure` is a right identity of `>>=` can be used to get `v`.

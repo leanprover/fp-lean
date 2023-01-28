@@ -138,7 +138,7 @@ book declaration {{{ AlternativeOptionT }}}
     orElse x y := OptionT.mk do
       match ← x with
       | some result => pure (some result)
-      | none => y ⟨⟩
+      | none => y ()
 stop book declaration
 
 
@@ -320,7 +320,7 @@ stop book declaration
 
 instance [Monad m] : MonadStateOf σ (StateT σ m) where
   get := fun s => pure (s, s)
-  set s' := fun _ => pure (⟨⟩, s')
+  set s' := fun _ => pure ((), s')
   modifyGet f := fun s => pure (f s)
 
 
@@ -351,7 +351,7 @@ book declaration {{{ countLetters }}}
   def countLetters (str : String) : StateT LetterCounts (Except Err) Unit :=
     let rec loop (chars : List Char) := do
       match chars with
-      | [] => pure ⟨⟩
+      | [] => pure ()
       | c :: cs =>
         let st ← get
         let st' ←
@@ -374,7 +374,7 @@ book declaration {{{ countLettersModify }}}
   def countLetters (str : String) : StateT LetterCounts (Except Err) Unit :=
     let rec loop (chars : List Char) := do
       match chars with
-      | [] => pure ⟨⟩
+      | [] => pure ()
       | c :: cs =>
         if c.isAlpha then
           if vowels.contains c then
@@ -382,7 +382,7 @@ book declaration {{{ countLettersModify }}}
           else if consonants.contains c then
             modify fun st => {st with consonants := st.consonants + 1}
           else -- modified or non-English letter
-            pure ⟨⟩
+            pure ()
         else throw (.notALetter c)
         loop cs
     loop str.toList
@@ -390,7 +390,7 @@ stop book declaration
 
 book declaration {{{ modify }}}
   def modify [MonadState σ m] (f : σ → σ) : m Unit :=
-    modifyGet fun s => (⟨⟩, f s)
+    modifyGet fun s => ((), f s)
 stop book declaration
 
 end Modify
@@ -401,7 +401,7 @@ book declaration {{{ countLettersClassy }}}
   def countLetters [Monad m] [MonadState LetterCounts m] [MonadExcept Err m] (str : String) : m Unit :=
     let rec loop (chars : List Char) := do
       match chars with
-      | [] => pure ⟨⟩
+      | [] => pure ()
       | c :: cs =>
         if c.isAlpha then
           if vowels.contains c then
@@ -409,7 +409,7 @@ book declaration {{{ countLettersClassy }}}
           else if consonants.contains c then
             modify fun st => {st with consonants := st.consonants + 1}
           else -- modified or non-English letter
-            pure ⟨⟩
+            pure ()
         else throw (.notALetter c)
         loop cs
     loop str.toList

@@ -168,7 +168,7 @@ axiom E2 : f β
 bookExample {{{ seqLeftSugar }}}
   E1 <* E2
   ===>
-  SeqLeft.seqLeft E1 (fun ⟨⟩ => E2)
+  SeqLeft.seqLeft E1 (fun () => E2)
 end bookExample
 
 bookExample type {{{ seqLeftType }}}

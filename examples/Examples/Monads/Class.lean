@@ -131,7 +131,7 @@ stop book declaration
 book declaration {{{ increment }}}
   def increment (howMuch : Int) : State Int Int :=
     get >>= fun i =>
-    set (i + howMuch) >>= fun ⟨⟩ =>
+    set (i + howMuch) >>= fun () =>
     pure i
 stop book declaration
 
@@ -170,7 +170,7 @@ end expect
 --   pure (hd :: tl)
 --   ===>
 --   (get >>= fun i =>
---    set (i + 1) >>= fun ⟨⟩ =>
+--    set (i + 1) >>= fun () =>
 --    pure i) >>= fun hd =>
 --   mapM increment [2] >>= fun tl =>
 --   pure (hd :: tl)
@@ -209,7 +209,7 @@ book declaration {{{ saveIfEven }}}
   def saveIfEven (i : Int) : WithLog Int Int :=
     (if isEven i then
       save i
-     else pure ⟨⟩) >>= fun ⟨⟩ =>
+     else pure ()) >>= fun () =>
     pure i
 stop book declaration
 
@@ -232,7 +232,7 @@ expect error {{{ mapMIdNoHint }}}
   #eval mapM (· + 1) [1, 2, 3, 4, 5]
 message
 "failed to synthesize instance
-  HAdd Nat Nat (?m.9353 ?m.9355)"
+  HAdd Nat Nat (?m.9351 ?m.9353)"
 end expect
 
 
@@ -240,7 +240,7 @@ expect error {{{ mapMIdId }}}
   #eval mapM (fun x => x) [1, 2, 3, 4, 5]
 message
 "typeclass instance problem is stuck, it is often due to metavariables
-  Monad ?m.9353"
+  Monad ?m.9351"
 end expect
 
 end MyListStuff
@@ -801,7 +801,7 @@ stop book declaration
 
 def applyTraced : ToTrace (Prim Empty) → Int → Int → WithLog (Prim Empty × Int × Int) Int
   | ToTrace.trace op, x, y =>
-    save (op, x, y) >>= fun ⟨⟩ =>
+    save (op, x, y) >>= fun () =>
     applyPrim applyEmpty op x y
 
 bookExample type {{{ applyTracedType }}}
@@ -831,7 +831,7 @@ end Exercises
 
 
 -- def evalOpWithLog (op : Prim Empty) (x : Int) (y : Int) : WithLog (Prim Empty × Int × Int) Int :=
---   save (op, x, y) >>= fun ⟨⟩ =>
+--   save (op, x, y) >>= fun () =>
 --   match op with
 --   | Prim.plus => pure (x + y)
 --   | Prim.minus => pure (x - y)
@@ -849,7 +849,7 @@ end Exercises
 
 -- def evalOpState (op : Prim Empty) (x : Int) (y : Int) : State Nat Int :=
 --   get >>= fun i =>
---   set (i + 1) >>= fun ⟨⟩ =>
+--   set (i + 1) >>= fun () =>
 --   match op with
 --   | Prim.plus => pure (x + y)
 --   | Prim.minus => pure (x - y)

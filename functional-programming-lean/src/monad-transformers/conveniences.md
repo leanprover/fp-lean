@@ -1,5 +1,9 @@
 # Additional Conveniences
 
-## Loops
+## Pipe Operators
+
+## While Loops
+
+## Infinite Loops
 
 

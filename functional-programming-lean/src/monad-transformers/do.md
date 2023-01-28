@@ -7,12 +7,12 @@ In addition to providing a convenient syntax for programs with monads, `do`-nota
 
 When working in a monad, a common pattern is to carry out a side effect only if some condition is true.
 For instance, `countLetters` contains a check for vowels or consonants, and letters that are neither have no effect on the state.
-This is captured by having the `else` branch evaluate to `pure ⟨⟩`, which has no effects:
+This is captured by having the `else` branch evaluate to `pure ()`, which has no effects:
 ```lean
 {{#example_decl Examples/MonadTransformers/Defs.lean countLettersModify}}
 ```
 
-When an `if` is a statement in a `do`-block, rather than being an expression, then `else pure ⟨⟩` can simply be omitted, and Lean inserts it automatically.
+When an `if` is a statement in a `do`-block, rather than being an expression, then `else pure ()` can simply be omitted, and Lean inserts it automatically.
 The following definition of `countLetters` is completely equivalent:
 ```lean
 {{#example_decl Examples/MonadTransformers/Do.lean countLettersNoElse}}
@@ -29,7 +29,7 @@ The converse of `count` that counts entries that don't satisfy the monadic check
 ```
 
 Understanding single-branched `if` and `unless` does not require thinking about monad transformers.
-They simply replace the missing branch with `pure ⟨⟩`.
+They simply replace the missing branch with `pure ()`.
 The remaining extensions in this section, however, require Lean to automatically rewrite the `do`-block to add a local transformer on top of the requested monad.
 
 ## Early Return

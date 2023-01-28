@@ -42,7 +42,7 @@ bookExample {{{ doSugar3 }}}
      ...
      En
   ===>
-  E1 >>= fun ⟨⟩ =>
+  E1 >>= fun () =>
   do Stmt
      ...
      En

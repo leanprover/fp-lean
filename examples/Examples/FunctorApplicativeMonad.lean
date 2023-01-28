@@ -269,7 +269,7 @@ end bookExample
 bookExample {{{ seqSugar }}}
   E1 <*> E2
   ===>
-  Seq.seq E1 (fun ⟨⟩ => E2)
+  Seq.seq E1 (fun () => E2)
 end bookExample
 
 bookExample type {{{ bindType }}}
@@ -289,7 +289,7 @@ book declaration {{{ ApplicativeOption }}}
     seq f x :=
       match f with
       | none => none
-      | some g => g <$> x ⟨⟩
+      | some g => g <$> x ()
 stop book declaration
 
 book declaration {{{ ApplicativeExcept }}}
@@ -298,7 +298,7 @@ book declaration {{{ ApplicativeExcept }}}
     seq f x :=
       match f with
       | .error e => .error e
-      | .ok g => g <$> x ⟨⟩
+      | .ok g => g <$> x ()
 stop book declaration
 
 book declaration {{{ ApplicativeReader }}}
@@ -306,13 +306,13 @@ book declaration {{{ ApplicativeReader }}}
     pure x := fun _ => x
     seq f x :=
       fun env =>
-        f env (x ⟨⟩ env)
+        f env (x () env)
 stop book declaration
 
 book declaration {{{ ApplicativeId }}}
   instance : Applicative Id where
     pure x := x
-    seq f x := f (x ⟨⟩)
+    seq f x := f (x ())
 stop book declaration
 
 end OwnInstances
@@ -506,7 +506,7 @@ book declaration {{{ ApplicativeExtendsFunctorOne }}}
   class Applicative (f : Type → Type) extends Functor f where
     pure : α → f α
     seq : f (α → β) → (Unit → f α) → f β
-    map g x := seq (pure g) (fun ⟨⟩ => x)
+    map g x := seq (pure g) (fun () => x)
 stop book declaration
 
 end ApplicativeToFunctor
@@ -517,7 +517,7 @@ namespace MonadApplicative
 book declaration {{{ MonadSeq }}}
   def seq [Monad m] (f : m (α → β)) (x : Unit → m α) : m β := do
     let g ← f
-    let y ← x ⟨⟩
+    let y ← x ()
     pure (g y)
 stop book declaration
 
@@ -527,7 +527,7 @@ namespace MonadApplicativeDesugar
 book declaration {{{ MonadSeqDesugar }}}
   def seq [Monad m] (f : m (α → β)) (x : Unit → m α) : m β := do
     f >>= fun g =>
-    x ⟨⟩ >>= fun y =>
+    x () >>= fun y =>
     pure (g y)
 stop book declaration
 
@@ -690,12 +690,12 @@ equational steps : m γ {{{ mSeqRespComp }}}
   -- This includes the definition of `seq`
   }=
   u >>= fun x =>
-  seq v (fun ⟨⟩ => w) >>= fun q =>
+  seq v (fun () => w) >>= fun q =>
   pure (x q)
   ={
   -- This also includes the definition of `seq`
   }=
-  seq u (fun ⟨⟩ => seq v (fun ⟨⟩ => w))
+  seq u (fun () => seq v (fun () => w))
 stop equational steps
 
 end MonadApplicativeProof2
@@ -711,7 +711,7 @@ axiom x : α
 
 open MonadApplicativeDesugar
 equational steps : m β {{{ mSeqPureNoOp }}}
-  seq (pure f) (fun ⟨⟩ => pure x)
+  seq (pure f) (fun () => pure x)
   ={
   -- Replacing `seq` with its definition
   }=
@@ -743,7 +743,7 @@ axiom x : α
 
 open MonadApplicativeDesugar
 equational steps : m β {{{ mSeqPureNoOrder }}}
-  seq u (fun ⟨⟩ => pure x)
+  seq u (fun () => pure x)
   ={
   -- Definition of `seq`
   }=
@@ -771,7 +771,7 @@ equational steps : m β {{{ mSeqPureNoOrder }}}
   ={
   -- Definition of `seq`
   }=
-  seq (pure (fun f => f x)) (fun ⟨⟩ => u)
+  seq (pure (fun f => f x)) (fun () => u)
 stop equational steps
 
 end MonadApplicativeProof4
@@ -784,7 +784,7 @@ book declaration {{{ MonadExtends }}}
     bind : m α → (α → m β) → m β
     seq f x :=
       bind f fun g =>
-      bind (x ⟨⟩) fun y =>
+      bind (x ()) fun y =>
       pure (g y)
 stop book declaration
 
@@ -821,9 +821,9 @@ book declaration {{{ ApplicativeValidate }}}
     pure := .ok
     seq f x :=
       match f with
-      | .ok g => g <$> (x ⟨⟩)
+      | .ok g => g <$> (x ())
       | .errors errs =>
-        match x ⟨⟩ with
+        match x () with
         | .ok _ => .errors errs
         | .errors errs' => .errors (errs ++ errs')
 stop book declaration
@@ -1061,7 +1061,7 @@ end evaluation steps
 
 open MonadApplicative in
 evaluation steps : Validate String String {{{ fakeSeq }}}
-  seq notFun (fun ⟨⟩ => notArg)
+  seq notFun (fun () => notArg)
   ===>
   notFun.andThen fun g =>
   notArg.andThen fun y =>
@@ -1105,7 +1105,7 @@ book declaration {{{ ValidateorElse }}}
     match a with
     | .ok x => .ok x
     | .errors errs1 =>
-      match b ⟨⟩ with
+      match b () with
       | .ok x => .ok x
       | .errors errs2 => .errors (errs1 ++ errs2)
 stop book declaration
@@ -1129,7 +1129,7 @@ axiom E2 : α
 bookExample {{{ OrElseSugar }}}
   E1 <|> E2
   ===>
-  OrElse.orElse E1 (fun ⟨⟩ => E2)
+  OrElse.orElse E1 (fun () => E2)
 end bookExample
 
 
@@ -1143,7 +1143,7 @@ stop book declaration
 
 book declaration {{{ checkThat }}}
   def checkThat (condition : Bool) (field : Field) (msg : String) : Validate (Field × String) Unit :=
-    if condition then pure ⟨⟩ else reportError field msg
+    if condition then pure () else reportError field msg
 stop book declaration
 
 
@@ -1151,7 +1151,7 @@ namespace Provisional
 
 book declaration {{{ checkCompanyProv }}}
   def checkCompany (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
-    pure (fun ⟨⟩ name => .company name) <*>
+    pure (fun () name => .company name) <*>
       checkThat (input.birthYear == "FIRM") "birth year" "FIRM if a company" <*>
       checkName input.name
 stop book declaration
@@ -1170,7 +1170,7 @@ axiom E2 : f β
 bookExample {{{ seqRightSugar }}}
   E1 *> E2
   ===>
-  SeqRight.seqRight E1 (fun ⟨⟩ => E2)
+  SeqRight.seqRight E1 (fun () => E2)
 end bookExample
 
 bookExample type {{{ seqRightType }}}
@@ -1305,13 +1305,13 @@ book declaration {{{ AlternativeOption }}}
     failure := none
     orElse
       | some x, _ => some x
-      | none, y => y ⟨⟩
+      | none, y => y ()
 stop book declaration
 
 book declaration {{{ AlternativeMany }}}
   def Many.orElse : Many α → (Unit → Many α) → Many α
-    | .none, ys => ys ⟨⟩
-    | .more x xs, ys => .more x (fun ⟨⟩ => orElse (xs ⟨⟩) ys)
+    | .none, ys => ys ()
+    | .more x xs, ys => .more x (fun () => orElse (xs ()) ys)
 
   instance : Alternative Many where
     failure := .none
@@ -1324,7 +1324,7 @@ namespace Guard
 book declaration {{{ guard }}}
   def guard [Alternative f] (p : Prop) [Decidable p] : f Unit :=
     if p then
-      pure ⟨⟩
+      pure ()
     else failure
 stop book declaration
 
@@ -1332,7 +1332,7 @@ stop book declaration
 book declaration {{{ evenDivisors }}}
   def Many.countdown : Nat → Many Nat
     | 0 => .none
-    | n + 1 => .more n (fun ⟨⟩ => countdown n)
+    | n + 1 => .more n (fun () => countdown n)
 
   def evenDivisors (n : Nat) : Many Nat := do
     let k ← Many.countdown (n + 1)

@@ -31,7 +31,7 @@ A function is not powerful enough to implement custom short-circuiting operators
 
 Typically, `seq` is not invoked directly.
 Instead, the operator `<*>` is used.
-This operator wraps its second argument in `fun ⟨⟩ => ...`, simplifying the call site.
+This operator wraps its second argument in `fun () => ...`, simplifying the call site.
 In other words, `{{#example_in Examples/FunctorApplicativeMonad.lean seqSugar}}` is syntactic sugar for `{{#example_out Examples/FunctorApplicativeMonad.lean seqSugar}}`.
 
 

@@ -62,6 +62,7 @@ For example, even if two types `A` and `B` can be coerced to one another, their 
 ```lean
 {{#example_decl Examples/Classes.lean CoercionCycle}}
 ```
+Remember: the double parentheses `()` is short for the constructor `Unit.unit`.
 
 Some coercions, however, should only be applied once.
 The `Option` type can be used similarly to nullable types in C# and Kotlin: the `none` constructor represents the absence of a value.

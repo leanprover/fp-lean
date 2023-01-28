@@ -8,14 +8,14 @@ stop book declaration
 
 
 book declaration {{{ one }}}
-  def Many.one (x : α) : Many α := Many.more x (fun ⟨⟩ => Many.none)
+  def Many.one (x : α) : Many α := Many.more x (fun () => Many.none)
 stop book declaration
 
 
 book declaration {{{ union }}}
   def Many.union : Many α → Many α → Many α
     | Many.none, ys => ys
-    | Many.more x xs, ys => Many.more x (fun ⟨⟩ => union (xs ⟨⟩) ys)
+    | Many.more x xs, ys => Many.more x (fun () => union (xs ()) ys)
 stop book declaration
 
 
@@ -23,7 +23,7 @@ stop book declaration
 book declaration {{{ fromList }}}
   def Many.fromList : List α → Many α
     | [] => Many.none
-    | x :: xs => Many.more x (fun ⟨⟩ => fromList xs)
+    | x :: xs => Many.more x (fun () => fromList xs)
 stop book declaration
 
 
@@ -31,11 +31,11 @@ book declaration {{{ take }}}
   def Many.take : Nat → Many α → List α
     | 0, _ => []
     | _ + 1, Many.none => []
-    | n + 1, Many.more x xs => x :: (xs ⟨⟩).take n
+    | n + 1, Many.more x xs => x :: (xs ()).take n
 
   def Many.takeAll : Many α → List α
     | Many.none => []
-    | Many.more x xs => x :: (xs ⟨⟩).takeAll
+    | Many.more x xs => x :: (xs ()).takeAll
 stop book declaration
 
 
@@ -44,7 +44,7 @@ book declaration {{{ bind }}}
     | Many.none, _ =>
       Many.none
     | Many.more x xs, f =>
-      (f x).union (bind (xs ⟨⟩) f)
+      (f x).union (bind (xs ()) f)
 stop book declaration
 
 namespace Agh
@@ -55,7 +55,7 @@ axiom f : Nat → Many String
 evaluation steps {{{ bindLeft }}}
   Many.bind (Many.one v) f
   ===>
-  Many.bind (Many.more v (fun ⟨⟩ => Many.none)) f
+  Many.bind (Many.more v (fun () => Many.none)) f
   ===>
   (f v).union (Many.bind Many.none f)
   ===>
@@ -73,7 +73,7 @@ stop book declaration
 
 instance : Alternative Many where
   failure := .none
-  orElse xs ys := Many.union xs (ys ⟨⟩)
+  orElse xs ys := Many.union xs (ys ())
 
 
 def Many.range (n k : Nat) : Many Nat :=
@@ -116,7 +116,7 @@ instance : LawfulMonad Many where
     induction xs <;> simp [SeqLeft.seqLeft, Seq.seq, Many.bind, Function.const, Functor.map, Many.union, Function.comp]
     case more x xs ih =>
       simp [SeqLeft.seqLeft, Seq.seq, Function.const, Functor.map, Function.comp] at ih
-      rw [ih ⟨⟩]
+      rw [ih ()]
   seqRight_eq xs ys := by
       induction xs with
       | none => simp [SeqRight.seqRight, Many.bind, Seq.seq]

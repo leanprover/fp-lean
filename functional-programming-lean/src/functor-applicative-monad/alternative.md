@@ -58,7 +58,7 @@ This operator is also controlled by a type class, called `SeqRight`, and `{{#exa
 ```lean
 {{#example_decl Examples/FunctorApplicativeMonad.lean ClassSeqRight}}
 ```
-There is a default implementation of `seqRight` in terms of `seq`: `seqRight (a : f α) (b : Unit → f β) : f β := pure (fun _ x => x) <*> a <*> b ⟨⟩`.
+There is a default implementation of `seqRight` in terms of `seq`: `seqRight (a : f α) (b : Unit → f β) : f β := pure (fun _ x => x) <*> a <*> b ()`.
 
 Using `seqRight`, `checkCompany` becomes simpler:
 ```lean
