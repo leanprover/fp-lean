@@ -8,6 +8,10 @@ This version of the text is written for Lean 4 release `{{#lean_version}}`.
 
 ## Release history
 
+### January, 2023
+
+This release adds a chapter on monad transformers that includes a description of the imperative features that are available in `do`-notation.
+
 ### December, 2022
 
 This release adds a chapter on applicative functors that additionally describes structures and type classes in more detail.
