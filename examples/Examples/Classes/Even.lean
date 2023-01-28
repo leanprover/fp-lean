@@ -42,8 +42,45 @@ instance : Mul Even where
 instance : OfNat Even Nat.zero where
   ofNat := Even.zero
 
-instance [OfNat Even n] : OfNat Even (Nat.succ (Nat.succ n)) where
+instance [OfNat Even n] : OfNat Even (n + 2) where
   ofNat := Even.plusTwo (OfNat.ofNat n)
+
+#eval (2 : Even)
 
 #eval (8 : Even) * 2 -- 16
 end Even
+
+namespace Old
+
+inductive GEven : Nat → Type where
+  | zero : (m : Nat) → GEven m
+  | succ2 : {m : Nat} → GEven m → GEven m
+
+example : GEven 1 := .zero 1
+
+end Old
+
+namespace New
+
+inductive GEven (basis : Nat) : Nat → Type where
+  | base : basis % 2 = 0 → GEven basis basis
+  | plusTwo : GEven basis n → GEven basis (n + 2)
+
+
+
+theorem geven_is_even (n : Nat) (even : GEven basis n) : n % 2 = 0 := by
+  induction even <;> simp [*]
+  case plusTwo _ ih =>
+    have step (n : Nat) : (n + 2) % 2 = n % 2 := by
+      have : (n + 2) % 2 = if 0 < 2 ∧ 2 ≤ n + 2 then (n + 2 - 2) % 2 else n + 2 := Nat.mod_eq (n + 2) 2
+      have : 2 ≤ n + 2 := by simp_arith
+      simp [*, Nat.add_sub_self_right n 2]
+    simp [*]
+
+theorem geven_is_ge (n : Nat) (even : GEven basis n) : n ≥ basis := by
+  simp_arith
+  induction even <;> simp
+  case plusTwo _ ih =>
+    constructor; constructor; assumption
+
+end New

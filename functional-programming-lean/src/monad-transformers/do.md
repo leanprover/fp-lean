@@ -227,6 +227,30 @@ An alternative (but confusing) formulation of `List.find?` skips elements that d
 {{#example_decl Examples/MonadTransformers/Do.lean findHuhCont}}
 ```
 
+A `Range` is a structure that consists of a starting number, an ending number, and a step.
+They represent a sequence of natural numbers, from the starting number to the ending number, increasing by the step each time.
+Lean has special syntax to construct ranges, consisting of square brackets, numbers, and colons that comes in four varieties.
+The stopping point must always be provided, while the start and the step are optional, defaulting to `0` and `1`, respectively:
+| Expression | Start | Stop | Step | As List |
+|------------|------------|------------|---|
+| `[:10]` | `0` | `10` | `1` | `{{#example_out Examples/MonadTransformers/Do.lean rangeStopContents}}` |
+| `[2:10]` | `2` | `10` | `1` | `{{#example_out Examples/MonadTransformers/Do.lean rangeStartStopContents}}` |
+| `[:10:3]` | `0` | `10` | `3` | `{{#example_out Examples/MonadTransformers/Do.lean rangeStopStepContents}}` |
+| `[2:10:3]` | `2` | `10` | `3` | `{{#example_out Examples/MonadTransformers/Do.lean rangeStartStopStepContents}}` |
+Note that the starting number _is_ included in the range, while the stopping numbers is not.
+All three arguments are `Nat`s, which means that ranges cannot count down—a range where the starting number is greater than or equal to the stopping number simply contains no numbers.
+
+Ranges can be used with `for` loops to draw numbers from the range.
+This program counts even numbers from four to eight:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean fourToEight}}
+```
+Running it yields:
+```output info
+{{#example_out Examples/MonadTransformers/Do.lean fourToEightOut}}
+```
+
+
 Finally, `for` loops support iterating over multiple collections in parallel, by separating the `in` clauses with commas.
 Looping halts when the first collection runs out of elements, so the declaration:
 ```lean
@@ -243,25 +267,115 @@ produces three lines of output:
 ## Mutable Variables
 
 In addition to early `return`, `else`-less `if`, and `for` loops, Lean supports local mutable variables within a `do` block.
+Behind the scenes, these mutable variables desugar to a use of `StateT`, rather than being implemented by true mutable variables.
+Once again, functional programming is used to simulate imperative programming.
 
+A local mutable variable is introduced with `let mut` instead of plain `let`.
+The definition `two`, which uses the identity monad `Id` to enable `do`-syntax without introducing any effects, counts to `2`:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean two}}
+```
+This code is equivalent to a definition that uses `StateT` to add `1` twice:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean twoStateT}}
+```
+
+Local mutable variables work well with all the other features of `do`-notation that provide convenient syntax for monad transformers.
+The definition `three` counts the number of entries in a three-entry list:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean three}}
+```
+Similarly, `six` adds the entries in a list:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean six}}
+```
+
+`List.count` counts the number of entries in a list that satisfy some check:
 ```lean
 {{#example_decl Examples/MonadTransformers/Do.lean ListCount}}
 ```
 
-
- * Good demo
-
- * Local only!
+Local mutable variables can be more convenient to use and easier to read than an explicit local use of `StateT`.
+However, they don't have the full power of unrestricted mutable variables from imperative languages.
+In particular, they can only be modified in the `do`-block in which they are introduced.
+This means, for instance, that `for`-loops can't be replaced by otherwise-equivalent recursive helper functions.
+This version of `List.count`:
+```lean
+{{#example_in Examples/MonadTransformers/Do.lean nonLocalMut}}
+```
+yields the following error on the attempted mutation of `found`:
+```output info
+{{#example_out Examples/MonadTransformers/Do.lean nonLocalMut}}
+```
+This is because the recursive function is written in the identity monad, and only the monad of the `do`-block in which the variable is introduced is transformed with `StateT`.
 
 ## What counts as a `do` block?
 
- * Show scoping of effects WRT looping constructs and their false `do` keywords
- * also nested definitions can't access the effects
- * Limitation rules out hard-to-think-about programs
+Many features of `do`-notation apply only to a single `do`-block.
+Early return terminates the current block, and mutable variables can only be mutated in the block that they are defined in.
+To use them effectively, it's important to know what counts as "the same block".
+
+Generally speaking, the indented block following the `do` keyword counts as a block, and the immediate sequence of statements underneath it are part of that block.
+Statements in independent blocks that nonetheless contained in a block are not considered part of the block.
+However, the rules that govern what exactly counts as the same block are slightly subtle, so some examples are in order.
+The precise nature of the rules can be tested by setting up a program with a mutable variable and seeing where the mutation is allowed.
+This program has a mutation that is clearly in the same block as the mutable variable:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean sameBlock}}
+```
+
+When a mutation occurs in a `do`-block that is part of a `let`-statement that defines a name using `:=`, then it is not considered to be part of the block:
+```lean
+{{#example_in Examples/MonadTransformers/Do.lean letBodyNotBlock}}
+```
+```output error
+{{#example_out Examples/MonadTransformers/Do.lean letBodyNotBlock}}
+```
+However, a `do`-block that occurs under a `let`-statement that defines a name using `←` is considered part of the surrounding block.
+The following program is accepted:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean letBodyArrBlock}}
+```
+
+Similarly, `do`-blocks that occur as arguments to functions are independent of their surrounding blocks.
+The following program is not accepted:
+```lean
+{{#example_in Examples/MonadTransformers/Do.lean funArgNotBlock}}
+```
+```output error
+{{#example_out Examples/MonadTransformers/Do.lean funArgNotBlock}}
+```
+
+If the `do` keyword is completely redundant, then it does not introduces a new block.
+This program is accepted, and is equivalent to the first one in this section:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean collapsedBlock}}
+```
+
+The contents of branches under a `do` (such as those introduced by `match` or `if`) are considered to be part of the surrounding block, whether or not a redundant `do` is added.
+The following programs are all accepted:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean ifDoSame}}
+
+{{#example_decl Examples/MonadTransformers/Do.lean ifDoDoSame}}
+
+{{#example_decl Examples/MonadTransformers/Do.lean matchDoSame}}
+
+{{#example_decl Examples/MonadTransformers/Do.lean matchDoDoSame}}
+```
+Similarly, the `do` that occurs as part of the `for` and `unless` syntax is just part of their syntax, and does not introduce a fresh `do`-block.
+These programs are also accepted:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean doForSame}}
+
+{{#example_decl Examples/MonadTransformers/Do.lean doUnlessSame}}
+```
+
 
 ## Imperative or Functional Programming?
 
- * This whole book, we've talked up FP, and now we go imperative. What gives?
- * Why not both?
- * A matter of perspective
- * Also, Lean's imperative features are local only, and desugar down to things that one can reason about (effects that cross definition boundaries are still in type signatures)
+The imperative features provided by Lean's `do`-notation allow many programs to very closely resemble their counterparts in languages like Rust, Java, or C#.
+This resemblance is very convenient when translating an imperative algorithm into Lean, and some tasks are just most naturally thought of imperatively.
+The introduction of monads and monad transformers enables imperative programs to be written in purely functional languages, and `do`-notation as a specialized syntax for monads (potentially locally transformed) allows functional programmers to have the best of both worlds: the strong reasoning principles afforded by immutability and a tight control over available effects through the type system are combined with syntax and libraries that allow programs that use effects to look familiar and be easy to read.
+Monads and monad transformers allow functional versus imperative programming to be a matter of perspective.
+

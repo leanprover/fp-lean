@@ -290,5 +290,254 @@ stop book declaration
 
 end Loops
 
+namespace Mut
+
+
+book declaration {{{ two }}}
+  def two : Nat := Id.run do
+    let mut x := 0
+    x := x + 1
+    x := x + 1
+    return x
+stop book declaration
+
+example : two = 2 := by rfl
+
+namespace St
+
+book declaration {{{ twoStateT }}}
+  def two : Nat :=
+    let block : StateT Nat Id Nat := do
+      modify (· + 1)
+      modify (· + 1)
+      return (← get)
+    let (result, _finalState) := block 0
+    result
+stop book declaration
+
+example : two = 2 := by rfl
+
+end St
+
+book declaration {{{ three }}}
+  def three : Nat := Id.run do
+    let mut x := 0
+    for _ in [1, 2, 3] do
+      x := x + 1
+    return x
+stop book declaration
+
+example : three = 3 := by rfl
+
+book declaration {{{ six }}}
+  def six : Nat := Id.run do
+    let mut x := 0
+    for y in [1, 2, 3] do
+      x := x + y
+    return x
+stop book declaration
+
+example : six = 6 := by rfl
+
+
+expect error {{{ nonLocalMut }}}
+  def List.count (p : α → Bool) (xs : List α) : Nat := Id.run do
+    let mut found := 0
+    let rec go : List α → Id Unit
+      | [] => pure ()
+      | y :: ys => do
+        if p y then found := found + 1
+        go ys
+    return found
+message
+"`found` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intent to mutate but define `found`, consider using `let found` instead"
+end expect
+
+end Mut
+
 
 similar datatypes ForM Loops.Fake.ForM
+
+namespace Ranges
+
+deriving instance Repr for Std.Range
+
+--NB in this section, using the typical bookExample macro fails
+--because `stop` has become a reserved word due to another macro.
+-- These tests are here in support of a table.
+
+def rangeToList (r : Std.Range) : List Nat := Id.run do
+  let mut out : List Nat := []
+  for i in r do
+    out := out ++ [i]
+  pure out
+
+expect info {{{ rangeStop }}}
+  #eval [:10]
+message
+"{ start := 0, stop := 10, step := 1 }"
+end expect
+
+bookExample {{{ rangeStopContents }}}
+  rangeToList [:10]
+  ===>
+  [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+end bookExample
+
+
+expect info {{{ rangeStartStop }}}
+  #eval [2:10]
+message
+"{ start := 2, stop := 10, step := 1 }
+"
+end expect
+
+bookExample {{{ rangeStartStopContents }}}
+  rangeToList [2:10]
+  ===>
+  [2, 3, 4, 5, 6, 7, 8, 9]
+end bookExample
+
+expect info {{{ rangeStopStep }}}
+  #eval [:10:3]
+message
+"{ start := 0, stop := 10, step := 3 }"
+end expect
+
+bookExample {{{ rangeStopStepContents }}}
+  rangeToList [:10:3]
+  ===>
+  [0, 3, 6, 9]
+end bookExample
+
+expect info {{{ rangeStartStopStep }}}
+  #eval [2:10:3]
+message
+"{ start := 2, stop := 10, step := 3 }
+"
+end expect
+
+bookExample {{{ rangeStartStopStepContents }}}
+  rangeToList [2:10:3]
+  ===>
+  [2, 5, 8]
+end bookExample
+
+
+book declaration {{{ fourToEight }}}
+def fourToEight : IO Unit := do
+  for i in [4:9:2] do
+    IO.println i
+stop book declaration
+
+expect info {{{ fourToEightOut }}}
+  #eval fourToEight
+message
+"4
+6
+8"
+end expect
+
+end Ranges
+
+namespace SameDo
+
+
+book declaration {{{ sameBlock }}}
+  example : Id Unit := do
+    let mut x := 0
+    x := x + 1
+stop book declaration
+
+
+book declaration {{{ collapsedBlock }}}
+  example : Id Unit := do
+    let mut x := 0
+    do x := x + 1
+stop book declaration
+
+
+expect error {{{ letBodyNotBlock }}}
+  example : Id Unit := do
+    let mut x := 0
+    let other := do
+      x := x + 1
+    other
+message
+"`x` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intent to mutate but define `x`, consider using `let x` instead"
+end expect
+
+
+
+book declaration {{{ letBodyArrBlock }}}
+  example : Id Unit := do
+    let mut x := 0
+    let other ← do
+      x := x + 1
+    pure other
+stop book declaration
+
+
+expect error {{{ funArgNotBlock }}}
+  example : Id Unit := do
+    let mut x := 0
+    let addFour (y : Id Nat) := Id.run y + 4
+    addFour do
+      x := 5
+message
+"`x` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intent to mutate but define `x`, consider using `let x` instead"
+end expect
+
+
+book declaration {{{ ifDoSame }}}
+  example : Id Unit := do
+    let mut x := 0
+    if x > 2 then
+      x := x + 1
+stop book declaration
+
+
+book declaration {{{ ifDoDoSame }}}
+  example : Id Unit := do
+    let mut x := 0
+    if x > 2 then do
+      x := x + 1
+stop book declaration
+
+
+book declaration {{{ matchDoSame }}}
+  example : Id Unit := do
+    let mut x := 0
+    match true with
+    | true => x := x + 1
+    | false => x := 17
+stop book declaration
+
+book declaration {{{ matchDoDoSame }}}
+  example : Id Unit := do
+    let mut x := 0
+    match true with
+    | true => do
+      x := x + 1
+    | false => do
+      x := 17
+stop book declaration
+
+
+
+book declaration {{{ doForSame }}}
+  example : Id Unit := do
+    let mut x := 0
+    for y in [1:5] do
+     x := x + y
+stop book declaration
+
+
+book declaration {{{ doUnlessSame }}}
+  example : Id Unit := do
+    let mut x := 0
+    unless 1 < 5 do
+      x := x + 1
+stop book declaration
+
+end SameDo
