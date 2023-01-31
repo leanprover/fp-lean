@@ -640,6 +640,13 @@ book declaration {{{ notDefaultAdd }}}
     hPlus := Add.add
 stop book declaration
 
+expect info {{{ hPlusNatNat }}}
+  #eval HPlus.hPlus (3 : Nat) (5 : Nat)
+message
+  "8"
+end expect
+
+
 expect info {{{ plusFiveThree }}}
   #check HPlus.hPlus (5 : Nat) (3 : Nat)
 message

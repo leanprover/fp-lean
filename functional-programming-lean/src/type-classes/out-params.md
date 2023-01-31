@@ -109,10 +109,10 @@ This can be implemented using the following instance:
 ```
 With this instance, `hPlus` can be used for any addable type, like `Nat`:
 ```lean
-{{#example_in Examples/Classes.lean hPlusWorks}}
+{{#example_in Examples/Classes.lean hPlusNatNat}}
 ```
 ```output info
-{{#example_out Examples/Classes.lean hPlusWorks}}
+{{#example_out Examples/Classes.lean hPlusNatNat}}
 ```
 
 However, this instance will only be used in situations where the types of both arguments are known.
