@@ -33,7 +33,10 @@ A datatype that represents non-empty lists can be defined as a structure with a 
 ```lean
 {{#example_decl Examples/Classes.lean NonEmptyList}}
 ```
-For example, the non-empty list `idahoSpiders` (which contains some spider species native to the US state of Idaho) consists of `{{#example_out Examples/Classes.lean firstSpider}}` followed by four other spiders, for a total of five spiders.
+For example, the non-empty list `idahoSpiders` (which contains some spider species native to the US state of Idaho) consists of `{{#example_out Examples/Classes.lean firstSpider}}` followed by four other spiders, for a total of five spiders:
+```lean
+{{#example_decl Examples/Classes.lean idahoSpiders}}
+```
 
 Looking up the value at a specific index in this list with a recursive function should consider three possibilities:
  1. The index is `0`, in which case the head of the list should be returned.
