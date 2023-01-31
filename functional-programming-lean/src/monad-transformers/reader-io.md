@@ -260,7 +260,7 @@ Just as some functions work in any monad, others can work in any monad that prov
 
 ### Controlling the Display of Dotfiles
 
-Files whose names being with a dot character (`'.'`) typically represent files that should usually be hidden, such as source-control metadata and configuration files.
+Files whose names begin with a dot character (`'.'`) typically represent files that should usually be hidden, such as source-control metadata and configuration files.
 Modify `doug` with an option to show or hide filenames that begin with a dot.
 This option should be controlled with a `-a` command-line option.
 
