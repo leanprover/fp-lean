@@ -207,7 +207,7 @@ def main : IO Unit := do
   let stdout ← IO.getStdout
 
   stdout.putStrLn "How would you like to be addressed?"
-  let name := (← stdin.getLine).dropRightWhile Char.isWhitespace
+  let name := (← stdin.getLine).trim
   stdout.putStrLn s!"Hello, {name}!"
 stop book declaration
 end HelloName1
@@ -220,7 +220,7 @@ def main : IO Unit := do {
   let stdout ← IO.getStdout;
 
   stdout.putStrLn "How would you like to be addressed?";
-  let name := (← stdin.getLine).dropRightWhile Char.isWhitespace;
+  let name := (← stdin.getLine).trim;
   stdout.putStrLn s!"Hello, {name}!"
 }
 stop book declaration
@@ -233,7 +233,7 @@ def main : IO Unit := do
   let stdin ← IO.getStdin; let stdout ← IO.getStdout
 
   stdout.putStrLn "How would you like to be addressed?"
-  let name := (← stdin.getLine).dropRightWhile Char.isWhitespace
+  let name := (← stdin.getLine).trim
   stdout.putStrLn s!"Hello, {name}!"
 stop book declaration
 end HelloName3

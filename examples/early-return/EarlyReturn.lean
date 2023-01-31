@@ -1,7 +1,4 @@
 -- ANCHOR: main
-def chomp (str : String) : String :=
-  (str.dropRightWhile (·.isWhitespace)).dropWhile (·.isWhitespace)
-
 def main (argv : List String) : IO UInt32 := do
   let stdin ← IO.getStdin
   let stdout ← IO.getStdout
@@ -14,7 +11,7 @@ def main (argv : List String) : IO UInt32 := do
   stdout.putStrLn "How would you like to be addressed?"
   stdout.flush
 
-  let name := chomp (← stdin.getLine)
+  let name := (← stdin.getLine).trim
   if name == "" then
     stderr.putStrLn s!"No name provided"
     return 1
@@ -38,7 +35,7 @@ def main (argv : List String) : IO UInt32 := do
     stdout.putStrLn "How would you like to be addressed?"
     stdout.flush
 
-    let name := chomp (← stdin.getLine)
+    let name := (← stdin.getLine).trim
     if name == "" then
       stderr.putStrLn s!"No name provided"
       pure 1

@@ -29,7 +29,7 @@ The configuration is a structure:
 ```lean
 {{#example_decl Examples/MonadTransformers.lean Config}}
 ```
-This structures has default definitions for both fields.
+This structure has default definitions for both fields.
 The default `Config` uses Unicode display with no prefix.
 
 Users who invoke `doug` will need to be able to provide command-line arguments.
@@ -72,8 +72,8 @@ Thus, `dirTree` is declared `partial`:
 ```
 The call to `toEntry` is a [nested action](../hello-world/conveniences.md#nested-actions)—the parentheses are optional in positions where the arrow couldn't have any other meaning, such as `match`.
 When the filename doesn't correspond to an entry in the tree (e.g. because it is `..`), `dirTree` does nothing.
-When the filename is an ordinary file, `dirTree` calls a helper to show it with the current configuration.
-When the filename is a directory, it is shown with a helper, and then its contents are recursively shown in a new configuration in which the prefix has been extended to account for being in a new directory.
+When the filename points to an ordinary file, `dirTree` calls a helper to show it with the current configuration.
+When the filename points to a directory, it is shown with a helper, and then its contents are recursively shown in a new configuration in which the prefix has been extended to account for being in a new directory.
 
 Showing the names of files and directories is achieved with `showFileName` and `showDirName`:
 ```lean
@@ -105,9 +105,16 @@ To create a version of `IO` that is also a reader of `Config`, first define the 
 ```lean
 {{#example_decl Examples/MonadTransformers.lean ConfigIO}}
 ```
-The difference between this `Monad` instance and the one for `Reader` is that this one uses `do`-notation in the `IO` monad as the body of the function, rather than applying `next` directly to the value returned from `result`.
+The difference between this `Monad` instance and the one for `Reader` is that this one uses `do`-notation in the `IO` monad as the body of the function that `bind` returns, rather than applying `next` directly to the value returned from `result`.
 Any `IO` effects performed by `result` must occur before `next` is invoked, which is ensured by the `IO` monad's `bind` operator.
 `ConfigIO` is not universe polymorphic because the underlying `IO` type is also not universe polymorphic.
+
+Running a `ConfigIO` action involves transforming it into an `IO` action by providing it with a configuration:
+```lean
+{{#example_decl Examples/MonadTransformers.lean ConfigIORun}}
+```
+This function is not really necessary, as a caller could simply provide the configuration directly.
+However, naming the operation can make it easier to see which parts of the code are intended to run in which monad.
 
 The next step is to define a means of accessing the current configuration as part of `ConfigIO`:
 ```lean
@@ -137,7 +144,7 @@ Additionally, instead of building a new configuration and then requiring the pro
 {{#example_decl Examples/MonadTransformers.lean MedDirTree}}
 ```
 
-The new version of `main` only reverses the order of the arguments to `dirTree`:
+The new version of `main` uses `ConfigIO.run` to invoke `dirTree` with the initial configuration:
 ```lean
 {{#example_decl Examples/MonadTransformers.lean MedMain}}
 ```
@@ -152,7 +159,7 @@ However, there are also some clear downsides:
 
  1. As the program evolves and the monad requires more features, each of the basic operators such as `locally` and `currentConfig` will need to be updated
  2. Wrapping ordinary `IO` actions in `runIO` is noisy and distracts from the flow of the program
- 3. Writing monads by hand is repetitive, and the technique for adding a reader effect to another monad is a design pattern that requires documentation and communication
+ 3. Writing monads instances by hand is repetitive, and the technique for adding a reader effect to another monad is a design pattern that requires documentation and communication overhead
 
 Using a technique called _monad transformers_, all of these downsides can be addressed.
 A monad transformer takes a monad as an argument and returns a new monad.
@@ -182,16 +189,22 @@ It is an `abbrev` because `ReaderT` has many useful features defined in the stan
 Rather than taking responsibility for making these work directly for `ConfigIO`, it's easier to simply have `ConfigIO` behave identically to `ReaderT Config IO`.
 
 The manually-written `currentConfig` obtained the environment out of the reader.
-This effect is available in a generic form for all uses of `ReaderT`, under the name `read`:
+This effect can be defined in a generic form for all uses of `ReaderT`, under the name `read`:
 ```lean
 {{#example_decl Examples/MonadTransformers.lean MyReaderTread}}
 ```
+However, not every monad that provides a reader effect is built with `ReaderT`.
+The type class `MonadReader` allows any monad to provide a `read` operator:
+```lean
+{{#example_decl Examples/MonadTransformers.lean MonadReader}}
+```
+The type `ρ` is an output parameter because any given monad typically only provides a single type of environment through a reader, so automatically selecting it when the monad is known makes programs more convenient to write.
 
 The `Monad` instance for `ReaderT` is essentially the same as the `Monad` instance for `ConfigIO`, except `IO` has been replaced by some arbitrary monad argument `m`:
 ```lean
 {{#example_decl Examples/MonadTransformers.lean MonadMyReaderT}}
 ```
-Definitions such as `ReaderT` that build an extended monad out of some underlying monad are called _monad transformers_.
+
 
 The next step is to eliminate uses of `runIO`.
 When Lean encounters a mismatch in monad types, it automatically attempts to use a type class called `MonadLift` to transform the actual monad into the expected monad.
@@ -200,7 +213,7 @@ This process is similar to the use of coercions.
 ```lean
 {{#example_decl Examples/MonadTransformers.lean MyMonadLift}}
 ```
-The method `monadLift` translates from one monad to another.
+The method `monadLift` translates from the monad `m` to the monad `n`.
 The process is called "lifting" because it takes an action in the embedded monad and makes it into an action in the surrounding monad.
 In this case, it will be used to "lift" from `IO` to `ReaderT Config IO`, though the instance works for _any_ inner monad `m`:
 ```lean
@@ -218,7 +231,7 @@ The standard version is called `withReader`, and it is part of a type class call
 ```lean
 {{#example_decl Examples/MonadTransformers.lean MyMonadWithReader}}
 ```
-The environment `ρ` is an `outParam` to allow Lean to find the instance even when the type of the function being used to modify the environment is not yet known.
+Just as in `MonadReader`, the environment `ρ` is an `outParam`.
 The `withReader` operation is exported, so that it doesn't need to be written with the type class name before it:
 ```lean
 {{#example_decl Examples/MonadTransformers.lean exportWithReader}}
@@ -227,11 +240,6 @@ The instance for `ReaderT` is essentially the same as the definition of `locally
 ```lean
 {{#example_decl Examples/MonadTransformers.lean ReaderTWithReader}}
 ```
-
-The `WithReader` type class exists because `monadLift` is not capable of lifting `withReader`.
-This is because `monadLift` expects to work on a single monadic action, but `withReader` _changes_ a monadic action.
-`IO` actions can automatically be lifted to `ReaderT ρ IO` actions, but lifting `withReader` requires the ability to go _backwards_, because the underlying action being transformed will also have more layers. TODO this sentence is really unclear - figure out how to discuss "negative occurrence"
-The type classes are set up such that `withReader` will be lifted as much as possible. TODO vague - fix me
 
 With these definitions in place, the new version of `dirTree` can be written:
 ```lean

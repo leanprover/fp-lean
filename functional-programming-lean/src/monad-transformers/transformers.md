@@ -1,17 +1,17 @@
 # A Monad Construction Kit
 
-Monad transformers add a new effect to an existing monad.
-Many interesting monads can be built from the composition of existing monad transformers, removing the obligation to define the monad from scratch.
-A monad transformer consists of the following:
+`ReaderT` is far from the only useful monad transformer.
+This section describes a number of additional transformers.
+Each monad transformer consists of the following:
  1. A definition or datatype `T` that takes a monad as an argument.
-    It should have a type like `(Type u → Type v) → Type u → Type (max u v)`, though it may accept additional arguments prior to the monad.
+    It should have a type like `(Type u → Type v) → Type u → Type v`, though it may accept additional arguments prior to the monad.
  2. A `Monad` instance for `T m` that relies on an instance of `Monad m`. This enables the transformed monad to be used as a monad.
  3. A `MonadLift` instance that translates actions of type `m α` into actions of type `T m α`, for arbitrary monads `m`. This enables actions from the underlying monad to be used in the transformed monad.
 
 Furthermore, the `Monad` instance for the transformer should obey the contract for `Monad`, at least if the underlying `Monad` instance does.
 In addition, `monadLift (pure x)` should be equivalent to `pure x` in the transformed monad, and `monadLift` should distribute over `bind` so that `monadLift (x >>= f)` is the same as `monadLift x >>= fun y => monadLift (f y)`.
 
-Many monad transformers additionally define type classes that describe the actual effects available in the monad.
+Many monad transformers additionally define type classes in the style of `MonadReader` that describe the actual effects available in the monad.
 This can provide more flexibility: it allows programs to be written that rely only on an interface, and don't constrain the underlying monad to be implemented by a given transformer.
 The type classes are a way for programs to express their requirements, and monad transformers are a convenient way to meet these requirements.
 
@@ -51,7 +51,7 @@ The main function, `interact`, invokes `getUserInfo` in a purely `IO` context, w
 Writing the monad instance reveals a difficulty.
 Based on the types, `pure` should use `pure` from the underlying monad `m` together with `some`.
 Just as `bind` for `Option` branches on the first argument, propagating `none`, `bind` for `OptionT` should run the monadic action that makes up the first argument, branch on the result, and then propagate `none`.
-These concerns yield the following definition, which Lean does not accept:
+Following this sketch yields the following definition, which Lean does not accept:
 ```lean
 {{#example_in Examples/MonadTransformers/Defs.lean firstMonadOptionT}}
 ```
@@ -65,9 +65,9 @@ One solution is to use type annotations to guide Lean to the correct `Monad` ins
 ```lean
 {{#example_decl Examples/MonadTransformers/Defs.lean MonadOptionTAnnots}}
 ```
-While this solution works, the code becomes a bit noise.
+While this solution works, it is inelegant and the code becomes a bit noisy.
 
-An alternative solution is to define functions whose type signatures guides Lean to the correct instances.
+An alternative solution is to define functions whose type signatures guide Lean to the correct instances.
 In fact, `OptionT` could have been defined as a structure:
 ```lean
 {{#example_decl Examples/MonadTransformers/Defs.lean OptionTStructure}}
@@ -273,7 +273,14 @@ These versions of the type classes use the word `Of` in the name.
 For example, `MonadStateOf` is like `MonadState`, but without an `outParam` modifier.
 
 Similarly, there are versions of the type class methods that accept the type of the extra information as an _explicit_, rather than implicit, argument.
-For `MonadStateOf`, there are `{{#example_in Examples/MonadTransformers/Defs.lean getTheType}}` with type `{{#example_out Examples/MonadTransformers/Defs.lean getTheType}}` and `{{#example_in Examples/MonadTransformers/Defs.lean modifyTheType}}` with type `{{#example_out Examples/MonadTransformers/Defs.lean modifyTheType}}`.
+For `MonadStateOf`, there are `{{#example_in Examples/MonadTransformers/Defs.lean getTheType}}` with type
+```lean
+{{#example_out Examples/MonadTransformers/Defs.lean getTheType}}
+```
+and `{{#example_in Examples/MonadTransformers/Defs.lean modifyTheType}}` with type
+```lean
+{{#example_out Examples/MonadTransformers/Defs.lean modifyTheType}}
+```
 There is no `setThe` because the type of the new state is enough to decide which surrounding state monad transformer to use.
 
 In the Lean standard library, there are instances of the non-`Of` versions of the classes defined in terms of the instances of the versions with `Of`.

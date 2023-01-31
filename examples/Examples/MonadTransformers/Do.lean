@@ -157,6 +157,21 @@ book declaration {{{ ListForM }}}
     forM := List.forM
 stop book declaration
 
+  open StEx (vowels consonants Err LetterCounts)
+
+
+book declaration {{{ countLettersForM }}}
+  def countLetters (str : String) : StateT LetterCounts (Except Err) Unit :=
+    forM str.toList fun c => do
+      if c.isAlpha then
+        if vowels.contains c then
+          modify fun st => {st with vowels := st.vowels + 1}
+        else if consonants.contains c then
+          modify fun st => {st with consonants := st.consonants + 1}
+      else throw (.notALetter c)
+stop book declaration
+
+
 
 end Fake
 
@@ -246,7 +261,7 @@ end expect
 
 book declaration {{{ parallelLoop }}}
 def parallelLoop := do
-  for x in ["currant", "gooseberry", "rowan"], y in [4, 5, 6, 7] do
+  for x in ["currant", "gooseberry", "rowan"], y in [4:8] do
     IO.println (x, y)
 stop book declaration
 

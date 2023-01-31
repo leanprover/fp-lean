@@ -30,7 +30,7 @@ The converse of `count` that counts entries that don't satisfy the monadic check
 
 Understanding single-branched `if` and `unless` does not require thinking about monad transformers.
 They simply replace the missing branch with `pure ()`.
-The remaining extensions in this section, however, require Lean to automatically rewrite the `do`-block to add a local transformer on top of the requested monad.
+The remaining extensions in this section, however, require Lean to automatically rewrite the `do`-block to add a local transformer on top of the monad that the `do`-block is written in.
 
 ## Early Return
 
@@ -127,6 +127,14 @@ The instance for `List` allows `m` to be any monad, it sets `γ` to be `List α`
 ```lean
 {{#example_decl Examples/MonadTransformers/Do.lean ListForM}}
 ```
+The [function `doList` from `doug`](reader-io.md#implementation) is `forM` for lists.
+Because `forM` is intended to be used in `do`-blocks, it uses `Monad` rather than `Applicative`.
+`forM` can be used to make `countLetters` much shorter:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean countLettersForM}}
+```
+
+
 The instance for `Many` is very similar:
 ```lean
 {{#example_decl Examples/MonadTransformers/Do.lean ManyForM}}
@@ -149,7 +157,7 @@ Running `IO.println` on each number less than five can be accomplished with `for
 {{#example_out Examples/MonadTransformers/Do.lean AllLessThanForMRun}}
 ```
 
-An example `ForM` instance that works only in a particular monad one that loops over the lines read from an IO stream, such as standard input:
+An example `ForM` instance that works only in a particular monad is one that loops over the lines read from an IO stream, such as standard input:
 ```lean
 {{#include ../../../examples/formio/ForMIO.lean:LinesOf}}
 ```
@@ -197,7 +205,7 @@ This same function can also be written as follows:
 ```lean
 {{#example_decl Examples/MonadTransformers/Do.lean countToThree}}
 ```
-Testing it reveals it works just like the prior version:
+Testing it reveals that it works just like the prior version:
 ```lean
 {{#example_in Examples/MonadTransformers/Do.lean countSevenFor}}
 ```
@@ -213,9 +221,10 @@ To enable `for` loops based on a `ForM` instance, add something like the followi
 {{#example_decl Examples/MonadTransformers/Do.lean ForInIOAllLessThan}}
 ```
 Note, however, that this adapter only works for `ForM` instances that keep the monad unconstrained, as most of them do.
+This is because the adapter uses `StateT` and `ExceptT`, rather than the underlying monad.
 
 Early return is supported in `for` loops.
-The translation of `do` blocks with early return into a use of an exception monad transformer applies equally well underneath `forM` as the earlier use of `OptionT` to halt iteration.
+The translation of `do` blocks with early return into a use of an exception monad transformer applies equally well underneath `forM` as the earlier use of `OptionT` to halt iteration does.
 This version of `List.find?` makes use of both:
 ```lean
 {{#example_decl Examples/MonadTransformers/Do.lean findHuh}}
@@ -231,12 +240,14 @@ A `Range` is a structure that consists of a starting number, an ending number, a
 They represent a sequence of natural numbers, from the starting number to the ending number, increasing by the step each time.
 Lean has special syntax to construct ranges, consisting of square brackets, numbers, and colons that comes in four varieties.
 The stopping point must always be provided, while the start and the step are optional, defaulting to `0` and `1`, respectively:
-| Expression | Start | Stop | Step | As List |
-|------------|------------|------------|---|
+
+| Expression | Start      | Stop       | Step | As List |
+|------------|------------|------------|------|---------|
 | `[:10]` | `0` | `10` | `1` | `{{#example_out Examples/MonadTransformers/Do.lean rangeStopContents}}` |
 | `[2:10]` | `2` | `10` | `1` | `{{#example_out Examples/MonadTransformers/Do.lean rangeStartStopContents}}` |
 | `[:10:3]` | `0` | `10` | `3` | `{{#example_out Examples/MonadTransformers/Do.lean rangeStopStepContents}}` |
 | `[2:10:3]` | `2` | `10` | `3` | `{{#example_out Examples/MonadTransformers/Do.lean rangeStartStopStepContents}}` |
+
 Note that the starting number _is_ included in the range, while the stopping numbers is not.
 All three arguments are `Nat`s, which means that ranges cannot count down—a range where the starting number is greater than or equal to the stopping number simply contains no numbers.
 
@@ -378,4 +389,9 @@ The imperative features provided by Lean's `do`-notation allow many programs to 
 This resemblance is very convenient when translating an imperative algorithm into Lean, and some tasks are just most naturally thought of imperatively.
 The introduction of monads and monad transformers enables imperative programs to be written in purely functional languages, and `do`-notation as a specialized syntax for monads (potentially locally transformed) allows functional programmers to have the best of both worlds: the strong reasoning principles afforded by immutability and a tight control over available effects through the type system are combined with syntax and libraries that allow programs that use effects to look familiar and be easy to read.
 Monads and monad transformers allow functional versus imperative programming to be a matter of perspective.
+
+
+## Exercises
+
+ * Rewrite `doug` to use `for` instead of the `doList` function. Are there other opportunities to use the features introduced in this section to improve the code? If so, use them!
 

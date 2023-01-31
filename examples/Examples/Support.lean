@@ -113,8 +113,7 @@ syntax withPosition("expect" "error" colGt term "message" str "end" "expect") : 
 -- Compare info and errors modulo leading and trailing whitespace to work around
 -- #eval always sticking a \n at the end
 def messagesMatch (msg1 msg2 : String) : Bool :=
-  let trim str := str.dropWhile (·.isWhitespace) |>.dropRightWhile (·.isWhitespace)
-  trim msg1 == trim msg2
+  msg1.trim == msg2.trim
 
 def List.containsBy (xs : List α) (pred : α → Bool) : Bool :=
   xs.find? pred |>.isSome

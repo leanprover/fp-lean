@@ -27,7 +27,8 @@ When run on input for which the program does not throw an exception, both monads
 ```
 However, there is a subtle difference between these return values.
 In the case of `M1`, the outermost constructor is `Except.ok`, and it contains a pair of the unit constructor with the final state.
-In the case of `M2`, the outermost constructor is the pair, which contains `Except.ok` applied only to the unit constructor, with the final state outside of `Except.ok`.
+In the case of `M2`, the outermost constructor is the pair, which contains `Except.ok` applied only to the unit constructor.
+The final state is outside of `Except.ok`.
 In both cases, the program returns the counts of vowels and consonants.
 
 On the other hand, only one monad yields a count of vowels and consonants when the string causes an exception to be thrown.
@@ -46,8 +47,8 @@ Using `M2`, the exception value is paired with the state as it was at the time t
 {{#example_out Examples/MonadTransformers/Defs.lean countLettersM2Error}}
 ```
 
-While it might be tempting to think that `M2` is superior to `M1` because it provides more information that might be useful when debugging, this is not true.
-The same program might compute _different_ answers in `M1` than it does in `M2`, and there's no principled reason to say that one of them is necessarily better than the other.
+It might be tempting to think that `M2` is superior to `M1` because it provides more information that might be useful when debugging.
+The same program might compute _different_ answers in `M1` than it does in `M2`, and there's no principled reason to say that one of these answers is necessarily better than the other.
 This can be seen by adding a step to the program that handles exceptions:
 ```lean
 {{#example_decl Examples/MonadTransformers/Defs.lean countWithFallback}}
@@ -95,7 +96,7 @@ When an exception is thrown in `M2`, it is accompanied by a state.
 
 In the jargon of functional programming, two monad transformers are said to _commute_ if they can be re-ordered without the meaning of the program changing.
 The fact that the result of the program can differ when `StateT` and `ExceptT` are reordered means that state and exceptions do not commute.
-In general, monad transformers don't commute.
+In general, monad transformers should not be expected to commute.
 
 Even though not all monad transformers commute, some do.
 For example, two uses of `StateT` can be re-ordered.
@@ -114,5 +115,5 @@ With great expressive power comes the responsibility to check that what's being 
 
  * Check that `ReaderT` and `StateT` commute by expanding their definitions and reasoning about the resulting types.
  * Do `ReaderT` and `ExceptT` commute? Check your answer by expanding their definitions and reasoning about the resulting types.
- * Construct a monad transformer `ManyT` based on the definition of `Many`, with a suitable `Alternative` instance.
+ * Construct a monad transformer `ManyT` based on the definition of `Many`, with a suitable `Alternative` instance. Check that it satisfies the `Monad` contract.
  * Does `ManyT` commute with `StateT`? If so, check your answer by expanding definitions and reasoning about the resulting types. If not, write a program in `ManyT (StateT σ Id)` and a program in `StateT σ (ManyT Id)`. Each program should be one that makes more sense for the given ordering of monad transformers.

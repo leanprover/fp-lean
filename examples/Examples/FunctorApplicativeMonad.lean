@@ -979,8 +979,7 @@ stop book declaration
 
 book declaration {{{ checkYearIsNat }}}
   def checkYearIsNat (year : String) : Validate (Field × String) Nat :=
-    let noWS := (year.dropWhile Char.isWhitespace).dropRightWhile Char.isWhitespace
-    match noWS.toNat? with
+    match year.trim.toNat? with
     | none => reportError "birth year" "Must be digits"
     | some n => pure n
 stop book declaration

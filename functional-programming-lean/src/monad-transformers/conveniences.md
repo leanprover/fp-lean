@@ -3,7 +3,7 @@
 ## Pipe Operators
 
 Functions are normally written before their arguments.
-When reading a program from left to right, this promotes a view in which the function's _output_ is paramount—the function has a goal to achieve, a value to compute, and it receives arguments to support it in this process.
+When reading a program from left to right, this promotes a view in which the function's _output_ is paramount—the function has a goal to achieve (that is, a value to compute), and it receives arguments to support it in this process.
 But some programs are easier to understand in terms of an input that is successively refined to produce the output.
 For these situations, Lean provides a _pipeline_ operator which is similar to the that provided by F#.
 Pipeline operators are useful in the same situations as Clojure's threading macros.

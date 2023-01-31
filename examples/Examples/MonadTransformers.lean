@@ -103,7 +103,7 @@ stop book declaration
 
 book declaration {{{ configFromArgs }}}
   def configFromArgs : List String → Option Config
-    | [] => some {}
+    | [] => some {} -- both fields default
     | ["--ascii"] => some {useASCII := true}
     | _ => none
 stop book declaration
@@ -198,6 +198,11 @@ book declaration {{{ ConfigIO }}}
 stop book declaration
 
 
+book declaration {{{ ConfigIORun }}}
+  def ConfigIO.run (action : ConfigIO α) (cfg : Config) : IO α :=
+    action cfg
+stop book declaration
+
 book declaration {{{ currentConfig }}}
   def currentConfig : ConfigIO Config :=
     fun cfg => pure cfg
@@ -244,7 +249,7 @@ book declaration {{{ MedMain }}}
   def main (args : List String) : IO UInt32 := do
       match configFromArgs args with
       | some config =>
-        dirTree (← IO.currentDir) config
+        (dirTree (← IO.currentDir)).run config
         pure 0
       | none =>
         IO.eprintln s!"Didn't understand argument(s) {" ".separate args}\n"
@@ -282,10 +287,25 @@ book declaration {{{ MonadMyReaderT }}}
       next v env
 stop book declaration
 
+namespace R
 book declaration {{{ MyReaderTread }}}
  def read [Monad m] : ReaderT ρ m ρ :=
     fun env => pure env
 stop book declaration
+end R
+
+
+book declaration {{{ MonadReader }}}
+  class MonadReader (ρ : outParam (Type u)) (m : Type u → Type v) : Type (max (u + 1) v) where
+    read : m ρ
+
+  instance [Monad m] : MonadReader ρ (ReaderT ρ m) where
+    read := fun env => pure env
+
+  export MonadReader (read)
+stop book declaration
+
+
 
 
 book declaration {{{ ReaderTConfigIO }}}

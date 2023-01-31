@@ -220,7 +220,7 @@ While this function's type signature makes it suitable to be used as `bind` in a
 They are described [in the section that describes the `Applicative` contract](applicative-contract.md#additional-stipulations).
 
 To check that the birth year is a number, a built-in function called `String.toNat? : String → Option Nat` is useful.
-It's most user-friendly to eliminate leading and trailing whitespace first:
+It's most user-friendly to eliminate leading and trailing whitespace first using `String.trim`:
 ```lean
 {{#example_decl Examples/FunctorApplicativeMonad.lean checkYearIsNat}}
 ```

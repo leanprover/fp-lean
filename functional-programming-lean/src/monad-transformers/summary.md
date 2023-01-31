@@ -6,9 +6,12 @@ When writing a monad from scratch, there are design patterns that tend to descri
 Reader effects are added by having the monad's type be a function from the reader's environment, state effects are added by including a function from the initial state to the value paired with the final state, failure or exceptions are added by including a sum type in the return type, and logging or other output is added by including a product type in the return type.
 Existing monads can be made part of the return type as well, allowing their effects to be included in the new monad.
 
-These design patterns are made precise by defining _monad transformers_, which add an effect to some base monad.
+These design patterns are made into a library of reusable software components by defining _monad transformers_, which add an effect to some base monad.
 Monad transformers take the simpler monad types as arguments, returning the enhanced monad types.
-Additionally, monad transformers include a `Monad` instance that uses the fact that the underlying monad is in fact a monad to implement the monad operations for the enhanced type, as well as a `MonadLift` instance that explains how to execute an action from the underlying monad in the enhanced monad.
+At a minimum, a monad transformer should provide the following instances:
+ 1. A `Monad` instance that assumes the inner type is already a monad
+ 2. A `MonadLift` instance to translate an action from the inner monad to the transformed monad
+ 
 Monad transformers may be implemented as polymorphic structures or inductive datatypes, but they are most often implemented as functions from the underlying monad type to the enhanced monad type.
 
 ## Type Classes for Effects

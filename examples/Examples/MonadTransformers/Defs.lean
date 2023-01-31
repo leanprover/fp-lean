@@ -101,9 +101,9 @@ equational steps {{{ OptionTFirstLaw }}}
   }=
   OptionT.mk
     (pure (some v) >>= fun y =>
-    match y with
-    | none => pure none
-    | some x => f x)
+      match y with
+      | none => pure none
+      | some x => f x)
   ={
     -- Using the first monad rule for `m`
     by simp [LawfulMonad.pure_bind]
@@ -146,7 +146,7 @@ stop book declaration
 book declaration {{{ getSomeInput }}}
   def getSomeInput : OptionT IO String := do
     let input ← (← IO.getStdin).getLine
-    let trimmed := (input.dropWhile (·.isWhitespace)).dropRightWhile (·.isWhitespace)
+    let trimmed := input.trim
     if trimmed == "" then
       failure
     else pure trimmed
@@ -204,7 +204,7 @@ expect error {{{ MonadMissingUni }}}
       | .ok x => next x
 message
 "stuck at solving universe constraint
-  max ?u.12303 ?u.12304 =?= u
+  max ?u.12268 ?u.12269 =?= u
 while trying to unify
   ExceptT ε m α✝
 with
@@ -452,7 +452,9 @@ end expect
 
 
 book declaration {{{ countWithFallback }}}
-  def countWithFallback [Monad m] [MonadState LetterCounts m] [MonadExcept Err m] (str : String) : m Unit :=
+  def countWithFallback
+      [Monad m] [MonadState LetterCounts m] [MonadExcept Err m]
+      (str : String) : m Unit :=
     try
       countLetters str
     catch _ =>
