@@ -118,6 +118,25 @@ def messagesMatch (msg1 msg2 : String) : Bool :=
 def List.containsBy (xs : List α) (pred : α → Bool) : Bool :=
   xs.find? pred |>.isSome
 
+-- Locally modify a state for the scope of an action, undoing the modification later
+def withSavedState [Monad m] [MonadStateOf σ m] [MonadFinally m] (f : σ → σ) (act : m α) := do
+  let saved ← get
+  set (f saved)
+  try
+    act
+  finally
+    set saved
+
+def forgetMessages (st : Lean.Elab.Command.State) : Lean.Elab.Command.State :=
+  {st with messages := Lean.MessageLog.empty}
+
+def withEmptyMessageLog
+    [Monad m]
+    [MonadStateOf Lean.Elab.Command.State m]
+    [MonadFinally m] :
+    m α → m α :=
+  withSavedState forgetMessages
+
 macro_rules
   | `(expect error {{{ $name:ident }}} $expr:term message $msg:str end expect) =>
     `(expect error {{{ $name }}} def x := $expr message $msg end expect)
@@ -130,20 +149,16 @@ elab_rules : command
   | `(expect error $cmd:command message $msg:str end expect) =>
     open Lean.Elab.Command in
     open Lean in
-    open Lean.Meta in do
-      let savedState <- get
-      set { savedState with messages := MessageLog.empty }
+    open Lean.Meta in
+    withEmptyMessageLog do
       let desiredError := msg.getString
-      try
-        elabCommand cmd
-        let afterState <- get
-        let newMessages := afterState.messages.msgs.toList
-        let newErrors := newMessages.filter (·.severity == MessageSeverity.error)
-        let errStrings <- newErrors.mapM (·.data.toString)
-        unless errStrings.containsBy (messagesMatch desiredError) do
-          throwError "The desired error {desiredError} was not found in\n{errStrings}"
-      finally
-        set savedState
+      elabCommand cmd
+      let afterState <- get
+      let newMessages := afterState.messages.msgs.toList
+      let newErrors := newMessages.filter (·.severity == MessageSeverity.error)
+      let errStrings <- newErrors.mapM (·.data.toString)
+      unless errStrings.containsBy (messagesMatch desiredError) do
+        throwError "The desired error {desiredError} was not found in\n{errStrings}"
 
 expect error {{{ errorEx1 }}}
   def x : Nat := "I am not a Nat"
@@ -168,20 +183,16 @@ elab_rules : command
   | `(expect info $cmd:command message $msg:str end expect) =>
     open Lean.Elab.Command in
     open Lean in
-    open Lean.Meta in do
-      let savedState <- get
-      set { savedState with messages := MessageLog.empty }
+    open Lean.Meta in
+    withEmptyMessageLog do
       let desiredInfo := msg.getString
-      try
-        elabCommand cmd
-        let afterState <- get
-        let newMessages := afterState.messages.msgs.toList
-        let newInfos := newMessages.filter fun m => m.severity == MessageSeverity.information
-        let errStrings <- newInfos.mapM fun err => err.data.toString
-        unless errStrings.containsBy (messagesMatch desiredInfo) do
-          throwError "The desired info {repr desiredInfo} was not found in\n{List.map repr errStrings}"
-      finally
-        set savedState
+      elabCommand cmd
+      let afterState <- get
+      let newMessages := afterState.messages.msgs.toList
+      let newInfos := newMessages.filter fun m => m.severity == MessageSeverity.information
+      let errStrings <- newInfos.mapM fun err => err.data.toString
+      unless errStrings.containsBy (messagesMatch desiredInfo) do
+        throwError "The desired info {repr desiredInfo} was not found in\n{List.map repr errStrings}"
 
 expect info {{{ infoEx1 }}}
   #check 1 + 2
@@ -205,6 +216,7 @@ message
 med dig
 "
 end expect
+
 
 
 syntax withPosition("evaluation" "steps" "{{{" ws ident ws "}}}" sepBy1(colGt term, "===>") "end" "evaluation" "steps"): command
@@ -232,7 +244,6 @@ evaluation steps {{{ foo }}}
   ===>
   4
 end evaluation steps
-
 
 
 syntax withPosition("evaluation" "steps" ":" term "{{{" ws ident ws "}}}" sepBy1(colGt term, "===>") "end" "evaluation" "steps"): command
@@ -275,12 +286,19 @@ inductive Steps where
   | done : Lean.Syntax → Steps
   | cons : Lean.Syntax → Option Lean.Syntax → Steps → Steps
 
-def Steps.process [Monad m] (forStep : Lean.Syntax × Option Lean.Syntax × Lean.Syntax → m Unit) : Steps → m Unit
+def Steps.forM [Monad m] (todo : Steps) (forStep : Lean.Syntax × Option Lean.Syntax × Lean.Syntax → m Unit) : m Unit :=
+  match todo with
   | .done _ => pure ()
   | .cons e1 why (.done e2) => forStep (e1, why, e2)
   | .cons e1 why (.cons e2 why2 more) => do
     forStep (e1, why, e2)
-    process forStep (.cons e2 why2 more)
+    forM (.cons e2 why2 more) forStep
+
+instance : ForM m Steps (Lean.Syntax × Option Lean.Syntax × Lean.Syntax) where
+  forM := Steps.forM
+
+instance : ForIn m Steps (Lean.Syntax × Option Lean.Syntax × Lean.Syntax) where
+  forIn := ForM.forIn
 
 partial def getSteps : Lean.Syntax → Lean.Elab.Command.CommandElabM Steps
   | `(eqSteps|$t:term) => pure (.done t)
@@ -290,58 +308,43 @@ partial def getSteps : Lean.Syntax → Lean.Elab.Command.CommandElabM Steps
     return (.cons t (some why) (← getSteps more))
   | other => throwError "Invalid equational steps {other}"
 
+open Lean in
+def elabEquationalSteps (name : TSyntax `ident) (stepStx : TSyntax `eqSteps) (ty : Option (TSyntax `term)) :=
+    open Lean.Elab.Command in
+    open Lean.Elab.Term in
+    open Lean.Meta in do
+      let expected ← match ty with
+        | none => pure none
+        | some t => liftTermElabM <| withDeclName name.raw.getId (elabType t)
+      let exprs ← getSteps stepStx
+      if let .done e := exprs then liftTermElabM <| withDeclName name.raw.getId do
+        let _ ← elabTerm e none
+      for (e1, why, e2) in exprs do
+        liftTermElabM <| withDeclName name.raw.getId do
+          let x ← elabTermEnsuringType e1 expected
+          let y ← elabTermEnsuringType e2 expected
+          synthesizeSyntheticMVarsNoPostponing
+          match why with
+          | none =>
+            unless (← isDefEq x y) do
+              throwErrorAt e1 "Example equational step {y} ===> {x} is incorrect\n----------\n\t {(← whnf y)}\n ≠\n\t {(← whnf x)}\n----------\n\t {(← reduceAll y)}\n ≠\n\t {(← reduceAll x)}"
+          | some p =>
+            let e1' : TSyntax `term := ⟨e1⟩
+            let e2' : TSyntax `term := ⟨e2⟩
+            let stepTypeSyntax ←
+              match ty with
+              | none => `($e1' = $e2')
+              | some t => `(($e1' : $t) = ($e2' : $t))
+            let eq ← elabTermEnsuringType stepTypeSyntax (some (mkSort Level.zero))
+            let _ ← elabTermEnsuringType p (some eq)
+            synthesizeSyntheticMVarsNoPostponing
+
+
 elab_rules : command
   | `(equational steps {{{ $name }}} $stepStx:eqSteps stop equational steps) =>
-    open Lean.Elab.Command in
-    open Lean.Elab.Term in
-    open Lean in
-    open Lean.Meta in do
-      let exprs ← getSteps stepStx
-      if let .done e := exprs then liftTermElabM <| withDeclName name.raw.getId do
-        let _ ← elabTerm e none
-      exprs.process fun
-        | (e1, why, e2) =>
-          liftTermElabM <| withDeclName name.raw.getId do
-            let x ← elabTerm e1 none
-            let y ← elabTerm e2 none
-            synthesizeSyntheticMVarsNoPostponing
-            match why with
-            | none =>
-              unless (← isDefEq x y) do
-                throwError "Example equational step {y} ===> {x} is incorrect\n----------\n\t {(← whnf y)}\n ≠\n\t {(← whnf x)}\n----------\n\t {(← reduceAll y)}\n ≠\n\t {(← reduceAll x)}"
-            | some p =>
-              let e1' : TSyntax `term := ⟨e1⟩
-              let e2' : TSyntax `term := ⟨e2⟩
-              let eq ← elabTermEnsuringType (← `($e1' = $e2')) (some (mkSort Level.zero))
-              let _ ← elabTermEnsuringType p (some eq)
-              synthesizeSyntheticMVarsNoPostponing
+    elabEquationalSteps name stepStx none
   | `(equational steps : $ty {{{ $name }}} $stepStx:eqSteps stop equational steps) =>
-    open Lean.Elab.Command in
-    open Lean.Elab.Term in
-    open Lean in
-    open Lean.Meta in do
-      let expected ← liftTermElabM <| withDeclName name.raw.getId (elabType ty)
-      let exprs ← getSteps stepStx
-      if let .done e := exprs then liftTermElabM <| withDeclName name.raw.getId do
-        let _ ← elabTerm e none
-      exprs.process fun
-        | (e1, why, e2) =>
-          liftTermElabM <| withDeclName name.raw.getId do
-            let x ← elabTermEnsuringType e1 expected
-            let y ← elabTermEnsuringType e2 expected
-            synthesizeSyntheticMVarsNoPostponing
-            match why with
-            | none =>
-              unless (← isDefEq x y) do
-                throwErrorAt e1 "Example equational step {y} ===> {x} is incorrect\n----------\n\t {(← whnf y)}\n ≠\n\t {(← whnf x)}\n----------\n\t {(← reduceAll y)}\n ≠\n\t {(← reduceAll x)}"
-            | some p =>
-              let e1' : TSyntax `term := ⟨e1⟩
-              let e2' : TSyntax `term := ⟨e2⟩
-              let eq ← elabTermEnsuringType (← `(($e1' : $ty) = ($e2' : $ty))) (some (mkSort Level.zero))
-              let _ ← elabTermEnsuringType p (some eq)
-              synthesizeSyntheticMVarsNoPostponing
-
-
+    elabEquationalSteps name stepStx (some ty)
 
 equational steps {{{ foo }}}
   1 + 1
