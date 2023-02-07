@@ -51,5 +51,7 @@
   - [More `do` Features](monad-transformers/do.md)
   - [Additional Conveniences](monad-transformers/conveniences.md)
   - [Summary](monad-transformers/summary.md)
-- [Programming with Dependent Types]()
+- [Programming with Dependent Types](dependent-types.md)
+  - [Indexed Families](dependent-types/indexed-families.md)
+  - [Indices, Parameters, and Universes](dependent-types/indices-parameters-universes.md)
 - [From Programming to Proving]()
