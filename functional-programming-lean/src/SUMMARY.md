@@ -53,5 +53,6 @@
   - [Summary](monad-transformers/summary.md)
 - [Programming with Dependent Types](dependent-types.md)
   - [Indexed Families](dependent-types/indexed-families.md)
+  - [Worked Example: Typed Queries](dependent-types/typed-queries.md)
   - [Indices, Parameters, and Universes](dependent-types/indices-parameters-universes.md)
 - [From Programming to Proving]()
