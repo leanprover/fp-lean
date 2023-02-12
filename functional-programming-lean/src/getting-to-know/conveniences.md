@@ -275,7 +275,6 @@ In that particular example, six non-whitespace characters are used to introduce 
 For these simple cases, Lean provides a shorthand.
 In an expression surrounded by parentheses, a centered dot character `·` can stand for an argument, and the expression inside the parentheses becomes the function's body.
 That particular function can also be written `{{#example_eval Examples/Intro.lean incrSteps 1}}`.
-Type the centered dot using `\cdot`.
 
 The centered dot always creates a function out of the _closest_ surrounding set of parentheses.
 For instance, `{{#example_eval Examples/Intro.lean funPair 0}}` is a function that returns a pair of numbers, while `{{#example_eval Examples/Intro.lean pairFun 0}}` is a pair of a function and a number.
