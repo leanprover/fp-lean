@@ -182,12 +182,12 @@ The function `sumAndFindEvens` computes the sum of a list while remembering the 
 This function is a simplified example of a common pattern.
 Many programs need to traverse a data structure once, while both computing a main result and accumulating some kind of tertiary extra result.
 One example of this is logging: a program that is an `IO` action can always log to a file on disk, but because the disk is outside of the mathematical world of Lean functions, it becomes much more difficult to prove things about logs based on `IO`.
-Another example is a function that computes the sum of all the nodes in a tree with a preorder traversal, while simultaneously recording each nodes visited:
+Another example is a function that computes the sum of all the nodes in a tree with an inorder traversal, while simultaneously recording each nodes visited:
 ```lean
-{{#example_decl Examples/Monads.lean preorderSum}}
+{{#example_decl Examples/Monads.lean inorderSum}}
 ```
 
-Both `sumAndFindEvens` and `preorderSum` have a common repetitive structure.
+Both `sumAndFindEvens` and `inorderSum` have a common repetitive structure.
 Each step of computation returns a pair that consists of a list of data that have been saved along with the primary result.
 The lists are then appended, and the primary result is computed and paired with the appended lists.
 The common structure becomes more apparent with a small rewrite of `sumAndFindEvens` that more cleanly separates the concerns of saving even numbers and computing the sum:
@@ -218,7 +218,7 @@ This has no interesting return value associated with it, so it returns `Unit`:
 ```lean
 {{#example_decl Examples/Monads.lean sumAndFindEvensAndThen}}
 
-{{#example_decl Examples/Monads.lean preorderSumAndThen}}
+{{#example_decl Examples/Monads.lean inorderSumAndThen}}
 ```
 And, once again, the infix operator helps put focus on the correct steps:
 ```lean
@@ -229,31 +229,31 @@ And, once again, the infix operator helps put focus on the correct steps:
 
 ## Numbering Tree Nodes
 
-A _preorder numbering_ of a tree associates each data point in the tree with the step it would be visited at in a preorder traversal of the tree.
+An _inorder numbering_ of a tree associates each data point in the tree with the step it would be visited at in an inorder traversal of the tree.
 For example, consider `aTree`:
 ```lean
 {{#example_decl Examples/Monads.lean aTree}}
 ```
-Its preorder numbering is:
+Its inorder numbering is:
 ```output info
 {{#example_out Examples/Monads.lean numberATree}}
 ```
 
-Trees are most naturally processed with recursive functions, but the usual pattern of recursion on trees makes it difficult to compute a preorder numbering.
+Trees are most naturally processed with recursive functions, but the usual pattern of recursion on trees makes it difficult to compute an inorder numbering.
 This is because the nodes in the right subtree should be numbered starting from the highest number assigned in the left subtree.
 In an imperative language, this issue can be worked around by using a mutable variable that contains the next number to be assigned.
-The following Python program computes a preorder numbering using a mutable variable:
+The following Python program computes an inorder numbering using a mutable variable:
 ```python
-{{#include ../../examples/preorder_python/preordernumbering.py:code}}
+{{#include ../../examples/inorder_python/inordernumbering.py:code}}
 ```
 The numbering of the Python equivalent of `aTree` is:
 ```python
-{{#include ../../examples/preorder_python/preordernumbering.py:a_tree}}
+{{#include ../../examples/inorder_python/inordernumbering.py:a_tree}}
 ```
 and its numbering is:
 ```
->>> {{#command {preorder_python} {preorderpy} {python preordernumbering.py} {number(a_tree)}}}
-{{#command_out {preorderpy} {python preordernumbering.py} {preorder_python/expected} }}
+>>> {{#command {inorder_python} {inorderpy} {python inordernumbering.py} {number(a_tree)}}}
+{{#command_out {inorderpy} {python inordernumbering.py} {inorder_python/expected} }}
 ```
 
 

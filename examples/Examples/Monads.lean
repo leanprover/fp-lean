@@ -320,13 +320,13 @@ book declaration {{{ sumAndFindEvensDirectish }}}
 stop book declaration
 end MoreMonadic
 
-book declaration {{{ preorderSum }}}
-  def preorderSum : BinTree Int → List Int × Int
+book declaration {{{ inorderSum }}}
+  def inorderSum : BinTree Int → List Int × Int
     | BinTree.leaf => ([], 0)
     | BinTree.branch l x r =>
-      let (leftVisited, leftSum) := preorderSum l
+      let (leftVisited, leftSum) := inorderSum l
       let (hereVisited, hereSum) := ([x], x)
-      let (rightVisited, rightSum) := preorderSum r
+      let (rightVisited, rightSum) := inorderSum r
       (leftVisited ++ hereVisited ++ rightVisited, leftSum + hereSum + rightSum)
 stop book declaration
 
@@ -370,13 +370,13 @@ book declaration {{{ sumAndFindEvensAndThen }}}
 stop book declaration
 
 
-book declaration {{{ preorderSumAndThen }}}
-  def preorderSum : BinTree Int → WithLog Int Int
+book declaration {{{ inorderSumAndThen }}}
+  def inorderSum : BinTree Int → WithLog Int Int
     | BinTree.leaf => ok 0
     | BinTree.branch l x r =>
-      andThen (preorderSum l) fun leftSum =>
+      andThen (inorderSum l) fun leftSum =>
       andThen (save x) fun () =>
-      andThen (preorderSum r) fun rightSum =>
+      andThen (inorderSum r) fun rightSum =>
       ok (leftSum + x + rightSum)
 stop book declaration
 
@@ -399,12 +399,12 @@ book declaration {{{ withInfixLogging }}}
       sumAndFindEvens is ~~> fun sum =>
       ok (i + sum)
 
-  def preorderSum : BinTree Int → WithLog Int Int
+  def inorderSum : BinTree Int → WithLog Int Int
     | BinTree.leaf => ok 0
     | BinTree.branch l x r =>
-      preorderSum l ~~> fun leftSum =>
+      inorderSum l ~~> fun leftSum =>
       save x ~~> fun () =>
-      preorderSum r ~~> fun rightSum =>
+      inorderSum r ~~> fun rightSum =>
       ok (leftSum + x + rightSum)
 stop book declaration
 
