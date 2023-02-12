@@ -61,3 +61,48 @@ A schema describes the name and type of each column in a database:
 ```lean
 {{#example_decl Examples/DependentTypes/DB.lean Schema}}
 ```
+In fact, a schema can be seen as a universe that describes rows in a table.
+The empty schema describes the unit type, a schema with a single column describes that value on its own, and a schema with at least two columns is represented by a tuple.
+As described in [the initial section on product types](../getting-to-know/polymorphism.md#Prod), Lean's product type and tuples are right-associative.
+This means that nested pairs are equivalent to ordinary flat tuples.
+
+A table is a list of rows that share a schema:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean Table}}
+```
+For example, a diary of visits to mountain peaks can be represented with the schema `peak`:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean peak}}
+```
+A selection of peaks visited by the author of this book appears as an ordinary list of tuples:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean mountainDiary}}
+```
+Another example consists of waterfalls and a diary of visits to them:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean waterfall}}
+
+{{#example_decl Examples/DependentTypes/DB.lean waterfallDiary}}
+```
+
+### Recursion and Universes, Revisited
+
+The convenient structuring of rows as tuples comes at a cost: the fact that `Row` treats its two base cases separately means that functions that use `Row`s but are defined recursively over the codes (that, is the schema) need to make the same distinctions.
+One example of a case where this matters is an equality check that uses recursion over the schema to define a function that checks rows for equality.
+This example does not pass Lean's type checker:
+```lean
+{{#example_in Examples/DependentTypes/DB.lean RowBEqRecursion}}
+```
+```output error
+{{#example_out Examples/DependentTypes/DB.lean RowBEqRecursion}}
+```
+The problem is that the pattern `col::cols` does not refine the type of the rows.
+This is because Lean cannot yet tell whether the singleton pattern `[col]` or the `col1 :: col2 :: cols` pattern was matched, so the call to `Row` does not compute down to a pair type.
+The solution is to mirror the structure of `Row` in the definition of `Row.bEq`:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean RowBEq}}
+```
+
+Functions that occur in types cannot be considered only with respect to their input/output behavior.
+Programs that use these types will find themselves forced to mirror the algorithm used in the type-level function so that their structure matches the pattern-matching and recursive behavior of the type.
+A big part of the skill of programming with dependent types is the selection of appropriate type-level functions with the right computational behavior.
