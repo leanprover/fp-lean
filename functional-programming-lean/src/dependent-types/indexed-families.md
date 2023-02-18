@@ -25,6 +25,11 @@ This means that using `Vect.nil` in a context expecting a `Vect String 3` is a t
 ```
 The mismatch between `0` and `3` in this example plays exactly the same role as any other type mismatch, even though `0` and `3` are not themselves types.
 
+Indexed families are called _families_ of types because different index values can make different constructors available for use.
+In some sense, an indexed family is not a type; rather, it is a collection of related types, and the choice of index values selects which type is available.
+Choosing the index `5` for `Vect` means that only the constructor `cons` is available, and choosing the index `0` means that only `nil` is available.
+If the index is not yet known (e.g. because it is a variable), then no constructor can be used until it becomes known.
+
 Having the length of the list as part of its type means that the type becomes more informative.
 For example, `Vect.replicate` is a function that creates a `Vect` with a number of copies of a given value.
 The type that says this precisely is:

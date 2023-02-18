@@ -12,7 +12,6 @@ book declaration {{{ NatOrBool }}}
     | .bool => Bool
 stop book declaration
 
-
 book declaration {{{ decode }}}
   def decode (t : NatOrBool) (input : String) : Option t.asType :=
     match t with
@@ -164,12 +163,34 @@ book declaration {{{ FiniteBeq }}}
     | .unit => true
     | .bool => x == y
     | .pair t1 t2 => beq t1 x.fst y.fst && beq t2 x.snd y.snd
-    | .arr t1 t2 => Id.run do
-      for arg in t1.all do
-        unless beq t2 (x arg) (y arg) do
-          return false
-      return true
+    | .arr t1 t2 => --Id.run do
+      -- for arg in t1.all do
+      --   unless beq t2 (x arg) (y arg) do
+      --     return false
+      -- return true
+      t1.all.all fun arg => beq t2 (x arg) (y arg)
 stop book declaration
+
+theorem list_all_true : List.all xs (fun _ => true) = true := by
+  induction xs <;> simp [List.all, List.foldr]
+  case cons y ys ih =>
+    simp [List.all] at ih
+    simp [*]
+
+
+theorem beq_refl (t : Finite) (x : t.asType) : t.beq x x = true := by
+  induction t with
+  | unit => simp [Finite.beq]
+  | bool => cases x <;> simp [Finite.beq]
+  | pair t1 t2 ih1 ih2 =>
+    simp [Finite.beq, *]
+  | arr t1 t2 ih1 ih2 =>
+    simp [Finite.beq]
+    conv =>
+     lhs; rhs; intro arg
+     rw [ih2]
+    rw [list_all_true]
+
 
 def Finite.print : (t : Finite) → (x : t.asType) → String
   | .unit, _ => "()"
@@ -194,7 +215,6 @@ expect info {{{ nestedFunLength }}}
 message
 "65536"
 end expect
-
 
 #eval Finite.all (.arr .bool .unit) |>.map (Finite.print _)
 #eval Finite.all (.arr .bool .bool) |>.map (Finite.print _)

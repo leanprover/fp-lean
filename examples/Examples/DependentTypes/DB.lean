@@ -147,58 +147,152 @@ book declaration {{{ RowBEq }}}
 stop book declaration
 
 
-inductive Subschema : Schema → Schema → Type where
-  | keep : Subschema bigger smaller → Subschema (c :: bigger) (c :: smaller)
-  | drop : Subschema bigger smaller → Subschema (c :: bigger) smaller
-  | done : Subschema [] []
+book declaration {{{ HasCol }}}
+  inductive HasCol : Schema → String → DBType → Type where
+    | here : HasCol (⟨name, t⟩ :: _) name t
+    | there : HasCol s name t → HasCol (_ :: s) name t
+stop book declaration
+
+bookExample type {{{ peakElevationInt }}}
+  .there (.there .here)
+  <===
+  HasCol peak "elevation" .int
+end bookExample
+
+
+book declaration {{{ Rowget }}}
+  def Row.get (row : Row s) (col : HasCol s n t) : t.asType :=
+    match s, col, row with
+    | [_], .here, v => v
+    | _::_::_, .here, (v, _) => v
+    | _::_::_, .there next, (_, r) => get r next
+stop book declaration
+
+
+
+book declaration {{{ Subschema }}}
+  inductive Subschema (bigger : Schema) : Schema → Type where
+    | nil : Subschema bigger []
+    | cons :
+        HasCol bigger n t →
+        Subschema bigger smaller →
+        Subschema bigger (⟨n, t⟩ :: smaller)
+stop book declaration
+
 
 abbrev travelDiary : Schema :=
   [⟨"name", .string⟩, ⟨"location", .string⟩, ⟨"lastVisited", .int⟩]
 
-example : Subschema peak travelDiary := by repeat constructor
 
-example : Subschema waterfall travelDiary := by repeat constructor
+book declaration {{{ peakDiarySub }}}
+  example : Subschema peak travelDiary :=
+    .cons .here
+      (.cons (.there .here)
+        (.cons (.there (.there (.there .here))) .nil))
+stop book declaration
 
-def Subschema.same : (s : Schema)  → Subschema s s
-  | [] => .done
-  | _ :: cs => .keep (same cs)
+
+book declaration {{{ emptySub }}}
+  example : Subschema peak [] := by constructor
+stop book declaration
+
+
+expect error {{{ notDone }}}
+  example : Subschema peak [⟨"location", .string⟩] := by constructor
+message
+"unsolved goals
+case a
+⊢ HasCol peak \"location\" DBType.string
+
+case a
+⊢ Subschema peak []"
+end expect
+
+
+expect error {{{ notDone2 }}}
+  example : Subschema peak [⟨"location", .string⟩] := by
+    constructor
+    constructor
+message
+"unsolved goals
+case a.a
+⊢ HasCol
+    [{ name := \"location\", contains := DBType.string }, { name := \"elevation\", contains := DBType.int },
+      { name := \"lastVisited\", contains := DBType.int }]
+    \"location\" DBType.string
+
+case a
+⊢ Subschema peak []"
+end expect
+
+
+expect error {{{ notDone3 }}}
+  example : Subschema peak [⟨"location", .string⟩] := by
+    constructor
+    constructor
+    constructor
+message
+"unsolved goals
+case a
+⊢ Subschema peak []"
+end expect
+
+
+
+
+book declaration {{{ notDone4 }}}
+  example : Subschema peak [⟨"location", .string⟩] := by
+    constructor
+    constructor
+    constructor
+    constructor
+stop book declaration
+
+
+book declaration {{{ notDone5 }}}
+  example : Subschema peak [⟨"location", .string⟩] :=
+    .cons (.there .here) .nil
+stop book declaration
+
+
+book declaration {{{ notDone6 }}}
+  example : Subschema peak [⟨"location", .string⟩] := by repeat constructor
+stop book declaration
+
+
+book declaration {{{ subschemata }}}
+  example : Subschema peak travelDiary := by repeat constructor
+
+  example : Subschema waterfall travelDiary := by repeat constructor
+stop book declaration
+
+def Subschema.add (sub : Subschema bigger smaller) : Subschema (c :: bigger) smaller :=
+  match sub with
+  | .nil  => .nil
+  | .cons col sub' => .cons (.there col) sub'.add
+
+def Subschema.same : (s : Schema) → Subschema s s
+  | [] => .nil
+  | _ :: cs => .cons .here (same cs).add
+
+
 
 def addVal (v : c.contains.asType) (row : Row s) : Row (c :: s) :=
   match s, row with
   | [], () => v
   | c' :: cs, v' => (v, v')
 
-def Row.project (row : Row s) (s' : Schema) (sub : Subschema s s') : Row s' :=
-  match s, row, sub with
-  | [], (), .done => ()
-  | [_], v, .keep .done => v
-  | [_], v, .drop .done => ()
-  | _::_::_, (v, r), .keep sub => addVal v (project r _ sub)
-  | _::_::_, (_, r), .drop sub => project r _ sub
-
-class inductive Col : Schema → String → outParam DBType → Type where
-  | here : Col (⟨name, t⟩ :: _) name t
-  | there : Col s name t → Col (_ :: s) name t
-
-instance : Col (⟨name, t⟩ :: s) name t := .here
-instance [foundAt : Col s name t] : Col (c :: s) name t := .there foundAt
-
-example : Col [⟨"hi", .bool⟩] "hi" .bool := inferInstance
-example : Col [⟨"other", .int⟩, ⟨"hi", .bool⟩] "hi" .bool := inferInstance
+def Row.project (row : Row s) : (s' : Schema) → Subschema s s' → Row s'
+  | [], .nil => ()
+  | [_], .cons c .nil => row.get c
+  | _::_::_, .cons c cs => (row.get c, row.project _ cs)
 
 inductive Cond : Schema → DBType → Type where
-  | col (n : String) (loc : Col s n t) : Cond s t
+  | col (n : String) (loc : HasCol s n t) : Cond s t
   | eq (e1 e2 : Cond s t) : Cond s .bool
   | lt (e1 e2 : Cond s .int) : Cond s .bool
   | and (e1 e2 : Cond s .bool) : Cond s .bool
   | const : t.asType → Cond s t
-
-def Row.get (col : Col s n t) (row : Row s) : t.asType :=
-  match s, col, row with
-  | [_], .here, v => v
-  | _::_::_, .here, (v, _) => v
-  | _::_::_, .there next, (_, r) => get next r
-
 
 def Cond.evaluate (row : Row s) : Cond s t → t.asType
   | .col _ loc => row.get loc
@@ -210,7 +304,7 @@ def Cond.evaluate (row : Row s) : Cond s t → t.asType
 def disjoint [BEq α] (xs ys : List α) : Bool :=
   not (xs.any ys.contains || ys.any xs.contains)
 
-def renameSchema : (s : Schema) → Col s n t → String → Schema
+def renameSchema : (s : Schema) → HasCol s n t → String → Schema
   | c :: cs, .here, n' => {c with name := n'} :: cs
   | c :: cs, .there next, n' => c :: renameSchema cs next n'
 
@@ -225,7 +319,7 @@ inductive RelAlg : Schema → Type where
       disjoint (s1.map Column.name) (s2.map Column.name) →
       RelAlg (s1 ++ s2)
   | rename :
-      RelAlg s → (c : Col s n t) → (n' : String) →
+      RelAlg s → (c : HasCol s n t) → (n' : String) →
       RelAlg (renameSchema s c n')
   | prefixWith :
       (n : String) → RelAlg s →
@@ -241,7 +335,7 @@ def Row.append (r1 : Row s1) (r2 : Row s2) : Row (s1 ++ s2) :=
   | _::_::_, (v, r') => (v, append r' r2)
 
 def List.flatMap : (xs : List α) → (f : α → List β) → List β
-  | [], f => []
+  | [], _ => []
   | x :: xs, f=> f x ++ flatMap xs f
 
 def Table.cartesianProduct (table1 : Table s1) (table2 : Table s2) : Table (s1 ++ s2) :=
@@ -255,13 +349,13 @@ def List.without [BEq α] : List α → List α → List α
     else
        x :: without xs banned
 
-def renameRow (row : Row s) (c : Col s n t) : Row (renameSchema s c n') :=
+def renameRow (row : Row s) (c : HasCol s n t) : Row (renameSchema s c n') :=
   match s, row, c with
   | [_], v, .here => v
   | _::_::_, (v, r), .here => (v, r)
   | _::_::_, (v, r), .there next => addVal v (renameRow r next)
 
-def renameTable (table : Table s) (c : Col s n t) : Table (renameSchema s c n') :=
+def renameTable (table : Table s) (c : HasCol s n t) : Table (renameSchema s c n') :=
   table.map (renameRow · c)
 
 def prefixRow (row : Row s) : Row (s.map fun c => {c with name := n ++ "." ++ c.name}) :=
@@ -287,7 +381,7 @@ def RelAlg.exec : RelAlg s → Table s
 
 open RelAlg in
 def example1 :=
-  table mountainDiary |>.select (.lt (.const 500) (.col "elevation" inferInstance)) |>.project [⟨"elevation", .int⟩] (by repeat constructor)
+  table mountainDiary |>.select (.lt (.const 500) (.col "elevation" (by repeat constructor))) |>.project [⟨"elevation", .int⟩] (by repeat constructor)
 
 #eval example1.exec
 
