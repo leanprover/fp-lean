@@ -171,12 +171,12 @@ stop book declaration
 
 
 book declaration {{{ Subschema }}}
-  inductive Subschema (bigger : Schema) : Schema → Type where
-    | nil : Subschema bigger []
+  inductive Subschema : Schema → Schema → Type where
+    | nil : Subschema [] bigger
     | cons :
         HasCol bigger n t →
-        Subschema bigger smaller →
-        Subschema bigger (⟨n, t⟩ :: smaller)
+        Subschema smaller bigger →
+        Subschema (⟨n, t⟩ :: smaller) bigger
 stop book declaration
 
 
@@ -185,7 +185,7 @@ abbrev travelDiary : Schema :=
 
 
 book declaration {{{ peakDiarySub }}}
-  example : Subschema peak travelDiary :=
+  example : Subschema travelDiary peak :=
     .cons .here
       (.cons (.there .here)
         (.cons (.there (.there (.there .here))) .nil))
@@ -193,24 +193,24 @@ stop book declaration
 
 
 book declaration {{{ emptySub }}}
-  example : Subschema peak [] := by constructor
+  example : Subschema [] peak := by constructor
 stop book declaration
 
 
 expect error {{{ notDone }}}
-  example : Subschema peak [⟨"location", .string⟩] := by constructor
+  example : Subschema [⟨"location", .string⟩] peak := by constructor
 message
 "unsolved goals
 case a
 ⊢ HasCol peak \"location\" DBType.string
 
 case a
-⊢ Subschema peak []"
+⊢ Subschema [] peak"
 end expect
 
 
 expect error {{{ notDone2 }}}
-  example : Subschema peak [⟨"location", .string⟩] := by
+  example : Subschema [⟨"location", .string⟩] peak := by
     constructor
     constructor
 message
@@ -222,26 +222,26 @@ case a.a
     \"location\" DBType.string
 
 case a
-⊢ Subschema peak []"
+⊢ Subschema [] peak"
 end expect
 
 
 expect error {{{ notDone3 }}}
-  example : Subschema peak [⟨"location", .string⟩] := by
+  example : Subschema [⟨"location", .string⟩] peak := by
     constructor
     constructor
     constructor
 message
 "unsolved goals
 case a
-⊢ Subschema peak []"
+⊢ Subschema [] peak"
 end expect
 
 
 
 
 book declaration {{{ notDone4 }}}
-  example : Subschema peak [⟨"location", .string⟩] := by
+  example : Subschema [⟨"location", .string⟩] peak := by
     constructor
     constructor
     constructor
@@ -250,147 +250,279 @@ stop book declaration
 
 
 book declaration {{{ notDone5 }}}
-  example : Subschema peak [⟨"location", .string⟩] :=
+  example : Subschema [⟨"location", .string⟩] peak :=
     .cons (.there .here) .nil
 stop book declaration
 
 
 book declaration {{{ notDone6 }}}
-  example : Subschema peak [⟨"location", .string⟩] := by repeat constructor
+  example : Subschema [⟨"location", .string⟩] peak := by repeat constructor
 stop book declaration
 
 
 book declaration {{{ subschemata }}}
-  example : Subschema peak travelDiary := by repeat constructor
+  example : Subschema travelDiary peak := by repeat constructor
 
-  example : Subschema waterfall travelDiary := by repeat constructor
+  example : Subschema travelDiary waterfall := by repeat constructor
 stop book declaration
 
-def Subschema.add (sub : Subschema bigger smaller) : Subschema (c :: bigger) smaller :=
-  match sub with
-  | .nil  => .nil
-  | .cons col sub' => .cons (.there col) sub'.add
 
-def Subschema.same : (s : Schema) → Subschema s s
-  | [] => .nil
-  | _ :: cs => .cons .here (same cs).add
-
+book declaration {{{ SubschemaAdd }}}
+  def Subschema.addColumn (sub : Subschema smaller bigger) : Subschema smaller (c :: bigger) :=
+    match sub with
+    | .nil  => .nil
+    | .cons col sub' => .cons (.there col) sub'.addColumn
+stop book declaration
 
 
-def addVal (v : c.contains.asType) (row : Row s) : Row (c :: s) :=
-  match s, row with
-  | [], () => v
-  | c' :: cs, v' => (v, v')
-
-def Row.project (row : Row s) : (s' : Schema) → Subschema s s' → Row s'
-  | [], .nil => ()
-  | [_], .cons c .nil => row.get c
-  | _::_::_, .cons c cs => (row.get c, row.project _ cs)
-
-inductive Cond : Schema → DBType → Type where
-  | col (n : String) (loc : HasCol s n t) : Cond s t
-  | eq (e1 e2 : Cond s t) : Cond s .bool
-  | lt (e1 e2 : Cond s .int) : Cond s .bool
-  | and (e1 e2 : Cond s .bool) : Cond s .bool
-  | const : t.asType → Cond s t
-
-def Cond.evaluate (row : Row s) : Cond s t → t.asType
-  | .col _ loc => row.get loc
-  | .eq e1 e2  => evaluate row e1 == evaluate row e2
-  | .lt e1 e2  => evaluate row e1 < evaluate row e2
-  | .and e1 e2 => evaluate row e1 && evaluate row e2
-  | .const v => v
-
-def disjoint [BEq α] (xs ys : List α) : Bool :=
-  not (xs.any ys.contains || ys.any xs.contains)
-
-def renameSchema : (s : Schema) → HasCol s n t → String → Schema
-  | c :: cs, .here, n' => {c with name := n'} :: cs
-  | c :: cs, .there next, n' => c :: renameSchema cs next n'
-
-inductive RelAlg : Schema → Type where
-  | table : Table s → RelAlg s
-  | union : RelAlg s → RelAlg s → RelAlg s
-  | diff : RelAlg s → RelAlg s → RelAlg s
-  | select : RelAlg s → Cond s .bool → RelAlg s
-  | project : RelAlg s → (s' : Schema) → Subschema s s' → RelAlg s'
-  | product :
-      RelAlg s1 → RelAlg s2 →
-      disjoint (s1.map Column.name) (s2.map Column.name) →
-      RelAlg (s1 ++ s2)
-  | rename :
-      RelAlg s → (c : HasCol s n t) → (n' : String) →
-      RelAlg (renameSchema s c n')
-  | prefixWith :
-      (n : String) → RelAlg s →
-      RelAlg (s.map fun c => {c with name := n ++ "." ++ c.name})
-
-def Row.append (r1 : Row s1) (r2 : Row s2) : Row (s1 ++ s2) :=
-  match s1, r1 with
-  | [], () => r2
-  | [_], v =>
-    match s2 with
-    | [] => v
-    | _::_ => (v, r2)
-  | _::_::_, (v, r') => (v, append r' r2)
-
-def List.flatMap : (xs : List α) → (f : α → List β) → List β
-  | [], _ => []
-  | x :: xs, f=> f x ++ flatMap xs f
-
-def Table.cartesianProduct (table1 : Table s1) (table2 : Table s2) : Table (s1 ++ s2) :=
-  table1.flatMap fun r1 => table2.map r1.append
-
-def List.without [BEq α] : List α → List α → List α
-  | [], _ => []
-  | x::xs, banned =>
-    if banned.contains x then
-      without xs banned
-    else
-       x :: without xs banned
-
-def renameRow (row : Row s) (c : HasCol s n t) : Row (renameSchema s c n') :=
-  match s, row, c with
-  | [_], v, .here => v
-  | _::_::_, (v, r), .here => (v, r)
-  | _::_::_, (v, r), .there next => addVal v (renameRow r next)
-
-def renameTable (table : Table s) (c : HasCol s n t) : Table (renameSchema s c n') :=
-  table.map (renameRow · c)
-
-def prefixRow (row : Row s) : Row (s.map fun c => {c with name := n ++ "." ++ c.name}) :=
-  match s, row with
-  | [], _ => ()
-  | [_], v => v
-  | _::_::_, (v, r) => (v, prefixRow r)
-
-def prefixTable (t : Table s) : Table (s.map fun c => {c with name := n ++ "." ++ c.name}) :=
-  t.map prefixRow
+book declaration {{{ SubschemaSame }}}
+  def Subschema.reflexive : (s : Schema) → Subschema s s
+    | [] => .nil
+    | _ :: cs => .cons .here (reflexive cs).addColumn
+stop book declaration
 
 
+book declaration {{{ addVal }}}
+  def addVal (v : c.contains.asType) (row : Row s) : Row (c :: s) :=
+    match s, row with
+    | [], () => v
+    | c' :: cs, v' => (v, v')
+stop book declaration
 
-def RelAlg.exec : RelAlg s → Table s
-  | .table t => t
-  | .union r1 r2 => exec r1 ++ exec r2
-  | .diff r1 r2 => exec r1 |>.without (exec r2)
-  | .select r e => (exec r).filter fun row => e.evaluate row
-  | .project r _ sub => exec r |>.map (·.project _ sub)
-  | .product r1 r2 _ => exec r1 |>.cartesianProduct (exec r2)
-  | .rename r c n' => renameTable (exec r) c
-  | .prefixWith n r => prefixTable (n := n) (exec r)
+book declaration {{{ RowProj }}}
+  def Row.project (row : Row s) : (s' : Schema) → Subschema s' s → Row s'
+    | [], .nil => ()
+    | [_], .cons c .nil => row.get c
+    | _::_::_, .cons c cs => (row.get c, row.project _ cs)
+stop book declaration
 
-open RelAlg in
+book declaration {{{ DBExpr }}}
+  inductive DBExpr : Schema → DBType → Type where
+    | col (n : String) (loc : HasCol s n t) : DBExpr s t
+    | eq (e1 e2 : DBExpr s t) : DBExpr s .bool
+    | lt (e1 e2 : DBExpr s .int) : DBExpr s .bool
+    | and (e1 e2 : DBExpr s .bool) : DBExpr s .bool
+    | const : t.asType → DBExpr s t
+stop book declaration
+
+namespace Fake
+book declaration {{{ tallDk }}}
+  def tallInDenmark : DBExpr peak .bool :=
+    .and (.lt (.const 1000) (.col "elevation" (by repeat constructor)))
+         (.eq (.col "location" (by repeat constructor)) (.const "Denmark"))
+stop book declaration
+end Fake
+
+book declaration {{{ cBang }}}
+  macro "c!" n:term : term => `(DBExpr.col $n (by repeat constructor))
+stop book declaration
+
+book declaration {{{ tallDkBetter }}}
+  def tallInDenmark : DBExpr peak .bool :=
+    .and (.lt (.const 1000) (c! "elevation"))
+         (.eq (c! "location") (.const "Denmark"))
+stop book declaration
+
+
+book declaration {{{ DBExprEval }}}
+  def DBExpr.evaluate (row : Row s) : DBExpr s t → t.asType
+    | .col _ loc => row.get loc
+    | .eq e1 e2  => evaluate row e1 == evaluate row e2
+    | .lt e1 e2  => evaluate row e1 < evaluate row e2
+    | .and e1 e2 => evaluate row e1 && evaluate row e2
+    | .const v => v
+stop book declaration
+
+expect info {{{ valbybakke }}}
+  #eval tallInDenmark.evaluate ("Valby bakke", "Denmark", 31, 2023)
+message
+"false"
+end expect
+
+
+expect info {{{ fakeDkBjerg }}}
+  #eval tallInDenmark.evaluate ("Fictional mountain", "Denmark", 1230, 2023)
+message
+"true"
+end expect
+
+
+expect info {{{ borah }}}
+  #eval tallInDenmark.evaluate ("Mount Borah", "USA", 3859, 1996)
+message
+"false"
+end expect
+
+
+book declaration {{{ disjoint }}}
+  def disjoint [BEq α] (xs ys : List α) : Bool :=
+    not (xs.any ys.contains || ys.any xs.contains)
+stop book declaration
+
+
+book declaration {{{ renameColumn }}}
+  def renameColumn : (s : Schema) → HasCol s n t → String → Schema
+    | c :: cs, .here, n' => {c with name := n'} :: cs
+    | c :: cs, .there next, n' => c :: renameColumn cs next n'
+stop book declaration
+
+book declaration {{{ Query }}}
+  inductive Query : Schema → Type where
+    | table : Table s → Query s
+    | union : Query s → Query s → Query s
+    | diff : Query s → Query s → Query s
+    | select : Query s → DBExpr s .bool → Query s
+    | project : Query s → (s' : Schema) → Subschema s' s → Query s'
+    | product :
+        Query s1 → Query s2 →
+        disjoint (s1.map Column.name) (s2.map Column.name) →
+        Query (s1 ++ s2)
+    | rename :
+        Query s → (c : HasCol s n t) → (n' : String) → !((s.map Column.name).contains n') →
+        Query (renameColumn s c n')
+    | prefixWith :
+        (n : String) → Query s →
+        Query (s.map fun c => {c with name := n ++ "." ++ c.name})
+stop book declaration
+
+
+book declaration {{{ RowAppend }}}
+  def Row.append (r1 : Row s1) (r2 : Row s2) : Row (s1 ++ s2) :=
+    match s1, r1 with
+    | [], () => r2
+    | [_], v => addVal v r2
+    | _::_::_, (v, r') => (v, r'.append r2)
+stop book declaration
+
+
+book declaration {{{ ListFlatMap }}}
+  def List.flatMap (f : α → List β) : (xs : List α) → List β
+    | [] => []
+    | x :: xs => f x ++ xs.flatMap f
+stop book declaration
+
+
+book declaration {{{ TableCartProd }}}
+  def Table.cartesianProduct (table1 : Table s1) (table2 : Table s2) : Table (s1 ++ s2) :=
+    table1.flatMap fun r1 => table2.map r1.append
+stop book declaration
+
+bookExample {{{ filterA }}}
+  ["Willamette", "Columbia", "Sandy", "Deschutes"].filter (·.length > 8)
+  ===>
+  ["Willamette", "Deschutes"]
+end bookExample
+
+
+
+book declaration {{{ ListWithout }}}
+  def List.without [BEq α] (source banned : List α) : List α :=
+    source.filter fun r => !(banned.contains r)
+stop book declaration
+
+
+book declaration {{{ renameRow }}}
+  def Row.rename (c : HasCol s n t) (row : Row s) : Row (renameColumn s c n') :=
+    match s, row, c with
+    | [_], v, .here => v
+    | _::_::_, (v, r), .here => (v, r)
+    | _::_::_, (v, r), .there next => addVal v (r.rename next)
+stop book declaration
+
+
+book declaration {{{ prefixRow }}}
+  def prefixRow (row : Row s) : Row (s.map fun c => {c with name := n ++ "." ++ c.name}) :=
+    match s, row with
+    | [], _ => ()
+    | [_], v => v
+    | _::_::_, (v, r) => (v, prefixRow r)
+stop book declaration
+
+
+
+book declaration {{{ QueryExec }}}
+  def Query.exec : Query s → Table s
+    | .table t => t
+    | .union q1 q2 => exec q1 ++ exec q2
+    | .diff q1 q2 => exec q1 |>.without (exec q2)
+    | .select q e => exec q |>.filter e.evaluate
+    | .project q _ sub => exec q |>.map (·.project _ sub)
+    | .product q1 q2 _ => exec q1 |>.cartesianProduct (exec q2)
+    | .rename q c _ _ => exec q |>.map (·.rename c)
+    | .prefixWith _ q => exec q |>.map prefixRow
+stop book declaration
+
+
+book declaration {{{ Query1 }}}
+open Query in
 def example1 :=
-  table mountainDiary |>.select (.lt (.const 500) (.col "elevation" (by repeat constructor))) |>.project [⟨"elevation", .int⟩] (by repeat constructor)
+  table mountainDiary |>.select
+  (.lt (.const 500) (c! "elevation")) |>.project
+  [⟨"elevation", .int⟩] (by repeat constructor)
+stop book declaration
 
-#eval example1.exec
 
-open RelAlg in
+expect info {{{ Query1Exec }}}
+  #eval example1.exec
+message
+"[3637, 1519, 2549]"
+end expect
+
+book declaration {{{ Query2 }}}
+open Query in
 def example2 :=
   let mountain := table mountainDiary |>.prefixWith "mountain"
   let waterfall := table waterfallDiary |>.prefixWith "waterfall"
   mountain.product waterfall (by simp)
-    |>.select (.eq (.col "mountain.location" (by repeat constructor)) (.col "waterfall.location" (by repeat constructor)))
+    |>.select (.eq (c! "mountain.location") (c! "waterfall.location"))
     |>.project [⟨"mountain.name", .string⟩, ⟨"waterfall.name", .string⟩] (by repeat constructor)
+stop book declaration
 
-#eval example2.exec
+
+expect info {{{ Query2Exec }}}
+  #eval example2.exec
+message
+"[(\"Mount Nebo\", \"Multnomah Falls\"),
+ (\"Mount Nebo\", \"Shoshone Falls\"),
+ (\"Moscow Mountain\", \"Multnomah Falls\"),
+ (\"Moscow Mountain\", \"Shoshone Falls\"),
+ (\"Mount St. Helens\", \"Multnomah Falls\"),
+ (\"Mount St. Helens\", \"Shoshone Falls\")]"
+end expect
+
+namespace Ooops
+
+
+expect error {{{ QueryOops1 }}}
+  open Query in
+  def example2 :=
+    let mountains := table mountainDiary |>.prefixWith "mountain"
+    let waterfalls := table waterfallDiary |>.prefixWith "waterfall"
+    mountains.product waterfalls (by simp)
+      |>.select (.eq (c! "location") (c! "waterfall.location"))
+      |>.project [⟨"mountain.name", .string⟩, ⟨"waterfall.name", .string⟩] (by repeat constructor)
+message
+"unsolved goals
+case a.a.a.a.a.a.a
+mountains : Query (List.map (fun c => { name := \"mountain\" ++ \".\" ++ c.name, contains := c.contains }) peak) :=
+  prefixWith \"mountain\" (table mountainDiary)
+waterfalls : Query (List.map (fun c => { name := \"waterfall\" ++ \".\" ++ c.name, contains := c.contains }) waterfall) :=
+  prefixWith \"waterfall\" (table waterfallDiary)
+⊢ HasCol (List.map (fun c => { name := \"waterfall\" ++ \".\" ++ c.name, contains := c.contains }) []) \"location\" ?m.108788"
+end expect
+
+expect error {{{ QueryOops2 }}}
+  open Query in
+  def example2 :=
+    let mountains := table mountainDiary
+    let waterfalls := table waterfallDiary
+    mountains.product waterfalls (by simp)
+      |>.select (.eq (c! "mountain.location") (c! "waterfall.location"))
+      |>.project [⟨"mountain.name", .string⟩, ⟨"waterfall.name", .string⟩] (by repeat constructor)
+message
+"unsolved goals
+mountains : Query peak := table mountainDiary
+waterfalls : Query waterfall := table waterfallDiary
+⊢ False"
+end expect
+end Ooops

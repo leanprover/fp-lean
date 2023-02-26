@@ -18,5 +18,6 @@ import Examples.MonadTransformers.Defs
 import Examples.MonadTransformers.Conveniences
 import Examples.DependentTypes
 import Examples.DependentTypes.DB
+import Examples.DependentTypes.IndicesParameters
 
 def main : IO Unit := IO.println "The code here is for the book"

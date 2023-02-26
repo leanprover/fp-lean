@@ -157,7 +157,7 @@ Every column not present in the smaller schema is forgotten.
 In order for projection to make sense, the smaller schema must be a subschema of the larger schema, which means that every column in the smaller schema must be present in the larger schema.
 Just as `HasCol` makes it possible to write a single-column lookup in a row that cannot fail, a representation of the subschema relationship as an indexed family makes it possible to write a projection function that cannot fail.
 
-Being a subschema can be defined as an indexed family.
+The ways in which one schema can be a subschema of another can be defined as an indexed family.
 The basic idea is that a smaller schema is a subschema of a bigger schema if every column in the smaller schema occurs in the bigger schema.
 If the smaller schema is empty, then it's certainly a subschema of the bigger schema, represented by the constructor `nil`.
 If the smaller schema has a column, then that column must be in the bigger schema, and all the rest of the columns in the subschema must also be a subschema of the bigger schema.
@@ -165,6 +165,7 @@ This is represented by the constructor `cons`.
 ```lean
 {{#example_decl Examples/DependentTypes/DB.lean Subschema}}
 ```
+In other words, `Subschema` assigns each column of the smaller schema a `HasCol` that points to its location in the larger schema.
 
 The schema `travelDiary` represents the fields that are common to both `peak` and `waterfall`.
 It is certainly a subschema of `peak`, as shown by this example:
@@ -226,13 +227,272 @@ This more flexible version also works for more interesting `Subschema` problems:
 
 The approach of blindly trying constructors until something works is not very useful for types like `Nat` or `List Bool`.
 Just because an expression has type `Nat` doesn't mean that it's the _correct_ `Nat`, after all!
-But types like `HasCol` and `Subschema` are sufficiently constrained by their indices that only one constructor will ever be applicable, which means that the contents of the program itself are fundamentally uninteresting and can be suppressed.
+But types like `HasCol` and `Subschema` are sufficiently constrained by their indices that only one constructor will ever be applicable, which means that the contents of the program itself are less interesting, and a computer can pick the correct one.
+
+If one schema is a subschema of another, then adding a new column to the larger schema won't change this fact.
+This fact can be captured as a function definition.
+`Subschema.addColumn` takes evidence that `smaller` is a subschema of `bigger`, and then returns evidence that `smaller` is a subschema of `c :: bigger`, that is, `bigger` with one additional column:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean SubschemaAdd}}
+```
+A subschema describes where to find each column from the smaller schema in the larger schema.
+In the `nil` case, the smaller schema is `[]`, and `nil` is also evidence that `[]` is a subschema of `c :: bigger`.
+In the `cons` case, which describes how to place one column from `smaller` into `larger`, the placement of the column needs to be adjusted with `there` to account for the new column `c`, and a recursive call adjusts the rest of the columns.
+
+Another way to think about `Subschema` is that it defines a _relation_ between two schemas—the existence of an expression  with type `Subschema bigger smaller` means that `(bigger, smaller)` is in the relation.
+This relation is reflexive, meaning that every schema is a subschema of itself:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean SubschemaSame}}
+```
 
 
 ### Projecting Rows
 
+Given evidence that `s'` is a subschema of `s`, a row in `s` can be projected into a row in `s'`.
+This is done using the evidence that `s'` is a subschema of `s`, which explains where each column of `s'` is found in `s`.
+The new row in `s'` is built up one column at a time, by retrieving the value from the appropriate place in the old row.
+
+The function that performs this projection, `Row.project`, has three cases, one for each case of `Row` itself.
+It uses `Row.get` together with each `HasCol` in the `Subschema` argument to construct the projected row:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean RowProj}}
+```
+
+
 ## Conditions and Selection
+
+Projection removes unwanted columns from a table, but queries must also be able to remove unwanted rows.
+This operation is called _selection_.
+Selection relies on having a means of expressing which rows are desired.
+
+The example query language contains expressions, which are analogous to what can be written in a `WHERE` clause in SQL.
+Expressions are represented by the indexed family `DBExpr`.
+Because expressions can refer to columns from the database, but different sub-expressions all have the same schema, `DBExpr` takes the database schema as a parameter.
+Additionally, each expression has a type, and these vary, making it an index:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean DBExpr}}
+```
+The `col` constructor represents a reference to a column in the database.
+The `eq` constructor compares two expressions for equality, `lt` checks whether one is less than the other, `and` is Boolean conjunction, and `const` is a constant value of some type.
+
+For example, an expression in `peak` that checks whether the `elevation` column is greater than 1000 and the location is `"Denmark"` can be written:
+```lean
+{{#example_in Examples/DependentTypes/DB.lean tallDk}}
+```
+This is somewhat noisy.
+In particular, references to columns contain boilerplate calls to `by repeat constructor`.
+A Lean feature called _macros_ can help make expressions easier to read by eliminating this boilerplate:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean cBang}}
+```
+This declaration adds the `c!` keyword to Lean, and instructs Lean to replace any instance of `c!` followed by an expression with the corresponding `DBExpr.col` construction.
+Lean macros are a bit like C preprocessor macros, except they are better integrated into the language and they automatically avoid some of the pitfalls of CPP.
+In fact, they are very closely related to macros in Scheme and Racket.
+
+With this macro, the expression can be much easier to read:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean tallDkBetter}}
+```
+
+Finding the value of an expression with respect to a given row uses `Row.get` to extract column references, and it delegates to Lean's operations on values for every other expression:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean DBExprEval}}
+```
+
+Evaluating the expression for Valby bakke, the tallest hill in the Copenhagen area, yields `false` because Valby bakke is much less than 1 km over sea level:
+```lean
+{{#example_in Examples/DependentTypes/DB.lean valbybakke}}
+```
+```output info
+{{#example_out Examples/DependentTypes/DB.lean valbybakke}}
+```
+Evaluating it for a fictional mountain of 1230m elevation yields `true`:
+```lean
+{{#example_in Examples/DependentTypes/DB.lean fakeDkBjerg}}
+```
+```output info
+{{#example_out Examples/DependentTypes/DB.lean fakeDkBjerg}}
+```
+Evaluating it for the highest peak in the US state of Idaho yields `false`, as Idaho is not part of Denmark:
+```lean
+{{#example_in Examples/DependentTypes/DB.lean borah}}
+```
+```output info
+{{#example_out Examples/DependentTypes/DB.lean borah}}
+```
 
 ## Queries
 
+The query language is based on relational algebra.
+In addition to tables, it includes the following operators:
+ 1. The union of two expressions that have the same schema combines the rows that result from two queries
+ 2. The difference of two expressions that have the same schema removes rows found in the second result from the rows in the first result
+ 3. Selection by some criterion filters the result of a query according to an expression
+ 4. Projection into a subschema, removing columns from the result of a query
+ 5. Cartesian product, combining every row from one query with every row from another
+ 6. Renaming a column in the result of a query, which modifies its schema
+ 7. Prefixing all columns in a query with a name
+ 
+The last operator is not strictly necessary, but it makes the language more convenient to use.
+
+Once again, queries are represented by an indexed family:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean Query}}
+```
+The `select` constructor requires that the expression used for selection return a Boolean.
+The `product` constructor's type contains a call to `disjoint`, which ensures that the two schemas don't share any names:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean disjoint}}
+```
+The use of an expression of type `Bool` where a type is expected triggers a coercion from `Bool` to `Prop`.
+Just as decidable propositions can be considered to be Booleans, where evidence for the proposition is coerced to `true` and refutations of the proposition are coerced to `false`, Booleans are coerced into the proposition that states that the expression is equal to `true`.
+Because all uses of the library are expected to occur in contexts where the schemas are known ahead of time, this proposition can be proved with `by simp`.
+Similarly, `rename` checks that the new name does not already exist in the schema.
+It uses the helper `renameColumn` to change the name of the column pointed to by `HasCol`:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean renameColumn}}
+```
+
 ## Executing Queries
+
+Executing queries requires a number of helper functions.
+The result of a query is a table; this means that each operation in the query language requires a corresponding implementation that works with tables.
+
+### Cartesian Product
+
+Taking the Cartesian product of two tables is done by appending each row from the first table to each row from the second.
+First off, due to the structure of `Row`, adding a single column to a row requires pattern matching on its schema in order to determine whether the result will be a bare value or a tuple.
+Because this is a common operation, factoring the pattern matching out into a helper is convenient:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean addVal}}
+```
+Appending two rows is recursive on the structure of both the first schema and the first row, because the structure of the row proceeds in lock-step with the structure of the schema.
+When the first row is empty, appending returns the second row.
+When the first row is a singleton, the value is added to the second row.
+When the first row contains multiple columns, the first column's value is added to the result of recursion on the remainder of the row.
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean RowAppend}}
+```
+
+`List.flatMap` applies a function that itself returns a list to every entry in an input list, return the result of appending the results in order:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean ListFlatMap}}
+```
+The type signature suggests that `List.flatMap` could be used to implement a `Monad List` instance.
+Indeed, together with `pure x := [x]`, `List.flatMap` does implement a monad.
+However, it's not a very useful `Monad` instance.
+The `List` monad is basically a version of `Many` that explores _every_ possible path through the search space in advance, before users have the chance to request some number of values.
+Because of this performance trap, it's usually not a good idea to define a `Monad` instance for `List`.
+Here, however, the query language has no operator for restricting the number of results to be returned, so combining all possibilities is exactly what is desired:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean TableCartProd}}
+```
+
+### Difference
+
+Removing undesired rows from a table can be done using `List.filter`, which takes a list and a function that returns a `Bool`.
+A new list is returned that contains only the entries for which the function returns `true`.
+For instance,
+```lean
+{{#example_in Examples/DependentTypes/DB.lean filterA}}
+```
+evaluates to
+```lean
+{{#example_out Examples/DependentTypes/DB.lean filterA}}
+```
+because `"Columbia"` and `"Sandy"` have lengths less than or equal to `8`.
+Removing the entries of a table can be done using the helper `List.without`:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean ListWithout}}
+```
+This will be used with the `BEq` instance for `Row` when interpreting queries.
+
+### Renaming Columns
+Renaming a column in a row is done with a recursive function that traverses the row until the column in question is found, at which point the column with the new name gets the same value as the column with the old name:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean renameRow}}
+```
+While this function changes the _type_ of its argument, the actual return value contains precisely the same data as the original argument.
+From a run-time perspective, `renameRow` is nothing but a slow identity function.
+One difficulty in programming with indexed families is that when performance matters, this kind of operation can get in the way.
+It takes a very careful, often brittle, design to eliminate these kinds of "re-indexing" functions.
+
+### Prefixing Column Names
+
+Adding a prefix to column names is very similar to renaming a column.
+Instead of proceeding to a desired column and then returning, `prefixRow` must process all columns:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean prefixRow}}
+```
+This can be used with `List.map` in order to add a prefix to all rows in a table.
+Once again, this function only exists to change the type of a value.
+
+### Putting the Pieces Together
+
+With all of these helpers defined, executing a query requires only a short recursive function:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean QueryExec}}
+```
+Some arguments to the constructors are not used during execution.
+In particular, both the constructor `project` and the function `Row.project` take the smaller schema as explicit arguments, but the type of the _evidence_ that this schema is a subschema of the larger schema contains enough information for Lean to fill out the argument automatically.
+Similarly, the fact that the two tables have disjoint column names that is required by the `product` constructor is not needed by `Table.cartesianProduct`.
+Generally speaking, dependent types provide many opportunities to have Lean fill out arguments on behalf of the programmer.
+
+Dot notation is used with the results of queries to call functions defined both in the `Table` and `List` namespaces, such `List.map`, `List.filter`, and `Table.cartesianProduct`.
+This works because `Table` is defined using `abbrev`.
+Just like type class search, dot notation can see through definitions created with `abbrev`. 
+
+The implementation of `select` is also quite concise.
+After executing the query `q`, `List.filter` is used to remove the rows that do not satisfy the expression.
+Filter expects a function from `Row s` to `Bool`, but `DBExpr.evaluate` has type `Row s → DBExpr s t → t.asType`.
+Because the type of the `select` constructor requires that the expression have type `DBExpr s .bool`, `t.asType` is actually `Bool` in this context.
+
+A query that finds the heights of all mountain peaks with an elevation greater than 500 meters can be written:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean Query1}}
+```
+
+Executing it returns the expected list of integers:
+```lean
+{{#example_in Examples/DependentTypes/DB.lean Query1Exec}}
+```
+```output info
+{{#example_out Examples/DependentTypes/DB.lean Query1Exec}}
+```
+
+To plan a sightseeing tour, it may be relevant to match all pairs mountains and waterfalls in the same location.
+This can be done by taking the Cartesian product of both tables, selecting only the rows in which they are equal, and then projecting out the names:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean Query2}}
+```
+Because the example data includes only waterfalls in the USA, executing the query returns pairs of mountains and waterfalls in the US:
+```lean
+{{#example_in Examples/DependentTypes/DB.lean Query2Exec}}
+```
+```output info
+{{#example_out Examples/DependentTypes/DB.lean Query2Exec}}
+```
+
+Many potential errors are ruled out by the definition of `Query`.
+For instance, forgetting the added qualifier in `"mountain.location"` yields a compile-time error that highlights the column reference `c! "location"`:
+```lean
+{{#example_in Examples/DependentTypes/DB.lean QueryOops1}}
+```
+This is excellent feedback!
+On the other hand, the text of the error message is quite difficult to act on:
+```output error
+{{#example_out Examples/DependentTypes/DB.lean QueryOops1}}
+```
+
+Similarly, forgetting to add prefixes to the names of the two tables results in an error on `by simp`, which should provide evidence that the schemas are in fact disjoint;
+```lean
+{{#example_in Examples/DependentTypes/DB.lean QueryOops2}}
+```
+However, the error message is similarly unhelpful:
+```output error
+{{#example_out Examples/DependentTypes/DB.lean QueryOops2}}
+```
+
+Lean's macro system contains everything needed not only to provide a convenient syntax for queries, but also to arrange for the error messages to be helpful.
+An indexed family such as `Query` is probably best as the core of a typed database interaction library, rather than its user interface.
+
