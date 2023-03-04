@@ -375,6 +375,30 @@ def plusRAdd (n : Nat) : (k : Nat) → n.plusR k = n + k
   | 0 => by simp [Nat.plusR]
   | k + 1 =>  congrArg (· + 1) (plusRAdd n k)
 
+namespace Tactical
+-- TODO move to next interlude support file
+
+expect error {{{ plusR_ind_zero_left_1 }}}
+  theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
+    induction k
+message
+"unsolved goals
+case zero
+⊢ Nat.zero = Nat.plusR 0 Nat.zero
+
+case succ
+n✝ : Nat
+n_ih✝ : n✝ = Nat.plusR 0 n✝
+⊢ Nat.succ n✝ = Nat.plusR 0 (Nat.succ n✝)"
+end expect
+
+  -- theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
+  --   induction k with
+  --   | zero => skip
+  --   | succ n ih => skip
+
+end Tactical
+
 namespace Eta
 axiom α : Type
 axiom β : Type

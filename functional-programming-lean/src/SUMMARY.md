@@ -57,6 +57,6 @@
   - [Worked Example: Typed Queries](dependent-types/typed-queries.md)
   - [Indices, Parameters, and Universe Levels](dependent-types/indices-parameters-universes.md)
   - [Pitfalls of Programming with Indexed Families](dependent-types/pitfalls.md)
-  - [Additional Conveniences]()
-  - [Summary]()
+  - [Summary](./dependent-types/summary.md)
+- [Interlude: Tactics, Induction, and Proofs](./tactics-induction-proofs.md)
 - [From Programming to Proving]()
