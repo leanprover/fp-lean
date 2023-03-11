@@ -28,6 +28,30 @@ but is expected to have type
   Vect String 3 : Type"
 end expect
 
+
+expect error {{{ nilNotLengthN }}}
+  example : Vect String n := Vect.nil
+message
+"type mismatch
+  Vect.nil
+has type
+  Vect String 0 : Type
+but is expected to have type
+  Vect String n : Type"
+end expect
+
+
+expect error {{{ consNotLengthN }}}
+  example : Vect String n := Vect.cons "Hello" (Vect.cons "world" Vect.nil)
+message
+"type mismatch
+  Vect.cons \"Hello\" (Vect.cons \"world\" Vect.nil)
+has type
+  Vect String (0 + 1 + 1) : Type
+but is expected to have type
+  Vect String n : Type"
+end expect
+
 expect error {{{ replicateStart }}}
   def Vect.replicate (n : Nat) (x : α) : Vect α n := _
 message

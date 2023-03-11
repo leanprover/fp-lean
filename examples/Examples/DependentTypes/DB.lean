@@ -1,4 +1,5 @@
 import Examples.Support
+import Examples.DependentTypes
 
 
 book declaration {{{ DBType }}}
@@ -128,7 +129,7 @@ message
 "type mismatch
   (v1, r1')
 has type
-  ?m.6647 × ?m.6650 : Type (max ?u.6659 ?u.6658)
+  ?m.6650 × ?m.6653 : Type (max ?u.6662 ?u.6661)
 but is expected to have type
   Row (col :: cols) : Type"
 end expect
@@ -508,7 +509,7 @@ mountains : Query (List.map (fun c => { name := \"mountain\" ++ \".\" ++ c.name,
   prefixWith \"mountain\" (table mountainDiary)
 waterfalls : Query (List.map (fun c => { name := \"waterfall\" ++ \".\" ++ c.name, contains := c.contains }) waterfall) :=
   prefixWith \"waterfall\" (table waterfallDiary)
-⊢ HasCol (List.map (fun c => { name := \"waterfall\" ++ \".\" ++ c.name, contains := c.contains }) []) \"location\" ?m.108788"
+⊢ HasCol (List.map (fun c => { name := \"waterfall\" ++ \".\" ++ c.name, contains := c.contains }) []) \"location\" ?m.108791"
 end expect
 
 expect error {{{ QueryOops2 }}}
@@ -526,3 +527,11 @@ waterfalls : Query waterfall := table waterfallDiary
 ⊢ False"
 end expect
 end Ooops
+
+#eval (by repeat constructor : Nat)
+#eval (by repeat constructor : List Nat)
+#eval (by repeat constructor : Vect Nat 4)
+#eval (by repeat constructor : Row [⟨"price", .int⟩])
+#eval (by repeat constructor : Row peak)
+deriving instance Repr for HasCol
+#eval (by repeat constructor : HasCol [⟨"price", .int⟩, ⟨"price", .int⟩] "price" .int)

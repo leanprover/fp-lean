@@ -106,13 +106,13 @@ end evaluation steps
 -- ANCHOR: MutualStart
 mutual
   -- ANCHOR: FiniteAll
-  def Finite.all (t : Finite) : List t.asType :=
+  def Finite.enumerate (t : Finite) : List t.asType :=
     match t with
     -- ANCHOR_END: MutualStart
     | .unit => [()]
     | .bool => [true, false]
-    | .pair t1 t2 => t1.all.product t2.all
-    | .arr t1 t2 => t1.functions t2.all
+    | .pair t1 t2 => t1.enumerate.product t2.enumerate
+    | .arr t1 t2 => t1.functions t2.enumerate
   -- ANCHOR_END: FiniteAll
 
   -- ANCHOR: FiniteFunctions
@@ -142,7 +142,7 @@ mutual
   -- ANCHOR: MutualEnd
   -- ANCHOR: FiniteFunctionArr
       | .arr t1 t2 =>
-        let args := t1.all
+        let args := t1.enumerate
         let base :=
           results.map fun r =>
             fun _ => r
@@ -163,12 +163,8 @@ book declaration {{{ FiniteBeq }}}
     | .unit => true
     | .bool => x == y
     | .pair t1 t2 => beq t1 x.fst y.fst && beq t2 x.snd y.snd
-    | .arr t1 t2 => --Id.run do
-      -- for arg in t1.all do
-      --   unless beq t2 (x arg) (y arg) do
-      --     return false
-      -- return true
-      t1.all.all fun arg => beq t2 (x arg) (y arg)
+    | .arr t1 t2 =>
+      t1.enumerate.all fun arg => beq t2 (x arg) (y arg)
 stop book declaration
 
 theorem list_all_true : List.all xs (fun _ => true) = true := by
@@ -191,17 +187,23 @@ theorem beq_refl (t : Finite) (x : t.asType) : t.beq x x = true := by
      rw [ih2]
     rw [list_all_true]
 
+def Finite.isSingleton : Finite → Bool
+  | .unit => true
+  | .bool => false
+  | .pair t1 t2 => not (isSingleton t1) || not (isSingleton t2)
+  | .arr _ t2 => not (isSingleton t2)
+
 
 def Finite.print : (t : Finite) → (x : t.asType) → String
   | .unit, _ => "()"
   | .bool, b => toString b
   | .pair t1 t2, (x, y) => s!"({print t1 x}, {print t2 y})"
   | .arr t1 t2, f =>
-    let table := all t1 |>.map fun x => s!"({print t1 x} ↦ {print t2 (f x)})"
+    let table := t1.enumerate |>.map fun x => s!"({print t1 x} ↦ {print t2 (f x)})"
     "{" ++ ", ".separate table ++ "}"
 
 
-def prop (t : Finite) : (Nat × Nat × Bool) := (t.all.length, t.count, t.all.length == t.count)
+def prop (t : Finite) : (Nat × Nat × Bool) := (t.enumerate.length, t.count, t.enumerate.length == t.count)
 
 #eval prop (.arr .bool .unit)
 #eval prop (.arr .bool (.pair .unit .bool))
@@ -211,14 +213,14 @@ def prop (t : Finite) : (Nat × Nat × Bool) := (t.all.length, t.count, t.all.le
 
 
 expect info {{{ nestedFunLength }}}
-  #eval Finite.all (.arr (.arr (.pair .bool .bool) .bool) .bool) |>.length
+  #eval Finite.enumerate (.arr (.arr (.pair .bool .bool) .bool) .bool) |>.length
 message
 "65536"
 end expect
 
-#eval Finite.all (.arr .bool .unit) |>.map (Finite.print _)
-#eval Finite.all (.arr .bool .bool) |>.map (Finite.print _)
-#eval Finite.all (.arr (.arr .unit .bool) .bool) |>.map (Finite.print _)
+#eval Finite.enumerate (.arr .bool .unit) |>.map (Finite.print _)
+#eval Finite.enumerate (.arr .bool .bool) |>.map (Finite.print _)
+#eval Finite.enumerate (.arr (.arr .unit .bool) .bool) |>.map (Finite.print _)
 
 
 expect info {{{ arrBoolBoolEq }}}

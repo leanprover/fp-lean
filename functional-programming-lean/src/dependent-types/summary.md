@@ -35,7 +35,8 @@ Defining a custom universe has a number of advantages over using the types direc
 
 Datatypes can take two separate kinds of arguments: _parameters_ are identical in each constructor of the datatype, while _indices_ may vary between constructors.
 For a given choice of index, only some constructors of the datatype are available.
-As an example, `Vect.nil` is available only when the length index is `0`, and `Vect.cons` is available only when the length index is `n+1` for some `n`. 
+As an example, `Vect.nil` is available only when the length index is `0`, and `Vect.cons` is available only when the length index is `n+1` for some `n`.
+While parameters are typically written as named arguments before the colon in a datatype declaration, and indices as unnamed parts of a function type after the colon, Lean can infer when an argument after the colon is used as a parameter.
 
 Indexed families allow the expression of complicated relationships between data, all checked by the compiler.
 The datatype's invariants can be encoded directly, and there is no way to violate them, not even temporarily.

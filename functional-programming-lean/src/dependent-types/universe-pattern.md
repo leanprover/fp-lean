@@ -4,15 +4,15 @@ In Lean, types such as `Type`, `Type 3`, and `Prop` that classify other types ar
 However, the term _universe_ is also used for a design pattern in which a datatype is used to represent a subset of Lean's types, and a function converts the datatype's constructors into actual types.
 The values of this datatype are called _codes_ for their types.
 
-This pattern is also referred to as "universes" because early formulations of dependent type theory used two kinds of universe.
-One kind of universe is like that in Lean, where there are types such as `Type`, `Type 3`, and `Prop` that describe other types.
+Just like Lean's built-in universes, the universes implemented with this pattern are types that describe some collection of available types, even though the mechanism by which it is done is different.
+In Lean, there are types such as `Type`, `Type 3`, and `Prop` that directly describe other types.
 This arrangement is referred to as _universes à la Russell_.
-The other kind of universe represented all of its types as data, and included an explicit function to interpret these codes into actual honest-to-goodness types.
+The user-defined universes described in this section represent all of their types as _data_, and include an explicit function to interpret these codes into actual honest-to-goodness types.
 This arrangement is referred to as _universes à la Tarski_.
-While languages based on dependent type theory almost always use Russell-style universes, Tarski-style universes form a useful pattern for defining APIs in these languages.
+While languages such as Lean that are based on dependent type theory almost always use Russell-style universes, Tarski-style universes are a useful pattern for defining APIs in these languages.
 
-Defining a custom universe makes it possible to carve out a collection of types that can be used with an API.
-Recursion over the codes allows programs to work for _any_ type in the universe.
+Defining a custom universe makes it possible to carve out a closed collection of types that can be used with an API.
+Because the collection of types is closed, recursion over the codes allows programs to work for _any_ type in the universe.
 One example of a custom universe has the codes `nat`, standing for `Nat`, and `bool`, standing for `Bool`:
 ```lean
 {{#example_decl Examples/DependentTypes/Finite.lean NatOrBool}}
@@ -22,7 +22,7 @@ For instance, a program that deserializes the types in this universe from a stri
 ```lean
 {{#example_decl Examples/DependentTypes/Finite.lean decode}}
 ```
-Pattern matching on `t` allows the expected result type `t.asType` to be respectively refined to `NatOrBool.nat.asType` and `NatOrBool.bool.asType`, and these compute to the actual types `Nat` and `Bool`.
+Dependent pattern matching on `t` allows the expected result type `t.asType` to be respectively refined to `NatOrBool.nat.asType` and `NatOrBool.bool.asType`, and these compute to the actual types `Nat` and `Bool`.
 
 Like any other data, codes may be recursive.
 The type `NestedPairs` codes for any possible nesting of the pair and natural number types:
@@ -47,11 +47,14 @@ This is useful in a few situations:
  * When an external system inherently limits the types of data that may be provided, and extra flexibility is not desired
  * When additional properties of a type are required over and above the implementation of some operations
 
+Type classes are useful in many of the same situations as interfaces in Java or C#, while a universe à la Tarski can be useful in cases where a sealed class might be used, but where an ordinary inductive datatype is not usable.
+
 ## A Universe of Finite Types
 
-For example, comparing functions for equality is generally not possible.
+Restricting the types that can be used with an API to a predetermined collection can enable operations that would be impossible for an open-ended API.
+For example, functions can't normally be compared for equality.
 Functions should be considered equal when they map the same inputs to the same outputs.
-However, checking this could take infinite amounts of time, because comparing two functions with type `Nat → Bool` would require checking the `Bool` returned for each and every `Nat`.
+Checking this could take infinite amounts of time, because comparing two functions with type `Nat → Bool` would require checking that the functions returned the same `Bool` for each and every `Nat`.
 
 In other words, a function from an infinite type is itself infinite.
 Functions can be viewed as tables, and a function whose argument type is infinite requires infinitely many rows to represent each case.
@@ -66,10 +69,11 @@ One way to represent finite types is by a universe:
 In this universe, the constructor `arr` stands for the function type, which is written with an `arr`ow.
 
 Comparing two values from this universe for equality is almost the same as in the `NestedPairs` universe.
-The only important difference is the addition of the case for `arr`, which uses a helper called `Finite.all` to generate every value from the type coded for by `t1`, checking that the two functions return the equal results:
+The only important difference is the addition of the case for `arr`, which uses a helper called `Finite.enumerate` to generate every value from the type coded for by `t1`, checking that the two functions return the equal results:
 ```lean
 {{#example_decl Examples/DependentTypes/Finite.lean FiniteBeq}}
 ```
+The standard library function `List.all` checks that the provided function returns `true` on every entry of a list.
 This function can be used to compare functions on the Booleans for equality:
 ```lean
 {{#example_in Examples/DependentTypes/Finite.lean arrBoolBoolEq}}
@@ -105,7 +109,7 @@ The helper function `List.product` can certainly be written with an ordinary rec
 ```lean
 {{#example_decl Examples/DependentTypes/Finite.lean ListProduct}}
 ```
-Finally, the case of `Finite.all` for functions delegates to a helper called `Finite.functions` that takes a list of all of the return values to target as an argument.
+Finally, the case of `Finite.enumerate` for functions delegates to a helper called `Finite.functions` that takes a list of all of the return values to target as an argument.
 
 Generally speaking, generating all of the functions from some finite type to a collection of result values can be thought of as generating the functions' tables.
 Each function assigns an output to each input, which means that a given function has \\( kn \\) rows in its table when there are \\( k \\) possible arguments and \\( n \\) possible return values.
@@ -164,8 +168,8 @@ The complete definition of `Finite.Functions` is:
 
 
 
-Because `Finite.all` and `Finite.functions` call each other, they must be defined in a `mutual` block.
-In other words, right before the definition of `Finite.all` is the `mutual` keyword:
+Because `Finite.enumerate` and `Finite.functions` call each other, they must be defined in a `mutual` block.
+In other words, right before the definition of `Finite.enumerate` is the `mutual` keyword:
 ```lean
 {{#include ../../../examples/Examples/DependentTypes/Finite.lean:MutualStart}}
 ```

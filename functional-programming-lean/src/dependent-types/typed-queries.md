@@ -473,6 +473,8 @@ Because the example data includes only waterfalls in the USA, executing the quer
 {{#example_out Examples/DependentTypes/DB.lean Query2Exec}}
 ```
 
+### Errors You May Meet
+
 Many potential errors are ruled out by the definition of `Query`.
 For instance, forgetting the added qualifier in `"mountain.location"` yields a compile-time error that highlights the column reference `c! "location"`:
 ```lean
@@ -496,3 +498,36 @@ However, the error message is similarly unhelpful:
 Lean's macro system contains everything needed not only to provide a convenient syntax for queries, but also to arrange for the error messages to be helpful.
 An indexed family such as `Query` is probably best as the core of a typed database interaction library, rather than its user interface.
 
+## Exercises
+
+### Dates
+
+Define a structure to represent dates. Add it to the `DBType` universe and update the rest of the code accordingly. Provide whatever extra `DBExpr` constructors that seem to make sense.
+
+### Nullable Types
+
+Add support for nullable columns to the query language by representing database types with the following structure:
+```lean
+structure NDBType where
+  underlying : DBType
+  nullable : Bool
+
+abbrev NDBType.asType (t : NDBType) : Type :=
+  if t.nullable then
+    Option t.underlying.asType
+  else
+    t.underlying.asType
+```
+
+Use this type in place of `DBType` in `Column` and `DBExpr`, and look up SQL's rules for `NULL` and comparison operators to determine the types of `DBExpr`'s constructors.
+
+### Experimenting with Tactics
+
+What is the result of asking Lean to find values of the following types using `by repeat constructor`? Explain why each gives the result that it does.
+ * `Nat`
+ * `List Nat`
+ * `Vect Nat 4`
+ * `Row []`
+ * `Row [⟨"price", .int⟩]`
+ * `Row peak`
+ * `HasCol [⟨"price", .int⟩, ⟨"price", .int⟩] "price" .int`

@@ -11,7 +11,7 @@ The "hello world" of indexed families is a type of lists that contains the lengt
 {{#example_decl Examples/DependentTypes.lean Vect}}
 ```
 
-Function declarations may take some arguments before the colon, indicating that they are available in the entire definition, and some arguments after, indicating a desire to pattern-match on them and define the function case-by-case.
+Function declarations may take some arguments before the colon, indicating that they are available in the entire definition, and some arguments after, indicating a desire to pattern-match on them and define the function case by case.
 Inductive datatypes have a similar principle: the argument `α` is named at the top of the datatype declaration, prior to the colon, which indicates that it is a parameter that must be provided as the first argument in all occurrences of `Vect` in the definition, while the `Nat` argument occurs after the colon, indicating that it is an index that may vary.
 Indeed, the three occurrences of `Vect` in the `nil` and `cons` constructor declarations consistently provide `α` as the first argument, while the second argument is different in each case.
 
@@ -26,9 +26,23 @@ This means that using `Vect.nil` in a context expecting a `Vect String 3` is a t
 The mismatch between `0` and `3` in this example plays exactly the same role as any other type mismatch, even though `0` and `3` are not themselves types.
 
 Indexed families are called _families_ of types because different index values can make different constructors available for use.
-In some sense, an indexed family is not a type; rather, it is a collection of related types, and the choice of index values selects which type is available.
+In some sense, an indexed family is not a type; rather, it is a collection of related types, and the choice of index values also chooses a type from the collection.
 Choosing the index `5` for `Vect` means that only the constructor `cons` is available, and choosing the index `0` means that only `nil` is available.
+
 If the index is not yet known (e.g. because it is a variable), then no constructor can be used until it becomes known.
+Using `n` for the length allows neither `Vect.nil` nor `Vect.cons`, because there's no way to know whether the variable `n` should stand for a `Nat` that matches `0` or `n + 1`:
+```lean
+{{#example_in Examples/DependentTypes.lean nilNotLengthN}}
+```
+```output error
+{{#example_out Examples/DependentTypes.lean nilNotLengthN}}
+```
+```lean
+{{#example_in Examples/DependentTypes.lean consNotLengthN}}
+```
+```output error
+{{#example_out Examples/DependentTypes.lean consNotLengthN}}
+```
 
 Having the length of the list as part of its type means that the type becomes more informative.
 For example, `Vect.replicate` is a function that creates a `Vect` with a number of copies of a given value.
@@ -37,14 +51,14 @@ The type that says this precisely is:
 {{#example_in Examples/DependentTypes.lean replicateStart}}
 ```
 The argument `n` appears as the length of the result.
-The message associated with the underscore placeholder shows which tools are available:
+The message associated with the underscore placeholder describes the task at hand:
 ```output error
 {{#example_out Examples/DependentTypes.lean replicateStart}}
 ```
 
 When working with indexed families, constructors can only be applied when Lean can see that the constructor's index matches the index in the expected type.
 However, neither constructor has an index that matches `n`—`nil` matches `Nat.zero`, and `cons` matches `Nat.succ`.
-But the variable `n` could stand for either, depending on which `Nat` is provided to the function as an argument.
+Just as in the example type errors, the variable `n` could stand for either, depending on which `Nat` is provided to the function as an argument.
 The solution is to use pattern matching to consider both of the possible cases:
 ```lean
 {{#example_in Examples/DependentTypes.lean replicateMatchOne}}
@@ -58,13 +72,15 @@ In the second underscore, it has become `Vect α (k + 1)`:
 ```output error
 {{#example_out Examples/DependentTypes.lean replicateMatchTwo}}
 ```
+When pattern matching refines the type of a program in addition to discovering the structure of a value, it is called _dependent pattern matching_.
 
-This refined type makes it possible to apply the constructors.
+The refined type makes it possible to apply the constructors.
 The first underscore matches `Vect.nil`, and the second matches `Vect.cons`: 
 ```lean
 {{#example_in Examples/DependentTypes.lean replicateMatchFour}}
 ```
-The first underscore under the `.cons` should have type `α`, and `x` is an available `α` to use:
+The first underscore under the `.cons` should have type `α`.
+There is an `α` available, namely `x`:
 ```output error
 {{#example_out Examples/DependentTypes.lean replicateMatchFour}}
 ```
@@ -77,6 +93,7 @@ Here is the final definition of `replicate`:
 {{#example_decl Examples/DependentTypes.lean replicate}}
 ```
 
+In addition to providing assistance while writing the function, the informative type of `Vect.replicate` also allows client code to rule out a number of unexpected functions without having to read the source code.
 A version of `replicate` for lists could produce a list of the wrong length:
 ```lean
 {{#example_decl Examples/DependentTypes.lean listReplicate}}
@@ -91,7 +108,7 @@ However, making this mistake with `Vect.replicate` is a type error:
 
 
 The function `List.zip` combines two lists by pairing the first entry in the first list with the first entry in the second list, the second entry in the first list with the second entry in the second list, and so forth.
-`List.zip` can be used to pair the three highest peaks in Oregon with the three highest peaks in Denmark:
+`List.zip` can be used to pair the three highest peaks in the US state of Oregon with the three highest peaks in Denmark:
 ```lean
 {{#example_in Examples/DependentTypes.lean zip1}}
 ```
@@ -112,7 +129,7 @@ evaluates to
 ```
 
 While this approach is convenient because it always returns an answer, it runs the risk of throwing away data when the lists unintentionally have different lengths.
-F# takes a different approach: its version of `List.zip` throws an exception when the lengths don't match:
+F# takes a different approach: its version of `List.zip` throws an exception when the lengths don't match, as can be seen in this `fsi` session:
 ```fsharp
 > List.zip [3428.8; 3201.0; 3158.5; 3075.0; 3064.0] [170.86; 170.77; 170.35];;
 ```
@@ -126,14 +143,14 @@ list2 is 2 elements shorter than list1 (Parameter 'list2')
    at <StartupCode$FSI_0006>.$FSI_0006.main@()
 Stopped due to error
 ```
-This avoids throwing away information, but crashing a program comes with its own difficulties.
+This avoids accidentally discarding information, but crashing a program comes with its own difficulties.
 The Lean equivalent, which would use the `Option` or `Except` monads, would introduce a burden that may not be worth the safety.
 
 Using `Vect`, however, it is possible to write a version of `zip` with a type that requires that both arguments have the same length:
 ```lean
 {{#example_decl Examples/DependentTypes.lean VectZip}}
 ```
-This definition only checks the cases where either both arguments are `Vect.nil` or both arguments are `Vect.cons`, and Lean accepts the definition without a "missing cases" notification like the one that results from a similar definition for `List`:
+This definition only has patterns for the cases where either both arguments are `Vect.nil` or both arguments are `Vect.cons`, and Lean accepts the definition without a "missing cases" error like the one that results from a similar definition for `List`:
 ```lean
 {{#example_in Examples/DependentTypes.lean zipMissing}}
 ```
