@@ -1503,7 +1503,7 @@ argument
 has type
   NonEmptyList String : Type
 but is expected to have type
-  List ?m.34386 : Type"
+  List ?m.34371 : Type"
 end expect
 
 expect error {{{ lastSpiderC }}}

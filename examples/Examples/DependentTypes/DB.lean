@@ -531,7 +531,7 @@ mountains : Query (List.map (fun c => { name := \"mountain\" ++ \".\" ++ c.name,
   prefixWith \"mountain\" (table mountainDiary)
 waterfalls : Query (List.map (fun c => { name := \"waterfall\" ++ \".\" ++ c.name, contains := c.contains }) waterfall) :=
   prefixWith \"waterfall\" (table waterfallDiary)
-⊢ HasCol (List.map (fun c => { name := \"waterfall\" ++ \".\" ++ c.name, contains := c.contains }) []) \"location\" ?m.111871"
+⊢ HasCol (List.map (fun c => { name := \"waterfall\" ++ \".\" ++ c.name, contains := c.contains }) []) \"location\" ?m.110666"
 end expect
 
 expect error {{{ QueryOops2 }}}
