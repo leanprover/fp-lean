@@ -35,6 +35,15 @@ book declaration {{{ NestedPairs }}}
 stop book declaration
 
 
+
+expect error {{{ beqNoCases }}}
+  instance {t : NestedPairs} : BEq t.asType where
+    beq x y := x == y
+message
+"failed to synthesize instance
+  BEq (NestedPairs.asType t)"
+end expect
+
 book declaration {{{ NestedPairsbeq }}}
   def NestedPairs.beq (t : NestedPairs) (x y : t.asType) : Bool :=
     match t with
@@ -86,9 +95,9 @@ def List.concatMap : List α → (α → List β) → List β
 namespace ListExtras
 
 book declaration {{{ foldr }}}
-  def List.foldr (f : α → β → β) (init : β) : List α → β
-    | []     => init
-    | a :: l => f a (foldr f init l)
+  def List.foldr (f : α → β → β) (default : β) : List α → β
+    | []     => default
+    | a :: l => f a (foldr f default l)
 stop book declaration
 end ListExtras
 
@@ -186,6 +195,7 @@ theorem beq_refl (t : Finite) (x : t.asType) : t.beq x x = true := by
      lhs; rhs; intro arg
      rw [ih2]
     rw [list_all_true]
+
 
 def Finite.isSingleton : Finite → Bool
   | .unit => true

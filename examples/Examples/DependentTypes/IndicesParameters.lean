@@ -9,7 +9,7 @@ stop book declaration
 
 book declaration {{{ WithTwoParameters }}}
   inductive WithTwoParameters (α : Type u) (β : Type v) : Type (max u v) where
-    | test : α → WithTwoParameters α β
+    | test : α → β → WithTwoParameters α β
 stop book declaration
 
 

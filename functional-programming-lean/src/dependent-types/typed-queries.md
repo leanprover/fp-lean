@@ -1,8 +1,9 @@
 # Worked Example: Typed Queries
 
 Indexed families are very useful when building an API that is supposed to resemble some other language.
-They can be used to write a library of HTML constructors that don't permit generating invalid HTML, to encode the rules of a data format such as a `crontab` file, or to model complicated business constraints.
+They can be used to write a library of HTML constructors that don't permit generating invalid HTML, to encode the specific rules of a configuration file format, or to model complicated business constraints.
 This section describes an encoding of a subset of relational algebra in Lean using indexed families, as a simpler demonstration of techniques that can be used to build a more powerful database query language.
+
 This subset uses the type system to enforce requirements such as disjointness of field names, and it uses type-level computation to reflect the schema into the types of values that are returned from a query.
 It is not a realistic system, however—databases are represented as linked lists of linked lists, the type system is much simpler than that of SQL, and the operators of relational algebra don't really match those of SQL.
 However, it is large enough to demonstrate useful principles and techniques.
@@ -31,7 +32,7 @@ Simply using `BEq` directly fails:
 ```output info
 {{#example_out Examples/DependentTypes/DB.lean dbEqNoSplit}}
 ```
-This is because type class search doesn't automatically check each possibility for `t`'s value.
+Just as in the nested pairs universe, type class search doesn't automatically check each possibility for `t`'s value
 The solution is to use pattern matching to refine the types of `x` and `y`:
 ```lean
 {{#example_decl Examples/DependentTypes/DB.lean dbEq}}
@@ -49,11 +50,10 @@ The former instance allows comparison of values drawn from the types described b
  
 A `Repr` instance can be written using the same technique.
 The method of the `Repr` class is called `reprPrec` because it is designed to take things like operator precedence into account when displaying values.
-Refining the type through pattern matching allows the `reprPrec` methods from the `Repr` instances for `Int`, `String`, and `Bool` to be used:
+Refining the type through dependent pattern matching allows the `reprPrec` methods from the `Repr` instances for `Int`, `String`, and `Bool` to be used:
 ```lean
 {{#example_decl Examples/DependentTypes/DB.lean ReprAsType}}
 ```
-
 
 ## Schemas and Tables
 
@@ -62,7 +62,11 @@ A schema describes the name and type of each column in a database:
 {{#example_decl Examples/DependentTypes/DB.lean Schema}}
 ```
 In fact, a schema can be seen as a universe that describes rows in a table.
-The empty schema describes the unit type, a schema with a single column describes that value on its own, and a schema with at least two columns is represented by a tuple.
+The empty schema describes the unit type, a schema with a single column describes that value on its own, and a schema with at least two columns is represented by a tuple:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean Row}}
+```
+
 As described in [the initial section on product types](../getting-to-know/polymorphism.md#Prod), Lean's product type and tuples are right-associative.
 This means that nested pairs are equivalent to ordinary flat tuples.
 
@@ -87,7 +91,7 @@ Another example consists of waterfalls and a diary of visits to them:
 
 ### Recursion and Universes, Revisited
 
-The convenient structuring of rows as tuples comes at a cost: the fact that `Row` treats its two base cases separately means that functions that use `Row`s but are defined recursively over the codes (that, is the schema) need to make the same distinctions.
+The convenient structuring of rows as tuples comes at a cost: the fact that `Row` treats its two base cases separately means that functions that use `Row` in their types and are defined recursively over the codes (that, is the schema) need to make the same distinctions.
 One example of a case where this matters is an equality check that uses recursion over the schema to define a function that checks rows for equality.
 This example does not pass Lean's type checker:
 ```lean
@@ -96,14 +100,14 @@ This example does not pass Lean's type checker:
 ```output error
 {{#example_out Examples/DependentTypes/DB.lean RowBEqRecursion}}
 ```
-The problem is that the pattern `col :: cols` does not refine the type of the rows.
+The problem is that the pattern `col :: cols` does not sufficiently refine the type of the rows.
 This is because Lean cannot yet tell whether the singleton pattern `[col]` or the `col1 :: col2 :: cols` pattern in the definition of `Row` was matched, so the call to `Row` does not compute down to a pair type.
 The solution is to mirror the structure of `Row` in the definition of `Row.bEq`:
 ```lean
 {{#example_decl Examples/DependentTypes/DB.lean RowBEq}}
 ```
 
-Functions that occur in types cannot be considered only with respect to their input/output behavior.
+Unlike in other contexts, functions that occur in types cannot be considered only in terms of their input/output behavior.
 Programs that use these types will find themselves forced to mirror the algorithm used in the type-level function so that their structure matches the pattern-matching and recursive behavior of the type.
 A big part of the skill of programming with dependent types is the selection of appropriate type-level functions with the right computational behavior.
 
@@ -121,11 +125,12 @@ The indexed family `HasCol` is a translation of the specification into Lean code
 {{#example_decl Examples/DependentTypes/DB.lean HasCol}}
 ```
 The family's three arguments are the schema, the column name, and its type.
+All three are indices.
 The constructor `here` can be used when the schema begins with the column `⟨name, t⟩`; it is thus a pointer to the first column in the schema that can only be used when the first column has the desired name and type.
 The constructor `there` transforms a pointer into a smaller schema into a pointer into a schema with one more column on it.
 
 Because `"elevation"` is the third column in `peak`, it can be found by looking past the first two columns with `there`, after which it is the first column.
-In other words, something with type `{{#example_out Examples/DependentTypes/DB.lean peakElevationInt}}` can be built using `{{#example_in Examples/DependentTypes/DB.lean peakElevationInt}}`.
+In other words, to satisfy the type `{{#example_out Examples/DependentTypes/DB.lean peakElevationInt}}`, use the expression `{{#example_in Examples/DependentTypes/DB.lean peakElevationInt}}`.
 One way to think about `HasCol` is as a kind of decorated `Nat`—`zero` corresponds to `here`, and `succ` corresponds to `there`.
 The extra type information makes it impossible to have off-by-one errors.
 
@@ -180,11 +185,12 @@ That interlude uses `by simp` to provide evidence of various propositions.
 In this context, two tactics are useful:
  * The `constructor` tactic instructs Lean to solve the problem using the constructor of a datatype.
  * The `repeat` tactic instructs Lean to repeat a tactic over and over until it either fails or the proof is finished.
+
 In the next example, `by constructor` has the same effect as just writing `.nil` would have:
 ```lean
 {{#example_decl Examples/DependentTypes/DB.lean emptySub}}
 ```
-However, attempting that same tactic a slightly more complicated type fails:
+However, attempting that same tactic with a slightly more complicated type fails:
 ```lean
 {{#example_in Examples/DependentTypes/DB.lean notDone}}
 ```
@@ -192,6 +198,7 @@ However, attempting that same tactic a slightly more complicated type fails:
 {{#example_out Examples/DependentTypes/DB.lean notDone}}
 ```
 Errors that begin with `unsolved goals` describe tactics that failed to completely build the expressions that they were supposed to.
+In Lean's tactic language, a _goal_ is a type that a tactic is to fulfill by constructing an appropriate expression behind the scenes.
 In this case, `constructor` caused `Subschema.cons` to be applied, and the two goals represent the two arguments expected by `cons`.
 Adding another instance of `constructor` causes the first goal (`HasCol peak \"location\" DBType.string`) to be addressed with `HasCol.there`, because `peak`'s first column is not `"location"`:
 ```lean
@@ -226,16 +233,17 @@ This more flexible version also works for more interesting `Subschema` problems:
 ```
 
 The approach of blindly trying constructors until something works is not very useful for types like `Nat` or `List Bool`.
-Just because an expression has type `Nat` doesn't mean that it's the _correct_ `Nat`, after all!
+Just because an expression has type `Nat` doesn't mean that it's the _correct_ `Nat`, after all.
 But types like `HasCol` and `Subschema` are sufficiently constrained by their indices that only one constructor will ever be applicable, which means that the contents of the program itself are less interesting, and a computer can pick the correct one.
 
-If one schema is a subschema of another, then adding a new column to the larger schema won't change this fact.
+If one schema is a subschema of another, then it is also a subschema of the larger schema extended with an additional column.
 This fact can be captured as a function definition.
 `Subschema.addColumn` takes evidence that `smaller` is a subschema of `bigger`, and then returns evidence that `smaller` is a subschema of `c :: bigger`, that is, `bigger` with one additional column:
 ```lean
 {{#example_decl Examples/DependentTypes/DB.lean SubschemaAdd}}
 ```
 A subschema describes where to find each column from the smaller schema in the larger schema.
+`Subschema.addColumn` must translate these descriptions from the original larger schema into the extended larger schema.
 In the `nil` case, the smaller schema is `[]`, and `nil` is also evidence that `[]` is a subschema of `c :: bigger`.
 In the `cons` case, which describes how to place one column from `smaller` into `larger`, the placement of the column needs to be adjusted with `there` to account for the new column `c`, and a recursive call adjusts the rest of the columns.
 
@@ -250,7 +258,7 @@ This relation is reflexive, meaning that every schema is a subschema of itself:
 
 Given evidence that `s'` is a subschema of `s`, a row in `s` can be projected into a row in `s'`.
 This is done using the evidence that `s'` is a subschema of `s`, which explains where each column of `s'` is found in `s`.
-The new row in `s'` is built up one column at a time, by retrieving the value from the appropriate place in the old row.
+The new row in `s'` is built up one column at a time by retrieving the value from the appropriate place in the old row.
 
 The function that performs this projection, `Row.project`, has three cases, one for each case of `Row` itself.
 It uses `Row.get` together with each `HasCol` in the `Subschema` argument to construct the projected row:
@@ -277,7 +285,7 @@ The `eq` constructor compares two expressions for equality, `lt` checks whether 
 
 For example, an expression in `peak` that checks whether the `elevation` column is greater than 1000 and the location is `"Denmark"` can be written:
 ```lean
-{{#example_in Examples/DependentTypes/DB.lean tallDk}}
+{{#example_decl Examples/DependentTypes/DB.lean tallDk}}
 ```
 This is somewhat noisy.
 In particular, references to columns contain boilerplate calls to `by repeat constructor`.
@@ -286,6 +294,7 @@ A Lean feature called _macros_ can help make expressions easier to read by elimi
 {{#example_decl Examples/DependentTypes/DB.lean cBang}}
 ```
 This declaration adds the `c!` keyword to Lean, and instructs Lean to replace any instance of `c!` followed by an expression with the corresponding `DBExpr.col` construction.
+Here, `term` stands for Lean expressions, rather than commands, tactics, or some other part of the language.
 Lean macros are a bit like C preprocessor macros, except they are better integrated into the language and they automatically avoid some of the pitfalls of CPP.
 In fact, they are very closely related to macros in Scheme and Racket.
 
@@ -299,7 +308,7 @@ Finding the value of an expression with respect to a given row uses `Row.get` to
 {{#example_decl Examples/DependentTypes/DB.lean DBExprEval}}
 ```
 
-Evaluating the expression for Valby bakke, the tallest hill in the Copenhagen area, yields `false` because Valby bakke is much less than 1 km over sea level:
+Evaluating the expression for Valby Bakke, the tallest hill in the Copenhagen area, yields `false` because Valby Bakke is much less than 1 km over sea level:
 ```lean
 {{#example_in Examples/DependentTypes/DB.lean valbybakke}}
 ```
@@ -347,8 +356,8 @@ The `product` constructor's type contains a call to `disjoint`, which ensures th
 The use of an expression of type `Bool` where a type is expected triggers a coercion from `Bool` to `Prop`.
 Just as decidable propositions can be considered to be Booleans, where evidence for the proposition is coerced to `true` and refutations of the proposition are coerced to `false`, Booleans are coerced into the proposition that states that the expression is equal to `true`.
 Because all uses of the library are expected to occur in contexts where the schemas are known ahead of time, this proposition can be proved with `by simp`.
-Similarly, `rename` checks that the new name does not already exist in the schema.
-It uses the helper `renameColumn` to change the name of the column pointed to by `HasCol`:
+Similarly, the `renameColumn` constructor checks that the new name does not already exist in the schema.
+It uses the helper `Schema.renameColumn` to change the name of the column pointed to by `HasCol`:
 ```lean
 {{#example_decl Examples/DependentTypes/DB.lean renameColumn}}
 ```
@@ -387,6 +396,12 @@ Here, however, the query language has no operator for restricting the number of 
 ```lean
 {{#example_decl Examples/DependentTypes/DB.lean TableCartProd}}
 ```
+
+Just as with `List.product`, a loop with mutation in the identity monad can be used as an alternative implementation technique:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean TableCartProdOther}}
+```
+
 
 ### Difference
 
@@ -496,13 +511,14 @@ However, the error message is similarly unhelpful:
 ```
 
 Lean's macro system contains everything needed not only to provide a convenient syntax for queries, but also to arrange for the error messages to be helpful.
+Unfortunately, it is beyond the scope of this book to provide a description of implementing languages with Lean macros.
 An indexed family such as `Query` is probably best as the core of a typed database interaction library, rather than its user interface.
 
 ## Exercises
 
 ### Dates
 
-Define a structure to represent dates. Add it to the `DBType` universe and update the rest of the code accordingly. Provide whatever extra `DBExpr` constructors that seem to make sense.
+Define a structure to represent dates. Add it to the `DBType` universe and update the rest of the code accordingly. Provide the extra `DBExpr` constructors that seem to be necessary.
 
 ### Nullable Types
 

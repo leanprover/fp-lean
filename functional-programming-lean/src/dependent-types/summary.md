@@ -8,13 +8,13 @@ This can be used, for example, to have the result type of a database query depen
 When the query changes, so does the type that results from running it, enabling immediate compile-time feedback.
 
 When a function's return type depends on a value, analyzing the value with pattern matching can result in the type being _refined_, as a variable that stands for a value is replaced by the constructors in the pattern.
-The type signature of a function documents the way that the return type depends on the argument value, and pattern matching then explains how the return type can be fulfilled for each potential value.
+The type signature of a function documents the way that the return type depends on the argument value, and pattern matching then explains how the return type can be fulfilled for each potential argument.
 
 Ordinary code that occurs in types is run during type checking, though `partial` functions that might loop infinitely are not called.
 Mostly, this computation follows the rules of ordinary evaluation that were introduced in [the very beginning of this book](../getting-to-know/evaluating.md), with expressions being progressively replaced by their values until a final value is found.
-Computation during type checking has an important difference from run-time computation: some values in types may be variables whose value is not yet known.
+Computation during type checking has an important difference from run-time computation: some values in types may be _variables_ whose values are not yet known.
 In these cases, pattern-matching gets "stuck" and does not proceed until or unless a particular constructor is selected, e.g. by pattern matching.
-Type-level computation can be seen as a kind of _partial evaluation_, where only the parts of the program that are sufficiently known need to be evaluated and other parts are left alone.
+Type-level computation can be seen as a kind of partial evaluation, where only the parts of the program that are sufficiently known need to be evaluated and other parts are left alone.
 
 ## The Universe Pattern
 
@@ -36,12 +36,12 @@ Defining a custom universe has a number of advantages over using the types direc
 Datatypes can take two separate kinds of arguments: _parameters_ are identical in each constructor of the datatype, while _indices_ may vary between constructors.
 For a given choice of index, only some constructors of the datatype are available.
 As an example, `Vect.nil` is available only when the length index is `0`, and `Vect.cons` is available only when the length index is `n+1` for some `n`.
-While parameters are typically written as named arguments before the colon in a datatype declaration, and indices as unnamed parts of a function type after the colon, Lean can infer when an argument after the colon is used as a parameter.
+While parameters are typically written as named arguments before the colon in a datatype declaration, and indices as arguments in a function type after the colon, Lean can infer when an argument after the colon is used as a parameter.
 
 Indexed families allow the expression of complicated relationships between data, all checked by the compiler.
 The datatype's invariants can be encoded directly, and there is no way to violate them, not even temporarily.
 Informing the compiler about the datatype's invariants brings a major benefit: the compiler can now inform the programmer about what must be done to satisfy them.
-The strategic use of compile-time errors, especially those resulting from underscores, can make it possible to offload some of the programming thought process to Lean, freeing up the mind to worry about other things.
+The strategic use of compile-time errors, especially those resulting from underscores, can make it possible to offload some of the programming thought process to Lean, freeing up the programmer's mind to worry about other things.
 
 Encoding invariants using indexed families can lead to difficulties.
 First off, each invariant requires its own datatype, which then requires its own support libraries.
@@ -55,9 +55,9 @@ Avoiding these slowdowns for complicated programs can require specialized techni
 
 ## Definitional and Propositional Equality
 
-Lean's type checker must, from time to time, check whether two types are equal.
+Lean's type checker must, from time to time, check whether two types should be considered interchangable.
 Because types can contain arbitrary programs, it must therefore be able to check arbitrary programs for equality.
-However, there is no efficient algorithm to check arbitrary programs for equality.
+However, there is no efficient algorithm to check arbitrary programs for fully-general mathematical equality.
 To work around this, Lean contains two notions of equality:
 
  * _Definitional equality_ is an underapproximation of equality that essentially checks for equality of syntactic representation modulo computation and renaming of bound variables. Lean automatically checks for definitional equality in situations where it is required.
@@ -66,7 +66,7 @@ To work around this, Lean contains two notions of equality:
 
 The two notions of equality represent a division of labor between programmers and Lean itself.
 Definitional equality is simple, but automatic, while propositional equality is manual, but expressive.
-Propositional equality can be used to unstick otherwise stuck programs in types.
+Propositional equality can be used to unstick otherwise-stuck programs in types.
 
 However, the frequent use of propositional equality to unstick type-level computation is typically a code smell.
 It typically means that coincidences were not well-engineered, and it's usually a better idea to either redesign the types and indices or to use a different technique to enforce the needed invariants.

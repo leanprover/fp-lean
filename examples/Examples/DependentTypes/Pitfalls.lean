@@ -234,7 +234,7 @@ end expect
 
 expect error {{{ plusR_zero_left3 }}}
   def plusR_zero_left : (k : Nat) → k = Nat.plusR 0 k
-    | 0 => by simp
+    | 0 => by rfl
     | k + 1 => _
 message
 "don't know how to synthesize placeholder
@@ -256,7 +256,7 @@ end Adding
 
 expect error {{{ plusR_zero_left4 }}}
   def plusR_zero_left : (k : Nat) → k = Nat.plusR 0 k
-    | 0 => by simp
+    | 0 => by rfl
     | k + 1 => (_ : k + 1 = Nat.plusR 0 k + 1)
 message
 "don't know how to synthesize placeholder
@@ -268,7 +268,7 @@ end expect
 
 book declaration {{{ plusR_zero_left_done }}}
   def plusR_zero_left : (k : Nat) → k = Nat.plusR 0 k
-    | 0 => by simp
+    | 0 => by rfl
     | k + 1 =>
       congrArg (· + 1) (plusR_zero_left k)
 stop book declaration
@@ -305,7 +305,7 @@ end expect
 
 expect error {{{ plusR_succ_left_0 }}}
   def plusR_succ_left (n : Nat) : (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
-    | 0 => _
+    | 0 => by rfl
     | k + 1 => _
 message
 "don't know how to synthesize placeholder
@@ -314,33 +314,11 @@ n k : Nat
 ⊢ Nat.plusR (n + 1) (k + 1) = Nat.plusR n (k + 1) + 1"
 end expect
 
-expect error {{{ plusR_succ_left_0 }}}
-  def plusR_succ_left (n : Nat) : (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
-    | 0 => _
-    | k + 1 => _
-message
-"don't know how to synthesize placeholder
-context:
-n k : Nat
-⊢ Nat.plusR (n + 1) (k + 1) = Nat.plusR n (k + 1) + 1"
-end expect
-
-
-
-expect error {{{ plusR_succ_left_1 }}}
-  def plusR_succ_left (n : Nat) : (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
-    | 0 => by simp
-    | k + 1 => _
-message
-"unsolved goals
-n : Nat
-⊢ Nat.plusR (n + 1) 0 = Nat.plusR n 0 + 1"
-end expect
 
 
 expect error {{{ plusR_succ_left_2 }}}
   def plusR_succ_left (n : Nat) : (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
-    | 0 => by simp [Nat.plusR]
+    | 0 => by rfl
     | k + 1 => _
 message
 "don't know how to synthesize placeholder
@@ -352,7 +330,7 @@ end expect
 
 book declaration {{{ plusR_succ_left }}}
   def plusR_succ_left (n : Nat) : (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
-    | 0 => by simp [Nat.plusR]
+    | 0 => by rfl
     | k + 1 => congrArg (· + 1) (plusR_succ_left n k)
 stop book declaration
 
@@ -372,7 +350,7 @@ stop book declaration
 end Impl
 
 def plusRAdd (n : Nat) : (k : Nat) → n.plusR k = n + k
-  | 0 => by simp [Nat.plusR]
+  | 0 => by rfl
   | k + 1 =>  congrArg (· + 1) (plusRAdd n k)
 
 namespace Tactical

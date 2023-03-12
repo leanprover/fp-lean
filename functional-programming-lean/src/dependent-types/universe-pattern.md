@@ -35,6 +35,16 @@ This means that recursion over codes is required in order to implement `BEq` for
 {{#example_decl Examples/DependentTypes/Finite.lean NestedPairsbeq}}
 ```
 
+Even though every type in the `NestedPairs` universe already has a `BEq` instance, type class search does not automatically check every possible case of a datatype in an instance declaration, because there might be infinitely many such cases, as with `NestedPairs`.
+Attempting to appeal directly to the `BEq` instances rather than explaining to Lean how to find them by recursion on the codes results in an error:
+```lean
+{{#example_in Examples/DependentTypes/Finite.lean beqNoCases}}
+```
+```output error
+{{#example_out Examples/DependentTypes/Finite.lean beqNoCases}}
+```
+The `t` in the error message stands for an unknown value of type `NestedPairs`.
+
 ## Type Classes vs Universes
 
 Type classes allow an open-ended collection of types to be used with an API as long as they have implementations of the necessary interfaces.
@@ -69,7 +79,7 @@ One way to represent finite types is by a universe:
 In this universe, the constructor `arr` stands for the function type, which is written with an `arr`ow.
 
 Comparing two values from this universe for equality is almost the same as in the `NestedPairs` universe.
-The only important difference is the addition of the case for `arr`, which uses a helper called `Finite.enumerate` to generate every value from the type coded for by `t1`, checking that the two functions return the equal results:
+The only important difference is the addition of the case for `arr`, which uses a helper called `Finite.enumerate` to generate every value from the type coded for by `t1`, checking that the two functions return equal results for every possible input:
 ```lean
 {{#example_decl Examples/DependentTypes/Finite.lean FiniteBeq}}
 ```
@@ -95,9 +105,9 @@ It can even compare functions built using tools such as function composition:
 ```output info
 {{#example_out Examples/DependentTypes/Finite.lean arrBoolBoolEq3}}
 ```
+This is because the `Finite` universe codes for Lean's _actual_ function type, not a special analogue created by the library.
 
-
-The implementation of `all` is also by recursion on the codes from `Finite`.
+The implementation of `enumerate` is also by recursion on the codes from `Finite`.
 ```lean
 {{#include ../../../examples/Examples/DependentTypes/Finite.lean:FiniteAll}}
 ```
@@ -112,23 +122,24 @@ The helper function `List.product` can certainly be written with an ordinary rec
 Finally, the case of `Finite.enumerate` for functions delegates to a helper called `Finite.functions` that takes a list of all of the return values to target as an argument.
 
 Generally speaking, generating all of the functions from some finite type to a collection of result values can be thought of as generating the functions' tables.
-Each function assigns an output to each input, which means that a given function has \\( kn \\) rows in its table when there are \\( k \\) possible arguments and \\( n \\) possible return values.
-All in all, there are \\( n ^ k \\) potential functions to generate.
+Each function assigns an output to each input, which means that a given function has \\( k \\) rows in its table when there are \\( k \\) possible arguments.
+Because each row of the table could select any of \\( n \\) possible outputs, there are \\( n ^ k \\) potential functions to generate.
 
 Once again, generating the functions from a finite type to some list of values is recursive on the code that describes the finite type:
 ```lean
 {{#include ../../../examples/Examples/DependentTypes/Finite.lean:FiniteFunctionSigStart}}
 ```
 
-The table for functions from `Unit` contains one row for each result value, because the function can't pick different results based on which input it is provided:
+The table for functions from `Unit` contains one row, because the function can't pick different results based on which input it is provided.
+This means that one function is generated for each potential input.
 ```lean
 {{#include ../../../examples/Examples/DependentTypes/Finite.lean:FiniteFunctionUnit}}
 ```
-The table for `Bool` contains \\( n^2 \\) rows when there are \\( n \\) result values, because each individual function of type `Bool → α` uses the `Bool` to select between two particular `α`s:
+There are \\( n^2 \\) functions from `Bool` when there are \\( n \\) result values, because each individual function of type `Bool → α` uses the `Bool` to select between two particular `α`s:
 ```lean
 {{#include ../../../examples/Examples/DependentTypes/Finite.lean:FiniteFunctionBool}}
 ```
-Generating the functions from pairs can be achieved by taking advantage of Currying.
+Generating the functions from pairs can be achieved by taking advantage of currying.
 A function from a pair can be transformed into a function that takes the first element of the pair and returns a function that's waiting for the second element of the pair.
 Doing this allows `Finite.functions` to be used recursively in this case:
 ```lean
@@ -140,15 +151,15 @@ Each higher-order function takes a function as its argument.
 This argument function can be distinguished from other functions based on its input/output behavior.
 In general, the higher-order function can apply the argument function to every possible argument, and it can then carry out any possible behavior based on the result of applying the argument function.
 This suggests a means of constructing the higher-order functions:
- * Begin with a list of all possible arguments to the argument function.
- * For each possible argument, construct all possible behaviors that can result from the observation of applying the argument function to the possible argument. This can be done using `Finite.functions` and recursion over the rest of the possible arguments, because the result of the recursion represents the functions based on the observations of the rest of the possible arguments and `Finite.functions` constructs all the ways of achieving these based on the observation for the current argument.
-   * For each observation behavior, construct a higher-order function that applies the argument function to the current possible argument. The result of this is then passed to the observation behavior.
+ * Begin with a list of all possible arguments to the function that is itself an argument.
+ * For each possible argument, construct all possible behaviors that can result from the observation of applying the argument function to the possible argument. This can be done using `Finite.functions` and recursion over the rest of the possible arguments, because the result of the recursion represents the functions based on the observations of the rest of the possible arguments. `Finite.functions` constructs all the ways of achieving these based on the observation for the current argument.
+ * For potential behavior in response to these observations, construct a higher-order function that applies the argument function to the current possible argument. The result of this is then passed to the observation behavior.
  * The base case of the recursion is a higher-order function that observes nothing for each result value—it ignores the argument function and simply returns the result value.
 
 Defining this recursive function directly causes Lean to be unable to prove that the whole function terminates.
-However, using a simpler form of recursion called a _right fold_ allows Lean to see the termination.
-A right fold takes three arguments: a step function that combines an entry from the list with the result of the recursion over the tail, an initial value to return when the list is empty, and the list being processed.
-It then analyzes the list, essentially replacing each `::` in the list with a call to the step function and replacing `[]` with the initial value:
+However, using a simpler form of recursion called a _right fold_ can be used to make it clear to the termination checker that the function terminates.
+A right fold takes three arguments: a step function that combines the head of the list with the result of the recursion over the tail, a default value to return when the list is empty, and the list being processed.
+It then analyzes the list, essentially replacing each `::` in the list with a call to the step function and replacing `[]` with the default value:
 ```lean
 {{#example_decl Examples/DependentTypes/Finite.lean foldr}}
 ```

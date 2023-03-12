@@ -3,7 +3,7 @@
 The distinction between indices and parameters of an inductive type is more than just a way to describe arguments to the type that either vary or do not between the constructors.
 Whether an argument to an inductive type is a parameter or an index also matters when it comes time to determine the relationships between their universe levels.
 In particular, an inductive type may have the same universe level as a parameter, but it must be in a larger universe than its indices.
-This restriction is necessary to ensure that Lean can be used as a theorem prover as well as a programming language.
+This restriction is necessary to ensure that Lean can be used as a theorem prover as well as a programming language—without it, Lean's logic would be inconsistent.
 Experimenting with error messages is a good way to illustrate these rules, as well as the precise rules that determine whether an argument to a type is a parameter or an index.
 
 Generally speaking, the definition of an inductive type takes its parameters before a colon and its indices after the colon.
@@ -105,3 +105,6 @@ For example, for `Vect`, it points out that the number of parameters is 1:
 It is worth thinking about which arguments should be parameters and which should be indices when choosing the order of arguments to a datatype.
 Having as many arguments as possible be parameters helps keep universe levels under control, which can make a complicated program easier to type check.
 One way to make this possible is to ensure that all parameters come before all indices in the argument list.
+
+Additionally, even though Lean is capable of determining that arguments after the colon are nonetheless parameters by their usage, it's a good idea to write parameters with explicit names.
+This makes the intention clear to readers, and it causes Lean to report an error if the argument is mistakenly used inconsistently across the constructors.

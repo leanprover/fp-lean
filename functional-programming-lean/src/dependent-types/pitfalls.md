@@ -1,11 +1,13 @@
-# Pitfalls of Programming with Indexed Families
+# Pitfalls of Programming with Dependent Types
 
-Indexed families allow very expressive types.
+The flexibility of dependent types allows more useful programs to be accepted by a type checker, because the language of types is expressive enough to describe variations that less-expressive type systems cannot.
+At the same time, the ability of dependent types to express very fine-grained specifications allows more buggy programs to be rejected by a type checker.
+This power comes at a cost.
 
-However, the close coupling between the internals of type-returning functions such as `Row` and the types that they produce is an instance of a bigger difficulty: the distinction between the interface and the implementation of functions begins to break down when functions are used in types.
+The close coupling between the internals of type-returning functions such as `Row` and the types that they produce is an instance of a bigger difficulty: the distinction between the interface and the implementation of functions begins to break down when functions are used in types.
 Normally, all refactorings are valid as long as they don't change the type signature or input-output behavior of a function.
-Functions can be rewritten to use more efficient algorithms and data structures, bugs can be fixed, and clarity can be improved without breaking client code.
-When the function is used in a type, however, the internals of the function's implementation become part of the type, and thus part of interface to another program.
+Functions can be rewritten to use more efficient algorithms and data structures, bugs can be fixed, and code clarity can be improved without breaking client code.
+When the function is used in a type, however, the internals of the function's implementation become part of the type, and thus part of _interface_ to another program.
 
 As an example, take the following two implementations of addition on `Nat`.
 `Nat.plusL` is recursive on its first argument:
@@ -41,9 +43,9 @@ Here, `n✝` represents the `Nat` that is one less than the argument `n`.
 ## Definitional Equality
 
 In the definition of `plusL`, there is a pattern case `0, k => k`.
-This applies in the length used in the first placeholder, so another way to write the type of the underscore is `Vect α k`.
+This applies in the length used in the first placeholder, so another way to write the underscore's type `Vect α (Nat.plusL 0 k)` is `Vect α k`.
 Similarly, `plusL` contains a pattern case `n + 1, k => plusN n k + 1`.
-This means that the type of the second underscore can also be equivalently written `Vect α (plusL n✝ k + 1)`.
+This means that the type of the second underscore can be equivalently written `Vect α (plusL n✝ k + 1)`.
 
 To expose what is going on behind the scenes, the first step is to write the `Nat` arguments explicitly, which also results in daggerless error messages because the names are now written explicitly in the program:
 ```lean
@@ -72,7 +74,7 @@ Refining the definition with `ys` instead of the first underscore yields a progr
 ```lean
 {{#example_in Examples/DependentTypes/Pitfalls.lean appendL7}}
 ```
-```output info
+```output error
 {{#example_out Examples/DependentTypes/Pitfalls.lean appendL7}}
 ```
 
@@ -98,7 +100,7 @@ Functions, on the other hand, are more complicated.
 While mathematics considers two functions to be equal if they have identical input-output behavior, there is no efficient algorithm to check that, and the whole point of definitional equality is for Lean to check whether two types are interchangeable.
 Instead, Lean considers functions to be definitionally equal either when they are both `fun`-expressions with definitionally equal bodies.
 In other words, two functions must use _the same algorithm_ that calls _the same helpers_ to be considered definitionally equal.
-This is not typically very helpful, so definitional equality of functions is rarely used.
+This is not typically very helpful, so definitional equality of functions is mostly used when the exact same defined function occurs in two types.
 
 When functions are _called_ in a type, checking definitional equality may involve reducing the function call.
 The type `Vect String (1 + 4)` is definitionally equal to the type `Vect String (3 + 2)` because `1 + 4` is definitionally equal to `3 + 2`.
@@ -106,7 +108,8 @@ To check their equality, both are reduced to `5`, and then the constructor rule 
 Definitional equality of functions applied to data can be checked first by seeing if they're already the same—there's no need to reduce `["a", "b"] ++ ["c"]` to check that it's equal to `["a", "b"] ++ ["c"]`, after all.
 If not, the function is called and replaced with its value, and the value can then be checked.
 
-Types, however, may contain `Nat`s that are not built from the `zero` and `succ` constructors.
+Not all function arguments are concrete data.
+For example, types may contain `Nat`s that are not built from the `zero` and `succ` constructors.
 In the type `(n : Nat) → Vect String n`, the variable `n` is a `Nat`, but it is impossible to know _which_ `Nat` it is before the function is called.
 Indeed, the function may be called first with `0`, and then later with `17`, and then again with `33`.
 As seen in the definition of `appendL`, variables with type `Nat` may also be passed to functions such as `plusL`.
@@ -187,7 +190,8 @@ Propositional equality is the mathematical statement that two expressions are eq
 While definitional equality is a kind of ambient fact that Lean automatically checks when required, statements of propositional equality require explicit proofs.
 Once an equality proposition has been proved, it can be used in a program to modify a type, replacing one side of the equality with the other, which can unstick the type checker.
 
-The reason why definitional equality is so limited is to keep it tractable for an algorithm to check it; propositional equality is much richer, but the computer cannot in general check whether two expressions are propositionally equal, though it can verify that a purported proof is in fact a proof.
+The reason why definitional equality is so limited is to enable it to be checked by an algorithm.
+Propositional equality is much richer, but the computer cannot in general check whether two expressions are propositionally equal, though it can verify that a purported proof is in fact a proof.
 The split between definitional and propositional equality represents a division of labor between humans and machines: the most boring equalities are checked automatically as part of definitional equality, freeing the human mind to work on the interesting problems available in propositional equality.
 Similarly, definitional equality is invoked automatically by the type checker, while propositional equality must be specifically appealed to.
 
@@ -195,6 +199,9 @@ Similarly, definitional equality is invoked automatically by the type checker, w
 In [Propositions, Proofs, and Indexing](../props-proofs-indexing.md), some equality statements are proved using `simp`.
 All of these equality statements are ones in which the propositional equality is in fact already a definitional equality.
 Typically, statements of propositional equality are proved by first getting them into a form where they are either definitional or close enough to existing proved equalities, and then using tools like `simp` to take care of the simplified cases.
+The `simp` tactic is quite powerful: behind the scenes, it uses a number of fast, automated tools to construct a proof.
+A simpler tactic called `rfl` specifically uses definitional equality to prove propositional equality.
+The name `rfl` is short for _reflexivity_, which is the property of equality that states that everything equals itself.
 
 Unsticking `appendR` requires a proof that `k = Nat.plusR 0 k`, which is not a definitional equality because `plusR` is stuck on the variable in its second argument.
 To get it to compute, the `k` must become a concrete constructor.
@@ -212,8 +219,8 @@ Getting it started with initial patterns and placeholders yields the following m
 ```output error
 {{#example_out Examples/DependentTypes/Pitfalls.lean plusR_zero_left2}}
 ```
-Having refined `k` to `0` via pattern matching, the first placeholder is now for evidence of a statement that does hold definitionally.
-The `simp` tactic takes care of it, leaving only the second placeholder:
+Having refined `k` to `0` via pattern matching, the first placeholder stands for evidence of a statement that does hold definitionally.
+The `rfl` tactic takes care of it, leaving only the second placeholder:
 ```lean
 {{#example_in Examples/DependentTypes/Pitfalls.lean plusR_zero_left3}}
 ```
@@ -266,20 +273,8 @@ The skeleton of the proof is very similar to that of `plusR_zero_left`:
 {{#example_in Examples/DependentTypes/Pitfalls.lean plusR_succ_left_0}}
 ```
 
-In the `0` case, however, `by simp` fails:
-```lean
-{{#example_in Examples/DependentTypes/Pitfalls.lean plusR_succ_left_1}}
-```
+The remaining case's type is definitionally equal to `Nat.plusR (n + 1) k + 1 = Nat.plusR n (k + 1) + 1`, so it can be solved with `congrArg`, just as in `plusR_zero_left`:
 ```output error
-{{#example_out Examples/DependentTypes/Pitfalls.lean plusR_succ_left_1}}
-```
-This is because `simp` does not always check definitional equality, because definitional equality may involve running lots and lots of functions, which can lead to performance problems.
-Providing a list of names to `simp` requests that it take them into account, including unfolding their definitions:
-```lean
-{{#example_in Examples/DependentTypes/Pitfalls.lean plusR_succ_left_2}}
-```
-The remaining case can be solved with `congrArg`, just as with `plusR_zero_left`:
-```output info
 {{#example_out Examples/DependentTypes/Pitfalls.lean plusR_succ_left_2}}
 ```
 This results in a finished proof:
@@ -300,7 +295,7 @@ However, Lean's type checker has enough information to fill them in automaticall
 ## Pros and Cons
 
 Indexed families have an important property: pattern matching on them affects definitional equality.
-For example, in the `nil` case in a `match` expression on a `Vect`, the length simply becomes `0`.
+For example, in the `nil` case in a `match` expression on a `Vect`, the length simply _becomes_ `0`.
 Definitional equality can be very convenient, because it is always active and does not need to be invoked explicitly.
 
 However, the use of definitional equality with dependent types and pattern matching has serious software engineering drawbacks.
@@ -308,8 +303,9 @@ First off, functions must be written especially to be used in types, and functio
 Once a function has been exposed through using it in a type, its implementation has become part of the interface, leading to difficulties in future refactoring.
 Secondly, definitional equality can be slow.
 When asked to check whether two expressions are definitionally equal, Lean may need to run large amounts of code if the functions in question are complicated and have many layers of abstraction.
-Third, error messages that result from failures of definitional equality are not always very easy to understand, because they may be phrased in terms of the internals of functions and it's not always easy to see where they came from.
-Finally, encoding non-trivial invariants in a collection of indexed families can often be brittle.
+Third, error messages that result from failures of definitional equality are not always very easy to understand, because they may be phrased in terms of the internals of functions.
+It is not always easy to understand the provenance of the expressions in the error messages.
+Finally, encoding non-trivial invariants in a collection of indexed families and dependently-typed functions can often be brittle.
 It is often necessary to change early definitions in a system when the exposed reduction behavior of functions proves to not provide convenient definitional equalities.
 The alternative is to litter the program with appeals to equality proofs, but these can become quite unwieldy.
 

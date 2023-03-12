@@ -20,16 +20,16 @@ end expect
 
 
 expect error {{{ dbEqNoSplit }}}
-  def dbEq (t : DBType) (x y : t.asType) : Bool :=
+  def DBType.beq (t : DBType) (x y : t.asType) : Bool :=
     x == y
 message
 "failed to synthesize instance
-  BEq (DBType.asType t)"
+  BEq (asType t)"
 end expect
 
 
 book declaration {{{ dbEq }}}
-  def dbEq (t : DBType) (x y : t.asType) : Bool :=
+  def DBType.beq (t : DBType) (x y : t.asType) : Bool :=
     match t with
     | .int => x == y
     | .string => x == y
@@ -39,7 +39,7 @@ stop book declaration
 
 book declaration {{{ BEqDBType }}}
   instance {t : DBType} : BEq t.asType where
-    beq := dbEq t
+    beq := t.beq
 stop book declaration
 
 
@@ -89,8 +89,12 @@ stop book declaration
 
 
 book declaration {{{ peak }}}
-  abbrev peak : Schema :=
-    [⟨"name", DBType.string⟩, ⟨"location", DBType.string⟩, ⟨"elevation", DBType.int⟩, ⟨"lastVisited", .int⟩]
+  abbrev peak : Schema := [
+    ⟨"name", DBType.string⟩,
+    ⟨"location", DBType.string⟩,
+    ⟨"elevation", DBType.int⟩,
+    ⟨"lastVisited", .int⟩
+  ]
 stop book declaration
 
 
@@ -105,8 +109,11 @@ stop book declaration
 
 
 book declaration {{{ waterfall }}}
-  abbrev waterfall : Schema :=
-    [⟨"name", .string⟩, ⟨"location", .string⟩, ⟨"lastVisited", .int⟩]
+  abbrev waterfall : Schema := [
+    ⟨"name", .string⟩,
+    ⟨"location", .string⟩,
+    ⟨"lastVisited", .int⟩
+  ]
 stop book declaration
 
 
@@ -124,12 +131,13 @@ expect error {{{ RowBEqRecursion }}}
     | [] => true
     | col::cols =>
       match r1, r2 with
-      | (v1, r1'), (v2, r2') => _
+      | (v1, r1'), (v2, r2') =>
+        v1 == v2 && bEq r1' r2'
 message
 "type mismatch
   (v1, r1')
 has type
-  ?m.6650 × ?m.6653 : Type (max ?u.6662 ?u.6661)
+  ?m.6665 × ?m.6668 : Type (max ?u.6677 ?u.6676)
 but is expected to have type
   Row (col :: cols) : Type"
 end expect
@@ -141,7 +149,10 @@ book declaration {{{ RowBEq }}}
     match s with
     | [] => true
     | [_] => r1 == r2
-    | _::col2::cols => r1.fst == r2.fst && bEq (s:=col2::cols) r1.snd r2.snd
+    | _::_::_ =>
+      match r1, r2 with
+      | (v1, r1'), (v2, r2') =>
+        v1 == v2 && bEq r1' r2'
 
   instance : BEq (Row s) where
     beq := Row.bEq
@@ -298,7 +309,7 @@ book declaration {{{ RowProj }}}
 stop book declaration
 
 book declaration {{{ DBExpr }}}
-  inductive DBExpr : Schema → DBType → Type where
+  inductive DBExpr (s : Schema) : DBType → Type where
     | col (n : String) (loc : HasCol s n t) : DBExpr s t
     | eq (e1 e2 : DBExpr s t) : DBExpr s .bool
     | lt (e1 e2 : DBExpr s .int) : DBExpr s .bool
@@ -335,7 +346,7 @@ book declaration {{{ DBExprEval }}}
 stop book declaration
 
 expect info {{{ valbybakke }}}
-  #eval tallInDenmark.evaluate ("Valby bakke", "Denmark", 31, 2023)
+  #eval tallInDenmark.evaluate ("Valby Bakke", "Denmark", 31, 2023)
 message
 "false"
 end expect
@@ -362,7 +373,7 @@ stop book declaration
 
 
 book declaration {{{ renameColumn }}}
-  def renameColumn : (s : Schema) → HasCol s n t → String → Schema
+  def Schema.renameColumn : (s : Schema) → HasCol s n t → String → Schema
     | c :: cs, .here, n' => {c with name := n'} :: cs
     | c :: cs, .there next, n' => c :: renameColumn cs next n'
 stop book declaration
@@ -378,9 +389,9 @@ book declaration {{{ Query }}}
         Query s1 → Query s2 →
         disjoint (s1.map Column.name) (s2.map Column.name) →
         Query (s1 ++ s2)
-    | rename :
+    | renameColumn :
         Query s → (c : HasCol s n t) → (n' : String) → !((s.map Column.name).contains n') →
-        Query (renameColumn s c n')
+        Query (s.renameColumn c n')
     | prefixWith :
         (n : String) → Query s →
         Query (s.map fun c => {c with name := n ++ "." ++ c.name})
@@ -408,6 +419,17 @@ book declaration {{{ TableCartProd }}}
     table1.flatMap fun r1 => table2.map r1.append
 stop book declaration
 
+namespace OrElse
+book declaration {{{ TableCartProdOther }}}
+  def Table.cartesianProduct (table1 : Table s1) (table2 : Table s2) : Table (s1 ++ s2) := Id.run do
+    let mut out : Table (s1 ++ s2) := []
+    for r1 in table1 do
+      for r2 in table2 do
+        out := (r1.append r2) :: out
+    pure out.reverse
+stop book declaration
+end OrElse
+
 bookExample {{{ filterA }}}
   ["Willamette", "Columbia", "Sandy", "Deschutes"].filter (·.length > 8)
   ===>
@@ -423,7 +445,7 @@ stop book declaration
 
 
 book declaration {{{ renameRow }}}
-  def Row.rename (c : HasCol s n t) (row : Row s) : Row (renameColumn s c n') :=
+  def Row.rename (c : HasCol s n t) (row : Row s) : Row (s.renameColumn c n') :=
     match s, row, c with
     | [_], v, .here => v
     | _::_::_, (v, r), .here => (v, r)
@@ -449,7 +471,7 @@ book declaration {{{ QueryExec }}}
     | .select q e => exec q |>.filter e.evaluate
     | .project q _ sub => exec q |>.map (·.project _ sub)
     | .product q1 q2 _ => exec q1 |>.cartesianProduct (exec q2)
-    | .rename q c _ _ => exec q |>.map (·.rename c)
+    | .renameColumn q c _ _ => exec q |>.map (·.rename c)
     | .prefixWith _ q => exec q |>.map prefixRow
 stop book declaration
 
@@ -509,7 +531,7 @@ mountains : Query (List.map (fun c => { name := \"mountain\" ++ \".\" ++ c.name,
   prefixWith \"mountain\" (table mountainDiary)
 waterfalls : Query (List.map (fun c => { name := \"waterfall\" ++ \".\" ++ c.name, contains := c.contains }) waterfall) :=
   prefixWith \"waterfall\" (table waterfallDiary)
-⊢ HasCol (List.map (fun c => { name := \"waterfall\" ++ \".\" ++ c.name, contains := c.contains }) []) \"location\" ?m.108791"
+⊢ HasCol (List.map (fun c => { name := \"waterfall\" ++ \".\" ++ c.name, contains := c.contains }) []) \"location\" ?m.111871"
 end expect
 
 expect error {{{ QueryOops2 }}}
