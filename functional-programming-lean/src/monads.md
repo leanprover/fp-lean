@@ -240,7 +240,7 @@ Its inorder numbering is:
 ```
 
 Trees are most naturally processed with recursive functions, but the usual pattern of recursion on trees makes it difficult to compute an inorder numbering.
-This is because the nodes in the right subtree should be numbered starting from the highest number assigned in the left subtree.
+This is because the highest number assigned anywhere in the left subtree is used to determine the numbering of a node's data value, and then again to determine the starting point for numbering the right subtree.
 In an imperative language, this issue can be worked around by using a mutable variable that contains the next number to be assigned.
 The following Python program computes an inorder numbering using a mutable variable:
 ```python
