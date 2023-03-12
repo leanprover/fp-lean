@@ -58,5 +58,5 @@
   - [Indices, Parameters, and Universe Levels](dependent-types/indices-parameters-universes.md)
   - [Pitfalls of Programming with Dependent Types](dependent-types/pitfalls.md)
   - [Summary](./dependent-types/summary.md)
-- [Interlude: Tactics, Induction, and Proofs](./tactics-induction-proofs.md)
+- [Interlude: Tactics, Induction, and Proofs]()
 - [From Programming to Proving]()
