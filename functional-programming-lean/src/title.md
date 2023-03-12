@@ -8,6 +8,10 @@ This version of the text is written for Lean 4 release `{{#lean_version}}`.
 
 ## Release history
 
+### March, 2023
+
+This release adds a chapter on programming with dependent types and indexed families.
+
 ### January, 2023
 
 This release adds a chapter on monad transformers that includes a description of the imperative features that are available in `do`-notation.
