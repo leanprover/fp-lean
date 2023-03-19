@@ -59,6 +59,6 @@
   - [Pitfalls of Programming with Dependent Types](dependent-types/pitfalls.md)
   - [Summary](./dependent-types/summary.md)
 - [Interlude: Tactics, Induction, and Proofs](./tactics-induction-proofs.md)
-- [From Programming to Proving]()
+- [Programming and Proving](programs-proofs.md)
 
 [Next Steps]()
