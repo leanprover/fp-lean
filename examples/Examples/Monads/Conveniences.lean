@@ -34,14 +34,11 @@ stop book declaration
 end Old
 
 
-namespace New
 book declaration {{{ mirrorNew }}}
   def BinTree.mirror : BinTree α → BinTree α
     | .leaf => .leaf
     | .branch l x r => .branch (mirror r) x (mirror l)
 stop book declaration
-end New
-
 
 book declaration {{{ BinTreeEmpty }}}
   def BinTree.empty : BinTree α := .leaf

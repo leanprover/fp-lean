@@ -60,3 +60,5 @@
   - [Summary](./dependent-types/summary.md)
 - [Interlude: Tactics, Induction, and Proofs](./tactics-induction-proofs.md)
 - [From Programming to Proving]()
+
+[Next Steps]()
