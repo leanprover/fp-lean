@@ -1104,46 +1104,49 @@ contains:b}}}());
 // original from https://github.com/leanprover-community/highlightjs-lean/blob/master/src/lean.js, BSD 3, (c) 2020 Patrick Massot
 hljs.registerLanguage("lean", function(hljs) {
   var LEAN_KEYWORDS = {
-    $pattern: /#?\w+/,
+    $pattern: /#?\w+|λ|∀|Π|∃|:=?/u,
     keyword:
-      'theorem|10 def abbrev class structure instance set_option ' +
+      'theorem|10 lemma|10 definition def abbrev class structure instance ' +
       'example inductive coinductive ' +
-      'axiom constant ' +
-      'partial unsafe private protected ' +
-      'if then else ' +
-      'universe variable ' +
-      'import open export prelude renaming hiding ' +
-      'calc match nomatch with do by let extends ' +
-      'for in unless try catch finally mutual mut return continue break where rec while repeat ' +
+      'axiom axioms hypothesis constant constants ' +
+      'universe universes variable variables parameter parameters ' +
+      'begin partial ' +
+      'infix infixr infixl ' +
+      'import open theory prelude renaming hiding exposing ' +
+      'calc  match nomatch with do  by let in extends ' +
+      'for in unless try catch finally mut return break where rec while repeat ' +
       'syntax macro_rules macro deriving ' +
-      'fun ' +
-      '#check #check_failure #eval #reduce #print ' +
-      'section namespace end infix infixl infixr postfix prefix notation ',
+      'fun assume ' +
+      '#check #eval #reduce #print ' +
+      'section namespace end ' +
+      "λ ∀ ∃ ⨁ Π",
     built_in:
       'Type Prop|10 Sort rw|10 rewrite rwa erw subst substs ' +
-      'simp dsimp simpa simp_intros finish using generalizing ' +
+      'simp dsimp simpa simp_intros finish ' +
       'unfold unfold1 dunfold unfold_projs unfold_coes ' +
-      'delta cc ac_rfl ' +
+      'delta cc ac_reflexivity ac_refl ' +
       'existsi|10 cases rcases intro intros introv by_cases ' +
-      'refl rfl funext case focus propext exact exacts ' +
+      'refl rfl funext propext exact exacts ' +
       'refine apply eapply fapply apply_with apply_instance ' +
       'induction rename assumption revert generalize specialize clear ' +
       'contradiction by_contradiction by_contra trivial exfalso ' +
       'symmetry transitivity destruct constructor econstructor ' +
       'left right split injection injections ' +
-      'skip swap solve1 abstract all_goals any_goals done ' +
+      'continue skip swap solve1 abstract all_goals any_goals done ' +
       'fail_if_success success_if_fail guard_target guard_hyp ' +
       'have replace at suffices show from ' +
       'congr congr_n congr_arg norm_num ring ',
     literal:
       'true false',
     meta:
-      'noncomputable|10 private protected mutual',
-    strong:
+      'noncomputable|10 private protected meta mutual',
+    sorry:
       'sorry admit',
+    symbol:
+      ':='
   };
 
-  var LEAN_IDENT_RE = /[A-Za-z_][\\w\u207F-\u209C\u1D62-\u1D6A\u2079\'0-9?]*/;
+  var LEAN_IDENT_RE = /[A-Za-z_][\w\u207F-\u209C\u1D62-\u1D6A\u2079\']*/;
 
   var DASH_COMMENT = hljs.COMMENT('--', '$');
   var MULTI_LINE_COMMENT = hljs.COMMENT('/-[^-]', '-/');
@@ -1165,15 +1168,22 @@ hljs.registerLanguage("lean", function(hljs) {
     end: '$'
   };
 
-  var LEAN_DEFINITION =	{
+  var LEAN_DEFINITION = {
     className: 'theorem',
-    begin: '\\b(def|theorem|lemma|class|structure|(?<!deriving\\s+)instance)\\b',
+    beginKeywords: 'def theorem lemma class instance structure',
     end: ':= | where',
     excludeEnd: true,
     contains: [
       {
         className: 'keyword',
-        begin: /extends/
+        begin: /extends/,
+        contains: [
+          {
+            className: 'symbol',
+            begin: /:=/,
+            endsParent: true
+          },
+        ]
       },
       hljs.inherit(hljs.TITLE_MODE, {
         begin: LEAN_IDENT_RE
@@ -1182,6 +1192,11 @@ hljs.registerLanguage("lean", function(hljs) {
         className: 'params',
         begin: /[([{]/, end: /[)\]}]/, endsParent: false,
         keywords: LEAN_KEYWORDS,
+      },
+      {
+        className: 'symbol',
+        begin: /:=/,
+        endsParent: true
       },
       {
         className: 'symbol',
