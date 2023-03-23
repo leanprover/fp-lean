@@ -1112,6 +1112,7 @@ hljs.registerLanguage("lean", function(hljs) {
       'universe universes variable variables parameter parameters ' +
       'begin partial ' +
       'infix infixr infixl ' +
+      'if then else ' +
       'import open theory prelude renaming hiding exposing ' +
       'calc  match nomatch with do  by let in extends ' +
       'for in unless try catch finally mut return break where rec while repeat ' +
