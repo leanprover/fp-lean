@@ -1,3 +1,9 @@
+code.hljs {
+  overflow-x: auto;
+  background: #f6f7f6;
+  color: #000;
+}
+
 code.info:before {
   content: "\f05a";
   font-family: "FontAwesome";
@@ -12,7 +18,6 @@ code.info:before {
 code.info {
   font-style: italic;
 }
-
 
 code.error:before {
   content: "\f071";
