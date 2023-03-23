@@ -31,7 +31,7 @@ Just as a structure declaration places its names in a namespace named after the 
 In the Lean standard library, `true` and `false` are re-exported from this namespace so that they can be written alone, rather than as `Bool.true` and `Bool.false`, respectively.
 
 From a data modeling perspective, inductive datatypes are used in many of the same contexts where a sealed abstract class might be used in other languages.
-In languages like C# or Java, one might write a similar definition of definition of `Bool`:
+In languages like C# or Java, one might write a similar definition of `Bool`:
 ```C#
 abstract class Bool {}
 class True : Bool {}
