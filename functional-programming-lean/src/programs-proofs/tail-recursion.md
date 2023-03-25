@@ -51,6 +51,10 @@ When `Tail.sumHelper` reaches its base case, control can be returned directly to
 In other words, a single stack frame can be re-used for each recursive invocation of `Tail.sumHelper`.
 Tail-call elimination is exactly this re-use of the stack frame, and `Tail.sumHelper` is referred to as a _tail-recursive function_.
 
+The first argument to `Tail.sumHelper` contains all of the information that would otherwise need to be tracked in the call stack—namely, the sum of the numbers encountered so far.
+In each recursive call, this argument is updated with new information, rather than adding new information to the call stack.
+Arguments like `soFar` that replace the information from the call stack are called _accumulators_.
+
 At the time of writing and on the author's computer, `NonTail.sum` crashes with a stack overflow when passed a list with 216,856 or more entries.
 `Tail.sum`, on the other hand, can sum a list of 100,000,000 elements without a stack overflow.
 Because no new stack frames need to be pushed while running `Tail.sum`, it is completely equivalent to a `while` loop with a mutable variable that holds the current list.
@@ -96,55 +100,26 @@ The tail-recursive version uses `x :: ·` instead of `· ++ [x]` on the accumula
 ```lean
 {{#example_decl Examples/ProgramsProofs/TCO.lean TailReverse}}
 ```
-This is because the context saved in each stack frame while applying `NonTail.reverse` is applied beginning at the base case.
+This is because the context saved in each stack frame while computing with `NonTail.reverse` is applied beginning at the base case.
 Each "remembered" piece of context is executed in last-in, first-out order.
 On the other hand, the accumulator-passing version modifies the accumulator beginning from the first entry in the list, rather than the original base case, as can be seen in the series of reduction steps:
 ```lean
 {{#example_eval Examples/ProgramsProofs/TCO.lean TailReverseSteps}}
 ```
 In other words, the non-tail-recursive version starts at the base case, modifying the result of recursion from right to left through the list.
+The entries in the list affect the accumulator in a first-in, first-out order.
 The tail-recursive version with the accumulator starts at the head of the list, modifying an initial accumulator value from left to right through the list.
-Because addition is associative, nothing needed to be done to account for this in `Tail.sum`.
-Appending lists is not associative, so care must be taken to find an operation that has the same effect when run in the opposite direction.
 
-## Accumulators
+Because addition is commutative, nothing needed to be done to account for this in `Tail.sum`.
+Appending lists is not commutative, so care must be taken to find an operation that has the same effect when run in the opposite direction.
+Appending `[x]` after the result of the recursion in `NonTail.reverse` is analogous to adding `x` to the beginning of the list when the result is built in the opposite order.
 
-The argument `soFar` to `Tail.sumHelper` is known as an _accumulator_.
-In `NonTail.sum`, the call stack is used to track what is to be done with the result of a recursive call.
-An accumulator is a function argument that is used for the same purpose.
+## Multiple Recursive Calls
 
-Examining the evaluation trace for `NonTail.sum` shows that the call stack must be used to remember the context `1 + (2 + (3 + ▢))`, where the `▢` represents the point to which `NonTail.sum []` will return `0`.
-Taking advantage of the fact that addition is associative, this context could be rewritten to `((1 + 2) + 3) + ▢`, or just `6 + ▢`.
-This is the insight that underlies the translation to `Tail.sum`: there is no need to save the work of adding the list entries for later.
-
-Generally speaking, to translate a function that is not tail recursive into one that is, the first step is to identify all recursive calls that are not in tail position.
-Because they are not in tail position, there is some expression context that surrounds them.
-In the case of `NonTail.sum`, this context is `x + ▢` around the only recursive call.
-
-The next step is to write a recursive helper function with an additional argument, the accumulator.
-This helper function should have the same base cases and recursive cases as the original function.
-Just like `NonTail.sum`, `Tail.sumHelper` has a base case for the empty list and a recursive call for non-empty lists.
-For each recursive call from the original non-tail-recursive function, the context surrounding the recursive call should be translated into a modification to the accumulator argument that maintains the same information.
-The context `x + ▢` from `NonTail.sum` occurs as part of the accumulator argument to the recursive call in `Tail.sumHelper`.
-
-For many functions, however, simply putting the context around the accumulator is not correct.
-This is because the original contexts are applied from right to left, first around the base case, then around the last entry in the list, and then the second-to-last, and so forth.
-The accumulator, however, is built up from left to right.
-Because addition is associative, it does not matter which order they are applied in.
-The real 
-
-Finally, for each base case in the original function, the accumulator should be combined with original base case's return value.
-In `NonTail.sum`, the base case returns `0` as the sum of the empty list.
-In `Tail.sumHelper`, the accumulator is returned.
-This is because the accumulator represents the work done to sum the entries of the list so far, and this running sum should be added to the base case's value.
-Adding `0` does nothing, so it is not written directly in the program, but the following equivalent version of `Tail.sumHelper` makes the translation more clear:
+In the definition of `BinTree.mirror`, there are two recursive calls:
 ```lean
-{{#example_decl Examples/ProgramsProofs/TCO.lean MoreClearSumHelper}}
+{{#example_decl Examples/Monads/Conveniences.lean mirrorNew}}
 ```
-Finally, the wrapper function that calls the accumulator-passing helper needs to provide it with an initial accumulator value.
-This should be something that represents a context that does nothing.
-In the case of addition, this context is `0`.
-
 
 
 
