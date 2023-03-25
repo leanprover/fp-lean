@@ -20,5 +20,7 @@ import Examples.DependentTypes
 import Examples.DependentTypes.DB
 import Examples.DependentTypes.IndicesParameters
 import Examples.DependentTypes.Pitfalls
+import Examples.ProgramsProofs.TCO
 
-def main : IO Unit := IO.println "The code here is for the book"
+def main : IO Unit := do
+  IO.println "The code here is for the book"

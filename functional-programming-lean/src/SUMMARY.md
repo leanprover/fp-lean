@@ -60,5 +60,6 @@
   - [Summary](./dependent-types/summary.md)
 - [Interlude: Tactics, Induction, and Proofs](./tactics-induction-proofs.md)
 - [Programming and Proving](programs-proofs.md)
+  - [Tail Recursion](programs-proofs/tail-recursion.md)
 
 [Next Steps]()
