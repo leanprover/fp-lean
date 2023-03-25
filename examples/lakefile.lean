@@ -18,3 +18,8 @@ lean_exe examples {
 lean_exe doug {
   root := `Examples.Doug1
 }
+
+@[default_target]
+lean_exe tco {
+  root := `Examples.ProgramsProofs.TCOTest
+}
