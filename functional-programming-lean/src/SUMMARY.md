@@ -61,5 +61,6 @@
 - [Interlude: Tactics, Induction, and Proofs](./tactics-induction-proofs.md)
 - [Programming and Proving](programs-proofs.md)
   - [Tail Recursion](programs-proofs/tail-recursion.md)
+  - [Proving Equivalence](programs-proofs/tail-recursion-proofs.md)
 
 [Next Steps]()

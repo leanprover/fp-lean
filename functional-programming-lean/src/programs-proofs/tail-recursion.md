@@ -120,14 +120,28 @@ In the definition of `BinTree.mirror`, there are two recursive calls:
 ```lean
 {{#example_decl Examples/Monads/Conveniences.lean mirrorNew}}
 ```
+Just as imperative languages would typically use a while loop for functions like `reverse` and `sum`, they would typically use recursive functions for this kind of traversal.
+This function cannot be straightforwardly rewritten to be tail recursive using accumulator-passing style.
 
-
+Typically, if more than one recursive call is required for each recursive step, then it will be difficult to use accumulator-passing style.
+This difficulty is similar to the difficulty of rewriting a recursive function to use a loop and an explicit data structure, with the added complication of convincing Lean that the function terminates.
+However, as in `BinTree.mirror`, multiple recursive calls often indicate a data structure that has a constructor with multiple recursive occurrences of itself.
+In these cases, the depth of the structure is often logarithmic with respect to its overall size, which makes the tradeoff between stack and heap less stark.
 
 ## Exercises
 
 Translate each of the following non-tail-recursive functions into accumulator-passing tail-recursive functions:
 
 ```lean
- 
+{{#example_decl Examples/ProgramsProofs/TCO.lean NonTailLength}} 
 ```
 
+```lean
+{{#example_decl Examples/ProgramsProofs/TCO.lean NonTailFact}}
+```
+
+The translation of `NonTail.filter` should result in a program that takes constant stack space through tail recursion, and time linear in the length of the input list.
+A constant factor overhead is acceptable relative to the original:
+```lean
+{{#example_decl Examples/ProgramsProofs/TCO.lean NonTailFilter}}
+```

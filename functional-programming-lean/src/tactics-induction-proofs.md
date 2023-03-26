@@ -1,6 +1,18 @@
 # Interlude: Tactics, Induction, and Proofs
 
-## The Induction Tactic
+## A Note on Proofs and User Interfaces
+
+This book presents the process of writing proofs as if they are written in one go and submitted to Lean, which then replies with error messages that describe what remains to be done.
+The actual process of interacting with Lean is much more pleasant.
+Lean provides information about the proof as the cursor is moved through it and there are a number of interactive features that make proving easier.
+Please consult the documentation of your Lean development environment for more information.
+
+The approach in this book that focuses on incrementally building a proof and showing the messages that result demonstrates the kinds of interactive feedback that Lean provides while writing a proof, even as it is much slower than the process used by experts.
+At the same time, seeing incomplete proofs evolve towards completeness is a useful perspective on proving.
+As your skill in writing proofs increases, Lean's feedback will come to feel less like errors and more like support for your own thought processes.
+Learning the interactive approach is very important.
+
+## Recursion and Induction
 
 The functions `plusR_succ_left` and `plusR_zero_left` from the preceding chapter can be seen from two perspectives.
 On the one hand, they are recursive functions that build up evidence for a proposition, just as other recursive functions might construct a list, a string, or any other data structure.
@@ -14,7 +26,7 @@ Because it's impossible to check the statement for _every_ natural number, induc
 For example, if a concrete proof were desired for the number 3, then it could be constructed by using first the base case and then the induction step three times, to show the statement for 0, 1, 2, and finally 3.
 Thus, it proves the statement for all natural numbers.
 
-
+## The Induction Tactic
 
 Writing proofs by induction as recursive functions that use helpers such as `congrArg` does not always do a good job of expressing the intentions behind the proof.
 While recursive functions indeed have the structure of induction, they should probably be viewed as an _encoding_ of a proof.
