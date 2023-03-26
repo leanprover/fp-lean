@@ -1143,7 +1143,7 @@ hljs.registerLanguage("lean", function(hljs) {
       'sorry admit',
   };
 
-  var LEAN_IDENT_RE = /[A-Za-z_][\\w\u207F-\u209C\u1D62-\u1D6A\u2079\'0-9?]*/;
+  var LEAN_IDENT_RE = /[A-Za-z_][\w\u207F-\u209C\u1D62-\u1D6A\u2079\']*/;
 
   var DASH_COMMENT = hljs.COMMENT('--', '$');
   var MULTI_LINE_COMMENT = hljs.COMMENT('/-[^-]', '-/');
@@ -1167,7 +1167,7 @@ hljs.registerLanguage("lean", function(hljs) {
 
   var LEAN_DEFINITION =	{
     className: 'theorem',
-    begin: '\\b(def|theorem|lemma|class|structure|(?<!deriving\\s+)instance)\\b',
+    beginKeywords: 'def theorem lemma class instance structure',
     end: ':= | where',
     excludeEnd: true,
     contains: [
