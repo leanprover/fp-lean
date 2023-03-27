@@ -62,5 +62,6 @@
 - [Programming and Proving](programs-proofs.md)
   - [Tail Recursion](programs-proofs/tail-recursion.md)
   - [Proving Equivalence](programs-proofs/tail-recursion-proofs.md)
+  - [Arrays and Termination](programs-proofs/arrays-termination.md)
 
 [Next Steps]()
