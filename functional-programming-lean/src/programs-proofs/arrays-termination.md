@@ -152,8 +152,89 @@ Just as a pattern match on a `Vect String 2` doesn't need to include a case for 
 ### Inequality on Natural Numbers
 
 The definition of `Nat.le` has a parameter and an index:
-
 ```lean
 {{#example_decl Examples/ProgramsProofs/Arrays.lean NatLe}}
 ```
+The parameter `n` is the number that should be smaller, while the index is the number that should be greater than or equal to `n`.
+The `refl` constructor is used when both numbers are equal, while the `step` constructor is used when the index is greater than `n`.
 
+From the perspective of evidence, a proof that \\( n \leq k \\) consists of finding some number \\( d \\) such that \\( n + d = m \\).
+In Lean, the proof then consists of a `Nat.le.refl` constructor wrapped by \\( d \\) instances of `Nat.le.step`.
+Each `step` constructor adds one to the index value of its argument, so \\( d \\) `step` constructors adds \\( d \\) to the larger number.
+For example, evidence that four is less than seven consists of three `step`s around a `refl`:
+```lean
+{{#example_decl Examples/ProgramsProofs/Arrays.lean four_le_seven}}
+```
+
+The strict less-than relation is defined by adding one to the number on the left:
+```lean
+{{#example_decl Examples/ProgramsProofs/Arrays.lean NatLt}}
+```
+
+## Proving Termination
+
+The function `Array.map` transforms an array with a function, returning a new array that contains the result of applying the function to each element of the input array.
+Writing it as a tail-recursive function follows the usual pattern of delegating to a function that passes the output array in an accumulator.
+The accumulator is initialized with an empty array.
+The accumulator-passing helper function also takes an argument that tracks the current index into the array, which starts at `0`:
+```lean
+{{#example_decl Examples/ProgramsProofs/Arrays.lean ArrayMap}}
+```
+
+The helper should, at each iteration, check whether the index is still in bounds.
+If so, it should loop again with the transformed element added to the end of the accumulator, and the index incremented by `1`.
+If not, then it should terminate and return the accumulator.
+An initial implementation of this code fails because Lean is unable to prove that the array index is valid:
+```lean
+{{#example_in Examples/ProgramsProofs/Arrays.lean mapHelperIndexIssue}}
+```
+```output error
+{{#example_out Examples/ProgramsProofs/Arrays.lean mapHelperIndexIssue}}
+```
+However, the conditional expression already checks the precise condition that the array index's validity demands (namely, `i < arr.size`).
+Adding a name to the `if` resolves the issue, because it adds an assumption that the array indexing tactic can use:
+```lean
+{{#example_in Examples/ProgramsProofs/Arrays.lean arrayMapHelperTermIssue}}
+```
+Lean does not, however, accept the modified program, because the recursive call is not made on an argument to one of the input constructors.
+In fact, both the accumulator and the index grow, rather than shrinking:
+```output error
+{{#example_out Examples/ProgramsProofs/Arrays.lean arrayMapHelperTermIssue}}
+```
+Nevertheless, this function terminates, so simply marking it `partial` would be unfortunate.
+
+Why does `arrayMapHelper` terminate?
+Each iteration checks whether the index `i` is still in bounds for the array `arr`.
+If so, `i` is incremented and the loop repeats.
+If not, the program terminates.
+Because `arr.size` is a finite number, `i` can be incremented only a finite number of times.
+Even though no argument to the function decreases on each call, `arr.size - i` decreases toward zero.
+
+Lean can be instructed to use another expression for termination by providing a `termination_by` clause at the end of a definition.
+The `termination_by` clause has two components: names for the functions arguments and an expression using those names that should decrease on each call.
+For `arrayMapHelper`, the final definition looks like this:
+```lean
+{{#example_decl Examples/ProgramsProofs/Arrays.lean ArrayMapHelperOk}}
+```
+
+A similar termination proof can be used to write `Array.find`, a function that finds the first element in an array that satisfies a Boolean function and returns both the element and its index:
+```lean
+{{#example_decl Examples/ProgramsProofs/Arrays.lean ArrayFind}}
+```
+Once again, the helper function terminates because `arr.size - i` decreases as `i` increases:
+```lean
+{{#example_decl Examples/ProgramsProofs/Arrays.lean ArrayFindHelper}}
+```
+
+Not all termination arguments are as quite as simple as this one.
+However, the basic structure of identifying some expression based on the function's arguments that will decrease in each call occurs in all termination proofs.
+Sometimes, creativity can be required in order to figure out just why a function terminates, and sometimes Lean requires additional proofs in order to accept the termination argument.
+
+
+
+## Exercises
+
+ * Implement a `ForM (Array α)` instance on arrays using a tail-recursive accumulator-passing function and a `termination_by` clause.
+ * Implement a function to reverse arrays using a tail-recursive accumulator-passing function that _doesn't_ need a `termination_by` clause.
+ * Reimplement `Array.map`, `Array.find`, and the `ForM` instance using `for ... in ...` loops in the identity monad and compare the resulting code.
+ * Reimplement array reversal using a `for ... in ...` loop in the identity monad. Compare it to the tail-recursive function.

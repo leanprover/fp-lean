@@ -22,6 +22,8 @@ import Examples.DependentTypes.IndicesParameters
 import Examples.DependentTypes.Pitfalls
 import Examples.ProgramsProofs.TCO
 import Examples.ProgramsProofs.Arrays
+import Examples.ProgramsProofs.Fin
+import Examples.ProgramsProofs.InsertionSort
 
 def main : IO Unit := do
   IO.println "The code here is for the book"

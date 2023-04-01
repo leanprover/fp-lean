@@ -1116,6 +1116,7 @@ hljs.registerLanguage("lean", function(hljs) {
       'calc match nomatch with do by let extends ' +
       'for in unless try catch finally mutual mut return continue break where rec while repeat ' +
       'syntax macro_rules macro deriving ' +
+      'termination_by ' +
       'fun ' +
       '#check #check_failure #eval #reduce #print ' +
       'section namespace end infix infixl infixr postfix prefix notation ',

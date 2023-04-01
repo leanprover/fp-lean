@@ -21,8 +21,17 @@ book declaration {{{ LENat }}}
     le := Nat.le
 stop book declaration
 
-end Orders
 
+book declaration {{{ NatLt }}}
+  def Nat.lt (n m : Nat) : Prop :=
+    Nat.le (n + 1) m
+
+  instance : LT Nat where
+    lt := Nat.lt
+stop book declaration
+
+end Orders
+example := Nat.le
 
 book declaration {{{ EasyToProve }}}
   inductive EasyToProve : Prop where
@@ -144,4 +153,98 @@ book declaration {{{ fourNotThreeDone }}}
 theorem four_is_not_three : ¬ IsThree 4 := by
   intro h
   cases h
+stop book declaration
+
+
+
+book declaration {{{ four_le_seven }}}
+  def four_le_seven : 4 ≤ 7 :=
+    open Nat.le in
+    step (step (step refl))
+stop book declaration
+
+namespace WithFor
+
+  def Array.map (arr : Array α) (f : α → β) : Array β := Id.run do
+    let mut out : Array β := Array.empty
+    for x in arr do
+      out := out.push (f x)
+    pure out
+
+end WithFor
+
+
+
+
+expect error {{{ mapHelperIndexIssue }}}
+  def arrayMapHelper (arr : Array α) (f : α → β) (soFar : Array β) (i : Nat) : Array β :=
+    if i < arr.size then
+      arrayMapHelper arr f (soFar.push (f arr[i])) (i + 1)
+    else soFar
+message
+"failed to prove index is valid, possible solutions:
+  - Use `have`-expressions to prove the index is valid
+  - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]?` notation instead, result is an `Option` type
+  - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
+α : Type ?u.1685
+β : Type ?u.1692
+arr : Array α
+f : α → β
+soFar : Array β
+i : Nat
+⊢ i < Array.size arr"
+end expect
+
+
+expect error {{{ arrayMapHelperTermIssue }}}
+  def arrayMapHelper (arr : Array α) (f : α → β) (soFar : Array β) (i : Nat) : Array β :=
+    if inBounds : i < arr.size then
+      arrayMapHelper arr f (soFar.push (f arr[i])) (i + 1)
+    else soFar
+message
+"fail to show termination for
+  arrayMapHelper
+with errors
+argument #6 was not used for structural recursion
+  failed to eliminate recursive application
+    arrayMapHelper arr f✝ (Array.push soFar (f✝ arr[i])) (i + 1)
+
+structural recursion cannot be used
+
+failed to prove termination, use `termination_by` to specify a well-founded relation"
+end expect
+
+book declaration {{{ ArrayMapHelperOk }}}
+  def arrayMapHelper (arr : Array α) (f : α → β) (soFar : Array β) (i : Nat) : Array β :=
+    if inBounds : i < arr.size then
+      arrayMapHelper arr f (soFar.push (f arr[i])) (i + 1)
+    else soFar
+  termination_by arrayMapHelper arr _ _ i _ => arr.size - i
+stop book declaration
+
+namespace TailRec
+
+book declaration {{{ ArrayMap }}}
+  def Array.map (arr : Array α) (f : α → β) : Array β :=
+    arrayMapHelper arr f Array.empty 0
+stop book declaration
+
+end TailRec
+
+
+book declaration {{{ ArrayFindHelper }}}
+  def findHelper (arr : Array α) (p : α → Bool) (i : Nat) : Option (Nat × α) :=
+    if h : i < arr.size then
+      let x := arr[i]
+      if p x then
+        some (i, x)
+      else findHelper arr p (i + 1)
+    else none
+  termination_by findHelper arr p i => arr.size - i
+stop book declaration
+
+book declaration {{{ ArrayFind }}}
+  def Array.find (arr : Array α) (p : α → Bool) : Option (Nat × α) :=
+    findHelper arr p 0
 stop book declaration
