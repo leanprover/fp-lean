@@ -43,6 +43,53 @@ It takes a string and a value as arguments, and prints a message that uses the s
 This is not, strictly speaking, a pure function.
 However, it is intended to be used only during development to check that a function is in fact able to re-use memory rather than allocating.
 
+TODO find a good short example of dbgTraceIfShared here
+
+
+Insertion sort consists of two loops.
+The outer loop moves a pointer from left to right across the array to be sorted.
+After each iteration, the region of the array to the left of the pointer is sorted, while the region to the right may not yet be sorted.
+The inner loop takes the element pointed to by the pointer and moves it to the left until the appropriate location has been found and the loop invariant has been restored.
+In other words, each iteration inserts the next element of the array into the appropriate location in the sorted region.
+
+## The Inner Loop
+
+The inner loop of insertion sort can be implemented as a tail-recursive function that takes the array and the index of the element being inserted as arguments.
+The element being inserted is repeatedly swapped with the element to its left until either the element to the left is smaller or the beginning of the array is reached.
+The inner loop is structurally recursive on the `Nat` that is inside the `Fin` used to index into the array:
+```lean
+{{#example_decl Examples/ProgramsProofs/InsertionSort.lean insertSorted}}
+```
+If the index `i` is `0`, then the element being inserted into the sorted region has reached the beginning of the region and is the smallest.
+If the index is `i' + 1`, then the element at `i'` should be compared to the element at `i`.
+Note that while `i` is a `Fin arr.size`, `i'` is just a `Nat` because it results from the `val` field of `i`.
+It is thus necessary to prove that `i' < arr.size` before `i'` can be used to index into `arr`.
+
+This proof uses a `have`-expression.
+In Lean, `have` is similar to `let`.
+When using `have`, the name is optional.
+Typically, `let` is used to define names that refer to interesting values, while `have` is used to locally prove propositions that can be found by termination proofs and array indexing safety proofs.
+Omitting the proof reveals the following goal:
+```output error
+{{#example_out Examples/ProgramsProofs/InsertionSort.lean insertSortedNoProof}}
+```
+
+The hint `Nat.lt_of_succ_lt` is a theorem from Lean's standard library.
+Its signature, found by `{{#example_in Examples/ProgramsProofs/InsertionSort.lean lt_of_succ_lt_type}}`, is
+```output info
+{{#example_out Examples/ProgramsProofs/InsertionSort.lean lt_of_succ_lt_type}}
+```
+In other words, it states that if `n + 1 < m`, then `n < m`.
+The `*` passed to `simp` causes it to combine `Nat.lt_of_succ_lt` with the `isLt` field from `i` to get the final proof.
+
+Having established that `i'` can be used to look up the element to the left of the element being inserted, the two elements are looked up and compared. 
+If the element to the left is less than or equal to the element being inserted, then the loop is finished and the invariant has been restored.
+If the element to the left is greater than the element being inserted, then the elements are swapped and the inner loop begins again.
+`Array.swap` takes both of its indices as `Fin`s, and the `by assumption` that establishes that `i' < arr.size` makes use of the `have`.
+The index to be examined on the next round through the inner loop is also `i'`, but `by assumption` is not sufficient in this case.
+This is because the proof was written for the original array `arr`, not the result of swapping two elements.
+The `simp` tactic's database contains the fact that swapping two elements of an array doesn't change its size.
+
 
 
 

@@ -165,7 +165,7 @@ stop book declaration
 
 namespace WithFor
 
-  def Array.map (arr : Array α) (f : α → β) : Array β := Id.run do
+  def Array.map (f : α → β) (arr : Array α) : Array β := Id.run do
     let mut out : Array β := Array.empty
     for x in arr do
       out := out.push (f x)
@@ -177,9 +177,9 @@ end WithFor
 
 
 expect error {{{ mapHelperIndexIssue }}}
-  def arrayMapHelper (arr : Array α) (f : α → β) (soFar : Array β) (i : Nat) : Array β :=
+  def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
     if i < arr.size then
-      arrayMapHelper arr f (soFar.push (f arr[i])) (i + 1)
+      arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
     else soFar
 message
 "failed to prove index is valid, possible solutions:
@@ -187,10 +187,10 @@ message
   - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
-α : Type ?u.1685
-β : Type ?u.1692
-arr : Array α
+α : Type ?u.1683
+β : Type ?u.1686
 f : α → β
+arr : Array α
 soFar : Array β
 i : Nat
 ⊢ i < Array.size arr"
@@ -198,9 +198,9 @@ end expect
 
 
 expect error {{{ arrayMapHelperTermIssue }}}
-  def arrayMapHelper (arr : Array α) (f : α → β) (soFar : Array β) (i : Nat) : Array β :=
+  def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
     if inBounds : i < arr.size then
-      arrayMapHelper arr f (soFar.push (f arr[i])) (i + 1)
+      arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
     else soFar
 message
 "fail to show termination for
@@ -208,7 +208,7 @@ message
 with errors
 argument #6 was not used for structural recursion
   failed to eliminate recursive application
-    arrayMapHelper arr f✝ (Array.push soFar (f✝ arr[i])) (i + 1)
+    arrayMapHelper f✝ arr (Array.push soFar (f✝ arr[i])) (i + 1)
 
 structural recursion cannot be used
 
@@ -216,18 +216,18 @@ failed to prove termination, use `termination_by` to specify a well-founded rela
 end expect
 
 book declaration {{{ ArrayMapHelperOk }}}
-  def arrayMapHelper (arr : Array α) (f : α → β) (soFar : Array β) (i : Nat) : Array β :=
+  def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
     if inBounds : i < arr.size then
-      arrayMapHelper arr f (soFar.push (f arr[i])) (i + 1)
+      arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
     else soFar
-  termination_by arrayMapHelper arr _ _ i _ => arr.size - i
+  termination_by arrayMapHelper _ arr _ i _ => arr.size - i
 stop book declaration
 
 namespace TailRec
 
 book declaration {{{ ArrayMap }}}
-  def Array.map (arr : Array α) (f : α → β) : Array β :=
-    arrayMapHelper arr f Array.empty 0
+  def Array.map (f : α → β) (arr : Array α) : Array β :=
+    arrayMapHelper f arr Array.empty 0
 stop book declaration
 
 end TailRec
