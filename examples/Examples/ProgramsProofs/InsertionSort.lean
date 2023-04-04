@@ -53,8 +53,22 @@ book declaration {{{ insertSorted }}}
         insertSorted (arr.swap ⟨i', by assumption⟩ i) ⟨i', by simp [*]⟩
 stop book declaration
 
+theorem insert_sorted_size_eq' [Ord α] (len : Nat) (i : Nat) :
+    (arr : Array α) → (isLt : i < arr.size) →
+    arr.size = (insertSorted arr ⟨i, isLt⟩).size := by
+  induction i with
+  | zero =>
+    intro arr isLt
+    simp [insertSorted, *]
+  | succ i' ih =>
+    intro arr isLt
+    simp [insertSorted]
+    split <;> simp [*]
 
-theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) : (arr : Array α) → (isLt : i < arr.size) → (arr.size = len) → (insertSorted arr ⟨i, isLt⟩).size = len := by
+
+theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
+    (arr : Array α) → (isLt : i < arr.size) → (arr.size = len) →
+    (insertSorted arr ⟨i, isLt⟩).size = len := by
   induction i with
   | zero =>
     intro arr isLt hLen
@@ -64,12 +78,75 @@ theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) : (arr : Array α) 
     simp [insertSorted]
     split <;> simp [*]
 
+
+expect error {{{ insertionSortLoopTermination }}}
+  def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
+    if h : i < arr.size then
+      insertionSortLoop (insertSorted arr ⟨i, h⟩) (i + 1)
+    else
+      arr
+message
+"fail to show termination for
+  insertionSortLoop
+with errors
+argument #4 was not used for structural recursion
+  failed to eliminate recursive application
+    insertionSortLoop (insertSorted arr { val := i, isLt := h }) (i + 1)
+
+structural recursion cannot be used
+
+failed to prove termination, use `termination_by` to specify a well-founded relation"
+end expect
+
+namespace Partial
+
+book declaration {{{ partialInsertionSortLoop }}}
+  partial def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
+    if h : i < arr.size then
+      insertionSortLoop (insertSorted arr ⟨i, h⟩) (i + 1)
+    else
+      arr
+stop book declaration
+
+
+expect info {{{ insertionSortPartialOne }}}
+  #eval insertionSortLoop #[5, 17, 3, 8] 0
+message
+"#[3, 5, 8, 17]"
+end expect
+
+expect info {{{ insertionSortPartialTwo }}}
+  #eval insertionSortLoop #["metamorphic", "igneous", "sedentary"] 0
+message
+"#[\"igneous\", \"metamorphic\", \"sedentary\"]"
+end expect
+end Partial
+
+
+expect error {{{ insertionSortLoopProof1 }}}
+  def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
+    if h : i < arr.size then
+      insertionSortLoop (insertSorted arr ⟨i, h⟩) (i + 1)
+    else
+      arr
+  termination_by insertionSortLoop arr i => arr.size - i
+message
+"failed to prove termination, possible solutions:
+  - Use `have`-expressions to prove the remaining goals
+  - Use `termination_by` to specify a different well-founded relation
+  - Use `decreasing_by` to specify your own tactic for discharging this kind of goal
+α : Type u_1
+inst✝ : Ord α
+arr : Array α
+i : Nat
+h : i < Array.size arr
+⊢ Array.size (insertSorted arr { val := i, isLt := h }) - (i + 1) < Array.size arr - i"
+end expect
+
 def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
   if h : i < arr.size then
-    have size_eq : (insertSorted arr { val := i, isLt := h }).size = arr.size := by
-      apply insert_sorted_size_eq arr.size i arr h rfl
     have : (insertSorted arr { val := i, isLt := h }).size - (i + 1) < arr.size - i := by
-      rw [size_eq]
+      rw [insert_sorted_size_eq arr.size i arr h rfl]
       simp [Nat.sub_succ_lt_self, *]
     insertionSortLoop (insertSorted arr ⟨i, h⟩) (i + 1)
   else

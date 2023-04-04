@@ -88,8 +88,69 @@ If the element to the left is greater than the element being inserted, then the 
 `Array.swap` takes both of its indices as `Fin`s, and the `by assumption` that establishes that `i' < arr.size` makes use of the `have`.
 The index to be examined on the next round through the inner loop is also `i'`, but `by assumption` is not sufficient in this case.
 This is because the proof was written for the original array `arr`, not the result of swapping two elements.
-The `simp` tactic's database contains the fact that swapping two elements of an array doesn't change its size.
+The `simp` tactic's database contains the fact that swapping two elements of an array doesn't change its size, and the `[*]` argument instructs it to additionally use the assumption introduced by `have`.
+
+## The Outer Loop
+
+The outer loop of insertion sort moves the pointer from left to right, invoking `insertSorted` at each iteration to insert the element at the pointer into the correct position in the array.
+The basic form of the loop resembles the implementation of `Array.map`:
+```lean
+{{#example_in Examples/ProgramsProofs/InsertionSort.lean insertionSortLoopTermination}}
+```
+The resulting error is also the same as the error that occurs without a `termination_by` clause on `Array.map`, because there is no argument that decreases at every recursive call:
+```output error
+{{#example_out Examples/ProgramsProofs/InsertionSort.lean insertionSortLoopTermination}}
+```
+
+Before constructing the termination proof, it can be convenient to test the definition with a `partial` modifier to make sure that it returns the expected answers:
+```lean
+{{#example_decl Examples/ProgramsProofs/InsertionSort.lean partialInsertionSortLoop}}
+```
+```lean
+{{#example_in Examples/ProgramsProofs/InsertionSort.lean insertionSortPartialOne}}
+```
+```output info
+{{#example_out Examples/ProgramsProofs/InsertionSort.lean insertionSortPartialOne}}
+```
+```lean
+{{#example_in Examples/ProgramsProofs/InsertionSort.lean insertionSortPartialTwo}}
+```
+```output info
+{{#example_out Examples/ProgramsProofs/InsertionSort.lean insertionSortPartialTwo}}
+```
+
+### Termination
+
+Once again, the function terminates because the difference between the index and the size of the array being processed decreases on each recursive call.
+This time, however, Lean does not accept the `termination_by`:
+```lean
+{{#example_in Examples/ProgramsProofs/InsertionSort.lean insertionSortLoopProof1}}
+```
+```output error
+{{#example_out Examples/ProgramsProofs/InsertionSort.lean insertionSortLoopProof1}}
+```
+The problem is that Lean has no way to know that `insertSorted` returns an array that's the same size as the one it is passed.
+In order to prove that `insertionSortLoop` terminates, it is necessary to first prove that `insertSorted` doesn't change the size of the array.
+
+TODO:
+
+First state the theorem the natural way, show how IH is too weak
+
+Then move stuff over, show how we get an annoying goal
+
+Next use explicit equalities with Nat values, which `simp` is better at
+
+## The Driver Function
+
+TODO: call the outer loop
+
+## Instrument for sharing
+
+Add dbgTraceIfShared all over the place, test program again
+
+Do a not-statistically-significant benchmark with a big shared array and a big unique array
 
 
+## OTHER TODO:
 
-
+ Find all Nat inequality lemmas used and prove them to take the magic out (prob a new section)

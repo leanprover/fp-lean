@@ -12,23 +12,12 @@ Proofs can be used to demonstrate why a program terminates.
 
 Combining proofs and programming allows programs to be both safe and efficient.
 
-## Tail Recursion
+
+Interactive theorem proving is a deep topic.
+This chapter provides only a taste, oriented towards the proofs that come up in practice while programming in Lean.
+Most interesting theorems are not closely related to programming.
+Please refer to [Next Steps](next-steps.md) for a list of resources for learning more.
+Just as when learning programming, however, there's no substitute for hands-on experience when learning to write proofs.
 
 
 
-
-## Insertion Sort
-
-First show insertion sort. A few proofs needed for array indexing.
-
-Tail recursion
-
-Fin
-
-Reference counting and mutability
-
-Termination by `sorry` - not so great. Let's fix it!
-
-## Inductively Defined Propositions
-
-## Less Than on Nat

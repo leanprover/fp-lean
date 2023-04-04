@@ -63,7 +63,8 @@
   - [Tail Recursion](programs-proofs/tail-recursion.md)
   - [Proving Equivalence](programs-proofs/tail-recursion-proofs.md)
   - [Arrays and Termination](programs-proofs/arrays-termination.md)
+  - [More Inequalities](programs-proofs/inequalities.md)
   - [Safe Array Indices](programs-proofs/fin.md)
   - [Insertion Sort](programs-proofs/insertion-sort.md)
-
-[Next Steps]()
+  - [Summary](programs-proofs/summary.md)
+[Next Steps](next-steps.md)
