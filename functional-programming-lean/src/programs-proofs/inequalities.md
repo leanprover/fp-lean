@@ -173,6 +173,13 @@ The `assumption` tactic automatically selects an assumption that fulfills the go
 {{#example_decl Examples/ProgramsProofs/Inequalities.lean succ_le_succ5}}
 ```
 
+Written as a recursive function, the proof is:
+```lean
+{{#example_decl Examples/ProgramsProofs/Inequalities.lean succ_le_succ_recursive}}
+```
+It can be instructional to compare the tactic-based proof by induction with this recursive function.
+Which proof steps correspond to which parts of the definition?
+
 ### Adding One to the Greater Side
 
-
+Adding 

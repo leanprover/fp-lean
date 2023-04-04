@@ -295,10 +295,16 @@ book declaration {{{ succ_le_succ5 }}}
       assumption
 stop book declaration
 
-  theorem Nat.succ_le_succ' : n ≤ m → Nat.succ n ≤ Nat.succ m
-    | .refl => .refl
-    | .step h' => .step (Nat.succ_le_succ' h')
+namespace more
 
+
+book declaration {{{ succ_le_succ_recursive }}}
+  theorem Nat.succ_le_succ : n ≤ m → Nat.succ n ≤ Nat.succ m
+    | .refl => .refl
+    | .step h' => .step (Nat.succ_le_succ h')
+stop book declaration
+
+end more
   theorem Nat.le_succ_of_le : n ≤ m → n ≤ Nat.succ m := by
     intro h
     induction h with
