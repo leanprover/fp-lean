@@ -70,6 +70,243 @@ halves : List α × List α := split xs
 ⊢ List.length (split xs).fst < List.length xs"
 end expect
 
+bookExample {{{ splitEmpty }}}
+  split []
+  ===>
+  ([], [])
+end bookExample
+
+bookExample {{{ splitOne }}}
+  split ["basalt"]
+  ===>
+  (["basalt"], [])
+end bookExample
+
+bookExample {{{ splitTwo }}}
+  split ["basalt", "granite"]
+  ===>
+  (["basalt"], ["granite"])
+end bookExample
+
+
+expect error {{{ split_shorter_le0 }}}
+  theorem split_shorter_le (lst : List α) : (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
+    skip
+message
+"unsolved goals
+α : Type u_1
+lst : List α
+⊢ List.length (split lst).fst ≤ List.length lst ∧ List.length (split lst).snd ≤ List.length lst"
+end expect
+
+
+
+expect error {{{ split_shorter_le1a }}}
+  theorem split_shorter_le (lst : List α) : (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
+    induction lst with
+    | nil => skip
+    | cons x xs ih => skip
+message
+"unsolved goals
+case nil
+α : Type u_1
+⊢ List.length (split []).fst ≤ List.length [] ∧ List.length (split []).snd ≤ List.length []"
+end expect
+
+expect error {{{ split_shorter_le1b }}}
+  theorem split_shorter_le (lst : List α) : (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
+    induction lst with
+    | nil => skip
+    | cons x xs ih => skip
+message
+"unsolved goals
+case cons
+α : Type u_1
+x : α
+xs : List α
+ih : List.length (split xs).fst ≤ List.length xs ∧ List.length (split xs).snd ≤ List.length xs
+⊢ List.length (split (x :: xs)).fst ≤ List.length (x :: xs) ∧ List.length (split (x :: xs)).snd ≤ List.length (x :: xs)"
+end expect
+
+
+expect error {{{ split_shorter_le2 }}}
+  theorem split_shorter_le (lst : List α) : (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
+    induction lst with
+    | nil => simp [split]
+    | cons x xs ih =>
+      simp [split]
+message
+"unsolved goals
+case cons
+α : Type u_1
+x : α
+xs : List α
+ih : List.length (split xs).fst ≤ List.length xs ∧ List.length (split xs).snd ≤ List.length xs
+⊢ Nat.succ (List.length (split xs).snd) ≤ Nat.succ (List.length xs) ∧
+    List.length (split xs).fst ≤ Nat.succ (List.length xs)"
+end expect
+
+
+namespace AndDef
+
+book declaration {{{ And }}}
+  structure And (a b : Prop) : Prop where
+    intro ::
+    left : a
+    right : b
+stop book declaration
+
+end AndDef
+
+
+expect error {{{ split_shorter_le3 }}}
+  theorem split_shorter_le (lst : List α) : (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
+    induction lst with
+    | nil => simp [split]
+    | cons x xs ih =>
+      simp [split]
+      cases ih
+message
+"unsolved goals
+case cons.intro
+α : Type u_1
+x : α
+xs : List α
+left✝ : List.length (split xs).fst ≤ List.length xs
+right✝ : List.length (split xs).snd ≤ List.length xs
+⊢ Nat.succ (List.length (split xs).snd) ≤ Nat.succ (List.length xs) ∧
+    List.length (split xs).fst ≤ Nat.succ (List.length xs)"
+end expect
+
+
+expect error {{{ split_shorter_le4 }}}
+  theorem split_shorter_le (lst : List α) : (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
+    induction lst with
+    | nil => simp [split]
+    | cons x xs ih =>
+      simp [split]
+      cases ih
+      constructor
+message
+"unsolved goals
+case cons.intro.left
+α : Type u_1
+x : α
+xs : List α
+left✝ : List.length (split xs).fst ≤ List.length xs
+right✝ : List.length (split xs).snd ≤ List.length xs
+⊢ Nat.succ (List.length (split xs).snd) ≤ Nat.succ (List.length xs)
+
+case cons.intro.right
+α : Type u_1
+x : α
+xs : List α
+left✝ : List.length (split xs).fst ≤ List.length xs
+right✝ : List.length (split xs).snd ≤ List.length xs
+⊢ List.length (split xs).fst ≤ Nat.succ (List.length xs)"
+end expect
+
+namespace Extras
+
+
+expect error {{{ succ_le_succ0 }}}
+  theorem Nat.succ_le_succ : n ≤ m → Nat.succ n ≤ Nat.succ m := by
+    skip
+message
+"unsolved goals
+n m : Nat
+⊢ n ≤ m → Nat.succ n ≤ Nat.succ m"
+end expect
+
+
+expect error {{{ succ_le_succ1 }}}
+  theorem Nat.succ_le_succ : n ≤ m → Nat.succ n ≤ Nat.succ m := by
+    intro h
+message
+"unsolved goals
+n m : Nat
+h : n ≤ m
+⊢ Nat.succ n ≤ Nat.succ m"
+end expect
+
+
+expect error {{{ succ_le_succ2 }}}
+  theorem Nat.succ_le_succ : n ≤ m → Nat.succ n ≤ Nat.succ m := by
+    intro h
+    cases h
+message
+"unsolved goals
+case refl
+n : Nat
+⊢ Nat.succ n ≤ Nat.succ n
+
+case step
+n m✝ : Nat
+a✝ : Nat.le n m✝
+⊢ Nat.succ n ≤ Nat.succ (Nat.succ m✝)"
+end expect
+
+
+
+
+expect error {{{ succ_le_succ3 }}}
+  theorem Nat.succ_le_succ : n ≤ m → Nat.succ n ≤ Nat.succ m := by
+    intro h
+    induction h
+message
+"unsolved goals
+case refl
+n m : Nat
+⊢ Nat.succ n ≤ Nat.succ n
+
+case step
+n m m✝ : Nat
+a✝ : Nat.le n m✝
+a_ih✝ : Nat.succ n ≤ Nat.succ m✝
+⊢ Nat.succ n ≤ Nat.succ (Nat.succ m✝)"
+end expect
+
+
+example := Nat.le
+
+expect error {{{ succ_le_succ4 }}}
+  theorem Nat.succ_le_succ : n ≤ m → Nat.succ n ≤ Nat.succ m := by
+    intro h
+    induction h with
+    | refl => constructor
+    | step h' ih => constructor
+message
+"unsolved goals
+case step.a
+n m m✝ : Nat
+h' : Nat.le n m✝
+ih : Nat.succ n ≤ Nat.succ m✝
+⊢ Nat.le (Nat.succ n) (m✝ + 1)"
+end expect
+
+
+book declaration {{{ succ_le_succ5 }}}
+  theorem Nat.succ_le_succ : n ≤ m → Nat.succ n ≤ Nat.succ m := by
+    intro h
+    induction h with
+    | refl => constructor
+    | step h' ih =>
+      constructor
+      assumption
+stop book declaration
+
+  theorem Nat.succ_le_succ' : n ≤ m → Nat.succ n ≤ Nat.succ m
+    | .refl => .refl
+    | .step h' => .step (Nat.succ_le_succ' h')
+
+  theorem Nat.le_succ_of_le : n ≤ m → n ≤ Nat.succ m := by
+    intro h
+    induction h with
+    | refl => constructor ; constructor
+    | step => constructor; assumption
+
+end Extras
+
 theorem split_shorter_le (lst : List α) : (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
   induction lst with
   | nil => simp [split]
@@ -127,21 +364,21 @@ theorem sub_le (n k : Nat) : n - k ≤ n := by
       n - Nat.succ k' ≤ n - k' := by apply Nat.pred_le
       n - k' ≤ n := ih
 
-def sub_lt (n k : Nat) : ¬ n < k → n - k < n := by
-  induction k with
-  | zero => intro h
+-- def sub_lt (n k : Nat) : ¬ n < k → n - k < n := by
+--   induction k with
+--   | zero => intro h
 
-def divide (n k : Nat) (nonZero : k ≠ 0) : Nat :=
-  if hLt : n < k then
-    0
-  else
-    have : n - k < n := by
-      apply Nat.sub_lt
-      . cases k with
-        | zero => contradiction
-        | succ k' =>
-    1 + divide (n - k) k nonZero
-termination_by divide n k _ => n
+-- def divide (n k : Nat) (nonZero : k ≠ 0) : Nat :=
+--   if hLt : n < k then
+--     0
+--   else
+--     have : n - k < n := by
+--       apply Nat.sub_lt
+--       . cases k with
+--         | zero => contradiction
+--         | succ k' =>
+--     1 + divide (n - k) k nonZero
+-- termination_by divide n k _ => n
 
 
 

@@ -24,6 +24,7 @@ import Examples.ProgramsProofs.TCO
 import Examples.ProgramsProofs.Arrays
 import Examples.ProgramsProofs.Fin
 import Examples.ProgramsProofs.InsertionSort
+import Examples.ProgramsProofs.Inequalities
 
 def main : IO Unit := do
   IO.println "The code here is for the book"

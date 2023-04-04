@@ -53,17 +53,17 @@ book declaration {{{ insertSorted }}}
         insertSorted (arr.swap ⟨i', by assumption⟩ i) ⟨i', by simp [*]⟩
 stop book declaration
 
-theorem insert_sorted_size_eq' [Ord α] (len : Nat) (i : Nat) :
-    (arr : Array α) → (isLt : i < arr.size) →
-    arr.size = (insertSorted arr ⟨i, isLt⟩).size := by
-  induction i with
-  | zero =>
-    intro arr isLt
-    simp [insertSorted, *]
-  | succ i' ih =>
-    intro arr isLt
-    simp [insertSorted]
-    split <;> simp [*]
+-- theorem insert_sorted_size_eq' [Ord α] (len : Nat) (i : Nat) :
+--     (arr : Array α) → (isLt : i < arr.size) →
+--     arr.size = (insertSorted arr ⟨i, isLt⟩).size := by
+--   induction i with
+--   | zero =>
+--     intro arr isLt
+--     simp [insertSorted, *]
+--   | succ i' ih =>
+--     intro arr isLt
+--     simp [insertSorted]
+--     split <;> simp [*]
 
 
 theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
