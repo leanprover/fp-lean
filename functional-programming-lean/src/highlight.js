@@ -1113,7 +1113,7 @@ hljs.registerLanguage("lean", function(hljs) {
       'if then else ' +
       'universe variable ' +
       'import open export prelude renaming hiding ' +
-      'calc match nomatch with do by let extends ' +
+      'calc match nomatch with do by let have extends ' +
       'for in unless try catch finally mutual mut return continue break where rec while repeat ' +
       'syntax macro_rules macro deriving ' +
       'termination_by ' +
@@ -1134,7 +1134,7 @@ hljs.registerLanguage("lean", function(hljs) {
       'left right split injection injections ' +
       'skip swap solve1 abstract all_goals any_goals done ' +
       'fail_if_success success_if_fail guard_target guard_hyp ' +
-      'have replace at suffices show from ' +
+      'replace at suffices show from ' +
       'congr congr_n congr_arg norm_num ring ',
     literal:
       'true false',

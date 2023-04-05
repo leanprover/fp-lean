@@ -91,6 +91,14 @@
      (format "expect error {{{ %s }}}" name)
      (format "message\n\"%s\"\nend expect" msg))))
 
+(defun fp-lean-warning (name)
+  "Expect warning named NAME."
+  (interactive "MName: ")
+  (let ((msg (fp-lean--escape (fp-lean--arbitrary-flycheck-message))))
+    (fp-lean--wrap
+     (format "expect warning {{{ %s }}}" name)
+     (format "message\n\"%s\"\nend expect" msg))))
+
 (defun fp-lean-eval (name)
   "Evaluation steps named NAME."
   (interactive "MName: ")

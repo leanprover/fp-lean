@@ -66,6 +66,149 @@ stop book declaration
 --     split <;> simp [*]
 
 
+
+expect error {{{ insert_sorted_size_eq_0 }}}
+  theorem insert_sorted_size_eq [Ord α] (arr : Array α) (i : Fin arr.size) :
+      (insertSorted arr i).size = arr.size := by
+    match i with
+    | ⟨j, isLt⟩ =>
+      induction j with
+      | zero => simp [insertSorted]
+      | succ j' ih =>
+        simp [insertSorted]
+message
+"unsolved goals
+case succ
+α : Type u_1
+inst✝ : Ord α
+arr : Array α
+i : Fin (Array.size arr)
+j' : Nat
+ih : ∀ (isLt : j' < Array.size arr), Array.size (insertSorted arr { val := j', isLt := isLt }) = Array.size arr
+isLt : Nat.succ j' < Array.size arr
+⊢ Array.size
+      (match compare arr[j'] arr[{ val := Nat.succ j', isLt := isLt }] with
+      | Ordering.lt => arr
+      | Ordering.eq => arr
+      | Ordering.gt =>
+        insertSorted
+          (Array.swap arr { val := j', isLt := (_ : j' < Array.size arr) } { val := Nat.succ j', isLt := isLt })
+          { val := j',
+            isLt :=
+              (_ :
+                j' <
+                  Array.size
+                    (Array.swap arr { val := j', isLt := (_ : j' < Array.size arr) }
+                      { val := Nat.succ j', isLt := isLt })) }) =
+    Array.size arr"
+end expect
+
+
+expect error {{{ insert_sorted_size_eq_1 }}}
+  theorem insert_sorted_size_eq [Ord α] (arr : Array α) (i : Fin arr.size) :
+      (insertSorted arr i).size = arr.size := by
+    match i with
+    | ⟨j, isLt⟩ =>
+      induction j with
+      | zero => simp [insertSorted]
+      | succ j' ih =>
+        simp [insertSorted]
+        split
+message
+"unsolved goals
+case succ.h_1
+α : Type u_1
+inst✝ : Ord α
+arr : Array α
+i : Fin (Array.size arr)
+j' : Nat
+ih : ∀ (isLt : j' < Array.size arr), Array.size (insertSorted arr { val := j', isLt := isLt }) = Array.size arr
+isLt : Nat.succ j' < Array.size arr
+x✝ : Ordering
+heq✝ : compare arr[j'] arr[{ val := Nat.succ j', isLt := isLt }] = Ordering.lt
+⊢ Array.size arr = Array.size arr
+
+case succ.h_2
+α : Type u_1
+inst✝ : Ord α
+arr : Array α
+i : Fin (Array.size arr)
+j' : Nat
+ih : ∀ (isLt : j' < Array.size arr), Array.size (insertSorted arr { val := j', isLt := isLt }) = Array.size arr
+isLt : Nat.succ j' < Array.size arr
+x✝ : Ordering
+heq✝ : compare arr[j'] arr[{ val := Nat.succ j', isLt := isLt }] = Ordering.eq
+⊢ Array.size arr = Array.size arr
+
+case succ.h_3
+α : Type u_1
+inst✝ : Ord α
+arr : Array α
+i : Fin (Array.size arr)
+j' : Nat
+ih : ∀ (isLt : j' < Array.size arr), Array.size (insertSorted arr { val := j', isLt := isLt }) = Array.size arr
+isLt : Nat.succ j' < Array.size arr
+x✝ : Ordering
+heq✝ : compare arr[j'] arr[{ val := Nat.succ j', isLt := isLt }] = Ordering.gt
+⊢ Array.size
+      (insertSorted
+        (Array.swap arr { val := j', isLt := (_ : j' < Array.size arr) } { val := Nat.succ j', isLt := isLt })
+        { val := j',
+          isLt :=
+            (_ :
+              j' <
+                Array.size
+                  (Array.swap arr { val := j', isLt := (_ : j' < Array.size arr) }
+                    { val := Nat.succ j', isLt := isLt })) }) =
+    Array.size arr"
+end expect
+
+
+expect error {{{ insert_sorted_size_eq_2 }}}
+  theorem insert_sorted_size_eq [Ord α] (arr : Array α) (i : Fin arr.size) :
+      (insertSorted arr i).size = arr.size := by
+    match i with
+    | ⟨j, isLt⟩ =>
+      induction j with
+      | zero => simp [insertSorted]
+      | succ j' ih =>
+        simp [insertSorted]
+        split <;> try rfl
+message
+"unsolved goals
+case succ.h_3
+α : Type u_1
+inst✝ : Ord α
+arr : Array α
+i : Fin (Array.size arr)
+j' : Nat
+ih : ∀ (isLt : j' < Array.size arr), Array.size (insertSorted arr { val := j', isLt := isLt }) = Array.size arr
+isLt : Nat.succ j' < Array.size arr
+x✝ : Ordering
+heq✝ : compare arr[j'] arr[{ val := Nat.succ j', isLt := isLt }] = Ordering.gt
+⊢ Array.size
+      (insertSorted
+        (Array.swap arr { val := j', isLt := (_ : j' < Array.size arr) } { val := Nat.succ j', isLt := isLt })
+        { val := j',
+          isLt :=
+            (_ :
+              j' <
+                Array.size
+                  (Array.swap arr { val := j', isLt := (_ : j' < Array.size arr) }
+                    { val := Nat.succ j', isLt := isLt })) }) =
+    Array.size arr"
+end expect
+
+  theorem insert_sorted_size_eq [Ord α] (arr : Array α) (i : Fin arr.size) :
+      (insertSorted arr i).size = arr.size := by
+    match i with
+    | ⟨j, isLt⟩ =>
+      induction j generalizing arr with
+      | zero => simp [insertSorted]
+      | succ j' ih =>
+        simp [insertSorted]
+        split <;> try rfl
+
 theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
     (arr : Array α) → (isLt : i < arr.size) → (arr.size = len) →
     (insertSorted arr ⟨i, isLt⟩).size = len := by
@@ -142,6 +285,24 @@ i : Nat
 h : i < Array.size arr
 ⊢ Array.size (insertSorted arr { val := i, isLt := h }) - (i + 1) < Array.size arr - i"
 end expect
+
+
+
+
+expect warning {{{ insertionSortLoopSorry }}}
+  def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
+    if h : i < arr.size then
+      have : (insertSorted arr ⟨i, h⟩).size - (i + 1) < arr.size - i := by
+        sorry
+      insertionSortLoop (insertSorted arr ⟨i, h⟩) (i + 1)
+    else
+      arr
+  termination_by insertionSortLoop arr i => arr.size - i
+message
+"declaration uses 'sorry'"
+end expect
+
+
 
 def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
   if h : i < arr.size then

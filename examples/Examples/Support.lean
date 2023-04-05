@@ -200,6 +200,37 @@ message
   "1 + 2 : Nat"
 end expect
 
+syntax withPosition("expect" "warning" "{{{" ws ident ws "}}}" colGt command "message" str "end" "expect") : command
+syntax withPosition("expect" "warning" colGt command "message" str "end" "expect") : command
+
+
+syntax withPosition("expect" "warning" "{{{" ws ident ws "}}}" colGt term "message" str "end" "expect") : command
+syntax withPosition("expect" "warning" colGt term "message" str "end" "expect") : command
+
+macro_rules
+  | `(expect warning {{{ $name:ident }}} $expr:term message $msg:str end expect) =>
+    `(expect warning {{{ $name }}} def x := $expr message $msg end expect)
+  | `(expect warning $expr:term message $msg:str end expect) =>
+    `(expect warning def x := $expr message $msg end expect)
+  | `(expect warning {{{ $_name:ident }}} $cmd:command message $msg:str end expect) =>
+    `(expect warning  $cmd:command message $msg:str end expect)
+
+elab_rules : command
+  | `(expect warning $cmd:command message $msg:str end expect) =>
+    open Lean.Elab.Command in
+    open Lean in
+    open Lean.Meta in
+    withEmptyMessageLog do
+      let desiredWarning := msg.getString
+      elabCommand cmd
+      let afterState <- get
+      let newMessages := afterState.messages.msgs.toList
+      let newWarnings := newMessages.filter (·.severity == MessageSeverity.warning)
+      let errStrings <- newWarnings.mapM (·.data.toString)
+      unless errStrings.containsBy (messagesMatch desiredWarning) do
+        throwError "The desired warning {desiredWarning} was not found in\n{errStrings}"
+
+
 syntax withPosition("expect" "eval" "info" "{{{" ws ident ws "}}}" colGt term "message" str "end" "expect") : command
 syntax withPosition("expect" "eval" "info" colGt term "message" str "end" "expect") : command
 

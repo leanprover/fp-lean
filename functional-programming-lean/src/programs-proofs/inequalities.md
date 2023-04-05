@@ -4,6 +4,8 @@ Lean's built-in proof automation is sufficient to check that `arrayMapHelper` an
 All that was needed was to provide an expression whose value decreases with each recursive call.
 However, Lean's built-in automation is not magic, and it often needs some help.
 
+## Merge Sort
+
 One example of a function whose termination proof is non-trivial is merge sort on `List`.
 Merge sort consists of two phases: first, a list is split in half.
 Each half is sorted using merge sort, and then the results are merged using a function that combines two sorted lists into a larger sorted list.
@@ -47,6 +49,8 @@ Instead of complaining that the function isn't structurally recursive, Lean inst
 ```output error
 {{#example_out Examples/ProgramsProofs/Inequalities.lean mergeSortGottaProveIt}}
 ```
+
+## Splitting a List Makes it Shorter
 
 It will also be necessary to prove that `(split xs).snd.length < xs.length`.
 Because `split` alternates between adding entries to the two lists, it is easiest to prove both statements at once, so the structure of the proof can follow the algorithm used to implement `split`.
@@ -182,4 +186,167 @@ Which proof steps correspond to which parts of the definition?
 
 ### Adding One to the Greater Side
 
-Adding 
+The second inequality needed to prove `split_shorter_le` is `∀(n m : Nat), n ≤ m → n ≤ Nat.succ m`.
+This proof is almost identical to `Nat.succ_le_succ`.
+Once again, the incoming assumption that `n ≤ m` essentially tracks the difference between `n` and `m` in the number of `Nat.le.step` constructors.
+Thus, the proof should add an extra `Nat.le.step` in the base case.
+The proof can be written:
+```lean
+{{#example_decl Examples/ProgramsProofs/Inequalities.lean le succ_of_le}}
+```
+
+To reveal what's going on behind the scenes, the `apply` and `exact` tactics can be used to indicate exactly which constructor is being applied.
+The `apply` tactic solves the current goal by applying a function or constructor whose return type matches, creating new goals for each argument that was not provided, while `exact` fails if any new goals would be needed:
+```lean
+{{#example_decl Examples/ProgramsProofs/Inequalities.lean le_succ_of_le_apply}}
+```
+
+The proof can be golfed:
+```lean
+{{#example_decl Examples/ProgramsProofs/Inequalities.lean le_succ_of_le_golf}}
+```
+In this short tactic script, both goals introduced by `induction` are addressed using `repeat (first | constructor | assumption)`.
+The tactic `first | T1 | T2 | ... | Tn` means to use try `T1` through `Tn` in order, using the first tactic that succeeds.
+In other words, `repeat (first | constructor | assumption)` applies constructors as long as it can, and then attempts to solve the goal using an assumption.
+
+Finally, the proof can be written as a recursive function:
+```lean
+{{#example_decl Examples/ProgramsProofs/Inequalities.lean le_succ_of_le_recursive}}
+```
+
+Each style of proof can be appropriate to different circumstances.
+The detailed proof script is useful in cases where beginners may be reading the code, or where the steps of the proof provide some kind of insight.
+The short, highly-automated proof script is typically easier to maintain, because automation is frequently both flexible and robust in the face of small changes to definitions and datatypes.
+The recursive function is typically both harder to understand from the perspective of mathematical proofs and harder to maintain, but it can be a useful bridge for programmers who are beginning to work with interactive theorem proving.
+
+### Finishing the Proof
+
+Now that both helper theorems have been proved, the rest of `split_shorter_le` will be completed quickly.
+The current proof state has two goals, for the left and right sides of the `And`:
+```output error
+{{#example_out Examples/ProgramsProofs/Inequalities.lean split_shorter_le4}}
+```
+
+The goals are named for the fields of the `And` structure. This means that the `case` tactic (not to be confused with `cases`) can be used to focus on each of them in turn:
+```lean
+{{#example_in Examples/ProgramsProofs/Inequalities.lean split_shorter_le5a}}
+```
+Instead of a single error that lists both unsolved goals, there are now two messages, one on each `skip`.
+For the `left` goal, `Nat.succ_le_succ` can be used:
+```output error
+{{#example_out Examples/ProgramsProofs/Inequalities.lean split_shorter_le5a}}
+```
+In the right goal, `Nat.le_suc_of_le` fits:
+```output error
+{{#example_out Examples/ProgramsProofs/Inequalities.lean split_shorter_le5b}}
+```
+Both theorems include the precondition that `n ≤ m`.
+These can be found as the `left✝` and `right✝` assumptions, which means that the `assumption` tactic takes care of the final goals:
+```lean
+{{#example_decl Examples/ProgramsProofs/Inequalities.lean split_shorter_le}}
+```
+
+The next step is to return to the actual theorem that is needed to prove that merge sort terminates: that so long as a list has at least two entries, both results of splitting it are strictly shorter.
+```lean
+{{#example_in Examples/ProgramsProofs/Inequalities.lean split_shorter_start}}
+```
+```output error
+{{#example_out Examples/ProgramsProofs/Inequalities.lean split_shorter_start}}
+```
+```lean
+{{#example_in Examples/ProgramsProofs/Inequalities.lean split_shorter_1}}
+```
+```output error
+{{#example_out Examples/ProgramsProofs/Inequalities.lean split_shorter_1}}
+```
+```lean
+{{#example_in Examples/ProgramsProofs/Inequalities.lean split_shorter_2}}
+```
+```output error
+{{#example_out Examples/ProgramsProofs/Inequalities.lean split_shorter_2}}
+```
+```lean
+{{#example_in Examples/ProgramsProofs/Inequalities.lean split_shorter_2b}}
+```
+```output error
+{{#example_out Examples/ProgramsProofs/Inequalities.lean split_shorter_2b}}
+```
+
+```lean
+{{#example_decl Examples/ProgramsProofs/Inequalities.lean split_shorter}}
+```
+
+```lean
+{{#example_decl Examples/ProgramsProofs/Inequalities.lean split_shorter_sides}}
+```
+
+## Merge Sort Terminates
+
+Merge sort has two recursive calls, one for each sub-list returned by `split`.
+Each recursive call will require a proof that the length of the list being passed to it is shorter than the length of the input list.
+It's usually convenient to write a termination proof in two steps: first, write down the propositions that will allow Lean to verify termination, and then prove them.
+Otherwise, its' possible to put a lot of effort into proving the propositions, only to find out that they aren't quite what's needed to establish that the recursive calls are on smaller inputs.
+
+The `sorry` tactic can prove any goal, even false ones.
+It isn't intended for use in production code or final proofs, but it is a convenient way to "sketch out" a proof or program ahead of time.
+Any definitions or theorems that use `sorry` are annotated with a warning.
+
+The initial sketch of `mergeSort`'s termination argument that uses `sorry` can be written by copying the goals that Lean couldn't prove into `have`-expressions:
+```lean
+{{#example_in Examples/ProgramsProofs/Inequalities.lean mergeSortSorry}}
+```
+The warning is located on the name `mergeSort`:
+```output warning
+{{#example_out Examples/ProgramsProofs/Inequalities.lean mergeSortSorry}}
+```
+Because there are no errors, the proposed propositions are enough to establish termination.
+
+The proofs begin by applying the helper theorems:
+```lean
+{{#example_in Examples/ProgramsProofs/Inequalities.lean mergeSortNeedsGte}}
+```
+Both proofs fail, because `split_shorter_fst` and `split_shorter_snd` both require a proof that `xs.length ≥ 2`:
+```output info
+{{#example_out Examples/ProgramsProofs/Inequalities.lean mergeSortNeedsGte}}
+```
+To check that this will be enough to complete the proof, add it using `sorry` and check for errors:
+```lean
+{{#example_in Examples/ProgramsProofs/Inequalities.lean mergeSortGteStarted}}
+```
+Once again, there is only a warning.
+```output warning
+{{#example_out Examples/ProgramsProofs/Inequalities.lean mergeSortGteStarted}}
+```
+
+There is one promising assumption available: `h : ¬List.length xs < 2`, which comes from the `if`.
+Clearly, if it is not the case that `xs.length < 2`, then `xs.length ≥ 2`.
+The Lean library provides this theorem under the name `Nat.ge_of_not_lt`.
+The program is now complete:
+```lean
+{{#example_decl Examples/ProgramsProofs/Inequalities.lean mergeSort}}
+```
+
+The function can be tested on examples:
+```lean
+{{#example_in Examples/ProgramsProofs/Inequalities.lean mergeSortRocks}}
+```
+```output info
+{{#example_out Examples/ProgramsProofs/Inequalities.lean mergeSortRocks}}
+```
+```lean
+{{#example_in Examples/ProgramsProofs/Inequalities.lean mergeSortNumbers}}
+```
+```output info
+{{#example_out Examples/ProgramsProofs/Inequalities.lean mergeSortNumbers}}
+```
+
+## Exercises
+
+Prove the following theorems:
+
+ * For all natural numbers \\( n \\), \\( 0 < n + 1 \\).
+ * For all natural numbers \\( n \\), \\( 0 \\leq n \\).
+ * For all natural numbers \\( n \\) and \\( k \\), \\( (n + 1) - (k + 1) = n - k \\)
+ * For all natural numbers \\( n \\) and \\( k \\), if \\( k < n \\) then \\( n \neq 0 \\)
+ * For all natural numbers \\( n \\), \\( n - n = 0 \\)
+ * For all natural numbers \\( n \\) and \\( k \\), if \\( n + 1 < k \\) then \\( n < k \\)

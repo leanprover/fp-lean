@@ -267,8 +267,6 @@ a_ih✝ : Nat.succ n ≤ Nat.succ m✝
 end expect
 
 
-example := Nat.le
-
 expect error {{{ succ_le_succ4 }}}
   theorem Nat.succ_le_succ : n ≤ m → Nat.succ n ≤ Nat.succ m := by
     intro h
@@ -305,36 +303,285 @@ book declaration {{{ succ_le_succ_recursive }}}
 stop book declaration
 
 end more
+
+
+book declaration {{{ le_succ_of_le }}}
   theorem Nat.le_succ_of_le : n ≤ m → n ≤ Nat.succ m := by
     intro h
     induction h with
     | refl => constructor ; constructor
     | step => constructor; assumption
+stop book declaration
 
+namespace Apply
+book declaration {{{ le_succ_of_le_apply }}}
+  theorem Nat.le_succ_of_le : n ≤ m → n ≤ Nat.succ m := by
+    intro h
+    induction h with
+    | refl => apply Nat.le.step ; exact Nat.le.refl
+    | step _ ih => apply Nat.le.step; exact ih
+stop book declaration
+end Apply
+
+namespace Golf
+book declaration {{{ le_succ_of_le_golf }}}
+  theorem Nat.le_succ_of_le (h : n ≤ m) : n ≤ Nat.succ m := by
+    induction h <;> repeat (first | constructor | assumption)
+stop book declaration
+end Golf
+
+namespace NoTac
+
+book declaration {{{ le_succ_of_le_recursive }}}
+  theorem Nat.le_succ_of_le : n ≤ m → n ≤ Nat.succ m
+    | .refl => .step .refl
+    | .step h => .step (Nat.le_succ_of_le h)
+stop book declaration
+end NoTac
 end Extras
 
-theorem split_shorter_le (lst : List α) : (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
-  induction lst with
-  | nil => simp [split]
-  | cons x xs ih =>
-    simp [split]
-    cases ih
-    constructor
-    case left => apply Nat.succ_le_succ; assumption
-    case right => apply Nat.le_succ_of_le; assumption
 
-theorem split_shorter (lst : List α) (_ : lst.length ≥ 2) : (split lst).fst.length < lst.length ∧ (split lst).snd.length < lst.length :=
-  match lst with
-  | x :: y :: xs => by
-    induction xs with
+expect error {{{ split_shorter_le5a }}}
+  theorem split_shorter_le (lst : List α) : (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
+    induction lst with
     | nil => simp [split]
-    | cons z zs ih =>
+    | cons x xs ih =>
       simp [split]
-      have : List.length (x :: y :: zs) ≥ 2 := by simp_arith
-      cases ih this
+      cases ih
+      constructor
+      case left => skip
+      case right => skip
+message
+"unsolved goals
+α : Type u_1
+x : α
+xs : List α
+left✝ : List.length (split xs).fst ≤ List.length xs
+right✝ : List.length (split xs).snd ≤ List.length xs
+⊢ Nat.succ (List.length (split xs).snd) ≤ Nat.succ (List.length xs)"
+end expect
+
+expect error {{{ split_shorter_le5b }}}
+  theorem split_shorter_le (lst : List α) : (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
+    induction lst with
+    | nil => simp [split]
+    | cons x xs ih =>
+      simp [split]
+      cases ih
+      constructor
+      case left => skip
+      case right => skip
+message
+"unsolved goals
+α : Type u_1
+x : α
+xs : List α
+left✝ : List.length (split xs).fst ≤ List.length xs
+right✝ : List.length (split xs).snd ≤ List.length xs
+⊢ List.length (split xs).fst ≤ Nat.succ (List.length xs)"
+end expect
+
+
+book declaration {{{ split_shorter_le }}}
+  theorem split_shorter_le (lst : List α) : (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
+    induction lst with
+    | nil => simp [split]
+    | cons x xs ih =>
+      simp [split]
+      cases ih
       constructor
       case left => apply Nat.succ_le_succ; assumption
       case right => apply Nat.le_succ_of_le; assumption
+stop book declaration
+
+
+expect error {{{ split_shorter_start }}}
+  theorem split_shorter (lst : List α) (_ : lst.length ≥ 2) :
+      (split lst).fst.length < lst.length ∧ (split lst).snd.length < lst.length := by
+    skip
+message
+"unsolved goals
+α : Type u_1
+lst : List α
+x✝ : List.length lst ≥ 2
+⊢ List.length (split lst).fst < List.length lst ∧ List.length (split lst).snd < List.length lst"
+end expect
+
+
+expect error {{{ split_shorter_1 }}}
+  theorem split_shorter (lst : List α) (_ : lst.length ≥ 2) :
+      (split lst).fst.length < lst.length ∧ (split lst).snd.length < lst.length := by
+    match lst with
+    | x :: y :: xs =>
+      skip
+message
+"unsolved goals
+α : Type u_1
+lst : List α
+x y : α
+xs : List α
+x✝ : List.length (x :: y :: xs) ≥ 2
+⊢ List.length (split (x :: y :: xs)).fst < List.length (x :: y :: xs) ∧
+    List.length (split (x :: y :: xs)).snd < List.length (x :: y :: xs)"
+end expect
+
+
+expect error {{{ split_shorter_2 }}}
+  theorem split_shorter (lst : List α) (_ : lst.length ≥ 2) :
+      (split lst).fst.length < lst.length ∧ (split lst).snd.length < lst.length := by
+    match lst with
+    | x :: y :: xs =>
+      simp [split]
+message
+"unsolved goals
+α : Type u_1
+lst : List α
+x y : α
+xs : List α
+x✝ : List.length (x :: y :: xs) ≥ 2
+⊢ Nat.succ (List.length (split xs).fst) < Nat.succ (Nat.succ (List.length xs)) ∧
+    Nat.succ (List.length (split xs).snd) < Nat.succ (Nat.succ (List.length xs))"
+end expect
+
+
+expect error {{{ split_shorter_2b }}}
+  theorem split_shorter (lst : List α) (_ : lst.length ≥ 2) :
+      (split lst).fst.length < lst.length ∧ (split lst).snd.length < lst.length := by
+    match lst with
+    | x :: y :: xs =>
+      simp_arith [split]
+message
+"unsolved goals
+α : Type u_1
+lst : List α
+x y : α
+xs : List α
+x✝ : List.length (x :: y :: xs) ≥ 2
+⊢ List.length (split xs).fst ≤ List.length xs ∧ List.length (split xs).snd ≤ List.length xs"
+end expect
+
+
+book declaration {{{ split_shorter }}}
+  theorem split_shorter (lst : List α) (_ : lst.length ≥ 2) :
+      (split lst).fst.length < lst.length ∧ (split lst).snd.length < lst.length := by
+    match lst with
+    | x :: y :: xs =>
+      simp_arith [split]
+      apply split_shorter_le
+stop book declaration
+
+
+book declaration {{{ split_shorter_sides }}}
+  theorem split_shorter_fst (lst : List α) (h : lst.length ≥ 2) : (split lst).fst.length < lst.length :=
+    split_shorter lst h |>.left
+
+  theorem split_shorter_snd (lst : List α) (h : lst.length ≥ 2) : (split lst).snd.length < lst.length :=
+    split_shorter lst h |>.right
+stop book declaration
+
+
+
+expect warning {{{ mergeSortSorry }}}
+  def mergeSort [Ord α] (xs : List α) : List α :=
+    if h : xs.length < 2 then
+      match xs with
+      | [] => []
+      | [x] => [x]
+    else
+      let halves := split xs
+      have : halves.fst.length < xs.length := by
+        sorry
+      have : halves.snd.length < xs.length := by
+        sorry
+      merge (mergeSort halves.fst) (mergeSort halves.snd)
+  termination_by mergeSort xs => xs.length
+message
+"declaration uses 'sorry'"
+end expect
+
+
+expect error {{{ mergeSortNeedsGte }}}
+  def mergeSort [Ord α] (xs : List α) : List α :=
+    if h : xs.length < 2 then
+      match xs with
+      | [] => []
+      | [x] => [x]
+    else
+      let halves := split xs
+      have : halves.fst.length < xs.length := by
+        apply split_shorter_fst
+      have : halves.snd.length < xs.length := by
+        apply split_shorter_snd
+      merge (mergeSort halves.fst) (mergeSort halves.snd)
+  termination_by mergeSort xs => xs.length
+message
+"unsolved goals
+case h
+α : Type ?u.22721
+inst✝ : Ord α
+xs : List α
+h : ¬List.length xs < 2
+halves : List α × List α := split xs
+⊢ List.length xs ≥ 2"
+end expect
+
+
+expect warning {{{ mergeSortGteStarted }}}
+  def mergeSort [Ord α] (xs : List α) : List α :=
+    if h : xs.length < 2 then
+      match xs with
+      | [] => []
+      | [x] => [x]
+    else
+      let halves := split xs
+      have : xs.length ≥ 2 := by sorry
+      have : halves.fst.length < xs.length := by
+        apply split_shorter_fst
+        assumption
+      have : halves.snd.length < xs.length := by
+        apply split_shorter_snd
+        assumption
+      merge (mergeSort halves.fst) (mergeSort halves.snd)
+  termination_by mergeSort xs => xs.length
+message
+"declaration uses 'sorry'"
+end expect
+
+
+book declaration {{{ mergeSort }}}
+  def mergeSort [Ord α] (xs : List α) : List α :=
+    if h : xs.length < 2 then
+      match xs with
+      | [] => []
+      | [x] => [x]
+    else
+      let halves := split xs
+      have : xs.length ≥ 2 := by
+        apply Nat.ge_of_not_lt
+        assumption
+      have : halves.fst.length < xs.length := by
+        apply split_shorter_fst
+        assumption
+      have : halves.snd.length < xs.length := by
+        apply split_shorter_snd
+        assumption
+      merge (mergeSort halves.fst) (mergeSort halves.snd)
+  termination_by mergeSort xs => xs.length
+stop book declaration
+
+
+expect info {{{ mergeSortRocks }}}
+  #eval mergeSort ["soapstone", "geode", "mica", "limestone"]
+message
+"[\"geode\", \"limestone\", \"mica\", \"soapstone\"]"
+end expect
+
+
+expect info {{{ mergeSortNumbers }}}
+  #eval mergeSort [5, 3, 22, 15]
+message
+"[3, 5, 15, 22]"
+end expect
 
 
 theorem zero_lt_succ : 0 < Nat.succ n := by

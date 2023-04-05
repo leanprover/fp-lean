@@ -131,6 +131,48 @@ This time, however, Lean does not accept the `termination_by`:
 ```
 The problem is that Lean has no way to know that `insertSorted` returns an array that's the same size as the one it is passed.
 In order to prove that `insertionSortLoop` terminates, it is necessary to first prove that `insertSorted` doesn't change the size of the array.
+Copying the unproved termination condition from the error message to the function and "proving" it with `sorry` allows the function to be temporarily accepted:
+```lean
+{{#example_in Examples/ProgramsProofs/InsertionSort.lean insertionSortLoopSorry}}
+```
+```output warning
+{{#example_out Examples/ProgramsProofs/InsertionSort.lean insertionSortLoopSorry}}
+```
+
+Because `insertSorted` is structurally recursive on the index of the element being inserted, the proof should be by induction on the index.
+In the base case, the array is returned unchanged, so its length certainly does not change.
+For the inductive step, the induction hypothesis is that a recursive call on the next smaller index will not change the length of the array.
+There are two cases two consider: either the element has been fully inserted into the sorted region and the array is returned unchanged, in which case the length is also unchanged, or the element is swapped with the next one before the recursive call.
+However, swapping two elements in an array doesn't change the size of it, and the induction hypothesis states that the recursive call with the next index returns an array that's the same size as its argument.
+Thus, the size remains unchanged.
+
+Translating this English-language theorem statement to Lean and proceeding using the techniques from this chapter is enough to prove the base case and make progress in the inductive step:
+```lean
+{{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_0}}
+```
+The simplification using `insertSorted` in the inductive step revealed the pattern match in `insertSorted`:
+```output error
+{{#example_out Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_0}}
+```
+When faced with a goal that includes `if` or `match`, the `split` tactic (not to be confused with the `split` function used in the definition of merge sort) replaces the goal with one new goal for each path of control flow:
+```lean
+{{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_1}}
+```
+Additionally, each new goal has an assumption that indicates which branch led to that goal, named `heq✝` in this case:
+```output error
+{{#example_out Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_1}}
+```
+Rather than write proofs for both simple cases, adding `<;> try rfl` after `split` causes the two straightforward cases to disappear immediately, leaving only a single goal:
+```lean
+{{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_2}}
+```
+```output info
+{{#example_out Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_2}}
+```
+
+Unfortunately, this goal cannot be proved from the available assumptions.
+The induction hypothesis states that calling `insertSorted` on `arr` leaves the size unchanged, but the proof goal is to show that the result of the recursive call with the result of swapping leaves the size unchanged.
+
 
 TODO:
 

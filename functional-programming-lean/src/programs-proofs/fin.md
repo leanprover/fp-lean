@@ -14,24 +14,10 @@ The definition of `Fin` resembles `Subtype`: a `Fin n` is a structure that conta
 ```
 
 Lean includes instances of `ToString` and `OfNat` that allow `Fin` values to be conveniently used as numbers.
-In other words, the output of
-```lean
-{{#example_in Examples/ProgramsProofs/Fin.lean fiveFinEight}}
-```
-is
-```output info
-{{#example_out Examples/ProgramsProofs/Fin.lean fiveFinEight}}
-```
+In other words, the output of `{{#example_in Examples/ProgramsProofs/Fin.lean fiveFinEight}}` is `{{#example_out Examples/ProgramsProofs/Fin.lean fiveFinEight}}`, rather than something like `{val := 5, isLt := _}`.
+
 Instead of failing when the provided number is larger than the bound, the `OfNat` instance for `Fin` returns a value modulo the bound.
-This means that
-```lean
-{{#example_in Examples/ProgramsProofs/Fin.lean finOverflow}}
-```
-results in
-```output info
-{{#example_out Examples/ProgramsProofs/Fin.lean finOverflow}}
-```
-rather than a compile-time error.
+This means that `{{#example_in Examples/ProgramsProofs/Fin.lean finOverflow}}` results in `{{#example_out Examples/ProgramsProofs/Fin.lean finOverflow}}` rather than a compile-time error.
 
 In a return type, a `Fin` returned as a found index makes its connection to the data structure in which it was found more clear.
 The `Array.find` in the [previous section](./arrays-termination.md#proving-termination) returns an index that the caller cannot immediately use to perform lookups into the array, because the information about its validity has been lost.
@@ -42,7 +28,7 @@ A more specific type results in a value that can be used without making the prog
 {{#example_decl Examples/ProgramsProofs/Fin.lean ArrayFind}}
 ```
 
-## Exercises
+## Exercise
 
 Write a function `Fin.next? : Fin n → Option (Fin n)` that returns the next largest `Fin` when it would be in bounds, or `none` if not.
 Check that
