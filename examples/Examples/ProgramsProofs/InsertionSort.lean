@@ -199,6 +199,8 @@ heq✝ : compare arr[j'] arr[{ val := Nat.succ j', isLt := isLt }] = Ordering.gt
     Array.size arr"
 end expect
 
+
+expect error {{{ insert_sorted_size_eq_3 }}}
   theorem insert_sorted_size_eq [Ord α] (arr : Array α) (i : Fin arr.size) :
       (insertSorted arr i).size = arr.size := by
     match i with
@@ -208,19 +210,369 @@ end expect
       | succ j' ih =>
         simp [insertSorted]
         split <;> try rfl
+message
+"unsolved goals
+case succ.h_3
+α : Type u_1
+inst✝ : Ord α
+j' : Nat
+ih :
+  ∀ (arr : Array α),
+    Fin (Array.size arr) →
+      ∀ (isLt : j' < Array.size arr), Array.size (insertSorted arr { val := j', isLt := isLt }) = Array.size arr
+arr : Array α
+i : Fin (Array.size arr)
+isLt : Nat.succ j' < Array.size arr
+x✝ : Ordering
+heq✝ : compare arr[j'] arr[{ val := Nat.succ j', isLt := isLt }] = Ordering.gt
+⊢ Array.size
+      (insertSorted
+        (Array.swap arr { val := j', isLt := (_ : j' < Array.size arr) } { val := Nat.succ j', isLt := isLt })
+        { val := j',
+          isLt :=
+            (_ :
+              j' <
+                Array.size
+                  (Array.swap arr { val := j', isLt := (_ : j' < Array.size arr) }
+                    { val := Nat.succ j', isLt := isLt })) }) =
+    Array.size arr"
+end expect
 
-theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
-    (arr : Array α) → (isLt : i < arr.size) → (arr.size = len) →
-    (insertSorted arr ⟨i, isLt⟩).size = len := by
-  induction i with
-  | zero =>
-    intro arr isLt hLen
-    simp [insertSorted, *]
-  | succ i' ih =>
-    intro arr isLt hLen
-    simp [insertSorted]
-    split <;> simp [*]
 
+expect error {{{ insert_sorted_size_eq_redo_0 }}}
+  theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
+      (arr : Array α) → (isLt : i < arr.size) → arr.size = len →
+      (insertSorted arr ⟨i, isLt⟩).size = len := by
+    skip
+message
+"unsolved goals
+α : Type u_1
+inst✝ : Ord α
+len i : Nat
+⊢ ∀ (arr : Array α) (isLt : i < Array.size arr),
+    Array.size arr = len → Array.size (insertSorted arr { val := i, isLt := isLt }) = len"
+end expect
+
+
+expect error {{{ insert_sorted_size_eq_redo_1a }}}
+  theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
+      (arr : Array α) → (isLt : i < arr.size) → arr.size = len →
+      (insertSorted arr ⟨i, isLt⟩).size = len := by
+    induction i with
+    | zero => skip
+    | succ i' ih => skip
+message
+"unsolved goals
+case zero
+α : Type u_1
+inst✝ : Ord α
+len : Nat
+⊢ ∀ (arr : Array α) (isLt : Nat.zero < Array.size arr),
+    Array.size arr = len → Array.size (insertSorted arr { val := Nat.zero, isLt := isLt }) = len"
+end expect
+
+expect error {{{ insert_sorted_size_eq_redo_1b }}}
+  theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
+      (arr : Array α) → (isLt : i < arr.size) → arr.size = len →
+      (insertSorted arr ⟨i, isLt⟩).size = len := by
+    induction i with
+    | zero => skip
+    | succ i' ih => skip
+message
+"unsolved goals
+case succ
+α : Type u_1
+inst✝ : Ord α
+len i' : Nat
+ih :
+  ∀ (arr : Array α) (isLt : i' < Array.size arr),
+    Array.size arr = len → Array.size (insertSorted arr { val := i', isLt := isLt }) = len
+⊢ ∀ (arr : Array α) (isLt : Nat.succ i' < Array.size arr),
+    Array.size arr = len → Array.size (insertSorted arr { val := Nat.succ i', isLt := isLt }) = len"
+end expect
+
+
+expect error {{{ insert_sorted_size_eq_redo_2 }}}
+  theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
+      (arr : Array α) → (isLt : i < arr.size) → arr.size = len →
+      (insertSorted arr ⟨i, isLt⟩).size = len := by
+    induction i with
+    | zero =>
+      intro arr isLt hLen
+      simp [insertSorted]
+    | succ i' ih => skip
+message
+"unsolved goals
+case zero
+α : Type u_1
+inst✝ : Ord α
+len : Nat
+arr : Array α
+isLt : Nat.zero < Array.size arr
+hLen : Array.size arr = len
+⊢ Array.size arr = len"
+end expect
+
+
+expect error {{{ insert_sorted_size_eq_redo_2b }}}
+  theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
+      (arr : Array α) → (isLt : i < arr.size) → arr.size = len →
+      (insertSorted arr ⟨i, isLt⟩).size = len := by
+    induction i with
+    | zero =>
+      intro arr isLt hLen
+      simp [insertSorted, *]
+    | succ i' ih => skip
+message
+"unsolved goals
+case succ
+α : Type u_1
+inst✝ : Ord α
+len i' : Nat
+ih :
+  ∀ (arr : Array α) (isLt : i' < Array.size arr),
+    Array.size arr = len → Array.size (insertSorted arr { val := i', isLt := isLt }) = len
+⊢ ∀ (arr : Array α) (isLt : Nat.succ i' < Array.size arr),
+    Array.size arr = len → Array.size (insertSorted arr { val := Nat.succ i', isLt := isLt }) = len"
+end expect
+
+
+expect error {{{ insert_sorted_size_eq_redo_3 }}}
+  theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
+      (arr : Array α) → (isLt : i < arr.size) → (arr.size = len) →
+      (insertSorted arr ⟨i, isLt⟩).size = len := by
+    induction i with
+    | zero =>
+      intro arr isLt hLen
+      simp [insertSorted, *]
+    | succ i' ih =>
+      intro arr isLt hLen
+      simp [insertSorted]
+message
+"unsolved goals
+case succ
+α : Type u_1
+inst✝ : Ord α
+len i' : Nat
+ih :
+  ∀ (arr : Array α) (isLt : i' < Array.size arr),
+    Array.size arr = len → Array.size (insertSorted arr { val := i', isLt := isLt }) = len
+arr : Array α
+isLt : Nat.succ i' < Array.size arr
+hLen : Array.size arr = len
+⊢ Array.size
+      (match compare arr[i'] arr[{ val := Nat.succ i', isLt := isLt }] with
+      | Ordering.lt => arr
+      | Ordering.eq => arr
+      | Ordering.gt =>
+        insertSorted
+          (Array.swap arr { val := i', isLt := (_ : i' < Array.size arr) } { val := Nat.succ i', isLt := isLt })
+          { val := i',
+            isLt :=
+              (_ :
+                i' <
+                  Array.size
+                    (Array.swap arr { val := i', isLt := (_ : i' < Array.size arr) }
+                      { val := Nat.succ i', isLt := isLt })) }) =
+    len"
+end expect
+
+
+expect error {{{ insert_sorted_size_eq_redo_4 }}}
+  theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
+      (arr : Array α) → (isLt : i < arr.size) → (arr.size = len) →
+      (insertSorted arr ⟨i, isLt⟩).size = len := by
+    induction i with
+    | zero =>
+      intro arr isLt hLen
+      simp [insertSorted, *]
+    | succ i' ih =>
+      intro arr isLt hLen
+      simp [insertSorted]
+      split
+message
+"unsolved goals
+case succ.h_1
+α : Type u_1
+inst✝ : Ord α
+len i' : Nat
+ih :
+  ∀ (arr : Array α) (isLt : i' < Array.size arr),
+    Array.size arr = len → Array.size (insertSorted arr { val := i', isLt := isLt }) = len
+arr : Array α
+isLt : Nat.succ i' < Array.size arr
+hLen : Array.size arr = len
+x✝ : Ordering
+heq✝ : compare arr[i'] arr[{ val := Nat.succ i', isLt := isLt }] = Ordering.lt
+⊢ Array.size arr = len
+
+case succ.h_2
+α : Type u_1
+inst✝ : Ord α
+len i' : Nat
+ih :
+  ∀ (arr : Array α) (isLt : i' < Array.size arr),
+    Array.size arr = len → Array.size (insertSorted arr { val := i', isLt := isLt }) = len
+arr : Array α
+isLt : Nat.succ i' < Array.size arr
+hLen : Array.size arr = len
+x✝ : Ordering
+heq✝ : compare arr[i'] arr[{ val := Nat.succ i', isLt := isLt }] = Ordering.eq
+⊢ Array.size arr = len
+
+case succ.h_3
+α : Type u_1
+inst✝ : Ord α
+len i' : Nat
+ih :
+  ∀ (arr : Array α) (isLt : i' < Array.size arr),
+    Array.size arr = len → Array.size (insertSorted arr { val := i', isLt := isLt }) = len
+arr : Array α
+isLt : Nat.succ i' < Array.size arr
+hLen : Array.size arr = len
+x✝ : Ordering
+heq✝ : compare arr[i'] arr[{ val := Nat.succ i', isLt := isLt }] = Ordering.gt
+⊢ Array.size
+      (insertSorted
+        (Array.swap arr { val := i', isLt := (_ : i' < Array.size arr) } { val := Nat.succ i', isLt := isLt })
+        { val := i',
+          isLt :=
+            (_ :
+              i' <
+                Array.size
+                  (Array.swap arr { val := i', isLt := (_ : i' < Array.size arr) }
+                    { val := Nat.succ i', isLt := isLt })) }) =
+    len"
+end expect
+
+
+expect error {{{ insert_sorted_size_eq_redo_5 }}}
+  theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
+      (arr : Array α) → (isLt : i < arr.size) → (arr.size = len) →
+      (insertSorted arr ⟨i, isLt⟩).size = len := by
+    induction i with
+    | zero =>
+      intro arr isLt hLen
+      simp [insertSorted, *]
+    | succ i' ih =>
+      intro arr isLt hLen
+      simp [insertSorted]
+      split <;> try assumption
+message
+"unsolved goals
+case succ.h_3
+α : Type u_1
+inst✝ : Ord α
+len i' : Nat
+ih :
+  ∀ (arr : Array α) (isLt : i' < Array.size arr),
+    Array.size arr = len → Array.size (insertSorted arr { val := i', isLt := isLt }) = len
+arr : Array α
+isLt : Nat.succ i' < Array.size arr
+hLen : Array.size arr = len
+x✝ : Ordering
+heq✝ : compare arr[i'] arr[{ val := Nat.succ i', isLt := isLt }] = Ordering.gt
+⊢ Array.size
+      (insertSorted
+        (Array.swap arr { val := i', isLt := (_ : i' < Array.size arr) } { val := Nat.succ i', isLt := isLt })
+        { val := i',
+          isLt :=
+            (_ :
+              i' <
+                Array.size
+                  (Array.swap arr { val := i', isLt := (_ : i' < Array.size arr) }
+                    { val := Nat.succ i', isLt := isLt })) }) =
+    len"
+end expect
+
+namespace Wak
+
+expect error {{{ isnert_sorted_size_eq_partial_redo }}}
+  theorem insert_sorted_size_eq [Ord α] (i : Nat) :
+      (arr : Array α) → (isLt : i < arr.size) →
+      arr.size = (insertSorted arr ⟨i, isLt⟩).size := by
+    induction i with
+    | zero =>
+      intro arr isLt
+      simp [insertSorted, *]
+    | succ i' ih =>
+      intro arr isLt
+      simp [insertSorted]
+      split <;> try assumption
+      simp [*]
+message
+"unsolved goals
+case succ.h_2
+α : Type u_1
+inst✝ : Ord α
+i' : Nat
+ih :
+  ∀ (arr : Array α) (isLt : i' < Array.size arr),
+    Array.size arr = Array.size (insertSorted arr { val := i', isLt := isLt })
+arr : Array α
+isLt : Nat.succ i' < Array.size arr
+x✝ : Ordering
+heq✝ : compare arr[i'] arr[{ val := Nat.succ i', isLt := isLt }] = Ordering.eq
+⊢ Array.size arr = Array.size arr
+
+case succ.h_3
+α : Type u_1
+inst✝ : Ord α
+i' : Nat
+ih :
+  ∀ (arr : Array α) (isLt : i' < Array.size arr),
+    Array.size arr = Array.size (insertSorted arr { val := i', isLt := isLt })
+arr : Array α
+isLt : Nat.succ i' < Array.size arr
+x✝ : Ordering
+heq✝ : compare arr[i'] arr[{ val := Nat.succ i', isLt := isLt }] = Ordering.gt
+⊢ Array.size arr =
+    Array.size
+      (insertSorted
+        (Array.swap arr { val := i', isLt := (_ : i' < Array.size arr) } { val := Nat.succ i', isLt := isLt })
+        { val := i',
+          isLt :=
+            (_ :
+              i' <
+                Array.size
+                  (Array.swap arr { val := i', isLt := (_ : i' < Array.size arr) }
+                    { val := Nat.succ i', isLt := isLt })) })"
+end expect
+end Wak
+
+namespace Alt
+
+
+book declaration {{{ insert_sorted_size_eq_redo_6 }}}
+  theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
+      (arr : Array α) → (isLt : i < arr.size) → (arr.size = len) →
+      (insertSorted arr ⟨i, isLt⟩).size = len := by
+    induction i with
+    | zero =>
+      intro arr isLt hLen
+      simp [insertSorted, *]
+    | succ i' ih =>
+      intro arr isLt hLen
+      simp [insertSorted]
+      split <;> try assumption
+      simp [*]
+stop book declaration
+end Alt
+
+
+book declaration {{{ insert_sorted_size_eq_redo }}}
+  theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
+      (arr : Array α) → (isLt : i < arr.size) → (arr.size = len) →
+      (insertSorted arr ⟨i, isLt⟩).size = len := by
+    induction i with
+    | zero =>
+      intro arr isLt hLen
+      simp [insertSorted, *]
+    | succ i' ih =>
+      intro arr isLt hLen
+      simp [insertSorted]
+      split <;> simp [*]
+stop book declaration
 
 expect error {{{ insertionSortLoopTermination }}}
   def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
@@ -303,48 +655,62 @@ message
 end expect
 
 
-
-def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
-  if h : i < arr.size then
-    have : (insertSorted arr { val := i, isLt := h }).size - (i + 1) < arr.size - i := by
-      rw [insert_sorted_size_eq arr.size i arr h rfl]
-      simp [Nat.sub_succ_lt_self, *]
-    insertionSortLoop (insertSorted arr ⟨i, h⟩) (i + 1)
-  else
-    arr
+expect error {{{ insertionSortLoopRw }}}
+  def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
+    if h : i < arr.size then
+      have : (insertSorted arr { val := i, isLt := h }).size - (i + 1) < arr.size - i := by
+        rw [insert_sorted_size_eq arr.size i arr h rfl]
+      insertionSortLoop (insertSorted arr ⟨i, h⟩) (i + 1)
+    else
+      arr
 termination_by insertionSortLoop arr i => arr.size - i
+message
+"unsolved goals
+α : Type ?u.22453
+inst✝ : Ord α
+arr : Array α
+i : Nat
+h : i < Array.size arr
+⊢ Array.size arr - (i + 1) < Array.size arr - i"
+end expect
 
-def insertionSort [Ord α] (arr : Array α) : Array α :=
-  insertionSortLoop arr 0
+bookExample type {{{ sub_succ_lt_self_type }}}
+  Nat.sub_succ_lt_self
+  ===>
+  ∀ (a i : Nat), i < a → a - (i + 1) < a - i
+end bookExample
 
-#eval insertionSort #[3, 1, 7, 4]
 
--- namespace Instrumented
 
--- def insertSorted [Ord α] (arr : Array α) (i : Nat) (_ : i < arr.size) : Array α :=
---   match i with
---   | 0 => arr
---   | i' + 1 =>
---     have : i' < arr.size := by
---       simp [Nat.lt_of_succ_lt, *]
---     match Ord.compare arr[i'] arr[i' + 1] with
---     | .lt | .eq => arr
---     | .gt =>
---       let j : Fin arr.size := ⟨i', by assumption⟩
---       let j' : Fin arr.size := ⟨i' + 1, by assumption⟩
---       insertSorted ((dbgTraceIfShared "shared" arr).swap j j') i' (by simp [dbgTraceIfShared, *])
+book declaration {{{ insertionSortLoop }}}
+  def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
+    if h : i < arr.size then
+      have : (insertSorted arr { val := i, isLt := h }).size - (i + 1) < arr.size - i := by
+        rw [insert_sorted_size_eq arr.size i arr h rfl]
+        simp [Nat.sub_succ_lt_self, *]
+      insertionSortLoop (insertSorted arr ⟨i, h⟩) (i + 1)
+    else
+      arr
+  termination_by insertionSortLoop arr i => arr.size - i
+stop book declaration
 
--- partial def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
---   if h : i < arr.size then
---     insertionSortLoop (insertSorted arr i h) (i + 1)
---   else
---     arr
 
--- def insertionSort [Ord α] (arr : Array α) : Array α :=
---   insertionSortLoop arr 0
+book declaration {{{ insertionSort }}}
+ def insertionSort [Ord α] (arr : Array α) : Array α :=
+    insertionSortLoop arr 0
+stop book declaration
 
--- -- #eval insertionSort #[1,2,3]
--- -- def foo := #[3, 1, 2]
--- -- #eval insertionSort foo
 
--- end Instrumented
+expect info {{{ insertionSortNums }}}
+  #eval insertionSort #[3, 1, 7, 4]
+message
+"#[1, 3, 4, 7]"
+end expect
+
+
+expect info {{{ insertionSortStrings }}}
+  #eval insertionSort #[ "quartz", "marble", "granite", "hematite"]
+message
+"#[\"granite\", \"hematite\", \"marble\", \"quartz\"]"
+end expect
+

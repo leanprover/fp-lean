@@ -166,25 +166,142 @@ Rather than write proofs for both simple cases, adding `<;> try rfl` after `spli
 ```lean
 {{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_2}}
 ```
-```output info
+```output error
 {{#example_out Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_2}}
 ```
 
 Unfortunately, this goal cannot be proved from the available assumptions.
 The induction hypothesis states that calling `insertSorted` on `arr` leaves the size unchanged, but the proof goal is to show that the result of the recursive call with the result of swapping leaves the size unchanged.
+This is a common difficulty than can arise in proofs by induction: the induction hypothesis is not strong enough to prove the induction step.
+Successfully completing the proof requires an induction hypothesis that works for _any_ array that is passed to `insertSorted` together with the smaller index as an argument
 
+It is possible to get a strong induction hypothesis by using the `generalizing` option to the `induction` tactic.
+This option brings additional assumptions from the context into the statement that's used to generate the base case, the induction hypothesis, and the goal to be shown in the inductive step.
+Generalizing over `arr` leads to a stronger hypothesis:
+```lean
+{{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_3}}
+```
+In the resulting goal, `arr` is now part of a "for all" statement in the inductive hypothesis:
+```output error
+{{#example_out Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_3}}
+```
 
-TODO:
+However, this whole proof is beginning to get unmanageable.
+The next step would be to introduce a variable standing for the length of the result of swapping, show that it is equal to `arr.size`, and then show that this variable is also equal to the length of the array that results from the recursive call.
+These equality statement can then be chained together to prove the goal.
+It's much easier, however, to carefully reformulate the statement to be proved such that the induction hypothesis is automatically strong enough and the variables are already introduced.
+The reformulated statement reads:
+```lean
+{{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_0}}
+```
+This version of the theorem statement is easier to prove for a few reasons:
+ 1. Rather than bundling up the index and the proof of its validity in a `Fin`, the index comes before the array.
+    This allows the induction hypothesis to naturally generalize over the array and the proof that `i` is in bounds.
+ 2. An abstract length `len` is introduced to stand for `array.size`.
+    Proof automation is often better at working with explicit statements of equality.
 
-First state the theorem the natural way, show how IH is too weak
+The resulting proof state shows the statement that will be used to generate the induction hypothesis, as well as the base case and the goal of the inductive step:
+```output error
+{{#example_out Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_0}}
+```
 
-Then move stuff over, show how we get an annoying goal
+Compare the statement with the goals that result from the `induction` tactic:
+```lean
+{{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_1a}}
+```
+In the base case, each occurrence of `i` has been replaced by `0`.
+Using `intro` to introduce each assumption and then simplifying using `insertSorted` will prove the goal, because `insertSorted` at index `zero` returns its argument unchanged:
+```output error
+{{#example_out Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_1a}}
+```
+In the inductive step, the induction hypothesis has exactly the right strength.
+It will be useful for _any_ array, so long as that array has length `len`:
+```output error
+{{#example_out Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_1b}}
+```
 
-Next use explicit equalities with Nat values, which `simp` is better at
+In the base case, `simp` reduces the goal to `arr.size = len`:
+```lean
+{{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_2}}
+```
+```output error
+{{#example_out Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_2}}
+```
+This can be proved using the assumption `hLen`.
+Adding the `*` parameter to `simp` instructs it to additionally use assumptions, which solves the goal:
+```lean
+{{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_2b}}
+```
+
+In the inductive step, introducing assumptions and simplifying the goal results once again in a goal that contains a pattern match:
+```lean
+{{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_3}}
+```
+```output error
+{{#example_out Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_3}}
+```
+Using the `split` tactic results in one goal for each pattern.
+Once again, the first two goals result from branches without recursive calls, so the induction hypothesis is not necessary:
+```lean
+{{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_4}}
+```
+```output error
+{{#example_out Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_4}}
+```
+Running `try assumption` in each goal that results from `split` eliminates both of the non-recursive goals:
+```lean
+{{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_5}}
+```
+```output error
+{{#example_out Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_5}}
+```
+
+The new formulation of the proof goal, in which a constant `len` is used for the lengths of all the arrays involved in the recursive function, falls nicely within the kinds of problems that `simp` can solve.
+This final proof goal can be solved by `simp [*]`, because the assumptions that relate the array's length to `len` are important:
+```lean
+{{#example_decl Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_6}}
+```
+
+Finally, because `simp [*]` can use assumptions, the `try assumption` line can be replaced by `simp [*]`, shortening the proof:
+```lean
+{{#example_decl Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo}}
+```
+
+This proof can now be used to replace the `sorry` in `insertionSortLoop`.
+Providing `arr.size` as the `len` argument to the theorem causes the final conclusion to be `(insertSorted arr ⟨i, isLt⟩).size = arr.size`, so the rewrite ends with a very manageable proof goal:
+```lean
+{{#example_in Examples/ProgramsProofs/InsertionSort.lean insertionSortLoopRw}}
+```
+```output error
+{{#example_out Examples/ProgramsProofs/InsertionSort.lean insertionSortLoopRw}}
+```
+The proof `{{#example_in Examples/ProgramsProofs/InsertionSort.lean sub_succ_lt_self_type}}` is part of Lean's standard library.
+It's type is `{{#example_out Examples/ProgramsProofs/InsertionSort.lean sub_succ_lt_self_type}}`, which is exactly what's needed:
+```lean
+{{#example_decl Examples/ProgramsProofs/InsertionSort.lean insertionSortLoop}}
+```
+
 
 ## The Driver Function
 
-TODO: call the outer loop
+Insertion sort itself calls `insertionSortLoop`, initializing the index that demarcates the sorted region of the array from the unsorted region to `0`:
+```lean
+{{#example_decl Examples/ProgramsProofs/InsertionSort.lean insertionSort}}
+```
+
+A few quick tests show the function is at least not blatantly wrong:
+```lean
+{{#example_in Examples/ProgramsProofs/InsertionSort.lean insertionSortNums}}
+```
+```output info
+{{#example_out Examples/ProgramsProofs/InsertionSort.lean insertionSortNums}}
+```
+```lean
+{{#example_in Examples/ProgramsProofs/InsertionSort.lean insertionSortStrings}}
+```
+```output info
+{{#example_out Examples/ProgramsProofs/InsertionSort.lean insertionSortStrings}}
+```
 
 ## Instrument for sharing
 

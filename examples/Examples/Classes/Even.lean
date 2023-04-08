@@ -84,3 +84,27 @@ theorem geven_is_ge (n : Nat) (even : GEven basis n) : n ≥ basis := by
     constructor; constructor; assumption
 
 end New
+
+namespace Other
+
+inductive Even : Type where
+  | times2 : Nat → Even
+deriving Repr
+
+def Even.add : Even → Even → Even
+  | times2 a, times2 b => times2 (a + b)
+
+instance : Add Even where
+  add := Even.add
+
+instance : OfNat Even .zero where
+  ofNat := Even.times2 0
+
+instance [OfNat Even n] : OfNat Even (n + 2) where
+  ofNat := OfNat.ofNat n + .times2 1
+
+#eval (0 : Even)
+
+#eval (22 : Even)
+
+end Other

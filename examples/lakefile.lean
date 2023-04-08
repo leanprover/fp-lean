@@ -23,3 +23,8 @@ lean_exe doug {
 lean_exe tco {
   root := `Examples.ProgramsProofs.TCOTest
 }
+
+@[default_target]
+lean_exe sharing {
+  root := `Examples.ProgramsProofs.InstrumentedInsertionSort
+}
