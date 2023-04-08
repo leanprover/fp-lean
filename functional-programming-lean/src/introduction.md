@@ -59,6 +59,10 @@ Error messages returned by Lean are formatted like this:
 ```output error
 {{#example_out Examples/Intro.lean add1_string}}
 ```
+Warnings are formatted like this:
+```output warning
+declaration uses 'sorry'
+```
 
 # Unicode
 

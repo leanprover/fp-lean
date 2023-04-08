@@ -303,13 +303,82 @@ A few quick tests show the function is at least not blatantly wrong:
 {{#example_out Examples/ProgramsProofs/InsertionSort.lean insertionSortStrings}}
 ```
 
-## Instrument for sharing
+## Is This Really Insertion Sort?
 
-Add dbgTraceIfShared all over the place, test program again
+Insertion sort is _defined_ to be an in-place sorting algorithm.
+What makes it useful, despite its quadratic worst-case run time, is that it is a stable sorting algorithm that doesn't allocate extra space and that handles almost-sorted data efficiently.
+If each iteration of the inner loop allocated a new array, then the algorithm wouldn't _really_ be insertion sort.
 
-Do a not-statistically-significant benchmark with a big shared array and a big unique array
+Lean's array operations, such as `Array.set` and `Array.swap`, check whether the array in question has a reference count that is greater than one.
+If so, then the array is visible to multiple parts of the code, which means that it must be copied.
+Otherwise, Lean would no longer be a pure functional language.
+However, when the reference count is exactly one, there are no other potential observers of the value.
+In these cases, the array primitives mutate the array in place.
+What other parts of the program don't know can't hurt them.
+
+Lean's proof logic works at the level of pure functional programs, not the underlying implementation.
+This means that the best way to discover whether a program unnecessarily copies data is to test it.
+Adding calls to `dbgTraceIfShared` at each point where mutation is desired causes the provided message to be printed to `stderr` when the value in question has more than one reference.
+
+Insertion sort has precisely one place that is at risk of copying rather than mutating: the call to `Array.swap`.
+Replacing `arr.swap ⟨i', by assumption⟩ i` with `((dbgTraceIfShared "array to swap" arr).swap ⟨i', by assumption⟩ i)` causes the program to emit `shared RC array to swap` whenever it is unable to mutate the array.
+However, this change to the program changes the proofs as well, because now there's a call to an additional function.
+Because `dbgTraceIfShared` returns its second argument directly, adding it to the calls to `simp` is enough to fix the proofs.
+
+The complete instrumented code for insertion sort is:
+```lean
+{{#include ../../../examples/Examples/ProgramsProofs/InstrumentedInsertionSort.lean:InstrumentedInsertionSort}}
+```
+
+A bit of cleverness is required to check whether the instrumentation actually works.
+First off, the Lean compiler aggressively inlines function calls.
+Simply writing a program that applies `insertionŚort` to a large array is not sufficient, because the resulting compiled code may contain only the sorted array as a constant.
+The easiest way to ensure that the compiler doesn't optimize away the sorting routine is to read the array from `stdin`.
+Secondly, the compiler performs dead code elimination.
+Adding extra `let`s to the program won't necessarily result in more references in running code if the `let`-bound variables are never used.
+To ensure that the extra reference is not eliminated entirely, it's important to ensure that the extra reference is somehow used.
+
+The first step in testing the instrumentation is to write `getLines`, which reads an array of lines from standard input:
+```lean
+{{#include ../../../examples/Examples/ProgramsProofs/InstrumentedInsertionSort.lean:getLines}}
+```
+`IO.FS.Stream.getLine` returns a complete line of text, including the trailing newline.
+It returns `""` when the end-of-file marker has been reached.
+
+Next, two separate `main` routines are needed.
+Both read the array to be sorted from standard input, ensuring that the calls to `insertionSort` won't be replaced by their return values at compile time.
+Both then print to the console, ensuring that the calls to `insertionSort` won't be optimized away entirely.
+One of them prints only the sorted array, while the other prints both the sorted array and the original array.
+The second one should trigger a warning that `Array.swap` had to allocate a new array:
+```lean
+{{#include ../../../examples/Examples/ProgramsProofs/InstrumentedInsertionSort.lean:mains}}
+```
+
+The actual `main` simply selects one of the two main actions based on the provided command-line arguments:
+```lean
+{{#include ../../../examples/Examples/ProgramsProofs/InstrumentedInsertionSort.lean:main}}
+```
+
+Running it with no arguments produces the expected usage information:
+```
+$ {{#command {sort-demo} {sort-sharing} {./run-usage} {sort}}}
+{{#command_out {sort-sharing} {./run-usage} }}
+```
 
 
-## OTHER TODO:
+TODO: Run on an example data file
 
- Find all Nat inequality lemmas used and prove them to take the magic out (prob a new section)
+## Other Opportunities for Mutation
+
+The use of mutation instead of copying when references are unique is not limited to array update operators.
+Additionally, Lean attempts to "recycle" constructors whose reference counts are about to fall to zero, reusing them instead of allocating new data.
+This means that `List.map` will mutate a linked list in place, at least when nobody could possibly notice.
+
+## Exercises
+
+ * Write a function that reverses arrays. Test that if the input array has a reference count of one, then your function does not allocate a new array.
+
+* Implement either merge sort or quicksort for arrays. Prove that your implementation terminates, and test that it doesn't allocate more arrays than expected. This is a challenging exercise!
+ 
+
+   

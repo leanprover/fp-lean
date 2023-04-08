@@ -658,7 +658,7 @@ end expect
 expect error {{{ insertionSortLoopRw }}}
   def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
     if h : i < arr.size then
-      have : (insertSorted arr { val := i, isLt := h }).size - (i + 1) < arr.size - i := by
+      have : (insertSorted arr ⟨i, h⟩).size - (i + 1) < arr.size - i := by
         rw [insert_sorted_size_eq arr.size i arr h rfl]
       insertionSortLoop (insertSorted arr ⟨i, h⟩) (i + 1)
     else
@@ -685,7 +685,7 @@ end bookExample
 book declaration {{{ insertionSortLoop }}}
   def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
     if h : i < arr.size then
-      have : (insertSorted arr { val := i, isLt := h }).size - (i + 1) < arr.size - i := by
+      have : (insertSorted arr ⟨i, h⟩).size - (i + 1) < arr.size - i := by
         rw [insert_sorted_size_eq arr.size i arr h rfl]
         simp [Nat.sub_succ_lt_self, *]
       insertionSortLoop (insertSorted arr ⟨i, h⟩) (i + 1)

@@ -25,6 +25,6 @@ lean_exe tco {
 }
 
 @[default_target]
-lean_exe sharing {
+lean_exe sort {
   root := `Examples.ProgramsProofs.InstrumentedInsertionSort
 }
