@@ -25,8 +25,13 @@ The terms _class_ and _instance_ can be confusing for those who are used to obje
 However, they do share common roots: in everyday language, the term "class" refers to a group that shares some common attributes.
 While classes in object-oriented programming certainly describe groups of objects with common attributes, the term additionally refers to a specific mechanism in a programming language for describing such a group.
 Type classes are also a means of describing types that share common attributes (namely, implementations of certain operations), but they don't really have anything else in common with classes as found in object-oriented programming.
+
 A Lean type class is much more analogous to a Java or C# _interface_.
-Similarly, instances of type classes describe how to implement a given interface for a type, while the term "instance" is used to describe values with a given type in object-oriented programming.
+Both type classes and interfaces describe a conceptually related set of operations that are implemented for a type or collection of types.
+Similarly, an instance of a type class is akin to the code in a Java or C# class that is prescribed by the implemented interfaces, rather than an instance of a Java or C# class.
+Unlike Java or C#'s interfaces, types can be given instances for type classes that the author of the type does not have access to.
+In this way, they are very similar to Rust traits.
+
 
 
 
