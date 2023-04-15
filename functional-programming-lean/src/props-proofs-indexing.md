@@ -249,6 +249,6 @@ This error message results from having Lean attempt to treat `woodlandCritters` 
 
 ## Exercises
 
-* Prove the following theorems using `rfl`: `2 + 3 = 5`, `15 - 8 = 7`, `"Hello, ".append "world" = "Hello, world"`, `5 < 18`.
+* Prove the following theorems using `rfl`: `2 + 3 = 5`, `15 - 8 = 7`, `"Hello, ".append "world" = "Hello, world"`. What happens if `rfl` is used to prove `5 < 18`? Why?
 * Prove the following theorems using `by simp`: `2 + 3 = 5`, `15 - 8 = 7`, `"Hello, ".append "world" = "Hello, world"`, `5 < 18`.
 * Write a function that looks up the fifth entry in a list. Pass the evidence that this lookup is safe as an argument to the function.
