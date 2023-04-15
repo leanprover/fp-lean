@@ -226,4 +226,4 @@ Thus, Lean rejects it with the following message:
 {{#example_out Examples/Intro.lean div}}
 ```
 This message means that `div` requires a manual proof of termination.
-This topic is explored in [the final chapter](../programs-proofs.md).
+This topic is explored in [the final chapter](../programs-proofs/inequalities.md#division-as-iterated-subtraction).

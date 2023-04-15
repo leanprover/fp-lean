@@ -340,6 +340,46 @@ The function can be tested on examples:
 {{#example_out Examples/ProgramsProofs/Inequalities.lean mergeSortNumbers}}
 ```
 
+## Division as Iterated Subtraction
+
+Just as multiplication is iterated addition and exponentiation is iterated multiplication, division can be understood as iterated subtraction.
+The [very first description of recursive functions in this book](../getting-to-know/datatypes-and-patterns.md#recursive-functions) presents a version of division that terminates when the divisor is not zero, but that Lean does not accept.
+Proving that division terminates requires the use of a fact about inequalities.
+
+The first step is to refine the definition of division so that it requires evidence that the divisor is not zero:
+```lean
+{{#example_in Examples/ProgramsProofs/Div.lean divTermination}}
+```
+The error message is somewhat longer, due to the additional argument, but it contains essentially the same information:
+```output error
+{{#example_out Examples/ProgramsProofs/Div.lean divTermination}}
+```
+
+This definition of `div` terminates because the first argument `n` is smaller on each recursive call.
+This can be expressed using a `termination_by` clause:
+```lean
+{{#example_in Examples/ProgramsProofs/Div.lean divRecursiveNeedsProof}}
+```
+Now, the error is confined to the recursive call:
+```output error
+{{#example_out Examples/ProgramsProofs/Div.lean divRecursiveNeedsProof}}
+```
+
+This can be proved using a theorem from the standard library, `Nat.sub_lt`.
+This theorem states that `{{#example_out Examples/ProgramsProofs/Div.lean NatSubLt}}` (the curly braces indicate that `n` and `k` are implicit arguments).
+Using this theorem requires demonstrating that both `n` and `k` are greater than zero.
+Because `k > 0` is syntactic sugar for `0 < k`, the only necessary goal is to show that `0 < n`.
+There are two possibilities: either `n` is `0`, or it is `n' + 1` for some other `Nat` `n'`.
+But `n` cannot be `0`.
+The fact that the `if` selected the second branch means that `¬ n < k`, but if `n = 0` and `k > 0` then must be less than `k`, which would be a contradiction.
+This, `n = Nat.succ n'`, and `Nat.succ n'` is clearly greater than `0`.
+
+The full definition of `div`, including the termination proof, is:
+```lean
+{{#example_decl Examples/ProgramsProofs/Div.lean div}}
+```
+
+
 ## Exercises
 
 Prove the following theorems:
