@@ -1,4 +1,4 @@
-# Programming and Proving
+# Programming, Proving, and Performance
 
 This chapter is about programming.
 Programs need to compute the correct result, but they also need to do so efficiently.
