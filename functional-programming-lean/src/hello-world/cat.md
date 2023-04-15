@@ -30,6 +30,7 @@ and `Main.lean` should contain something like:
 ```
 {{#include ../../../examples/feline/1/Main.lean}}
 ```
+Alternatively, running `lake new feline exe` instructs `lake` to use a template that does not include a library section, making it unnecessary to edit the file.
 
 Ensure that the code can be built by running `{{#command {feline/1} {feline/1} {lake build} }}`.
 
