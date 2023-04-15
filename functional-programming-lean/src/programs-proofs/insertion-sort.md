@@ -1,4 +1,4 @@
-# Insertion Sort
+# Insertion Sort and Array Mutation
 
 While insertion sort does not have the optimal worst-case time complexity for a sorting algorithm, it still has a number of useful properties:
  * It is simple and straightforward to implement and understand
@@ -365,14 +365,34 @@ $ {{#command {sort-demo} {sort-sharing} {./run-usage} {sort}}}
 {{#command_out {sort-sharing} {./run-usage} }}
 ```
 
+The file `test-data` contains the following rocks:
+```
+{{#file_contents {sort-sharing} {sort-demo/test-data}}}
+```
 
-TODO: Run on an example data file
+Using the instrumented insertion sort on these rocks results them being printed in alphabetical order:
+```
+$ {{#command {sort-demo} {sort-sharing} {sort --unique < test-data}}}
+{{#command_out {sort-sharing} {sort --unique < test-data} }}
+```
+
+However, the version in which a reference is retained to the original array results in a notification on `stderr` (namely, `shared RC array to swap`) from the first call to `Array.swap`:
+```
+$ {{#command {sort-demo} {sort-sharing} {sort --shared < test-data}}}
+{{#command_out {sort-sharing} {sort --shared < test-data} }}
+```
+The fact that only a single `shared RC` notification appears means that the array is copied only once.
+This is because the copy the results from the call to `Array.swap` is itself unique, so no further copies need to be made.
+In an imperative language, subtle bugs can result from forgetting to explicitly copy an array before passing it by reference.
+When running `sort --shared`, the array is copied as needed to preserve the pure functional meaning of Lean programs, but no more.
+
 
 ## Other Opportunities for Mutation
 
 The use of mutation instead of copying when references are unique is not limited to array update operators.
 Additionally, Lean attempts to "recycle" constructors whose reference counts are about to fall to zero, reusing them instead of allocating new data.
-This means that `List.map` will mutate a linked list in place, at least when nobody could possibly notice.
+This means, for instance, that `List.map` will mutate a linked list in place, at least in cases when nobody could possibly notice.
+One of the most important steps in optimizing hot loops in Lean code is making sure that the data being modified is not referred to from multiple locations.
 
 ## Exercises
 
@@ -380,5 +400,4 @@ This means that `List.map` will mutate a linked list in place, at least when nob
 
 * Implement either merge sort or quicksort for arrays. Prove that your implementation terminates, and test that it doesn't allocate more arrays than expected. This is a challenging exercise!
  
-
    

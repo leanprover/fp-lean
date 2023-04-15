@@ -12,7 +12,6 @@ stop book declaration
 
 end FinDef
 
-
 expect info {{{ fiveFinEight }}}
   #eval (5 : Fin 8)
 message

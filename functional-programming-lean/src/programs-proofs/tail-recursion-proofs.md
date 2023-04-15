@@ -240,7 +240,15 @@ Finally, the helper can be used to complete the proof:
 ```
 
 This proof demonstrates a general pattern that can be used when proving that an accumulator-passing tail-recursive function is equal to the non-tail-recursive version.
-The first step is to discover the relationship between the accumulator argument and 
+The first step is to discover the relationship between the starting accumulator argument and the final result.
+For instance, beginning `Tail.sumHelper` with an accumulator of `n` results in the final sum being added to `n`, and beginning `Tail.reverseHelper` with an accumulator of `ys` results in the final reversed list being prepended to `ys`.
+The second step is to write down this relationship as a theorem statement and prove it by induction.
+While the accumulator is always initialized with some neutral value in practice, such as `0` or `[]`, this more general statement that allows the starting accumulator to be any value is what's needed to get a strong enough induction hypothesis.
+Finally, using this helper theorem with the actual initial accumulator value results in the desired proof.
+For example, in `non_tail_sum_eq_tail_sum`, the accumulator is specified to be `0`.
+This may require rewriting the goal to make the neutral initial accumulator values occur in the right place.
+
+
 
 ## Exercise
 
@@ -249,6 +257,8 @@ The first step is to discover the relationship between the accumulator argument 
 Write your own proofs for `Nat.zero_add`, `Nat.add_assoc`, and `Nat.add_comm` using the `induction` tactic.
  
 ### More Accumulator Proofs
+
+#### Reversing Lists
 
 Adapt the proof for `sum` into a proof for `NonTail.reverse` and `Tail.reverse`.
 The first step is to think about the relationship between the accumulator value being passed to `Tail.reverseHelper` and the non-tail-recursive reverse.
@@ -266,5 +276,7 @@ This results in a suitable goal:
 {{#example_out Examples/ProgramsProofs/TCO.lean reverseEqStart}}
 ```
 
+
+#### Factorial
 
 Prove that `NonTail.factorial` from the exercises in the previous section is equal to your tail-recursive solution by finding the relationship between the accumulator and the result and proving a suitable helper theorem.

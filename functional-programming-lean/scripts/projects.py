@@ -69,7 +69,9 @@ class ContainerContext:
                                      shell=True,
                                      cwd=the_dir,
                                      check=True,
-                                     capture_output=True,
+                                     # Interleave both stderr and stdout into the same place
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.STDOUT,
                                      env=self.env_with_examples_path())
             except subprocess.CalledProcessError as e:
                 eprint("Output:")

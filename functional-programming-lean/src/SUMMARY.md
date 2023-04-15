@@ -65,7 +65,7 @@
   - [Arrays and Termination](programs-proofs/arrays-termination.md)
   - [More Inequalities](programs-proofs/inequalities.md)
   - [Safe Array Indices](programs-proofs/fin.md)
-  - [Insertion Sort](programs-proofs/insertion-sort.md)
+  - [Insertion Sort and Array Mutation](programs-proofs/insertion-sort.md)
   - [Summary](programs-proofs/summary.md)
 
 [Next Steps](next-steps.md)
