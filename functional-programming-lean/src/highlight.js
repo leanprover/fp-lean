@@ -1125,7 +1125,7 @@ hljs.registerLanguage("lean", function(hljs) {
       'simp dsimp simpa simp_intros finish using generalizing ' +
       'unfold unfold1 dunfold unfold_projs unfold_coes ' +
       'delta cc ac_rfl ' +
-      'existsi|10 cases rcases intro intros introv by_cases ' +
+      'existsi|10 cases rcases intros introv by_cases ' +
       'refl rfl funext case focus propext exact exacts ' +
       'refine apply eapply fapply apply_with apply_instance ' +
       'induction rename assumption revert generalize specialize clear ' +
