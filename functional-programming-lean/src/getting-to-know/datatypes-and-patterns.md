@@ -69,6 +69,23 @@ class Succ : Nat {
 Just as in the `Bool` example above, this defines more types than the Lean equivalent.
 Additionally, this example highlights how Lean datatype constructors are much more like subclasses of an abstract class than they are like constructors in C# or Java, as the constructor shown here contains initialization code to be executed.
 
+Sum types are also similar to using a string tag to encode discriminated unions in TypeScript.
+In TypeScript, `Nat` could be defined as follows:
+```typescript
+interface Zero {
+    tag: "zero";
+}
+
+interface Succ {
+    tag: "succ";
+    predecessor: Nat;
+}
+
+type Nat = Zero | Succ;
+```
+Just like C# and Java, this encoding ends up with more types than in Lean, because `Zero` and `Succ` are each a type on their own.
+It also illustrates that Lean constructors correspond to objects in JavaScript or TypeScript that include a tag that identifies the contents.
+
 ## Pattern Matching
 
 In many languages, these kinds of data are consumed by first using an instance-of operator to check which subclass has been received and then reading the values of the fields that are available in the given subclass.
