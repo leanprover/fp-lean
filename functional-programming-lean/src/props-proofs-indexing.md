@@ -179,6 +179,9 @@ However, the obligation to show that the list has at least three entries can be 
 ```lean
 {{#example_decl Examples/Props.lean third}}
 ```
+In this example, `xs.length > 2` is not a program that checks _whether_ `xs` has more than 2 entries.
+It is a proposition that could be true or false, and the argument `ok` must be evidence that it is true.
+
 When the function is called on a concrete list, its length is known.
 In these cases, `by simp` can construct the evidence automatically:
 ```lean
