@@ -11,7 +11,7 @@ While Lean contains rich facilities for creating EDSLs, they are beyond the scop
 
 ## First steps
 
-To get started with a project that uses Lake, the command `{{#command {first-lake} {lake} {lake new greeting} }}` in a directory that does not already contain a file or directory called `greeting`.
+To get started with a project that uses Lake, use the command `{{#command {first-lake} {lake} {lake new greeting} }}` in a directory that does not already contain a file or directory called `greeting`.
 This creates a directory called `greeting` that contains the following files:
 
  * `Main.lean` is the file in which the Lean compiler will look for the `main` action.

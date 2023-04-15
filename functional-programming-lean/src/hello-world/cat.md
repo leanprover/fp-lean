@@ -1,6 +1,6 @@
 # Worked Example: `cat`
 
-The standard Unix utility `cat` takes a number of command-line options, followed by a zero or more input files.
+The standard Unix utility `cat` takes a number of command-line options, followed by zero or more input files.
 If no files are provided, or if one of them is a dash (`-`), then it takes the standard input as the corresponding input instead of reading a file.
 The contents of the inputs are written, one after the other, to the standard output.
 If a specified input file does not exist, this is noted on standard error, but `cat` continues concatenating the remaining inputs.

@@ -67,7 +67,7 @@ Remember: the double parentheses `()` is short for the constructor `Unit.unit`.
 Some coercions, however, should only be applied once.
 The `Option` type can be used similarly to nullable types in C# and Kotlin: the `none` constructor represents the absence of a value.
 The Lean standard library defines a coercion from any type `α` to `Option α` that wraps the value in in `some`.
-This allows option types to be used in manner even more similar to nullable types, because `some` can be omitted.
+This allows option types to be used in a manner even more similar to nullable types, because `some` can be omitted.
 For instance, the function `List.getLast?` that finds the last entry in a list can be written without a `some` around the return value `x`:
 ```lean
 {{#example_decl Examples/Classes.lean lastHuh}}

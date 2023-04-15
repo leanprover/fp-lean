@@ -68,7 +68,7 @@ According to the declaration of `~~>`, both `+` and `*` have higher precedence, 
 Typically, figuring out the most convenient precedences for a group of operators requires some experimentation and a large collection of examples.
 
 Following the new infix operator is a double arrow `=>`, which specifies the named function to be used for the infix operator.
-Lean's standard library uses this feature to define `+` and `*` as infix operators that point at `HAdd.hAdd` and `HMul.hMul`, respectively, allowing type classes to be used to overloading the infix operators.
+Lean's standard library uses this feature to define `+` and `*` as infix operators that point at `HAdd.hAdd` and `HMul.hMul`, respectively, allowing type classes to be used to overload the infix operators.
 Here, however, `andThen` is just an ordinary function.
 
 Having defined an infix operator for `andThen`, `firstThird` can be rewritten in a way that brings the "pipeline" feeling of `none`-checks front and center:
@@ -286,7 +286,7 @@ Writing a new value consists of ignoring the input state, and placing the provid
 ```lean
 {{#example_decl Examples/Monads.lean set}}
 ```
-Finally, two computations that use state can be sequence by finding both the output state and return value of the first function, then passing them both into the next function:
+Finally, two computations that use state can be sequenced by finding both the output state and return value of the first function, then passing them both into the next function:
 ```lean
 {{#example_decl Examples/Monads.lean andThenState}}
 ```

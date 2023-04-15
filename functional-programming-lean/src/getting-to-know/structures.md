@@ -58,7 +58,7 @@ This code is used by `#eval` to render the result of evaluation for consumption 
 It is also possible to override the compiler's generated display code.
 
 The typical way to create a instance of a structure type is to provide values for all of its fields inside of curly braces.
-The origin of a Cartesian plane is where both `x` and `y` are both zero:
+The origin of a Cartesian plane is where `x` and `y` are both zero:
 
 ```lean
 {{#example_decl Examples/Intro.lean origin}}

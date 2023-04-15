@@ -39,7 +39,7 @@ For instance, a non-empty list of birds commonly found in Copenhagen's green spa
 {{#example_decl Examples/Classes.lean birdExample}}
 ```
 
-Examples may create define functions by accepting arguments:
+Examples may define functions by accepting arguments:
 ```lean
 {{#example_decl Examples/Classes.lean commAdd}}
 ```

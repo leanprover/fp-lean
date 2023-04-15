@@ -213,7 +213,7 @@ Similarly, multiplication _n_ × _k_ adds _n_ to itself _k_ times and subtractio
 
 Not every function can be easily written using structural recursion.
 The understanding of addition as iterated `Nat.succ`, multiplication as iterated addition, and subtraction as iterated predecessor suggests an implementation of division as iterated subtraction.
-In this case, if the numerator is less that the divisor, the result is zero.
+In this case, if the numerator is less than the divisor, the result is zero.
 Otherwise, the result is the successor of dividing the numerator minus the divisor by the divisor.
 ```lean
 {{#example_in Examples/Intro.lean div}}
@@ -226,4 +226,4 @@ Thus, Lean rejects it with the following message:
 {{#example_out Examples/Intro.lean div}}
 ```
 This message means that `div` requires a manual proof of termination.
-This topic will be explored in a later chapter.
+This topic is explored in [the final chapter](../programs-proofs.md).

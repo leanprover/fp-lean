@@ -2,7 +2,7 @@
 
 This section presents a variety of operators and functions that can be overloaded using type classes in Lean.
 Each operator or function corresponds to a method of a type class.
-Unlike C++, infix operators in Lean are defined as abbreviations for named functions; this means that overloading them for new types is not done using the operator itself, but rather refers to a name such as `HAdd.hAdd`.
+Unlike C++, infix operators in Lean are defined as abbreviations for named functions; this means that overloading them for new types is not done using the operator itself, but rather using the underlying name (such as `HAdd.hAdd`).
 
 ## Arithmetic
 
@@ -156,14 +156,14 @@ Instances can be derived in two ways.
 The first can be used when defining a structure or inductive type.
 In this case, add `deriving` to the end of the type declaration followed by the names of the classes for which instances should be derived.
 For a type that is already defined, a standalone `deriving` command can be used.
-Write `deriving instance C1, C2, ... for T` to deriving instances of `C1, C2, ...` for the type `T` after the fact.
+Write `deriving instance C1, C2, ... for T` to derive instances of `C1, C2, ...` for the type `T` after the fact.
 
 `BEq` and `Hashable` instances can be derived for `Pos` and `NonEmptyList` using a very small amount of code:
 ```lean
 {{#example_decl Examples/Classes.lean BEqHashableDerive}}
 ```
 
-Instance can be derived for at least the following classes:
+Instances can be derived for at least the following classes:
  * `Inhabited`
  * `BEq`
  * `Repr`
