@@ -218,7 +218,7 @@ Otherwise, the result is the successor of dividing the numerator minus the divis
 ```lean
 {{#example_in Examples/Intro.lean div}}
 ```
-This program terminates for all inputs, as it always makes progress towards the base case.
+As long as the second argument is not `0`, this program terminates, as it always makes progress towards the base case.
 However, it is not structurally recursive, because it doesn't follow the pattern of finding a result for zero and transforming a result for a smaller `Nat` into a result for its successor.
 In particular, the recursive invocation of the function is applied to the result of another function call, rather than to an input constructor's argument.
 Thus, Lean rejects it with the following message:
