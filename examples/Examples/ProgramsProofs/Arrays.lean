@@ -163,6 +163,13 @@ book declaration {{{ four_le_seven }}}
     step (step (step refl))
 stop book declaration
 
+book declaration {{{ four_lt_seven }}}
+  def four_lt_seven : 4 < 7 :=
+    open Nat.le in
+    step (step refl)
+stop book declaration
+
+
 namespace WithFor
 
   def Array.map (f : α → β) (arr : Array α) : Array β := Id.run do
@@ -187,8 +194,8 @@ message
   - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
-α : Type ?u.1683
-β : Type ?u.1686
+α : Type ?u.1781
+β : Type ?u.1784
 f : α → β
 arr : Array α
 soFar : Array β

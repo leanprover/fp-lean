@@ -67,8 +67,6 @@ The reason why `Tail.sumHelper` is tail recursive is that the recursive call is 
 Informally speaking, a function call is in tail position when the caller does not need to modify the returned value in any way, but will just return it directly.
 More formally, tail position can be defined explicitly for expressions.
 
-First off, the body of a function is in tail position.
-That is, in `fun x => T`, the expression `T` is in tail position.
 If a `match`-expression is in tail position, then each of its branches is also in tail position.
 Once a `match` has selected a branch, control proceeds immediately to it.
 Similarly, both branches of an `if`-expression are in tail position if the `if`-expression itself is in tail position.
@@ -76,6 +74,7 @@ Finally, if a `let`-expression is in tail position, then its body is as well.
 
 All other positions are not in tail position.
 The arguments to a function or a constructor are not in tail position because evaluation must track the function or constructor that will be applied to the argument's value.
+The body of an inner function is not in tail position because control may not even pass to it: function bodies are not evaluated until the function is called.
 Similarly, the body of a function type is not in tail position.
 To evaluate `E` in `(x : α) → E`, it is necessary to track that the resulting type must have `(x : α) → ...` wrapped around it.
 
@@ -83,6 +82,7 @@ In `NonTail.sum`, the recursive call is not in tail position because it is an ar
 In `Tail.sumHelper`, the recursive call is in tail position because it is immediately underneath a pattern match, which itself is the body of the function.
 
 At the time of writing, Lean only eliminates direct tail calls in recursive functions.
+This means that tail calls to `f` in `f`'s definition will be eliminated, but not tail calls to some other function `g`.
 While it is certainly possible to eliminate a tall call to some other function, saving a stack frame, this is not yet implemented in Lean.
 
 ## Reversing Lists
@@ -127,6 +127,7 @@ Typically, if more than one recursive call is required for each recursive step, 
 This difficulty is similar to the difficulty of rewriting a recursive function to use a loop and an explicit data structure, with the added complication of convincing Lean that the function terminates.
 However, as in `BinTree.mirror`, multiple recursive calls often indicate a data structure that has a constructor with multiple recursive occurrences of itself.
 In these cases, the depth of the structure is often logarithmic with respect to its overall size, which makes the tradeoff between stack and heap less stark.
+There are systematic techniques for making these functions tail-recursive, such as using _continuation-passing style_, but they are outside the scope of this chapter.
 
 ## Exercises
 

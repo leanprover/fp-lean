@@ -6,7 +6,7 @@ However, most use cases for a variable-length sequential collection of data are 
 
 Arrays, however, have two drawbacks relative to lists:
  1. Arrays are accessed through indexing, rather than by pattern matching, which imposes [proof obligations](../props-proofs-indexing.md) in order to maintain safety.
- 2. A loop that processes an entire array is a tail-recursive function, but it does not have an argument that decreases on each call.
+ 2. A loop that processes an entire array from left to right is a tail-recursive function, but it does not have an argument that decreases on each call.
  
 Making effective use of arrays requires knowing how to prove to Lean that an array index is in bounds, and how to prove that an array index that approaches the size of the array also causes the program to terminate.
 Both of these are expressed using an inequality proposition, rather than propositional equality.
@@ -33,6 +33,7 @@ The instance of `LE` for `Nat` delegates to `Nat.le`:
 ```lean
 {{#example_decl Examples/ProgramsProofs/Arrays.lean LENat}}
 ```
+Defining `Nat.le` requires a feature of Lean that has not yet been presented: it is an inductively-defined relation.
 
 ### Inductively-Defined Propositions, Predicates, and Relations
 
@@ -149,7 +150,7 @@ In this proof, the `cases` tactic solves the goal immediately:
 ```
 Just as a pattern match on a `Vect String 2` doesn't need to include a case for `Vect.nil`, a proof by cases over `IsThree 4` doesn't need to include a case for `isThree`.
 
-### Inequality on Natural Numbers
+### Inequality of Natural Numbers
 
 The definition of `Nat.le` has a parameter and an index:
 ```lean
@@ -160,8 +161,8 @@ The `refl` constructor is used when both numbers are equal, while the `step` con
 
 From the perspective of evidence, a proof that \\( n \leq k \\) consists of finding some number \\( d \\) such that \\( n + d = m \\).
 In Lean, the proof then consists of a `Nat.le.refl` constructor wrapped by \\( d \\) instances of `Nat.le.step`.
-Each `step` constructor adds one to the index value of its argument, so \\( d \\) `step` constructors adds \\( d \\) to the larger number.
-For example, evidence that four is less than seven consists of three `step`s around a `refl`:
+Each `step` constructor adds one to its index argument, so \\( d \\) `step` constructors adds \\( d \\) to the larger number.
+For example, evidence that four is less than or equal to seven consists of three `step`s around a `refl`:
 ```lean
 {{#example_decl Examples/ProgramsProofs/Arrays.lean four_le_seven}}
 ```
@@ -170,6 +171,11 @@ The strict less-than relation is defined by adding one to the number on the left
 ```lean
 {{#example_decl Examples/ProgramsProofs/Arrays.lean NatLt}}
 ```
+Evidence that four is strictly less than seven consists of two `step`'s around a `refl`:
+```lean
+{{#example_decl Examples/ProgramsProofs/Arrays.lean four_lt_seven}}
+```
+This is because `4 < 7` is equivalent to `5 ≤ 7`.
 
 ## Proving Termination
 
@@ -182,7 +188,7 @@ The accumulator-passing helper function also takes an argument that tracks the c
 ```
 
 The helper should, at each iteration, check whether the index is still in bounds.
-If so, it should loop again with the transformed element added to the end of the accumulator, and the index incremented by `1`.
+If so, it should loop again with the transformed element added to the end of the accumulator and the index incremented by `1`.
 If not, then it should terminate and return the accumulator.
 An initial implementation of this code fails because Lean is unable to prove that the array index is valid:
 ```lean
@@ -211,7 +217,7 @@ Because `arr.size` is a finite number, `i` can be incremented only a finite numb
 Even though no argument to the function decreases on each call, `arr.size - i` decreases toward zero.
 
 Lean can be instructed to use another expression for termination by providing a `termination_by` clause at the end of a definition.
-The `termination_by` clause has two components: names for the functions arguments and an expression using those names that should decrease on each call.
+The `termination_by` clause has two components: names for the function's arguments and an expression using those names that should decrease on each call.
 For `arrayMapHelper`, the final definition looks like this:
 ```lean
 {{#example_decl Examples/ProgramsProofs/Arrays.lean ArrayMapHelperOk}}

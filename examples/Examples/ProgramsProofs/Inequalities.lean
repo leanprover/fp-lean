@@ -14,6 +14,20 @@ book declaration {{{ merge }}}
   termination_by merge xs ys => xs.length + ys.length
 stop book declaration
 
+namespace Other
+book declaration {{{ mergePairTerm }}}
+  def merge [Ord α] (xs : List α) (ys : List α) : List α :=
+    match xs, ys with
+    | [], _ => ys
+    | _, [] => xs
+    | x'::xs', y'::ys' =>
+      match Ord.compare x' y' with
+      | .lt | .eq => x' :: merge xs' (y' :: ys')
+      | .gt => y' :: merge (x'::xs') ys'
+  termination_by merge xs ys => (xs, ys)
+stop book declaration
+end Other
+
 book declaration {{{ split }}}
   def split (lst : List α) : (List α × List α) :=
     match lst with
@@ -90,7 +104,8 @@ end bookExample
 
 
 expect error {{{ split_shorter_le0 }}}
-  theorem split_shorter_le (lst : List α) : (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
+  theorem split_shorter_le (lst : List α) :
+      (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
     skip
 message
 "unsolved goals
@@ -102,7 +117,8 @@ end expect
 
 
 expect error {{{ split_shorter_le1a }}}
-  theorem split_shorter_le (lst : List α) : (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
+  theorem split_shorter_le (lst : List α) :
+      (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
     induction lst with
     | nil => skip
     | cons x xs ih => skip
@@ -114,7 +130,8 @@ case nil
 end expect
 
 expect error {{{ split_shorter_le1b }}}
-  theorem split_shorter_le (lst : List α) : (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
+  theorem split_shorter_le (lst : List α) :
+      (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
     induction lst with
     | nil => skip
     | cons x xs ih => skip
@@ -130,7 +147,8 @@ end expect
 
 
 expect error {{{ split_shorter_le2 }}}
-  theorem split_shorter_le (lst : List α) : (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
+  theorem split_shorter_le (lst : List α) :
+      (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
     induction lst with
     | nil => simp [split]
     | cons x xs ih =>
@@ -160,7 +178,8 @@ end AndDef
 
 
 expect error {{{ split_shorter_le3 }}}
-  theorem split_shorter_le (lst : List α) : (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
+  theorem split_shorter_le (lst : List α) :
+      (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
     induction lst with
     | nil => simp [split]
     | cons x xs ih =>
@@ -180,7 +199,8 @@ end expect
 
 
 expect error {{{ split_shorter_le4 }}}
-  theorem split_shorter_le (lst : List α) : (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
+  theorem split_shorter_le (lst : List α) :
+      (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
     induction lst with
     | nil => simp [split]
     | cons x xs ih =>
@@ -309,7 +329,7 @@ book declaration {{{ le_succ_of_le }}}
   theorem Nat.le_succ_of_le : n ≤ m → n ≤ Nat.succ m := by
     intro h
     induction h with
-    | refl => constructor ; constructor
+    | refl => constructor; constructor
     | step => constructor; assumption
 stop book declaration
 
@@ -318,7 +338,7 @@ book declaration {{{ le_succ_of_le_apply }}}
   theorem Nat.le_succ_of_le : n ≤ m → n ≤ Nat.succ m := by
     intro h
     induction h with
-    | refl => apply Nat.le.step ; exact Nat.le.refl
+    | refl => apply Nat.le.step; exact Nat.le.refl
     | step _ ih => apply Nat.le.step; exact ih
 stop book declaration
 end Apply
@@ -342,7 +362,8 @@ end Extras
 
 
 expect error {{{ split_shorter_le5a }}}
-  theorem split_shorter_le (lst : List α) : (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
+  theorem split_shorter_le (lst : List α) :
+      (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
     induction lst with
     | nil => simp [split]
     | cons x xs ih =>
@@ -362,7 +383,8 @@ right✝ : List.length (split xs).snd ≤ List.length xs
 end expect
 
 expect error {{{ split_shorter_le5b }}}
-  theorem split_shorter_le (lst : List α) : (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
+  theorem split_shorter_le (lst : List α) :
+      (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
     induction lst with
     | nil => simp [split]
     | cons x xs ih =>
@@ -383,7 +405,8 @@ end expect
 
 
 book declaration {{{ split_shorter_le }}}
-  theorem split_shorter_le (lst : List α) : (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
+  theorem split_shorter_le (lst : List α) :
+      (split lst).fst.length ≤ lst.length ∧ (split lst).snd.length ≤ lst.length := by
     induction lst with
     | nil => simp [split]
     | cons x xs ih =>
@@ -472,10 +495,12 @@ stop book declaration
 
 
 book declaration {{{ split_shorter_sides }}}
-  theorem split_shorter_fst (lst : List α) (h : lst.length ≥ 2) : (split lst).fst.length < lst.length :=
+  theorem split_shorter_fst (lst : List α) (h : lst.length ≥ 2) :
+      (split lst).fst.length < lst.length :=
     split_shorter lst h |>.left
 
-  theorem split_shorter_snd (lst : List α) (h : lst.length ≥ 2) : (split lst).snd.length < lst.length :=
+  theorem split_shorter_snd (lst : List α) (h : lst.length ≥ 2) :
+      (split lst).snd.length < lst.length :=
     split_shorter lst h |>.right
 stop book declaration
 
@@ -517,7 +542,7 @@ expect error {{{ mergeSortNeedsGte }}}
 message
 "unsolved goals
 case h
-α : Type ?u.22721
+α : Type ?u.37723
 inst✝ : Ord α
 xs : List α
 h : ¬List.length xs < 2

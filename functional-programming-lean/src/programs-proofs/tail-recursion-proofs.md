@@ -272,7 +272,7 @@ Once `α` is treated as an ordinary argument, `funext` should be invoked with bo
 {{#example_in Examples/ProgramsProofs/TCO.lean reverseEqStart}}
 ```
 This results in a suitable goal:
-```output info
+```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean reverseEqStart}}
 ```
 

@@ -82,7 +82,7 @@ ih : n = Nat.plusR 0 n
 end expect
 
 
-expect error {{{ plusR_ind_zero_left_5 }}}
+expect error {{{ plusR_ind_zero_left_6 }}}
   theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
     induction k with
     | zero => rfl
@@ -191,7 +191,6 @@ book declaration {{{ plusR_zero_left_golf_6 }}}
     induction k <;> simp [Nat.plusR] <;> assumption
 stop book declaration
 end Golf
-
 
 expect error {{{ append_nil_0b }}}
   theorem List.append_nil (xs : List α) : xs ++ [] = xs := by

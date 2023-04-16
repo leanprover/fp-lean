@@ -133,6 +133,16 @@ deriving instance Repr for BinTree
 
 #eval CPS.mirror id (.branch (.branch .leaf 1 .leaf) 4 (.branch (.branch .leaf 2 .leaf) 3 .leaf))
 
+theorem mirror_cps_eq' : @CPS.mirror α (BinTree α) f = f ∘ @Slow.mirror α := by
+  funext t
+  induction t generalizing f with
+  | leaf => simp [Slow.mirror, CPS.mirror]
+  | branch l x r ihl ihr =>
+    simp [Slow.mirror, CPS.mirror, *]
+
+theorem mirror_cps_eq : @CPS.mirror α (BinTree α) id = @Slow.mirror α := by
+  apply mirror_cps_eq'
+
 -- Exercises
 
 book declaration {{{ NonTailLength }}}

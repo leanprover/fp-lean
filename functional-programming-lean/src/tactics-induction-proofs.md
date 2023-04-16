@@ -7,7 +7,7 @@ The actual process of interacting with Lean is much more pleasant.
 Lean provides information about the proof as the cursor is moved through it and there are a number of interactive features that make proving easier.
 Please consult the documentation of your Lean development environment for more information.
 
-The approach in this book that focuses on incrementally building a proof and showing the messages that result demonstrates the kinds of interactive feedback that Lean provides while writing a proof, even as it is much slower than the process used by experts.
+The approach in this book that focuses on incrementally building a proof and showing the messages that result demonstrates the kinds of interactive feedback that Lean provides while writing a proof, even though it is much slower than the process used by experts.
 At the same time, seeing incomplete proofs evolve towards completeness is a useful perspective on proving.
 As your skill in writing proofs increases, Lean's feedback will come to feel less like errors and more like support for your own thought processes.
 Learning the interactive approach is very important.
@@ -32,7 +32,7 @@ Writing proofs by induction as recursive functions that use helpers such as `con
 While recursive functions indeed have the structure of induction, they should probably be viewed as an _encoding_ of a proof.
 Furthermore, Lean's tactic system provides a number of opportunities to automate the construction of a proof that are not available when writing the recursive function explicitly.
 Lean provides an induction _tactic_ that can carry out an entire proof by induction in a single tactic block.
-Behind the scenes, Lean constructs the recursive function that corresponds to the proof by induction.
+Behind the scenes, Lean constructs the recursive function that corresponds the use of induction.
 
 To prove `plusR_zero_left` with the induction tactic, begin by writing its signature (using `theorem`, because this really is a proof).
 Then, use `by induction k` as the body of the definition:
@@ -49,12 +49,12 @@ The tactics generate the actual program.
 In the tactic language, there can be a number of goals.
 Each goal consists of a type together with some assumptions.
 These are analogous to using underscores as placeholders—the type in the goal represents what is to be proved, and the assumptions represent what is in-scope and can be used.
-In the case of the goal `case zero`, there are no assumptions and the type is `Nat.zero = Nat.plusR 0 Nat.zero`—the theorem's type with `0` instead of `k`.
+In the case of the goal `case zero`, there are no assumptions and the type is `Nat.zero = Nat.plusR 0 Nat.zero`—this is the theorem statement with `0` instead of `k`.
 In the goal `case succ`, there are two assumptions, named `n✝` and `n_ih✝`.
 Behind the scenes, the `induction` tactic creates a dependent pattern match that refines the overall type, and `n✝` represents the argument to `Nat.succ` in the pattern.
 The assumption `n_ih✝` represents the result of calling the generated function recursively on `n✝`.
 Its type is the overall type of the theorem, just with `n✝` instead of `k`.
-The type to be fulfilled as part of the goal `case succ` is the overall theorem's type, with `Nat.succ n✝` instead of `k`.
+The type to be fulfilled as part of the goal `case succ` is the overall theorem statement, with `Nat.succ n✝` instead of `k`.
 
 The two goals that result from the use of the `induction` tactic correspond to the base case and the induction step in the description of mathematical induction.
 The base case is `case zero`.
@@ -95,23 +95,23 @@ In the recursive function version of the proof, a type annotation made the expec
 In the tactic language, there are a number of specific ways to transform a goal to make it easier to solve.
 The `unfold` tactic replaces a defined name with its definition:
 ```lean
-{{#example_in Examples/Induction.lean plusR_ind_zero_left_4}}
+{{#example_in Examples/Induction.lean plusR_ind_zero_left_5}}
 ```
 Now, the right-hand side of the equality in the goal has become `Nat.plusR 0 n + 1` instead of `Nat.plusR 0 (Nat.succ n)`:
 ```output error
-{{#example_out Examples/Induction.lean plusR_ind_zero_left_4}}
+{{#example_out Examples/Induction.lean plusR_ind_zero_left_5}}
 ```
 
 Instead of appealing to functions like `congrArg` and operators like `▸`, there are tactics that allow equality proofs to be used to transform proof goals.
 One of the most important is `rw`, which takes a list of equality proofs and replaces the left side with the right side in the goal.
 This almost does the right thing in `plusR_zero_left`:
 ```lean
-{{#example_in Examples/Induction.lean plusR_ind_zero_left_5}}
+{{#example_in Examples/Induction.lean plusR_ind_zero_left_6}}
 ```
 However, the direction of the rewrite was incorrect.
 Replacing `n` with `Nat.plusR 0 n` made the goal more complicated rather than less complicated:
 ```output info
-{{#example_out Examples/Induction.lean plusR_ind_zero_left_5}}
+{{#example_out Examples/Induction.lean plusR_ind_zero_left_6}}
 ```
 This can be remedied by placing a left arrow before `ih` in the call to `rewrite`, which instructs it to replace the right-hand side of the equality with the left-hand side:
 ```lean
@@ -163,7 +163,7 @@ However, a series of transformations can make it much shorter, taking advantage 
 The first step is to drop the `with` at the end of `induction`.
 For structured, readable proofs, the `with` syntax is convenient.
 It complains if any cases are missing, and it shows the structure of the induction clearly.
-But shortening proofs can often require a more liberal approach to the structure of the proof.
+But shortening proofs can often require a more liberal approach.
 
 Using `induction` without `with` simply results in a proof state with two goals.
 The `case` tactic can be used to select one of them, just in the branches of the `induction ... with` tactic.
@@ -205,7 +205,7 @@ The game of tactic golf is a useful part of developing good taste and style when
 
 Mathematical induction proves a statement for natural numbers by providing a base case for `Nat.zero` and an induction step for `Nat.succ`.
 The principle of induction is also valid for other datatypes.
-Constructors without recursive arguments form the base cases, while constructors with recursive occurrences form the induction steps.
+Constructors without recursive arguments form the base cases, while constructors with recursive arguments form the induction steps.
 The ability to carry out proofs by induction is the very reason why they are called _inductive_ datatypes.
 
 One example of this is induction on binary trees.

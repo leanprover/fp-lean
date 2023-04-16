@@ -22,6 +22,13 @@ The `termination_by` clause uses the sum of the length of both lists as a decrea
 {{#example_decl Examples/ProgramsProofs/Inequalities.lean merge}}
 ```
 
+In addition to using the lengths of the lists, a pair that contains both lists can also be provided:
+```lean
+{{#example_decl Examples/ProgramsProofs/Inequalities.lean mergePairTerm}}
+```
+This works because Lean has a built-in notion of sizes of data, expressed through a type class called `WellFoundedRelation`.
+The instance for pairs automatically considers them to be smaller if either the first or the second item in the pair shrinks.
+
 A simple way to split a list is to add each entry in the input list to two alternating output lists:
 ```lean
 {{#example_decl Examples/ProgramsProofs/Inequalities.lean split}}
@@ -58,7 +65,7 @@ In other words, it is easiest to prove that `∀(lst : List), (split lst).fst.le
 
 Unfortunately, the statement is false.
 In particular, `{{#example_in Examples/ProgramsProofs/Inequalities.lean splitEmpty}}` is `{{#example_out Examples/ProgramsProofs/Inequalities.lean splitEmpty}}`. Both output lists have length `0`, which is not less than `0`, the length of the input list.
-Similarly, `{{#example_in Examples/ProgramsProofs/Inequalities.lean splitOne}}` evaluates to `{{#example_out Examples/ProgramsProofs/Inequalities.lean splitOne}}`, and `["basalt"]` is not shorter than `{{#example_in Examples/ProgramsProofs/Inequalities.lean splitOne}}`.
+Similarly, `{{#example_in Examples/ProgramsProofs/Inequalities.lean splitOne}}` evaluates to `{{#example_out Examples/ProgramsProofs/Inequalities.lean splitOne}}`, and `["basalt"]` is not shorter than `["basalt"]`.
 However, `{{#example_in Examples/ProgramsProofs/Inequalities.lean splitTwo}}` evaluates to `{{#example_out Examples/ProgramsProofs/Inequalities.lean splitTwo}}`, and both of these output lists are shorter than the input list.
 
 It turns out that the lengths of the output lists are always less than or equal to the length of the input list, but they are only strictly shorter when the input list contains at least two entries.
@@ -192,7 +199,7 @@ Once again, the incoming assumption that `n ≤ m` essentially tracks the differ
 Thus, the proof should add an extra `Nat.le.step` in the base case.
 The proof can be written:
 ```lean
-{{#example_decl Examples/ProgramsProofs/Inequalities.lean le succ_of_le}}
+{{#example_decl Examples/ProgramsProofs/Inequalities.lean le_succ_of_le}}
 ```
 
 To reveal what's going on behind the scenes, the `apply` and `exact` tactics can be used to indicate exactly which constructor is being applied.
@@ -253,29 +260,34 @@ The next step is to return to the actual theorem that is needed to prove that me
 ```output error
 {{#example_out Examples/ProgramsProofs/Inequalities.lean split_shorter_start}}
 ```
+Pattern matching works just as well in tactic scripts as it does in programs.
+Because `lst` has at least two entries, they can be exposed using with `match`, which also refines the type through dependent pattern matching:
 ```lean
 {{#example_in Examples/ProgramsProofs/Inequalities.lean split_shorter_1}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/Inequalities.lean split_shorter_1}}
 ```
+Simplifying using `split` removes `x` and `y`, resulting in the computed lengths of lists each gaining a `Nat.succ`:
 ```lean
 {{#example_in Examples/ProgramsProofs/Inequalities.lean split_shorter_2}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/Inequalities.lean split_shorter_2}}
 ```
+Replacing `simp` with `simp_arith` removes these `Nat.succ` constructors, because `simp_arith` makes use of the fact that `n + 1 < m + 1` implies `n < m`:
 ```lean
 {{#example_in Examples/ProgramsProofs/Inequalities.lean split_shorter_2b}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/Inequalities.lean split_shorter_2b}}
 ```
-
+This goal now matches `split_shorter_le`, which can be used to conclude the proof:
 ```lean
 {{#example_decl Examples/ProgramsProofs/Inequalities.lean split_shorter}}
 ```
 
+The facts needed to prove that `mergeSort` terminates can be pulled out of the resulting `And`:
 ```lean
 {{#example_decl Examples/ProgramsProofs/Inequalities.lean split_shorter_sides}}
 ```
@@ -285,7 +297,7 @@ The next step is to return to the actual theorem that is needed to prove that me
 Merge sort has two recursive calls, one for each sub-list returned by `split`.
 Each recursive call will require a proof that the length of the list being passed to it is shorter than the length of the input list.
 It's usually convenient to write a termination proof in two steps: first, write down the propositions that will allow Lean to verify termination, and then prove them.
-Otherwise, its' possible to put a lot of effort into proving the propositions, only to find out that they aren't quite what's needed to establish that the recursive calls are on smaller inputs.
+Otherwise, it's possible to put a lot of effort into proving the propositions, only to find out that they aren't quite what's needed to establish that the recursive calls are on smaller inputs.
 
 The `sorry` tactic can prove any goal, even false ones.
 It isn't intended for use in production code or final proofs, but it is a convenient way to "sketch out" a proof or program ahead of time.
@@ -306,7 +318,7 @@ The proofs begin by applying the helper theorems:
 {{#example_in Examples/ProgramsProofs/Inequalities.lean mergeSortNeedsGte}}
 ```
 Both proofs fail, because `split_shorter_fst` and `split_shorter_snd` both require a proof that `xs.length ≥ 2`:
-```output info
+```output error
 {{#example_out Examples/ProgramsProofs/Inequalities.lean mergeSortNeedsGte}}
 ```
 To check that this will be enough to complete the proof, add it using `sorry` and check for errors:

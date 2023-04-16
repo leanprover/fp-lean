@@ -1114,6 +1114,7 @@ hljs.registerLanguage("lean", function(hljs) {
       'universe variable ' +
       'import open export prelude renaming hiding ' +
       'calc match nomatch with do by let have extends ' +
+      'induction simp dsimp simpa simp_arith simp_intros exact funext assumption cases case skip unfold rw|10 intro constructor split ' +
       'for in unless try catch finally mutual mut return continue break where rec while repeat ' +
       'syntax macro_rules macro deriving ' +
       'termination_by ' +
@@ -1121,18 +1122,18 @@ hljs.registerLanguage("lean", function(hljs) {
       '#check #check_failure #eval #reduce #print ' +
       'section namespace end infix infixl infixr postfix prefix notation ',
     built_in:
-      'Type Prop|10 Sort rw|10 rewrite rwa erw subst substs ' +
-      'simp dsimp simpa simp_intros finish using generalizing ' +
-      'unfold unfold1 dunfold unfold_projs unfold_coes ' +
+      'Type Prop|10 Sort rewrite rwa erw subst substs ' +
+      'finish using generalizing ' +
+      'unfold1 dunfold unfold_projs unfold_coes ' +
       'delta cc ac_rfl ' +
-      'existsi|10 cases rcases intros introv by_cases ' +
-      'refl rfl funext case focus propext exact exacts ' +
+      'existsi|10 rcases intros introv by_cases ' +
+      'rfl focus propext ' +
       'refine apply eapply fapply apply_with apply_instance ' +
-      'induction rename assumption revert generalize specialize clear ' +
+      'rename revert generalize specialize clear ' +
       'contradiction by_contradiction by_contra trivial exfalso ' +
-      'symmetry transitivity destruct constructor econstructor ' +
-      'split injection injections ' +
-      'skip swap solve1 abstract all_goals any_goals done ' +
+      'symmetry transitivity destruct econstructor ' +
+      'injection injections ' +
+      'swap solve1 abstract all_goals any_goals done ' +
       'fail_if_success success_if_fail guard_target guard_hyp ' +
       'replace at suffices show from ' +
       'congr congr_n congr_arg norm_num ring ',
