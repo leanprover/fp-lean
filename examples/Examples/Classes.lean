@@ -79,14 +79,14 @@ expect error {{{ fourteenOops }}}
   def fourteen : Pos := seven + seven
 message
 "failed to synthesize instance
-  HAdd Pos Pos ?m.289"
+  HAdd Pos Pos ?m.291"
 end expect
 
 expect error {{{ fortyNineOops }}}
   def fortyNine : Pos := seven * seven
 message
 "failed to synthesize instance
-  HMul Pos Pos ?m.289"
+  HMul Pos Pos ?m.291"
 end expect
 
 
@@ -317,7 +317,7 @@ end bookExample
 expect info {{{ printlnMetas }}}
   #check (IO.println)
 message
-"IO.println : ?m.3637 → IO Unit"
+"IO.println : ?m.3659 → IO Unit"
 end expect
 
 expect info {{{ printlnNoMetas }}}
@@ -601,7 +601,7 @@ expect error {{{ hPlusOops }}}
   #eval HPlus.hPlus (3 : Pos) (5 : Nat)
 message
 "typeclass instance problem is stuck, it is often due to metavariables
-  HPlus Pos Nat ?m.7542"
+  HPlus Pos Nat ?m.7602"
 end expect
 
 
@@ -656,7 +656,7 @@ end expect
 expect info {{{ plusFiveMeta }}}
   #check HPlus.hPlus (5 : Nat)
 message
-  "HPlus.hPlus 5 : ?m.7709 → ?m.7711"
+  "HPlus.hPlus 5 : ?m.7783 → ?m.7785"
 end expect
 
 
@@ -1503,7 +1503,7 @@ argument
 has type
   NonEmptyList String : Type
 but is expected to have type
-  List ?m.34371 : Type"
+  List ?m.34580 : Type"
 end expect
 
 expect error {{{ lastSpiderC }}}

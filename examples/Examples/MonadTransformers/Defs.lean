@@ -204,7 +204,7 @@ expect error {{{ MonadMissingUni }}}
       | .ok x => next x
 message
 "stuck at solving universe constraint
-  max ?u.12268 ?u.12269 =?= u
+  max ?u.12286 ?u.12287 =?= u
 while trying to unify
   ExceptT ε m α✝
 with

@@ -152,9 +152,9 @@ message
 argument
   cons x (replicate k x)
 has type
-  Vect α (k + 1) : Type ?u.2004
+  Vect α (k + 1) : Type ?u.2019
 but is expected to have type
-  Vect α k : Type ?u.2004"
+  Vect α k : Type ?u.2019"
 end expect
 
 
@@ -226,9 +226,9 @@ message
 "type mismatch
   Vect.cons y ys
 has type
-  Vect β (?m.4750 + 1) : Type ?u.4562
+  Vect β (?m.4765 + 1) : Type ?u.4577
 but is expected to have type
-  Vect β 0 : Type ?u.4562"
+  Vect β 0 : Type ?u.4577"
 end expect
 end Other
 

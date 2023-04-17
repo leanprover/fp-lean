@@ -137,7 +137,7 @@ message
 "type mismatch
   (v1, r1')
 has type
-  ?m.6665 × ?m.6668 : Type (max ?u.6677 ?u.6676)
+  ?m.6674 × ?m.6677 : Type (max ?u.6686 ?u.6685)
 but is expected to have type
   Row (col :: cols) : Type"
 end expect
@@ -531,7 +531,7 @@ mountains : Query (List.map (fun c => { name := \"mountain\" ++ \".\" ++ c.name,
   prefixWith \"mountain\" (table mountainDiary)
 waterfalls : Query (List.map (fun c => { name := \"waterfall\" ++ \".\" ++ c.name, contains := c.contains }) waterfall) :=
   prefixWith \"waterfall\" (table waterfallDiary)
-⊢ HasCol (List.map (fun c => { name := \"waterfall\" ++ \".\" ++ c.name, contains := c.contains }) []) \"location\" ?m.110666"
+⊢ HasCol (List.map (fun c => { name := \"waterfall\" ++ \".\" ++ c.name, contains := c.contains }) []) \"location\" ?m.110696"
 end expect
 
 expect error {{{ QueryOops2 }}}

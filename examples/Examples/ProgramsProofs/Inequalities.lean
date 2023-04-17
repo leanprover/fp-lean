@@ -542,7 +542,7 @@ expect error {{{ mergeSortNeedsGte }}}
 message
 "unsolved goals
 case h
-α : Type ?u.37723
+α : Type ?u.37717
 inst✝ : Ord α
 xs : List α
 h : ¬List.length xs < 2
