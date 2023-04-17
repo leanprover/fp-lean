@@ -122,3 +122,4 @@ Thus, in these cases, Lean uses an explicit argument for the class's method.
 ### Even Number Literals
 
 Write an instance of `OfNat` for the even number datatype from the [previous section's exercises](pos.md#even-numbers) that uses recursive instance search.
+For the base instance, it is necessary to write `OfNat Even Nat.zero` instead of `OfNat Even 0`.
