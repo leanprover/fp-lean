@@ -106,8 +106,9 @@ The actual definition in the standard library is slightly different, because it 
 This definition says that `List` takes a single type as its argument, just as `PPoint` did.
 This type is the type of the entries stored in the list.
 According to the constructors, a `List α` can be built with either `nil` or `cons`.
-The constructor `nil` represents empty lists, and the constructor `cons` represents a single element in the linked list.
+The constructor `nil` represents empty lists and the constructor `cons` is used for non-empty lists.
 The first argument to `cons` is the head of the list, and the second argument is its tail.
+A list that contains \\( n \\) entries contains \\( n \\) `cons` constructors, the last of which has `nil` as its tail.
 
 The `primesUnder10` example can be written more explicitly by using `List`'s constructors directly:
 ```lean
