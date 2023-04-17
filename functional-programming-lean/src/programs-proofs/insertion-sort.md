@@ -11,7 +11,7 @@ In some cases, operations that would normally copy an array can be optimized int
 This includes swapping elements in an array.
 
 Most languages and run-time systems with automatic memory management, including JavaScript, the JVM, and .NET, use tracing garbage collection.
-When memory needs to be reclaimed, the system starts at a number of roots (such as the call stack and global values) and then determines which values can be reached by recursively chasing pointers.
+When memory needs to be reclaimed, the system starts at a number of _roots_ (such as the call stack and global values) and then determines which values can be reached by recursively chasing pointers.
 Any values that can't be reached are deallocated, freeing memory.
 
 Reference counting is an alternative to tracing garbage collection that is used by a number of languages, including Python, Swift, and Lean.
@@ -36,15 +36,19 @@ An implementation of insertion sort for Lean arrays should satisfy the following
 The first criterion is easy to check: if Lean accepts the definition, then it is satisfied.
 The second, however, requires a means of testing it.
 Lean provides a built-in function called `dbgTraceIfShared` with the following signature:
+```lean
+{{#example_in Examples/ProgramsProofs/InsertionSort.lean dbgTraceIfSharedSig}}
+```
 ```output info
 {{#example_out Examples/ProgramsProofs/InsertionSort.lean dbgTraceIfSharedSig}}
 ```
 It takes a string and a value as arguments, and prints a message that uses the string to standard error if the value has more than one reference, returning the value.
 This is not, strictly speaking, a pure function.
-However, it is intended to be used only during development to check that a function is in fact able to re-use memory rather than allocating.
+However, it is intended to be used only during development to check that a function is in fact able to re-use memory rather than allocating and copying.
 
-TODO find a good short example of dbgTraceIfShared here
-
+When learning to use `dbgTraceIfShared`, it's important to know that `#eval` will report that many more values are shared than in compiled code.
+This can be confusing.
+It's important to build an executable with `lake` rather than experimenting in an editor.
 
 Insertion sort consists of two loops.
 The outer loop moves a pointer from left to right across the array to be sorted.
@@ -68,7 +72,7 @@ It is thus necessary to prove that `i' < arr.size` before `i'` can be used to in
 This proof uses a `have`-expression.
 In Lean, `have` is similar to `let`.
 When using `have`, the name is optional.
-Typically, `let` is used to define names that refer to interesting values, while `have` is used to locally prove propositions that can be found by termination proofs and array indexing safety proofs.
+Typically, `let` is used to define names that refer to interesting values, while `have` is used to locally prove propositions that can be found when Lean is searching for evidence that an array lookup is in-bounds or that a function terminates.
 Omitting the proof reveals the following goal:
 ```output error
 {{#example_out Examples/ProgramsProofs/InsertionSort.lean insertSortedNoProof}}
@@ -170,9 +174,8 @@ Rather than write proofs for both simple cases, adding `<;> try rfl` after `spli
 {{#example_out Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_2}}
 ```
 
-Unfortunately, this goal cannot be proved from the available assumptions.
+Unfortunately, the induction hypothesis is not strong enough to prove this goal.
 The induction hypothesis states that calling `insertSorted` on `arr` leaves the size unchanged, but the proof goal is to show that the result of the recursive call with the result of swapping leaves the size unchanged.
-This is a common difficulty than can arise in proofs by induction: the induction hypothesis is not strong enough to prove the induction step.
 Successfully completing the proof requires an induction hypothesis that works for _any_ array that is passed to `insertSorted` together with the smaller index as an argument
 
 It is possible to get a strong induction hypothesis by using the `generalizing` option to the `induction` tactic.
@@ -189,7 +192,7 @@ In the resulting goal, `arr` is now part of a "for all" statement in the inducti
 However, this whole proof is beginning to get unmanageable.
 The next step would be to introduce a variable standing for the length of the result of swapping, show that it is equal to `arr.size`, and then show that this variable is also equal to the length of the array that results from the recursive call.
 These equality statement can then be chained together to prove the goal.
-It's much easier, however, to carefully reformulate the statement to be proved such that the induction hypothesis is automatically strong enough and the variables are already introduced.
+It's much easier, however, to carefully reformulate the theorem statement such that the induction hypothesis is automatically strong enough and the variables are already introduced.
 The reformulated statement reads:
 ```lean
 {{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_0}}
@@ -331,8 +334,8 @@ The complete instrumented code for insertion sort is:
 ```
 
 A bit of cleverness is required to check whether the instrumentation actually works.
-First off, the Lean compiler aggressively inlines function calls.
-Simply writing a program that applies `insertionŚort` to a large array is not sufficient, because the resulting compiled code may contain only the sorted array as a constant.
+First off, the Lean compiler aggressively optimizes function calls away when all their arguments are known at compile time.
+Simply writing a program that applies `insertionSort` to a large array is not sufficient, because the resulting compiled code may contain only the sorted array as a constant.
 The easiest way to ensure that the compiler doesn't optimize away the sorting routine is to read the array from `stdin`.
 Secondly, the compiler performs dead code elimination.
 Adding extra `let`s to the program won't necessarily result in more references in running code if the `let`-bound variables are never used.
@@ -349,7 +352,7 @@ Next, two separate `main` routines are needed.
 Both read the array to be sorted from standard input, ensuring that the calls to `insertionSort` won't be replaced by their return values at compile time.
 Both then print to the console, ensuring that the calls to `insertionSort` won't be optimized away entirely.
 One of them prints only the sorted array, while the other prints both the sorted array and the original array.
-The second one should trigger a warning that `Array.swap` had to allocate a new array:
+The second function should trigger a warning that `Array.swap` had to allocate a new array:
 ```lean
 {{#include ../../../examples/Examples/ProgramsProofs/InstrumentedInsertionSort.lean:mains}}
 ```
@@ -390,7 +393,7 @@ When running `sort --shared`, the array is copied as needed to preserve the pure
 ## Other Opportunities for Mutation
 
 The use of mutation instead of copying when references are unique is not limited to array update operators.
-Additionally, Lean attempts to "recycle" constructors whose reference counts are about to fall to zero, reusing them instead of allocating new data.
+Lean also attempts to "recycle" constructors whose reference counts are about to fall to zero, reusing them instead of allocating new data.
 This means, for instance, that `List.map` will mutate a linked list in place, at least in cases when nobody could possibly notice.
 One of the most important steps in optimizing hot loops in Lean code is making sure that the data being modified is not referred to from multiple locations.
 

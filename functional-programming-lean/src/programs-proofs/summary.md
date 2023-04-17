@@ -39,7 +39,7 @@ If the functions are recursive, then induction is usually a good way to prove th
 Usually, the recursive definition of the function will make recursive calls on one particular argument argument; this argument is a good choice for induction.
 In some cases, the induction hypothesis is not strong enough.
 Fixing this problem usually requires thought about how to construct a more general version of the theorem statement that provides induction hypotheses that are strong enough.
-In particular, to prove that a function is equivalent to an accumulator-passing version, a theorem statement that relates arbitrary accumulator values to the final result of the original function is needed.
+In particular, to prove that a function is equivalent to an accumulator-passing version, a theorem statement that relates arbitrary initial accumulator values to the final result of the original function is needed.
 
 ## Safe Array Indices
 
@@ -67,7 +67,7 @@ Any proof that relies on `sorry` includes a warning in Lean.
 Be careful!
 The `sorry` tactic can prove _any_ statement, even false statements.
 Proving that `3 < 2` can cause an out-of-bounds array access to persist to runtime, unexpectedly crashing a program.
-Using `sorry` is convenient during development, but keeping them for too long is dangerous.
+Using `sorry` is convenient during development, but keeping it in the code is dangerous.
 
 ## Proving Termination
 

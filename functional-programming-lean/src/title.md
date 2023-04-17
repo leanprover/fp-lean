@@ -8,6 +8,11 @@ This version of the text is written for Lean 4 release `{{#lean_version}}`.
 
 ## Release history
 
+### April, 2023
+
+This release adds an interlude on writing proofs with tactics as well as a final chapter that combines discussion of performance and cost models with proofs of termination and program equivalence.
+This is the last release prior to the final release.
+
 ### March, 2023
 
 This release adds a chapter on programming with dependent types and indexed families.

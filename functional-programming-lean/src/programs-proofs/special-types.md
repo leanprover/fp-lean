@@ -8,7 +8,7 @@ In other words, `List` really is a linked list and extracting a field from a `st
 
 There are, however, some important exceptions to this rule.
 A number of types are treated specially by the compiler.
-For example, the type `UInt32` is defined as `Fin (2 ^ 32)`, but it is replaced at run-time with an actual native implementation.
+For example, the type `UInt32` is defined as `Fin (2 ^ 32)`, but it is replaced at run-time with an actual native implementation based on machine words.
 Similarly, even though the definition of `Nat` suggests an implementation similar to `List Unit`, the actual run-time representation uses an efficient arbitrary-precision arithmetic library.
 The Lean compiler translates from definitions that use pattern matching into the appropriate operations in this library, and calls to operations like addition and subtraction are mapped to fast operations from the underlying arithmetic library.
 After all, addition should not take time linear in the size of the addends.

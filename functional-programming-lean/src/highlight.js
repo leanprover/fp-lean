@@ -1114,7 +1114,7 @@ hljs.registerLanguage("lean", function(hljs) {
       'universe variable ' +
       'import open export prelude renaming hiding ' +
       'calc match nomatch with do by let have extends ' +
-      'induction simp dsimp simpa simp_arith simp_intros exact funext assumption cases case skip unfold rw|10 intro constructor split ' +
+      'induction simp dsimp simpa simp_arith simp_intros exact funext assumption cases case skip unfold rw|10 intro constructor split generalizing ' +
       'for in unless try catch finally mutual mut return continue break where rec while repeat ' +
       'syntax macro_rules macro deriving ' +
       'termination_by ' +
@@ -1123,7 +1123,7 @@ hljs.registerLanguage("lean", function(hljs) {
       'section namespace end infix infixl infixr postfix prefix notation ',
     built_in:
       'Type Prop|10 Sort rewrite rwa erw subst substs ' +
-      'finish using generalizing ' +
+      'finish using ' +
       'unfold1 dunfold unfold_projs unfold_coes ' +
       'delta cc ac_rfl ' +
       'existsi|10 rcases intros introv by_cases ' +
@@ -1141,7 +1141,7 @@ hljs.registerLanguage("lean", function(hljs) {
       '',
     meta:
       'noncomputable|10 private protected mutual',
-    strong:
+    tag:
       'sorry admit',
   };
 

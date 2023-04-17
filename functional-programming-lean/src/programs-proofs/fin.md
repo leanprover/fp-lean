@@ -1,14 +1,14 @@
 # Safe Array Indices
 
-The `GetElem` instance for `Array` and `Nat` requires that the provided `Nat` be smaller than the array.
+The `GetElem` instance for `Array` and `Nat` requires a proof that the provided `Nat` is smaller than the array.
 In practice, these proofs often end up being passed to functions along with the indices.
-Rather than passing an index and a proof separately, a type called `Fin` can be used to bundle up the index with the proof.
+Rather than passing an index and a proof separately, a type called `Fin` can be used to bundle up the index and the proof into a single value.
 This can make code easier to read.
 Additionally, many of the built-in operations on arrays take their index arguments as `Fin` rather than as `Nat`, so using these built-in operations requires understanding how to use `Fin`.
 
 The type `Fin n` represents numbers that are strictly less than `n`.
 In other words, `Fin 3` describes `0`, `1`, and `2`, while `Fin 0` has no values at all.
-The definition of `Fin` resembles `Subtype`: a `Fin n` is a structure that contains a `Nat` and a proof that it is less than `n`:
+The definition of `Fin` resembles `Subtype`, as a `Fin n` is a structure that contains a `Nat` and a proof that it is less than `n`:
 ```lean
 {{#example_decl Examples/ProgramsProofs/Fin.lean Fin}}
 ```
