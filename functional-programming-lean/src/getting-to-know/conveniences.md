@@ -23,7 +23,7 @@ When defining functions with `def`, it is quite common to name an argument and t
 For instance, in `length`, the argument `xs` is used only in `match`.
 In these situations, the cases of the `match` expression can be written directly, without naming the argument at all.
 
-The first step is to move the arguments' types to the right of the definition's type, in the form of a function type.
+The first step is to move the arguments' types to the right of the colon, so the return type is a function type.
 For instance, the type of `length` is `List α → Nat`.
 Then, replace the `:=` with each case of the pattern match:
 ```lean
