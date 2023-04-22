@@ -194,7 +194,7 @@ In these cases, `by simp` can construct the evidence automatically:
 ## Indexing Without Evidence
 
 In cases where it's not practical to prove that an indexing operation is in bounds, there are other alternatives.
-Adding an question mark results in an `Option`, where the result is `some` if the index is in bounds, and `none` otherwise.
+Adding a question mark results in an `Option`, where the result is `some` if the index is in bounds, and `none` otherwise.
 For example:
 ```lean
 {{#example_decl Examples/Props.lean thirdOption}}
@@ -211,7 +211,7 @@ For example:
 {{#example_out Examples/Props.lean thirdOptionTwo}}
 ```
 
-There is also a version that crashes the program when the index is out of bounds:
+There is also a version that crashes the program when the index is out of bounds, rather than returning an `Option`:
 ```lean
 {{#example_in Examples/Props.lean crittersBang}}
 ```

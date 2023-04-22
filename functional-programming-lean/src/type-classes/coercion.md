@@ -63,10 +63,17 @@ For example, even if two types `A` and `B` can be coerced to one another, their 
 {{#example_decl Examples/Classes.lean CoercionCycle}}
 ```
 Remember: the double parentheses `()` is short for the constructor `Unit.unit`.
+After deriving a `Repr B` instance,
+```lean
+{{#example_in Examples/Classes.lean coercedToBEval}}
+```
+results in:
+```output info
+{{#example_out Examples/Classes.lean coercedToBEval}}
+```
 
-Some coercions, however, should only be applied once.
 The `Option` type can be used similarly to nullable types in C# and Kotlin: the `none` constructor represents the absence of a value.
-The Lean standard library defines a coercion from any type `α` to `Option α` that wraps the value in in `some`.
+The Lean standard library defines a coercion from any type `α` to `Option α` that wraps the value in `some`.
 This allows option types to be used in a manner even more similar to nullable types, because `some` can be omitted.
 For instance, the function `List.getLast?` that finds the last entry in a list can be written without a `some` around the return value `x`:
 ```lean
@@ -170,7 +177,7 @@ In this case, the sort in question is `Prop` rather than `Type`.
 
 Many datatypes that occur regularly in programming consist of a function along with some extra information about it.
 For example, a function might be accompanied by a name to show in logs or by some configuration data.
-Additionally, putting a type in a field of a structure, similarly to the `Monoid` example, can make sense in contexts where there are more than one way to implement an operation and more manual control is needed than type classes would allow.
+Additionally, putting a type in a field of a structure, similarly to the `Monoid` example, can make sense in contexts where there is more than one way to implement an operation and more manual control is needed than type classes would allow.
 For example, the specific details of values emitted by a JSON serializer may be important because another application expects a particular format.
 Sometimes, the function itself may be derivable from just the configuration data.
 

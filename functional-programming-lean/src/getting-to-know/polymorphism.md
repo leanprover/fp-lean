@@ -26,7 +26,7 @@ Just like `List`, `PPoint` can be used by providing a specific type as its argum
 ```
 In this example, both fields are expected to be `Nat`s.
 Just as a function is called by replacing its argument variables with its argument values, providing `PPoint` with the type `Nat` as an argument yields a structure in which the fields `x` and `y` have the type `Nat`, because the argument name `α` has been replaced by the argument type `Nat`.
-Because types are ordinary expressions in Lean, passing arguments to polymorphic types (like `PPoint`) doesn't require any special syntax.
+Types are ordinary expressions in Lean, so passing arguments to polymorphic types (like `PPoint`) doesn't require any special syntax.
 
 Definitions may also take types as arguments, which makes them polymorphic.
 The function `replaceX` replaces the `x` field of a `PPoint` with a new value.
@@ -87,7 +87,13 @@ If the argument is positive, the function returns a `Nat`, while if it's negativ
 {{#example_decl Examples/Intro.lean posOrNegThree}}
 ```
 Because types are first class and can be computed using the ordinary rules of the Lean language, they can be computed by pattern-matching against a datatype.
-When Lean is checking this function, it uses the fact that the function's body pattern-matches to run the same pattern in the type, showing that `Nat` is the expected type for the `pos` case and that `Int` is the expected type for the `neg` case.
+When Lean is checking this function, it uses the fact that the `match`-expression in the function's body corresponds to the `match`-expression in the type to make `Nat` be the expected type for the `pos` case and to make `Int` be the expected type for the `neg` case.
+
+Applying `posOrNegThree` to `Sign.pos` results in the argument name `s` in both the body of the function and its return type being replaced by `Sign.pos`.
+Evaluation can occur both in the expression and its type:
+```lean
+{{#example_eval Examples/Intro.lean posOrNegThreePos}}
+```
 
 ## Linked Lists
 
@@ -258,6 +264,13 @@ Explicitly providing a type allows Lean to proceed:
 ```output info
 {{#example_out Examples/Intro.lean headNone}}
 ```
+The type can also be provided with a type annotation:
+```lean
+{{#example_in Examples/Intro.lean headNoneTwo}}
+```
+```output info
+{{#example_out Examples/Intro.lean headNoneTwo}}
+```
 The error messages provide a useful clue.
 Both messages use the _same_ metavariable to describe the missing implicit argument, which means that Lean has determined that the two missing pieces will share a solution, even though it was unable to determine the actual value of the solution.
 
@@ -268,6 +281,7 @@ For instance, a `Prod Nat String` contains a `Nat` and a `String`.
 In other words, `PPoint Nat` could be replaced by `Prod Nat Nat`.
 `Prod` is very much like C#'s tuples, the `Pair` and `Triple` types in Kotlin, and `tuple` in C++.
 Many applications are best served by defining their own structures, even for simple cases like `Point`, because using domain terminology can make it easier to read the code.
+Additionally, defining structure types helps catch more errors by assigning different types to different domain concepts, preventing them from being mixed up.
 
 On the other hand, there are some cases where it is not worth the overhead of defining a new type.
 Additionally, some libraries are sufficiently generic that there is no more specific concept than "pair".

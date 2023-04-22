@@ -1068,6 +1068,15 @@ message
 "
 end expect
 
+expect info {{{ headNoneTwo }}}
+  #eval ([] : List Int).head?
+message
+"none"
+end expect
+
+
+
+
 
 
 def List.final? {α : Type} (xs : List α) : Option α :=
@@ -1144,6 +1153,20 @@ book declaration {{{ posOrNegThree }}}
     | Sign.pos => (3 : Nat)
     | Sign.neg => (-3 : Int)
 stop book declaration
+
+evaluation steps {{{ posOrNegThreePos }}}
+  (posOrNegThree Sign.pos : match Sign.pos with | Sign.pos => Nat | Sign.neg => Int)
+  ===>
+  ((match Sign.pos with
+    | Sign.pos => (3 : Nat)
+    | Sign.neg => (-3 : Int)) :
+   match Sign.pos with | Sign.pos => Nat | Sign.neg => Int)
+  ===>
+  ((3 : Nat) : Nat)
+  ===>
+  3
+end evaluation steps
+
 
 
 def take (n : Nat) (xs : List α) : List α :=
@@ -1639,7 +1662,7 @@ end bookExample
 expect error {{{ pointPosEvalNoType }}}
   #eval ⟨1, 2⟩
 message
-"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.34849"
+"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.35347"
 end expect
 
 expect info {{{ pointPosWithType }}}

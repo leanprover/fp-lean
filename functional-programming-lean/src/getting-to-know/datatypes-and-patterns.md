@@ -14,7 +14,6 @@ The summands in an addition expression may themselves be multiplication expressi
 
 Datatypes that allow choices are called _sum types_ and datatypes that can include instances of themselves are called _recursive datatypes_.
 Recursive sum types are called _inductive datatypes_, because mathematical induction may be used to prove statements about them.
-Most user-defined types are inductive datatypes.
 When programming, inductive datatypes are consumed through pattern matching and recursive functions.
 
 Many of the built-in types are actually inductive datatypes in the standard library.

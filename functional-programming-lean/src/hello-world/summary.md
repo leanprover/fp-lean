@@ -33,7 +33,7 @@ A `do` expression contains a sequence of _statements_, which may be:
  
 Furthermore, `if` and `match` expressions that occur immediately under a `do` are implicitly considered to have their own `do` in each branch.
 Inside of a `do` expression, _nested actions_ are expressions with a left arrow immediately under parentheses.
-The Lean compiler implicitly lifts them to the nearest enclosing `do`, which may be implicitly part of a branch of a `match` or `if` expression, and given a unique name.
+The Lean compiler implicitly lifts them to the nearest enclosing `do`, which may be implicitly part of a branch of a `match` or `if` expression, and gives them a unique name.
 This unique name then replaces the origin site of the nested action.
 
 

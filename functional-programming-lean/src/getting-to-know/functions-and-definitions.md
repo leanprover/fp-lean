@@ -48,7 +48,7 @@ Testing this function with `#eval` gives `{{#example_out Examples/Intro.lean add
 ```
 
 
-Just as functions are applied to multiple arguments just by writing spaces between each argument, functions that accept multiple arguments are defined with spaces between the arguments' names and types. The function `maximum`, whose result is equal to the greatest of its two arguments, takes two `Nat` arguments `n` and `k` and returns a `Nat`.
+Just as functions are applied to multiple arguments by writing spaces between each argument, functions that accept multiple arguments are defined with spaces between the arguments' names and types. The function `maximum`, whose result is equal to the greatest of its two arguments, takes two `Nat` arguments `n` and `k` and returns a `Nat`.
 
 ```lean
 {{#example_decl Examples/Intro.lean maximum}}
@@ -63,7 +63,7 @@ Expressions that evaluate to natural numbers, integers, and strings have types t
 This is also true of functions.
 A function that accepts a `Nat` and returns a `Bool` has type `Nat → Bool`, and a function that accepts two `Nat`s and returns a `Nat` has type `Nat → Nat → Nat`.
 
-As a special cases, Lean returns a function's signature when its name is used directly with `#check`.
+As a special case, Lean returns a function's signature when its name is used directly with `#check`.
 Entering `{{#example_in Examples/Intro.lean add1sig}}` yields `{{#example_out Examples/Intro.lean add1sig}}`.
 However, Lean can be "tricked" into showing the function's type by writing the function's name in parentheses, which causes the function to be treated as an ordinary expression, so `{{#example_in Examples/Intro.lean add1type}}` yields `{{#example_out Examples/Intro.lean add1type}}` and `{{#example_in Examples/Intro.lean maximumType}}` yields `{{#example_out Examples/Intro.lean maximumType}}`.
 This arrow can also be written with an ASCII alternative arrow `->`, so the preceding function types can be written `{{#example_out Examples/Intro.lean add1typeASCII}}` and `{{#example_out Examples/Intro.lean maximumTypeASCII}}`, respectively.
@@ -102,7 +102,7 @@ Because ``Str`` has been defined to mean ``String``, the definition of ``aStr`` 
 
 ### Messages You May Meet
 
-Experimenting with using definitions for types is made more complicated by a feature of Lean that has not yet been introduced.
+Experimenting with using definitions for types is made more complicated by the way that Lean supports overloaded integer literals.
 If ``Nat`` is too short, a longer name ``NaturalNumber`` can be defined:
 ```lean
 {{#example_decl Examples/Intro.lean NaturalNumberTypeDef}}

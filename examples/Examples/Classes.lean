@@ -991,6 +991,13 @@ book declaration {{{ BEqHashableDerive }}}
   deriving instance BEq, Hashable, Repr for NonEmptyList
 stop book declaration
 
+
+expect error {{{ derivingNotFound }}}
+  deriving instance ToString for NonEmptyList
+message
+"default handlers have not been implemented yet, class: 'ToString' types: [NonEmptyList]"
+end expect
+
 namespace A
 book declaration {{{ HAppend }}}
   class HAppend (α : Type) (β : Type) (γ : outParam Type) where
@@ -1545,6 +1552,15 @@ book declaration {{{ CoercionCycle }}}
 
   def coercedToB : B := ()
 stop book declaration
+
+deriving instance Repr for B
+
+
+expect info {{{ coercedToBEval }}}
+  #eval coercedToB
+message
+"B.b"
+end expect
 
 book declaration {{{ CoePosNat }}}
   instance : Coe Pos Nat where

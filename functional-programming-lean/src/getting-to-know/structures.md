@@ -57,7 +57,7 @@ The final line, which says `deriving Repr`, asks Lean to generate code to displa
 This code is used by `#eval` to render the result of evaluation for consumption by programmers, analogous to the `repr` functions in Python and Rust.
 It is also possible to override the compiler's generated display code.
 
-The typical way to create a instance of a structure type is to provide values for all of its fields inside of curly braces.
+The typical way to create a value of a structure type is to provide values for all of its fields inside of curly braces.
 The origin of a Cartesian plane is where `x` and `y` are both zero:
 
 ```lean
@@ -227,7 +227,7 @@ However, this is not generally considered to be good Lean style, and Lean even r
 {{#example_out Examples/Intro.lean checkPointMk}}
 ```
 
-Constructors have function types, which means that they can be used anywhere that a function is expected.
+Constructors have function types, which means they can be used anywhere that a function is expected.
 For instance, `Point.mk` is a function that accepts two `Float`s (respectively `x` and `y`) and returns a new `Point`.
 ```lean
 {{#example_in Examples/Intro.lean Pointmk}}

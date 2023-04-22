@@ -22,12 +22,12 @@ The first step is to run `lake new feline`.
 Edit the Lakefile to remove the library, and delete the generated library code and the reference to it from `Main.lean`.
 Once this has been done, `lakefile.lean` should contain:
 
-```
+```lean
 {{#include ../../../examples/feline/1/lakefile.lean}}
 ```
 
 and `Main.lean` should contain something like:
-```
+```lean
 {{#include ../../../examples/feline/1/Main.lean}}
 ```
 Alternatively, running `lake new feline exe` instructs `lake` to use a template that does not include a library section, making it unnecessary to edit the file.

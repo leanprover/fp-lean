@@ -280,6 +280,20 @@ The second rule says that `map (fun y => f (g y)) x` equals `map f (map g x)`.
 The composition `{{#example_out Examples/Classes.lean compDef}}` can also be written `{{#example_in Examples/Classes.lean compDef}}`.
 These rules prevent implementations of `map` that move the data around or delete some of it.
 
+## Messages You May Meet
+
+Lean is not able to derive instances for all classes.
+For example, the code
+```lean
+{{#example_in Examples/Classes.lean derivingNotFound}}
+```
+results in the following error:
+```output error
+{{#example_out Examples/Classes.lean derivingNotFound}}
+```
+Invoking `deriving instance` causes Lean to consult an internal table of code generators for type class instances.
+If the code generator is found, then it is invoked on the provided type to create the instance.
+This message, however, means that no code generator was found for `ToString`.
 
 ## Exercises
 
