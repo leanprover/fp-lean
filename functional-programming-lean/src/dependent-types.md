@@ -1,6 +1,6 @@
 # Programming with Dependent Types
 
-In most statically-typed programming languages, there is a hermetic seal between world of types and the world of programs.
+In most statically-typed programming languages, there is a hermetic seal between the world of types and the world of programs.
 Types and programs have different grammars and they are used at different times.
 Types are typically used at compile time, to check that a program obeys certain invariants.
 Programs are used at run time, to actually perform computations.
@@ -30,6 +30,6 @@ The flexibility of return types that branch on argument values enables programs 
 At the same time, dependent types allow a type signature to restrict which values may be returned from a function, enabling strong invariants to be enforced at compile time.
 
 However, programming with dependent types can be quite complex, and it requires a whole set of skills above and beyond functional programming.
-Expressive specifications can be complicated to fulfill, and there is a real risk of creating tying oneself in knots and being unable to complete the program.
+Expressive specifications can be complicated to fulfill, and there is a real risk of tying oneself in knots and being unable to complete the program.
 On the other hand, this process can lead to new understanding, which can be expressed in a refined type that can be fulfilled.
 While this chapter scratches the surface of dependently typed programming, it is a deep topic that deserves an entire book of its own.

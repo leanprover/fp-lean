@@ -26,7 +26,7 @@ This suggests the definition of the monad transformer `OptionT`:
 {{#example_decl Examples/MonadTransformers/Defs.lean OptionTdef}}
 ```
 
-An example of `OptionT` in action, consider a program that asks the user questions.
+As an example of `OptionT` in action, consider a program that asks the user questions.
 The function `getSomeInput` asks for a line of input and removes whitespace from both ends.
 If the resulting trimmed input is non-empty, then it is returned, but the function fails if there are no non-whitespace characters:
 ```lean
@@ -90,7 +90,7 @@ The first step is to show that `bind (pure v) f` is the same as `f v`.
 Here's the steps:
 {{#equations Examples/MonadTransformers/Defs.lean OptionTFirstLaw}}
 
-The second rules states that `bind w pure` is the same as `w`.
+The second rule states that `bind w pure` is the same as `w`.
 To demonstrate this, unfold the definitions of `bind` and `pure`, yielding:
 ```lean
 OptionT.mk do

@@ -7,7 +7,7 @@ This power comes at a cost.
 The close coupling between the internals of type-returning functions such as `Row` and the types that they produce is an instance of a bigger difficulty: the distinction between the interface and the implementation of functions begins to break down when functions are used in types.
 Normally, all refactorings are valid as long as they don't change the type signature or input-output behavior of a function.
 Functions can be rewritten to use more efficient algorithms and data structures, bugs can be fixed, and code clarity can be improved without breaking client code.
-When the function is used in a type, however, the internals of the function's implementation become part of the type, and thus part of _interface_ to another program.
+When the function is used in a type, however, the internals of the function's implementation become part of the type, and thus part of the _interface_ to another program.
 
 As an example, take the following two implementations of addition on `Nat`.
 `Nat.plusL` is recursive on its first argument:
@@ -123,7 +123,7 @@ Until the actual value of `n` becomes known, there is no way to know which case 
 The same issue appears with the `Row` function in the query example.
 The type `Row (c :: cs)` does not reduce to any datatype because the definition of `Row` has separate cases for singleton lists and lists with at least two entries.
 In other words, it gets stuck when trying to match the variable `cs` against concrete `List` constructors.
-This is why almost every function that takes apart or constructors a `Row` needs to match the same three cases as `Row` itself: getting it unstuck reveals concrete types that can be used for either pattern matching or constructors.
+This is why almost every function that takes apart or constructs a `Row` needs to match the same three cases as `Row` itself: getting it unstuck reveals concrete types that can be used for either pattern matching or constructors.
 
 The missing case in `appendL` requires a `Vect α (Nat.plusL n k + 1)`.
 The `+ 1` in the index suggests that the next step is to use `Vect.cons`:

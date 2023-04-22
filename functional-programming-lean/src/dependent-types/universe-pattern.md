@@ -69,7 +69,8 @@ Checking this could take infinite amounts of time, because comparing two functio
 In other words, a function from an infinite type is itself infinite.
 Functions can be viewed as tables, and a function whose argument type is infinite requires infinitely many rows to represent each case.
 But functions from finite types require only finitely many rows in their tables, making them finite.
-If the return type is also finite, then two functions can be checked for equality by enumerating all possible arguments, calling the functions on each of them, and then comparing the results.
+Two functions whose argument type is finite can be checked for equality by enumerating all possible arguments, calling the functions on each of them, and then comparing the results.
+Checking higher-order functions for equality requires generating all possible functions of a given type, which additionally requires that the return type is finite so that each element of the argument type can be mapped to each element of the return type.
 This is not a _fast_ method, but it does complete in finite time.
 
 One way to represent finite types is by a universe:

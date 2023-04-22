@@ -31,7 +31,7 @@ Some useful types can implement `Applicative` but not `Monad`.
 
 In fact, the type classes `Functor`, `Applicative`, and `Monad` form a hierarchy of power.
 Moving up the hierarchy, from `Functor` towards `Monad`, allows more powerful programs to be written, but fewer types implement the more powerful classes.
-Polymorphic programs should be written to use as weak of an abstraction as possible, while datatypes should be given a instances that are as powerful as possible.
+Polymorphic programs should be written to use as weak of an abstraction as possible, while datatypes should be given instances that are as powerful as possible.
 This maximizes code re-use.
 The more powerful type classes extend the less powerful ones, which means that an implementation of `Monad` provides implementations of `Functor` and `Applicative` for free.
 

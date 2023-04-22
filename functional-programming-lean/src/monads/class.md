@@ -73,7 +73,7 @@ This means that the instance for `State` should mention the state type `σ`, whi
 ```lean
 {{#example_decl Examples/Monads/Class.lean StateMonad}}
 ```
-This means that the type of the state cannot change between calls to `get` and `set` that are sequence using `bind`, which is a reasonable rule for stateful computations.
+This means that the type of the state cannot change between calls to `get` and `set` that are sequenced using `bind`, which is a reasonable rule for stateful computations.
 The operator `increment` increases a saved state by a given amount, returning the old value:
 ```lean
 {{#example_decl Examples/Monads/Class.lean increment}}

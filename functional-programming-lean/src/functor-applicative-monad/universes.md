@@ -170,7 +170,7 @@ There are a few general guidelines to follow when writing universe-polymorphic t
 First off, independent type arguments should have different universe variables, which enables the polymorphic definition to be used with a wider variety of arguments, increasing the potential for code reuse.
 Secondly, the whole type is itself typically either in the maximum of all the universe variables, or one greater than this maximum.
 Try the smaller of the two first.
-Finally, it's a good idea to put the new type in as small of a universe as possible, which allows it to be use more flexibly in other contexts.
+Finally, it's a good idea to put the new type in as small of a universe as possible, which allows it to be used more flexibly in other contexts.
 Non-polymorphic types, such as `Nat` and `String`, can be placed directly in `Type 0`.
 
 ### `Prop` and Polymorphism

@@ -42,7 +42,7 @@ This type class's structure type is equivalent to the following inductive type:
 ```
 The implementation of the `map` method that is passed as an argument to `Functor.mk` contains a function that takes two types in `Type u` as arguments.
 This means that the type of the function itself is in `Type (u+1)`, so `Functor` must also be at a level that is at least `u+1`.
-Similarly, other arguments to the function have a type build by applying `f`, so it must also have a level that is at least `v`.
+Similarly, other arguments to the function have a type built by applying `f`, so it must also have a level that is at least `v`.
 All the type classes in this section share this property.
 
 ## Applicative

@@ -27,7 +27,7 @@ Thus, both versions are typically provided, with the ordinary-parameter version 
 
 It is important to note that changing the order of transformers in a monad can change the meaning of programs that use the monad.
 For instance, re-ordering `StateT` and `ExceptT` can result either in programs that lose state modifications when exceptions are thrown or programs that keep changes.
-While most imperative languages provide only the latter, the increased flexibility provided by monad transformers demands thought at attention to choose the correct variety for the task at hand.
+While most imperative languages provide only the latter, the increased flexibility provided by monad transformers demands thought and attention to choose the correct variety for the task at hand.
 
 ## `do`-Notation for Monad Transformers
 

@@ -64,7 +64,7 @@ The `do`-block in `List.find?` that uses early return is translated to a `do`-bl
 ```
 
 Another situation in which early return is useful is command-line applications that terminate early if the arguments or input are incorrect.
-Many programs being with a section that validates arguments and inputs before proceeding to the main body of the program.
+Many programs begin with a section that validates arguments and inputs before proceeding to the main body of the program.
 The following version of [the greeting program `hello-name`](../hello-world/running-a-program.md) checks that no command-line arguments were provided:
 ```lean
 {{#include ../../../examples/early-return/EarlyReturn.lean:main}}
@@ -327,7 +327,7 @@ Early return terminates the current block, and mutable variables can only be mut
 To use them effectively, it's important to know what counts as "the same block".
 
 Generally speaking, the indented block following the `do` keyword counts as a block, and the immediate sequence of statements underneath it are part of that block.
-Statements in independent blocks that nonetheless contained in a block are not considered part of the block.
+Statements in independent blocks that are nonetheless contained in a block are not considered part of the block.
 However, the rules that govern what exactly counts as the same block are slightly subtle, so some examples are in order.
 The precise nature of the rules can be tested by setting up a program with a mutable variable and seeing where the mutation is allowed.
 This program has a mutation that is clearly in the same block as the mutable variable:
@@ -357,7 +357,7 @@ The following program is not accepted:
 {{#example_out Examples/MonadTransformers/Do.lean funArgNotBlock}}
 ```
 
-If the `do` keyword is completely redundant, then it does not introduces a new block.
+If the `do` keyword is completely redundant, then it does not introduce a new block.
 This program is accepted, and is equivalent to the first one in this section:
 ```lean
 {{#example_decl Examples/MonadTransformers/Do.lean collapsedBlock}}

@@ -125,7 +125,7 @@ The indexed family `HasCol` is a translation of the specification into Lean code
 {{#example_decl Examples/DependentTypes/DB.lean HasCol}}
 ```
 The family's three arguments are the schema, the column name, and its type.
-All three are indices.
+All three are indices, but re-ordering the arguments to place the schema after the column name and type would allow the name and type to be parameters.
 The constructor `here` can be used when the schema begins with the column `⟨name, t⟩`; it is thus a pointer to the first column in the schema that can only be used when the first column has the desired name and type.
 The constructor `there` transforms a pointer into a smaller schema into a pointer into a schema with one more column on it.
 
@@ -383,7 +383,7 @@ When the first row contains multiple columns, the first column's value is added 
 {{#example_decl Examples/DependentTypes/DB.lean RowAppend}}
 ```
 
-`List.flatMap` applies a function that itself returns a list to every entry in an input list, return the result of appending the results in order:
+`List.flatMap` applies a function that itself returns a list to every entry in an input list, returning the result of appending the resulting lists in order:
 ```lean
 {{#example_decl Examples/DependentTypes/DB.lean ListFlatMap}}
 ```

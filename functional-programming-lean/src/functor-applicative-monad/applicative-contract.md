@@ -100,7 +100,7 @@ This justifies a definition of `Monad` that extends `Applicative`, with a defaul
 
 ## Additional Stipulations
 
-In addition to adhering to the individual contracts associated with each type class, combined implementations `Functor`, `Applicative`x and `Monad` should work equivalently to these default implementations.
+In addition to adhering to the individual contracts associated with each type class, combined implementations `Functor`, `Applicative` and `Monad` should work equivalently to these default implementations.
 In other words, a type that provides both `Applicative` and `Monad` instances should not have an implementation of `seq` that works differently from the version that the `Monad` instance generates as a default implementation.
 This is important because polymorphic functions may be refactored to replace a use of `>>=` with an equivalent use of `<*>`, or a use of `<*>` with an equivalent use of `>>=`.
 This refactoring should not change the meaning of programs that use this code.
