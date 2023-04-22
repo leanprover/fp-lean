@@ -42,7 +42,7 @@ The following types have special representations:
 
 The [definition of `Pos`](../type-classes/pos.html) does not take advantage of Lean's compilation of `Nat` to an efficient type.
 At run time, it is essentially a linked list.
-Rewrite `Pos` as a structure that contains a `Nat` and a proof that it does not equal `0`.
+Alternatively, a subtype can be defined that allows Lean's fast `Nat` type to be used internally, as described [in the initial section on subtypes](../functor-applicative-monad/applicative.md#subtypes).
 At runtime, the proof will be erased, which means that this new representation of `Pos` is not substantially less efficient that the representation of `Nat`.
 
-After proving the theorem `∀ {n k : Nat}, n ≠ 0 → k ≠ 0 → n + k ≠ 0`, define instance of `OfNat`, `ToString`, and `Add` for this new representation of `Pos`.
+After proving the theorem `∀ {n k : Nat}, n ≠ 0 → k ≠ 0 → n + k ≠ 0`, define instances of `ToString`, and `Add` for this new representation of `Pos`. Then, define an instance of `Mul`, proving any necessary theorems along the way.

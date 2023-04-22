@@ -187,11 +187,11 @@ In this context, two tactics are useful:
  * The `repeat` tactic instructs Lean to repeat a tactic over and over until it either fails or the proof is finished.
 
 In the next example, `by constructor` has the same effect as just writing `.nil` would have:
-```lean
+```leantac
 {{#example_decl Examples/DependentTypes/DB.lean emptySub}}
 ```
 However, attempting that same tactic with a slightly more complicated type fails:
-```lean
+```leantac
 {{#example_in Examples/DependentTypes/DB.lean notDone}}
 ```
 ```output error
@@ -201,21 +201,21 @@ Errors that begin with `unsolved goals` describe tactics that failed to complete
 In Lean's tactic language, a _goal_ is a type that a tactic is to fulfill by constructing an appropriate expression behind the scenes.
 In this case, `constructor` caused `Subschema.cons` to be applied, and the two goals represent the two arguments expected by `cons`.
 Adding another instance of `constructor` causes the first goal (`HasCol peak \"location\" DBType.string`) to be addressed with `HasCol.there`, because `peak`'s first column is not `"location"`:
-```lean
+```leantac
 {{#example_in Examples/DependentTypes/DB.lean notDone2}}
 ```
 ```output error
 {{#example_out Examples/DependentTypes/DB.lean notDone2}}
 ```
 However, adding a third `constructor` results in the first goal being solved, because `HasCol.here` is applicable:
-```lean
+```leantac
 {{#example_in Examples/DependentTypes/DB.lean notDone3}}
 ```
 ```output error
 {{#example_out Examples/DependentTypes/DB.lean notDone3}}
 ```
 A fourth instance of `constructor` solves the `Subschema peak []` goal:
-```lean
+```leantac
 {{#example_decl Examples/DependentTypes/DB.lean notDone4}}
 ```
 Indeed, a version written without the use of tactics has four constructors:
@@ -224,11 +224,11 @@ Indeed, a version written without the use of tactics has four constructors:
 ```
 
 Instead of experimenting to find the right number of times to write `constructor`, the `repeat` tactic can be used to ask Lean to just keep trying `constructor` as long as it keeps making progress:
-```lean
+```leantac
 {{#example_decl Examples/DependentTypes/DB.lean notDone6}}
 ```
 This more flexible version also works for more interesting `Subschema` problems:
-```lean
+```leantac
 {{#example_decl Examples/DependentTypes/DB.lean subschemata}}
 ```
 
@@ -284,13 +284,13 @@ The `col` constructor represents a reference to a column in the database.
 The `eq` constructor compares two expressions for equality, `lt` checks whether one is less than the other, `and` is Boolean conjunction, and `const` is a constant value of some type.
 
 For example, an expression in `peak` that checks whether the `elevation` column is greater than 1000 and the location is `"Denmark"` can be written:
-```lean
+```leantac
 {{#example_decl Examples/DependentTypes/DB.lean tallDk}}
 ```
 This is somewhat noisy.
 In particular, references to columns contain boilerplate calls to `by repeat constructor`.
 A Lean feature called _macros_ can help make expressions easier to read by eliminating this boilerplate:
-```lean
+```leantac
 {{#example_decl Examples/DependentTypes/DB.lean cBang}}
 ```
 This declaration adds the `c!` keyword to Lean, and instructs Lean to replace any instance of `c!` followed by an expression with the corresponding `DBExpr.col` construction.
@@ -463,7 +463,7 @@ Filter expects a function from `Row s` to `Bool`, but `DBExpr.evaluate` has type
 Because the type of the `select` constructor requires that the expression have type `DBExpr s .bool`, `t.asType` is actually `Bool` in this context.
 
 A query that finds the heights of all mountain peaks with an elevation greater than 500 meters can be written:
-```lean
+```leantac
 {{#example_decl Examples/DependentTypes/DB.lean Query1}}
 ```
 
@@ -477,7 +477,7 @@ Executing it returns the expected list of integers:
 
 To plan a sightseeing tour, it may be relevant to match all pairs mountains and waterfalls in the same location.
 This can be done by taking the Cartesian product of both tables, selecting only the rows in which they are equal, and then projecting out the names:
-```lean
+```leantac
 {{#example_decl Examples/DependentTypes/DB.lean Query2}}
 ```
 Because the example data includes only waterfalls in the USA, executing the query returns pairs of mountains and waterfalls in the US:
@@ -492,7 +492,7 @@ Because the example data includes only waterfalls in the USA, executing the quer
 
 Many potential errors are ruled out by the definition of `Query`.
 For instance, forgetting the added qualifier in `"mountain.location"` yields a compile-time error that highlights the column reference `c! "location"`:
-```lean
+```leantac
 {{#example_in Examples/DependentTypes/DB.lean QueryOops1}}
 ```
 This is excellent feedback!
@@ -502,7 +502,7 @@ On the other hand, the text of the error message is quite difficult to act on:
 ```
 
 Similarly, forgetting to add prefixes to the names of the two tables results in an error on `by simp`, which should provide evidence that the schemas are in fact disjoint;
-```lean
+```leantac
 {{#example_in Examples/DependentTypes/DB.lean QueryOops2}}
 ```
 However, the error message is similarly unhelpful:

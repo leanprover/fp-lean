@@ -65,7 +65,7 @@ The definition of what it means for an index to be in bounds should be written a
 ```
 This function returns a proposition that might be true or false.
 For instance, `2` is in bounds for `idahoSpiders`, while `5` is not:
-```lean
+```leantac
 {{#example_decl Examples/Classes.lean spiderBoundsChecks}}
 ```
 The logical negation operator has a very low precedence, which means that `¬idahoSpiders.inBounds 5` is equivalent to `¬(idahoSpiders.inBounds 5)`.

@@ -7,7 +7,7 @@ After testing both versions of the program on examples to rule out simple bugs, 
 ## Proving `sum` Equal
 
 To prove that both versions of `sum` are equal, begin by writing the theorem statement with a stub proof:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean sumEq0}}
 ```
 As expected, Lean describes an unsolved goal:
@@ -24,7 +24,7 @@ Function extensionality is exactly the reason why `NonTail.sum` equals `Tail.sum
 
 In Lean's tactic language, function extensionality is invoked using `funext`, followed by a name to be used for the arbitrary argument.
 The arbitrary argument is added as an assumption to the context, and the goal changes to require a proof that the functions applied to this argument are equal:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean sumEq1}}
 ```
 ```output error
@@ -35,7 +35,7 @@ This goal can be proved by induction on the argument `xs`.
 Both `sum` functions return `0` when applied to the empty list, which serves as a base case.
 Adding a number to the beginning of the input list causes both functions to add that number to the result, which serves as an induction step.
 Invoking the `induction` tactic results in two goals:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean sumEq2a}}
 ```
 ```output error
@@ -46,19 +46,19 @@ Invoking the `induction` tactic results in two goals:
 ```
 
 The base case for `nil` can be solved using `rfl`, because both functions return `0` when passed the empty list:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean sumEq3}}
 ```
 
 The first step in solving the induction step is to simplify the goal, asking `simp` to unfold `NonTail.sum` and `Tail.sum`:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean sumEq4}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean sumEq4}}
 ```
 Unfolding `Tail.sum` revealed that it immediately delegates to `Tail.sumHelper`, which should also be simplified:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean sumEq5}}
 ```
 In the resulting goal, `sumHelper` has taken a step of computation and added `y` to the accumulator:
@@ -66,7 +66,7 @@ In the resulting goal, `sumHelper` has taken a step of computation and added `y`
 {{#example_out Examples/ProgramsProofs/TCO.lean sumEq5}}
 ```
 Rewriting with the induction hypothesis removes all mentions of `NonTail.sum` from the goal:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean sumEq6}}
 ```
 ```output error
@@ -74,14 +74,14 @@ Rewriting with the induction hypothesis removes all mentions of `NonTail.sum` fr
 ```
 This new goal states that adding some number to the sum of a list is the same as using that number as the initial accumulator in `sumHelper`.
 For the sake of clarity, this new goal can be proved as a separate theorem:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean sumEqHelperBad0}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean sumEqHelperBad0}}
 ```
 Once again, this is a proof by induction where the base case uses `rfl`:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean sumEqHelperBad1}}
 ```
 ```output error
@@ -89,7 +89,7 @@ Once again, this is a proof by induction where the base case uses `rfl`:
 ```
 Because this is an inductive step, the goal should be simplified until it matches the induction hypothesis `ih`.
 Simplifying, using the definitions of `Tail.sum` and `Tail.sumHelper`, results in the following:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean sumEqHelperBad2}}
 ```
 ```output error
@@ -108,7 +108,7 @@ This insight can be used to write an elegant proof.
 Crucially, the proof by induction must be set up such that the induction hypothesis can be applied to _any_ accumulator value.
 
 Discarding the prior attempt, the insight can be encoded as the following statement:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqHelper0}}
 ```
 In this statement, it's very important that `n` is part of the type that's after the colon.
@@ -117,7 +117,7 @@ The resulting goal begins with `∀ (n : Nat)`, which is short for "For all `n`"
 {{#example_out Examples/ProgramsProofs/TCO.lean nonTailEqHelper0}}
 ```
 Using the induction tactic results in goals that include this "for all" statement:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqHelper1a}}
 ```
 In the `nil` case, the goal is:
@@ -138,14 +138,14 @@ In the tactic language, this process of selecting an arbitrary \\( x \\) is perf
 The `intro` tactic should be provided with the name to be used for this arbitrary value.
 
 Using the `intro` tactic in the `nil` case removes the `∀ (n : Nat),` from the goal, and adds an assumption `n : Nat`:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqHelper2}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean nonTailEqHelper2}}
 ```
 Both sides of this propositional equality are definitionally equal to `n`, so `rfl` suffices:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqHelper3}}
 ```
 The `cons` goal also contains a "for all":
@@ -153,7 +153,7 @@ The `cons` goal also contains a "for all":
 {{#example_out Examples/ProgramsProofs/TCO.lean nonTailEqHelper3}}
 ```
 This suggests the use of `intro`.
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqHelper4}}
 ```
 ```output error
@@ -161,7 +161,7 @@ This suggests the use of `intro`.
 ```
 The proof goal now contains both `NonTail.sum` and `Tail.sumHelper` applied to `y :: ys`.
 The simplifier can make the next step more clear:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqHelper5}}
 ```
 ```output error
@@ -179,7 +179,7 @@ The proof of associativity is named `{{#example_in Examples/ProgramsProofs/TCO.l
 Normally, the `rw` tactic is provided with an expression whose type is an equality.
 However, if the argument is instead a dependent function whose return type is an equality, it attempts to find arguments to the function that would allow the equality to match something in the goal.
 There is only one opportunity to apply associativity, though the direction of the rewrite must be reversed because the right side of the equality in `{{#example_in Examples/ProgramsProofs/TCO.lean NatAddAssoc}}` is the one that matches the proof goal:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqHelper6}}
 ```
 ```output error
@@ -187,14 +187,14 @@ There is only one opportunity to apply associativity, though the direction of th
 ```
 Rewriting directly with `{{#example_in Examples/ProgramsProofs/TCO.lean NatAddComm}}`, however, leads to the wrong result.
 The `rw` tactic guesses the wrong location for the rewrite, leading to an unintended goal:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqHelper7}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean nonTailEqHelper7}}
 ```
 This can be fixed by explicitly providing `y` and `n` as arguments to `Nat.add_comm`:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqHelper8}}
 ```
 ```output error
@@ -204,20 +204,20 @@ The goal now matches the induction hypothesis.
 In particular, the induction hypothesis's type is a dependent function type.
 Applying `ih` to `n + y` results in exactly the desired type.
 The `exact` tactic completes a proof goal if its argument has exactly the desired type:
-```lean
+```leantac
 {{#example_decl Examples/ProgramsProofs/TCO.lean nonTailEqHelperDone}}
 ```
 
 The actual proof requires only a little additional work to get the goal to match the helper's type.
 The first step is still to invoke function extensionality:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqReal0}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean nonTailEqReal0}}
 ```
 The next step is unfold `Tail.sum`, exposing `Tail.sumHelper`:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqReal1}}
 ```
 ```output error
@@ -228,14 +228,14 @@ However, the helper has an additional addend on the left side.
 In other words, the proof goal is `NonTail.sum xs = Tail.sumHelper 0 xs`, but applying `non_tail_sum_eq_helper_accum` to `xs` and `0` yields the type `0 + NonTail.sum xs = Tail.sumHelper 0 xs`.
 Another standard library proof, `{{#example_in Examples/ProgramsProofs/TCO.lean NatZeroAdd}}`, has type `{{#example_out Examples/ProgramsProofs/TCO.lean NatZeroAdd}}`.
 Applying this function to `NonTail.sum xs` results in an expression with type `{{#example_out Examples/ProgramsProofs/TCO.lean NatZeroAddApplied}}`, so rewriting from right to left results in the desired goal:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean nonTailEqReal2}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/TCO.lean nonTailEqReal2}}
 ```
 Finally, the helper can be used to complete the proof:
-```lean
+```leantac
 {{#example_decl Examples/ProgramsProofs/TCO.lean nonTailEqRealDone}}
 ```
 
@@ -268,7 +268,7 @@ Use this relationship to prove a suitable helper theorem.
 Then, write down the overall theorem.
 Because `NonTail.reverse` and `Tail.reverse` are polymorphic, stating their equality requires the use of `@` to stop Lean from trying to figure out which type to use for `α`.
 Once `α` is treated as an ordinary argument, `funext` should be invoked with both `α` and `xs`:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/TCO.lean reverseEqStart}}
 ```
 This results in a suitable goal:

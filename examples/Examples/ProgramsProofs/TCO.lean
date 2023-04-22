@@ -209,7 +209,8 @@ end expect
 
 
 expect error {{{ sumEqHelperBad0 }}}
-  theorem helper_add_sum_accum (xs : List Nat) (n : Nat) : n + Tail.sum xs = Tail.sumHelper n xs := by
+  theorem helper_add_sum_accum (xs : List Nat) (n : Nat) :
+      n + Tail.sum xs = Tail.sumHelper n xs := by
     skip
 message
 "unsolved goals
@@ -220,7 +221,8 @@ end expect
 
 
 expect error {{{ sumEqHelperBad1 }}}
-  theorem helper_add_sum_accum (xs : List Nat) (n : Nat) : n + Tail.sum xs = Tail.sumHelper n xs := by
+  theorem helper_add_sum_accum (xs : List Nat) (n : Nat) :
+      n + Tail.sum xs = Tail.sumHelper n xs := by
     induction xs with
     | nil => rfl
     | cons y ys ih => skip
@@ -235,7 +237,8 @@ end expect
 
 
 expect error {{{ sumEqHelperBad2 }}}
-  theorem helper_add_sum_accum (xs : List Nat) (n : Nat) : n + Tail.sum xs = Tail.sumHelper n xs := by
+  theorem helper_add_sum_accum (xs : List Nat) (n : Nat) :
+      n + Tail.sum xs = Tail.sumHelper n xs := by
     induction xs with
     | nil => rfl
     | cons y ys ih =>
@@ -249,7 +252,8 @@ ih : n + Tail.sum ys = Tail.sumHelper n ys
 ⊢ n + Tail.sumHelper y ys = Tail.sumHelper (y + n) ys"
 end expect
 
-theorem helper_add_sum_accum (xs : List Nat) : (n : Nat) → n + Tail.sumHelper 0 xs = Tail.sumHelper n xs := by
+theorem helper_add_sum_accum (xs : List Nat) :
+    (n : Nat) → n + Tail.sumHelper 0 xs = Tail.sumHelper n xs := by
   induction xs with
   | nil => simp_arith [Tail.sum, Tail.sumHelper]
   | cons y ys ih =>
@@ -379,7 +383,8 @@ end expect
 
 
 expect error {{{ nonTailEqHelper0 }}}
-  theorem non_tail_sum_eq_helper_accum (xs : List Nat) : (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
+  theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
+      (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
     skip
 message
 "unsolved goals
@@ -389,7 +394,8 @@ end expect
 
 
 expect error {{{ nonTailEqHelper1a }}}
-  theorem non_tail_sum_eq_helper_accum (xs : List Nat) : (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
+  theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
+      (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
     induction xs with
     | nil => skip
     | cons y ys ih => skip
@@ -401,7 +407,8 @@ end expect
 
 
 expect error {{{ nonTailEqHelper1b }}}
-  theorem non_tail_sum_eq_helper_accum (xs : List Nat) : (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
+  theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
+      (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
     induction xs with
     | nil => skip
     | cons y ys ih => skip
@@ -416,7 +423,8 @@ end expect
 
 
 expect error {{{ nonTailEqHelper2 }}}
-  theorem non_tail_sum_eq_helper_accum (xs : List Nat) : (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
+  theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
+      (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
     induction xs with
     | nil => intro n
     | cons y ys ih => skip
@@ -429,7 +437,8 @@ end expect
 
 
 expect error {{{ nonTailEqHelper3 }}}
-  theorem non_tail_sum_eq_helper_accum (xs : List Nat) : (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
+  theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
+      (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
     induction xs with
     | nil =>
       intro n
@@ -446,7 +455,8 @@ end expect
 
 
 expect error {{{ nonTailEqHelper4 }}}
-  theorem non_tail_sum_eq_helper_accum (xs : List Nat) : (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
+  theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
+      (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
     induction xs with
     | nil =>
       intro n
@@ -465,7 +475,8 @@ end expect
 
 
 expect error {{{ nonTailEqHelper5 }}}
-  theorem non_tail_sum_eq_helper_accum (xs : List Nat) : (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
+  theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
+      (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
     induction xs with
     | nil =>
       intro n
@@ -485,7 +496,8 @@ end expect
 
 
 expect error {{{ nonTailEqHelper6 }}}
-  theorem non_tail_sum_eq_helper_accum (xs : List Nat) : (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
+  theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
+      (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
     induction xs with
     | nil =>
       intro n
@@ -506,7 +518,8 @@ end expect
 
 
 expect error {{{ nonTailEqHelper7 }}}
-  theorem non_tail_sum_eq_helper_accum (xs : List Nat) : (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
+  theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
+      (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
     induction xs with
     | nil =>
       intro n
@@ -528,7 +541,8 @@ end expect
 
 
 expect error {{{ nonTailEqHelper8 }}}
-  theorem non_tail_sum_eq_helper_accum (xs : List Nat) : (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
+  theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
+      (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
     induction xs with
     | nil =>
       intro n
@@ -551,7 +565,8 @@ end expect
 
 
 book declaration {{{ nonTailEqHelperDone }}}
-  theorem non_tail_sum_eq_helper_accum (xs : List Nat) : (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
+  theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
+      (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
     induction xs with
     | nil => intro n; rfl
     | cons y ys ih =>

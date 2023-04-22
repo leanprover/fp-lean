@@ -36,7 +36,7 @@ Behind the scenes, Lean constructs the recursive function that corresponds the u
 
 To prove `plusR_zero_left` with the induction tactic, begin by writing its signature (using `theorem`, because this really is a proof).
 Then, use `by induction k` as the body of the definition:
-```lean
+```leantac
 {{#example_in Examples/Induction.lean plusR_ind_zero_left_1}}
 ```
 The resulting message states that there are two goals:
@@ -64,7 +64,7 @@ The next step in writing the proof is to focus on each of the two goals in turn.
 Just as `pure ()` can be used in a `do` block to indicate "do nothing", the tactic language has a statement `skip` that also does nothing.
 This can be used when Lean's syntax requires a tactic, but it's not yet clear which one should be used.
 Adding `with` to the end of the `induction` statement provides a syntax that is similar to pattern matching:
-```lean
+```leantac
 {{#example_in Examples/Induction.lean plusR_ind_zero_left_2a}}
 ```
 Each of the two `skip` statements has a message associated with it.
@@ -80,7 +80,7 @@ In the induction step, the inaccessible names with daggers have been replaced wi
 
 The cases after `induction ... with` are not patterns: they consist of the name of a goal followed by zero or more names.
 The names are used for assumptions introduced in the goal; it is an error to provide more names than the goal introduces:
-```lean
+```leantac
 {{#example_in Examples/Induction.lean plusR_ind_zero_left_3}}
 ```
 ```output error
@@ -88,13 +88,13 @@ The names are used for assumptions introduced in the goal; it is an error to pro
 ```
 
 Focusing on the base case, the `rfl` tactic works just as well inside of the `induction` tactic as it does in a recursive function:
-```lean
+```leantac
 {{#example_in Examples/Induction.lean plusR_ind_zero_left_4}}
 ```
 In the recursive function version of the proof, a type annotation made the expected type something that was easier to understand.
 In the tactic language, there are a number of specific ways to transform a goal to make it easier to solve.
 The `unfold` tactic replaces a defined name with its definition:
-```lean
+```leantac
 {{#example_in Examples/Induction.lean plusR_ind_zero_left_5}}
 ```
 Now, the right-hand side of the equality in the goal has become `Nat.plusR 0 n + 1` instead of `Nat.plusR 0 (Nat.succ n)`:
@@ -105,16 +105,16 @@ Now, the right-hand side of the equality in the goal has become `Nat.plusR 0 n +
 Instead of appealing to functions like `congrArg` and operators like `▸`, there are tactics that allow equality proofs to be used to transform proof goals.
 One of the most important is `rw`, which takes a list of equality proofs and replaces the left side with the right side in the goal.
 This almost does the right thing in `plusR_zero_left`:
-```lean
+```leantac
 {{#example_in Examples/Induction.lean plusR_ind_zero_left_6}}
 ```
 However, the direction of the rewrite was incorrect.
 Replacing `n` with `Nat.plusR 0 n` made the goal more complicated rather than less complicated:
-```output info
+```output error
 {{#example_out Examples/Induction.lean plusR_ind_zero_left_6}}
 ```
 This can be remedied by placing a left arrow before `ih` in the call to `rewrite`, which instructs it to replace the right-hand side of the equality with the left-hand side:
-```lean
+```leantac
 {{#example_decl Examples/Induction.lean plusR_zero_left_done}}
 ```
 This rewrite makes both sides of the equation identical, and Lean takes care of the `rfl` on its own.
@@ -129,7 +129,7 @@ Just as a lower score is better in the game of golf, a shorter proof is better i
 
 The induction step of `plusR_zero_left` can be proved using the simplification tactic `simp`.
 Using `simp` on its own does not help, and the goal is left unmodified:
-```lean
+```leantac
 {{#example_in Examples/Induction.lean plusR_zero_left_golf_1}}
 ```
 ```output error
@@ -138,23 +138,23 @@ Using `simp` on its own does not help, and the goal is left unmodified:
 However, `simp` can be configured to make use of a set of definitions.
 Just like `rw`, these arguments are provided in a list.
 Asking `simp` to take the definition of `Nat.plusR` into account leads to a simpler goal:
-```lean
+```leantac
 {{#example_in Examples/Induction.lean plusR_zero_left_golf_2}}
 ```
-```output info
+```output error
 {{#example_out Examples/Induction.lean plusR_zero_left_golf_2}}
 ```
 In particular, the goal is now identical to the induction hypothesis.
 In addition to automatically proving simple equality statements, the simplifier automatically replaces goals like `Nat.succ A = Nat.succ B` with `A = B`.
 Because the induction hypothesis `ih` has exactly the right type, the `exact` tactic can indicate that it should be used:
-```lean
+```leantac
 {{#example_decl Examples/Induction.lean plusR_zero_left_golf_3}}
 ```
 
 However, the use of `exact` is somewhat fragile.
 Renaming the induction hypothesis, which may happen while "golfing" the proof, would cause this proof to stop working.
 The `assumption` tactic solves the current goal if _any_ of the assumptions match it:
-```lean
+```leantac
 {{#example_decl Examples/Induction.lean plusR_zero_left_golf_4}}
 ```
 
@@ -168,7 +168,7 @@ But shortening proofs can often require a more liberal approach.
 Using `induction` without `with` simply results in a proof state with two goals.
 The `case` tactic can be used to select one of them, just in the branches of the `induction ... with` tactic.
 In other words, the following proof is equivalent to the prior proof:
-```lean
+```leantac
 {{#example_decl Examples/Induction.lean plusR_zero_left_golf_5}}
 ```
 
@@ -183,7 +183,7 @@ In other words, `<;>` enables a general tactic that can solve many kinds of goal
 One such general tactic is `simp`.
 
 Because `simp` can both complete the proof of the base case and make progress on the proof of the induction step, using with `induction` and `<;>` shortens the proof:
-```lean
+```leantac
 {{#example_in Examples/Induction.lean plusR_zero_left_golf_6a}}
 ```
 This results in only a single goal, the transformed induction step:
@@ -191,7 +191,7 @@ This results in only a single goal, the transformed induction step:
 {{#example_out Examples/Induction.lean plusR_zero_left_golf_6a}}
 ```
 Running `assumption` in this goal completes the proof:
-```lean
+```leantac
 {{#example_decl Examples/Induction.lean plusR_zero_left_golf_6}}
 ```
 Here, `exact` would not have been possible, because `ih` was never explicitly named.
@@ -220,7 +220,7 @@ Induction on binary trees is a proof technique where a statement is proven for _
 [Mirroring a tree](monads/conveniences.md#leading-dot-notation) does not change the number of branches in it.
 This can be proven using induction on trees.
 The first step is to state the theorem and invoke `induction`:
-```lean
+```leantac
 {{#example_in Examples/Induction.lean mirror_count_0a}}
 ```
 The base case states that counting the mirror of a leaf is the same as counting the leaf:
@@ -235,44 +235,44 @@ The induction step allows the assumption that mirroring the left and right subtr
 
 The base case is true because mirroring `leaf` results in `leaf`, so the left and right sides are definitionally equal.
 This can be expressed by using `simp` with instructions to unfold `BinTree.mirror`:
-```lean
+```leantac
 {{#example_in Examples/Induction.lean mirror_count_1}}
 ```
 In the induction step, nothing in the goal immediately matches the induction hypotheses.
 Simplifying using the definitions of `BinTree.count` and `BinTree.mirror` reveals the relationship:
-```lean
+```leantac
 {{#example_in Examples/Induction.lean mirror_count_2}}
 ```
 ```output error
 {{#example_out Examples/Induction.lean mirror_count_2}}
 ```
 Both induction hypotheses can be used to rewrite the left-hand side of the goal into something almost like the right-hand side:
-```lean
+```leantac
 {{#example_in Examples/Induction.lean mirror_count_3}}
 ```
-```output info
+```output error
 {{#example_out Examples/Induction.lean mirror_count_3}}
 ```
 
 The `simp_arith` tactic, a version of `simp` that can use additional arithmetic identities, is enough to prove this goal, yielding:
-```lean
+```leantac
 {{#example_decl Examples/Induction.lean mirror_count_4}}
 ```
 
 In addition to definitions to be unfolded, the simplifier can also be passed names of equality proofs to use as rewrites while it simplifies proof goals.
 `BinTree.mirror_count` can also be written:
-```lean
+```leantac
 {{#example_decl Examples/Induction.lean mirror_count_5}}
 ```
 As proofs grow more complicated, listing assumptions by hand can become tedious.
 Furthermore, manually writing assumption names can make it more difficult to re-use proof steps for multiple subgoals.
 The argument `*` to `simp` or `simp_arith` instructs them to use _all_ assumptions while simplifying or solving the goal.
 In other words, the proof could also be written:
-```lean
+```leantac
 {{#example_decl Examples/Induction.lean mirror_count_6}}
 ```
 Because both branches are using the simplifier, the proof can be reduced to:
-```lean
+```leantac
 {{#example_decl Examples/Induction.lean mirror_count_7}}
 ```
 

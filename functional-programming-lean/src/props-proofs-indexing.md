@@ -98,7 +98,7 @@ To write a proof with tactics, begin the definition with `by`.
 Writing `by` puts Lean into tactic mode until the end of the next indented block.
 While in tactic mode, Lean provides ongoing feedback about the current proof state.
 Written with tactics, `onePlusOneIsTwo` is still quite short:
-```lean
+```leantac
 {{#example_decl Examples/Props.lean onePlusOneIsTwoTactics}}
 ```
 The `simp` tactic, short for "simplify", is the workhorse of Lean proofs.
@@ -128,7 +128,7 @@ If `A` and `B` are propositions, then "`A` and `B`" (written `{{#example_in Exam
 Evidence for `A ∧ B` consists of the constructor `{{#example_in Examples/Props.lean AndIntro}}`, which has the type `{{#example_out Examples/Props.lean AndIntro}}`.
 Replacing `A` and `B` with concrete propositions, it is possible to prove `{{#example_out Examples/Props.lean AndIntroEx}}` with `{{#example_in Examples/Props.lean AndIntroEx}}`.
 Of course, `simp` is also powerful enough to find this proof:
-```lean
+```leantac
 {{#example_decl Examples/Props.lean AndIntroExTac}}
 ```
 
@@ -157,7 +157,7 @@ For instance, a proof that _A_ and _B_ implies _A_ or _B_ is a function that pul
 
 The `simp` tactic can prove theorems that use these connectives.
 For example:
-```lean
+```leantac
 {{#example_decl Examples/Props.lean connectives}}
 ```
 
@@ -184,7 +184,7 @@ It is a proposition that could be true or false, and the argument `ok` must be e
 
 When the function is called on a concrete list, its length is known.
 In these cases, `by simp` can construct the evidence automatically:
-```lean
+```leantac
 {{#example_in Examples/Props.lean thirdCritters}}
 ```
 ```output info

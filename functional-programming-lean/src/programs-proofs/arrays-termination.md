@@ -79,7 +79,7 @@ Similarly, `IsFive` is a predicate that states that its argument is `5`:
 
 If a number is three, then the result of adding two to it should be five.
 This can be expressed as a theorem statement:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/Arrays.lean threePlusTwoFive0}}
 ```
 The resulting goal has a function type:
@@ -87,14 +87,14 @@ The resulting goal has a function type:
 {{#example_out Examples/ProgramsProofs/Arrays.lean threePlusTwoFive0}}
 ```
 Thus, the `intro` tactic can be used to convert the argument into an assumption:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/Arrays.lean threePlusTwoFive1}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/Arrays.lean threePlusTwoFive1}}
 ```
 Given the assumption that `n` is three, it should be possible to use the constructor of `IsFive` to complete the proof:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/Arrays.lean threePlusTwoFive1a}}
 ```
 However, this results in an error:
@@ -104,7 +104,7 @@ However, this results in an error:
 This error occurs because `n + 2` is not definitionally equal to `5`.
 In an ordinary function definition, dependent pattern matching on the assumption `three` could be used to refine `n` to `3`.
 The tactic equivalent of dependent pattern matching is `cases`, which has a syntax similar to that of `induction`:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/Arrays.lean threePlusTwoFive2}}
 ```
 In the remaining case, `n` has been refined to `3`:
@@ -112,7 +112,7 @@ In the remaining case, `n` has been refined to `3`:
 {{#example_out Examples/ProgramsProofs/Arrays.lean threePlusTwoFive2}}
 ```
 Because `3 + 2` is definitionally equal to `5`, the constructor is now applicable:
-```lean
+```leantac
 {{#example_decl Examples/ProgramsProofs/Arrays.lean threePlusTwoFive3}}
 ```
 
@@ -122,7 +122,7 @@ As described in [the initial Interlude on proofs](../props-proofs-indexing.md#co
 `Not A` can also be written `¬A`.
 
 It is not the case that four is three:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/Arrays.lean fourNotThree0}}
 ```
 The initial proof goal contains `Not`:
@@ -130,7 +130,7 @@ The initial proof goal contains `Not`:
 {{#example_out Examples/ProgramsProofs/Arrays.lean fourNotThree0}}
 ```
 The fact that it's actually a function type can be exposed using `simp`:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/Arrays.lean fourNotThree1}}
 ```
 ```output error
@@ -138,14 +138,14 @@ The fact that it's actually a function type can be exposed using `simp`:
 ```
 Because the goal is a function type, `intro` can be used to convert the argument into an assumption.
 There is no need to keep `simp`, as `intro` can unfold the definition of `Not` itself:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/Arrays.lean fourNotThree2}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/Arrays.lean fourNotThree2}}
 ```
 In this proof, the `cases` tactic solves the goal immediately:
-```lean
+```leantac
 {{#example_decl Examples/ProgramsProofs/Arrays.lean fourNotThreeDone}}
 ```
 Just as a pattern match on a `Vect String 2` doesn't need to include a case for `Vect.nil`, a proof by cases over `IsThree 4` doesn't need to include a case for `isThree`.

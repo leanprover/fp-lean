@@ -61,7 +61,7 @@ In other words, each iteration inserts the next element of the array into the ap
 The inner loop of insertion sort can be implemented as a tail-recursive function that takes the array and the index of the element being inserted as arguments.
 The element being inserted is repeatedly swapped with the element to its left until either the element to the left is smaller or the beginning of the array is reached.
 The inner loop is structurally recursive on the `Nat` that is inside the `Fin` used to index into the array:
-```lean
+```leantac
 {{#example_decl Examples/ProgramsProofs/InsertionSort.lean insertSorted}}
 ```
 If the index `i` is `0`, then the element being inserted into the sorted region has reached the beginning of the region and is the smallest.
@@ -136,7 +136,7 @@ This time, however, Lean does not accept the `termination_by`:
 The problem is that Lean has no way to know that `insertSorted` returns an array that's the same size as the one it is passed.
 In order to prove that `insertionSortLoop` terminates, it is necessary to first prove that `insertSorted` doesn't change the size of the array.
 Copying the unproved termination condition from the error message to the function and "proving" it with `sorry` allows the function to be temporarily accepted:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/InsertionSort.lean insertionSortLoopSorry}}
 ```
 ```output warning
@@ -151,7 +151,7 @@ However, swapping two elements in an array doesn't change the size of it, and th
 Thus, the size remains unchanged.
 
 Translating this English-language theorem statement to Lean and proceeding using the techniques from this chapter is enough to prove the base case and make progress in the inductive step:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_0}}
 ```
 The simplification using `insertSorted` in the inductive step revealed the pattern match in `insertSorted`:
@@ -159,7 +159,7 @@ The simplification using `insertSorted` in the inductive step revealed the patte
 {{#example_out Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_0}}
 ```
 When faced with a goal that includes `if` or `match`, the `split` tactic (not to be confused with the `split` function used in the definition of merge sort) replaces the goal with one new goal for each path of control flow:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_1}}
 ```
 Additionally, each new goal has an assumption that indicates which branch led to that goal, named `heq✝` in this case:
@@ -167,7 +167,7 @@ Additionally, each new goal has an assumption that indicates which branch led to
 {{#example_out Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_1}}
 ```
 Rather than write proofs for both simple cases, adding `<;> try rfl` after `split` causes the two straightforward cases to disappear immediately, leaving only a single goal:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_2}}
 ```
 ```output error
@@ -181,7 +181,7 @@ Successfully completing the proof requires an induction hypothesis that works fo
 It is possible to get a strong induction hypothesis by using the `generalizing` option to the `induction` tactic.
 This option brings additional assumptions from the context into the statement that's used to generate the base case, the induction hypothesis, and the goal to be shown in the inductive step.
 Generalizing over `arr` leads to a stronger hypothesis:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_3}}
 ```
 In the resulting goal, `arr` is now part of a "for all" statement in the inductive hypothesis:
@@ -194,7 +194,7 @@ The next step would be to introduce a variable standing for the length of the re
 These equality statement can then be chained together to prove the goal.
 It's much easier, however, to carefully reformulate the theorem statement such that the induction hypothesis is automatically strong enough and the variables are already introduced.
 The reformulated statement reads:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_0}}
 ```
 This version of the theorem statement is easier to prove for a few reasons:
@@ -209,7 +209,7 @@ The resulting proof state shows the statement that will be used to generate the 
 ```
 
 Compare the statement with the goals that result from the `induction` tactic:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_1a}}
 ```
 In the base case, each occurrence of `i` has been replaced by `0`.
@@ -224,7 +224,7 @@ It will be useful for _any_ array, so long as that array has length `len`:
 ```
 
 In the base case, `simp` reduces the goal to `arr.size = len`:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_2}}
 ```
 ```output error
@@ -232,12 +232,12 @@ In the base case, `simp` reduces the goal to `arr.size = len`:
 ```
 This can be proved using the assumption `hLen`.
 Adding the `*` parameter to `simp` instructs it to additionally use assumptions, which solves the goal:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_2b}}
 ```
 
 In the inductive step, introducing assumptions and simplifying the goal results once again in a goal that contains a pattern match:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_3}}
 ```
 ```output error
@@ -245,14 +245,14 @@ In the inductive step, introducing assumptions and simplifying the goal results 
 ```
 Using the `split` tactic results in one goal for each pattern.
 Once again, the first two goals result from branches without recursive calls, so the induction hypothesis is not necessary:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_4}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_4}}
 ```
 Running `try assumption` in each goal that results from `split` eliminates both of the non-recursive goals:
-```lean
+```leantac
 {{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_5}}
 ```
 ```output error
@@ -261,18 +261,18 @@ Running `try assumption` in each goal that results from `split` eliminates both 
 
 The new formulation of the proof goal, in which a constant `len` is used for the lengths of all the arrays involved in the recursive function, falls nicely within the kinds of problems that `simp` can solve.
 This final proof goal can be solved by `simp [*]`, because the assumptions that relate the array's length to `len` are important:
-```lean
+```leantac
 {{#example_decl Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo_6}}
 ```
 
 Finally, because `simp [*]` can use assumptions, the `try assumption` line can be replaced by `simp [*]`, shortening the proof:
-```lean
+```leantac
 {{#example_decl Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_redo}}
 ```
 
 This proof can now be used to replace the `sorry` in `insertionSortLoop`.
 Providing `arr.size` as the `len` argument to the theorem causes the final conclusion to be `(insertSorted arr ⟨i, isLt⟩).size = arr.size`, so the rewrite ends with a very manageable proof goal:
-```lean
+```leantacnorfl
 {{#example_in Examples/ProgramsProofs/InsertionSort.lean insertionSortLoopRw}}
 ```
 ```output error
@@ -280,7 +280,7 @@ Providing `arr.size` as the `len` argument to the theorem causes the final concl
 ```
 The proof `{{#example_in Examples/ProgramsProofs/InsertionSort.lean sub_succ_lt_self_type}}` is part of Lean's standard library.
 It's type is `{{#example_out Examples/ProgramsProofs/InsertionSort.lean sub_succ_lt_self_type}}`, which is exactly what's needed:
-```lean
+```leantacnorfl
 {{#example_decl Examples/ProgramsProofs/InsertionSort.lean insertionSortLoop}}
 ```
 
@@ -329,7 +329,7 @@ However, this change to the program changes the proofs as well, because now ther
 Because `dbgTraceIfShared` returns its second argument directly, adding it to the calls to `simp` is enough to fix the proofs.
 
 The complete instrumented code for insertion sort is:
-```lean
+```leantacnorfl
 {{#include ../../../examples/Examples/ProgramsProofs/InstrumentedInsertionSort.lean:InstrumentedInsertionSort}}
 ```
 

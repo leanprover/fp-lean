@@ -139,11 +139,11 @@ However, a subtype of `Nat` that restricts it to non-zero numbers allows the new
 The smallest fast positive number is still one.
 Now, instead of being a constructor of an inductive type, it's an instance of a structure that's constructed with angle brackets.
 The first argument is the underlying `Nat`, and the second argument is the evidence that said `Nat` is greater than zero:
-```lean
+```leantac
 {{#example_decl Examples/FunctorApplicativeMonad.lean one}}
 ```
 The `OfNat` instance is very much like that for `Pos`, except it uses a short tactic proof to provide evidence that `n + 1 > 0`:
-```lean
+```leantac
 {{#example_decl Examples/FunctorApplicativeMonad.lean OfNatFastPos}}
 ```
 The `simp_arith` tactic is a version of `simp` that takes additional arithmetic identities into account.
@@ -225,7 +225,7 @@ It's most user-friendly to eliminate leading and trailing whitespace first using
 {{#example_decl Examples/FunctorApplicativeMonad.lean checkYearIsNat}}
 ```
 To check that the provided year is in the expected range, nested uses of the evidence-providing form of `if` are in order:
-```lean
+```leantac
 {{#example_decl Examples/FunctorApplicativeMonad.lean checkBirthYear}}
 ```
 
