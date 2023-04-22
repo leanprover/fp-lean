@@ -54,7 +54,7 @@ This is declared using the `structure` keyword.
 
 After this declaration, `Point` is a new structure type.
 The final line, which says `deriving Repr`, asks Lean to generate code to display values of type `Point`.
-This code is used by `#eval` to render the result of evaluation for consumption by programmers, analogous to the `repr` functions in Python and Rust.
+This code is used by `#eval` to render the result of evaluation for consumption by programmers, analogous to the `repr` function in Python.
 It is also possible to override the compiler's generated display code.
 
 The typical way to create a value of a structure type is to provide values for all of its fields inside of curly braces.
