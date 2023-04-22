@@ -2,6 +2,7 @@
 
 [Functional Programming in Lean](./title.md)
 [Introduction](./introduction.md)
+[Acknowledgments](./acknowledgments.md)
 
 - [Getting to Know Lean](./getting-to-know.md)
   - [Evaluating Expressions](./getting-to-know/evaluating.md)
