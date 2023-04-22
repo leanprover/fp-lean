@@ -158,13 +158,13 @@ stop book declaration
 
 
 book declaration {{{ four_le_seven }}}
-  def four_le_seven : 4 ≤ 7 :=
+  theorem four_le_seven : 4 ≤ 7 :=
     open Nat.le in
     step (step (step refl))
 stop book declaration
 
 book declaration {{{ four_lt_seven }}}
-  def four_lt_seven : 4 < 7 :=
+  theorem four_lt_seven : 4 < 7 :=
     open Nat.le in
     step (step refl)
 stop book declaration

@@ -9,15 +9,15 @@ In other words, `List` really is a linked list and extracting a field from a `st
 There are, however, some important exceptions to this rule.
 A number of types are treated specially by the compiler.
 For example, the type `UInt32` is defined as `Fin (2 ^ 32)`, but it is replaced at run-time with an actual native implementation based on machine words.
-Similarly, even though the definition of `Nat` suggests an implementation similar to `List Unit`, the actual run-time representation uses an efficient arbitrary-precision arithmetic library.
-The Lean compiler translates from definitions that use pattern matching into the appropriate operations in this library, and calls to operations like addition and subtraction are mapped to fast operations from the underlying arithmetic library.
+Similarly, even though the definition of `Nat` suggests an implementation similar to `List Unit`, the actual run-time representation uses immediate machine words for sufficiently-small numbers and an efficient arbitrary-precision arithmetic library for larger numbers.
+The Lean compiler translates from definitions that use pattern matching into the appropriate operations for this representation, and calls to operations like addition and subtraction are mapped to fast operations from the underlying arithmetic library.
 After all, addition should not take time linear in the size of the addends.
 
 The fact that some types have special representations also means that care is needed when working with them.
 Most of these types consist of a `structure` that is treated specially by the compiler.
 With these structures, using the constructor or the field accessors directly can trigger an expensive conversion from an efficient representation to a slow one that is convenient for proofs.
-For example, `String` is defined as a structure that contains a list of characters, but the run-time representation of strings is as packed arrays of characters, not as linked lists of pointers to characters.
-Applying the constructor to a list of characters creates a packed array, and accessing the field of the structure takes time linear in the length of the string to allocate a linked list.
+For example, `String` is defined as a structure that contains a list of characters, but the run-time representation of strings uses UTF-8, not linked lists of pointers to characters.
+Applying the constructor to a list of characters creates a byte array that encodes them in UTF-8, and accessing the field of the structure takes time linear in the length of the string to decode the UTF-8 representation and allocate a linked list.
 Arrays are represented similarly.
 
 Both types themselves and proofs of propositions are completely erased from compiled code.
@@ -33,7 +33,7 @@ The following types have special representations:
 | `Int`                                 | A sum type with constructors for positive or negative values, each containing a `Nat` | Efficient arbitrary-precision integers  |
 | `UInt8`, `UInt16`, `UInt32`, `UInt64` | A `Fin` with an appropriate bound                                                     | Fixed-precision machine integers        |
 | `Char`                                | A `UInt32` paired with a proof that it's a valid code point                           | Ordinary characters                     |
-| `String`                              | A structure that contains a `List Char` in a field called `data`                      | Packed arrays of pointers to characters |
+| `String`                              | A structure that contains a `List Char` in a field called `data`                      | UTF-8-encoded string                    |
 | `Array α`                             | A structure that contains a `List α` in a field called `data`                         | Packed arrays of pointers to `α` values |
 | `Sort u`                              | A type                                                                                | Erased completely                       |
 | Proofs of propositions                | Whatever data is suggested by the proposition when considered as a type of evidence   | Erased completely                       |
