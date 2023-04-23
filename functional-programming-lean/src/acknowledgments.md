@@ -12,5 +12,5 @@ An extra day of work each week has not been easy for my family—thank you for y
 The online community surrounding Lean provided enthusiastic support for the project, both technical and emotional.
 In particular, Sebastian Ullrich provided key help when I was learning Lean's metaprogramming system in order to write the supporting code that allowed the text of error messages to be both checked in CI and easily included in the book itself.
 Within hours of posting a new revision, excited readers would be finding mistakes, providing suggestions, and showering me with kindness.
-In particular, I'd like to thank Arien Malec, Asta Hakljær From, Bulhwi Cha, Evgenia Karunus, eyelash, Floris van Doorn, František Silváši, Henrik Böving, Ian Young, Jeremy Salwen, Jireh Loreaux, Kevin Buzzard, Mac, Malcolm Langfield, Mario Carneiro, Newell Jensen, Patrick Massot, Paul Chisholm, Tom, and Yaël Dillies for their many suggestions, both stylistic and technical.
+In particular, I'd like to thank Arien Malec, Asta Hakljær From, Bulhwi Cha, Evgenia Karunus, eyelash, Floris van Doorn, František Silváši, Henrik Böving, Ian Young, Jeremy Salwen, Jireh Loreaux, Kevin Buzzard, Mac Malone, Malcolm Langfield, Mario Carneiro, Newell Jensen, Patrick Massot, Paul Chisholm, Tomas Puverle, and Yaël Dillies for their many suggestions, both stylistic and technical.
 
