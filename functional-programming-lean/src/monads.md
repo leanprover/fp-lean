@@ -4,6 +4,18 @@ In C# and Kotlin, the `?.` operator is a way to look up a property or call a met
 If the reciever is `null`, the whole expression is null.
 Otherwise, the underlying non-`null` value receives the call.
 Uses of `?.` can be chained, in which case the first `null` result terminates the chain of lookups.
+Chaining null-checks like this is much more convenient than writing and maintaining deeply nested `if`s.
+
+Similarly, exceptions are significantly more convenient than manually checking and propagating error codes.
+At the same time, logging is easiest to accomplish by having a dedicated logging framework, rather than having each function return both its log results and its return value.
+Chained null checks and exceptions typically require language designers to anticipate this use case, while logging frameworks typically make use of side effects to decouple code that logs from the accumulation of the logs.
+
+All these features and more can be implemented in library code as instances of a common API called `Monad`.
+Lean provides dedicated syntax that makes this API convenient to use, but can also get in the way of understanding what is going on behind the scenes.
+This chapter begins with the nitty-gritty presentation of manually nesting null checks, and builds from there to the convenient, general API.
+Please suspend your disbelief in the meantime.
+
+## Checking for `none`: Don't Repeat Yourself
 
 In Lean, pattern matching can be used to chain checks for null.
 Getting the first entry from a list can just use the optional indexing notation:
@@ -24,7 +36,6 @@ And adding the seventh entry to this sequence begins to become quite unmanageabl
 {{#example_decl Examples/Monads.lean firstThirdFifthSeventh}}
 ```
 
-## Checking for `none`: Don't Repeat Yourself
 
 The fundamental problem with this code is that it addresses two concerns: extracting the numbers and checking that all of them are present, but the second concern is addressed by copying and pasting the code that handles the `none` case.
 It is often good style to lift a repetitive segment into a helper function:
