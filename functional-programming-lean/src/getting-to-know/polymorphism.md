@@ -391,10 +391,10 @@ This can allow generic code to be used in contexts that have additional restrict
 Generally speaking, types that offer multiple constructors are called _sum types_, while types whose single constructor takes multiple arguments are called _product types_.
 These terms are related to sums and products used in ordinary arithmetic.
 The relationship is easiest to see when the types involved contain a finite number of values.
-If `α` and `β` are types that contain _n_ and _k_ distinct values, respectively, then `α ⊕ β` contains _n_ + _k_ distinct values and `α × β` contains _n_ × _k_ distinct values.
+If `α` and `β` are types that contain \\( n \\) and \\( k \\) distinct values, respectively, then `α ⊕ β` contains \\( n + k \\) distinct values and `α × β` contains \\( n \times k \\) distinct values.
 For instance, `Bool` has two values: `true` and `false`, and `Unit` has one value: `Unit.unit`.
 The product `Bool × Unit` has the two values `(true, Unit.unit)` and `(false, Unit.unit)`, and the sum `Bool ⊕ Unit` has the three values `Sum.inl true`, `Sum.inl false`, and `Sum.inr unit`.
-Similarly, 2 × 1 = 2, and 2 + 1 = 3.
+Similarly, \\( 2 \times 1 = 2 \\), and \\( 2 + 1 = 3 \\).
 
 ## Messages You May Meet
 
@@ -449,6 +449,6 @@ The same message can appear when type arguments are omitted in other contexts, s
  * Write a function `Prod.swap` that swaps the two fields in a pair. Start the definition with `def Prod.swap {α β : Type} (pair : α × β) : β × α :=`
  * Rewrite the `PetName` example to use a custom datatype and compare it to the version that uses `Sum`.
  * Write a function `zip` that combines two lists into a list of pairs. The resulting list should be as long as the shortest input list. Start the definition with `def zip {α β : Type} (xs : List α) (ys : List β) : List (α × β) :=`.
- * Write a polymorphic function `take` that returns the first _n_ entries in a list, where _n_ is a `Nat`. If the list contains fewer than `n` entries, then the resulting list should be the input list. `{{#example_in Examples/Intro.lean takeThree}}` should yield `{{#example_out Examples/Intro.lean takeThree}}`, and `{{#example_in Examples/Intro.lean takeOne}}` should yield `{{#example_out Examples/Intro.lean takeOne}}`.
+ * Write a polymorphic function `take` that returns the first \\( n \\) entries in a list, where \\( n \\) is a `Nat`. If the list contains fewer than `n` entries, then the resulting list should be the input list. `{{#example_in Examples/Intro.lean takeThree}}` should yield `{{#example_out Examples/Intro.lean takeThree}}`, and `{{#example_in Examples/Intro.lean takeOne}}` should yield `{{#example_out Examples/Intro.lean takeOne}}`.
  * Using the analogy between types and arithmetic, write a function that distributes products over sums. In other words, it should have type `α × (β ⊕ γ) → (α × β) ⊕ (α × γ)`.
  * Using the analogy between types and arithmetic, write a function that turns multiplication by two into a sum. In other words, it should have type `Bool × α → α ⊕ α`.

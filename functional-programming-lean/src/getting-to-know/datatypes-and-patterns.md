@@ -113,7 +113,7 @@ The `k` in the second branch of the pattern in `isZero` is not decorative.
 It makes the `Nat` that is the argument to `succ` visible, with the provided name.
 That smaller number can then be used to compute the final result of the expression.
 
-Just as the successor of some number _n_ is one greater than _n_ (that is, _n_ + 1), the predecessor of a number is one less than it.
+Just as the successor of some number \\( n \\) is one greater than \\( n \\) (that is, \\( n + 1\\)), the predecessor of a number is one less than it.
 If `pred` is a function that finds the predecessor of a `Nat`, then it should be the case that the following examples find the expected result:
 ```lean
 {{#example_in Examples/Intro.lean predFive}}
@@ -191,8 +191,8 @@ The important part of the error message is that Lean could not determine that th
 ```
 
 Even though addition takes two arguments, only one of them needs to be inspected.
-To add zero to a number _n_, just return _n_.
-To add the successor of _k_ to _n_, take the successor of the result of adding _k_ to _n_.
+To add zero to a number \\( n \\), just return \\( n \\).
+To add the successor of \\( k \\) to \\( n \\), take the successor of the result of adding \\( k \\) to \\( n \\).
 ```lean
 {{#example_decl Examples/Intro.lean plus}}
 ```
@@ -202,8 +202,8 @@ For instance, walking through the evaluation of `{{#example_eval Examples/Intro.
 {{#example_eval Examples/Intro.lean plusThreeTwo}}
 ```
 
-One way to think about addition is that _n_ + _k_ applies `Nat.succ` _k_ times to _n_.
-Similarly, multiplication _n_ × _k_ adds _n_ to itself _k_ times and subtraction _n_ - _k_ takes _n_'s predecessor _k_ times.
+One way to think about addition is that \\( n + k \\) applies `Nat.succ` \\( k \\) times to \\( n \\).
+Similarly, multiplication \\( n × k \\) adds \\( n \\) to itself \\( k \\) times and subtraction \\( n - k \\) takes \\( n \\)'s predecessor \\( k \\) times.
 ```lean
 {{#example_decl Examples/Intro.lean times}}
 

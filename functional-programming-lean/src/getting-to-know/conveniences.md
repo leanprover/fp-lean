@@ -32,7 +32,7 @@ Then, replace the `:=` with each case of the pattern match:
 
 This syntax can also be used to define functions that take more than one argument.
 In this case, their patterns are separated by commas.
-For instance, `drop` takes a number _n_ and a list, and returns the list after removing the first _n_ entries.
+For instance, `drop` takes a number \\( n \\) and a list, and returns the list after removing the first \\( n \\) entries.
 ```lean
 {{#example_decl Examples/Intro.lean drop}}
 ```
