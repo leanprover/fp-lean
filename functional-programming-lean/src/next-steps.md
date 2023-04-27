@@ -14,8 +14,23 @@ Lean 4 itself is described in the following resources:
  * [Metaprogramming in Lean 4](https://github.com/arthurpaulino/lean4-metaprogramming-book) provides an overview of Lean's extension mechanisms, from infix operators and notations to macros, custom tactics, and full-on custom embedded languages.
  * [Functional Programming in Lean](https://leanprover.github.io/functional_programming_in_lean/) may be interesting to readers who enjoy jokes about recursion.
 
-However, the best way to continue learning Lean is to start writing code, consulting the documentation when you get stuck.
+However, the best way to continue learning Lean is to start reading and writing code, consulting the documentation when you get stuck.
 Additionally, the [Lean Zulip](https://leanprover.zulipchat.com/) is an excellent place to meet other Lean users, ask for help, and help others.
+
+## The Standard Library
+
+Out of the box, Lean itself includes a fairly minimal library.
+Lean is self-hosted, and the included code is just enough to implement Lean itself.
+For many applications, a larger standard library is needed.
+
+[std4](https://github.com/leanprover/std4) is an in-progress standard library that includes many data structures, tactics, type class instances, and functions that are out of scope for the Lean compiler itself.
+To use `std4`, the first step is to find a commit in its history that's compatible with the version of Lean 4 that you're using (that is, one in which the `lean-toolchain` file matches the one in your project).
+Then, add the following to the top level of your `lakefile.lean`, where `COMMIT_HASH` is the appropriate version:
+```lean
+require std from git
+  "https://github.com/leanprover/std4/" @ "COMMIT_HASH"
+```
+
 
 ## Mathematics in Lean
 
