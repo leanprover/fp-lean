@@ -15,7 +15,7 @@ When memory needs to be reclaimed, the system starts at a number of _roots_ (suc
 Any values that can't be reached are deallocated, freeing memory.
 
 Reference counting is an alternative to tracing garbage collection that is used by a number of languages, including Python, Swift, and Lean.
-In a system with reference counting, each object in memory has a field that tracks how many references there are it.
+In a system with reference counting, each object in memory has a field that tracks how many references there are to it.
 When a new reference is established, the counter is incremented.
 When a reference ceases to exist, the counter is decremented.
 When the counter reaches zero, the object is immediately deallocated.
@@ -69,11 +69,7 @@ If the index is `i' + 1`, then the element at `i'` should be compared to the ele
 Note that while `i` is a `Fin arr.size`, `i'` is just a `Nat` because it results from the `val` field of `i`.
 It is thus necessary to prove that `i' < arr.size` before `i'` can be used to index into `arr`.
 
-This proof uses a `have`-expression.
-In Lean, `have` is similar to `let`.
-When using `have`, the name is optional.
-Typically, `let` is used to define names that refer to interesting values, while `have` is used to locally prove propositions that can be found when Lean is searching for evidence that an array lookup is in-bounds or that a function terminates.
-Omitting the proof reveals the following goal:
+Omitting the `have`-expression with the proof that `i' < arr.size` reveals the following goal:
 ```output error
 {{#example_out Examples/ProgramsProofs/InsertionSort.lean insertSortedNoProof}}
 ```
@@ -385,7 +381,7 @@ $ {{#command {sort-demo} {sort-sharing} {sort --shared < test-data}}}
 {{#command_out {sort-sharing} {sort --shared < test-data} }}
 ```
 The fact that only a single `shared RC` notification appears means that the array is copied only once.
-This is because the copy the results from the call to `Array.swap` is itself unique, so no further copies need to be made.
+This is because the copy that results from the call to `Array.swap` is itself unique, so no further copies need to be made.
 In an imperative language, subtle bugs can result from forgetting to explicitly copy an array before passing it by reference.
 When running `sort --shared`, the array is copied as needed to preserve the pure functional meaning of Lean programs, but no more.
 

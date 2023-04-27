@@ -166,14 +166,14 @@ It complains if any cases are missing, and it shows the structure of the inducti
 But shortening proofs can often require a more liberal approach.
 
 Using `induction` without `with` simply results in a proof state with two goals.
-The `case` tactic can be used to select one of them, just in the branches of the `induction ... with` tactic.
+The `case` tactic can be used to select one of them, just as in the branches of the `induction ... with` tactic.
 In other words, the following proof is equivalent to the prior proof:
 ```leantac
 {{#example_decl Examples/Induction.lean plusR_zero_left_golf_5}}
 ```
 
 In a context with a single goal (namely, `k = Nat.plusR 0 k`), the `induction k` tactic yields two goals.
-In general, a tactic will either fail with an error or take a goal and transform it in to zero or more new goals.
+In general, a tactic will either fail with an error or take a goal and transform it into zero or more new goals.
 Each new goal represents what remains to be proved.
 If the result is zero goals, then the tactic was a success, and that part of the proof is done.
 
@@ -182,7 +182,7 @@ The `<;>` operator takes two tactics as arguments, resulting in a new tactic.
 In other words, `<;>` enables a general tactic that can solve many kinds of goals to be used on multiple new goals all at once.
 One such general tactic is `simp`.
 
-Because `simp` can both complete the proof of the base case and make progress on the proof of the induction step, using with `induction` and `<;>` shortens the proof:
+Because `simp` can both complete the proof of the base case and make progress on the proof of the induction step, using it with `induction` and `<;>` shortens the proof:
 ```leantac
 {{#example_in Examples/Induction.lean plusR_zero_left_golf_6a}}
 ```

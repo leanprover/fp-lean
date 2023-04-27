@@ -36,7 +36,7 @@ While techniques such as unit testing work just as well in Lean as in any other 
 
 Typically, proving that two functions are equal is done using function extensionality (the `funext` tactic), which is the principle that two functions are equal if they return the same values for every input.
 If the functions are recursive, then induction is usually a good way to prove that their outputs are the same.
-Usually, the recursive definition of the function will make recursive calls on one particular argument argument; this argument is a good choice for induction.
+Usually, the recursive definition of the function will make recursive calls on one particular argument; this argument is a good choice for induction.
 In some cases, the induction hypothesis is not strong enough.
 Fixing this problem usually requires thought about how to construct a more general version of the theorem statement that provides induction hypotheses that are strong enough.
 In particular, to prove that a function is equivalent to an accumulator-passing version, a theorem statement that relates arbitrary initial accumulator values to the final result of the original function is needed.

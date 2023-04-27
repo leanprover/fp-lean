@@ -13,7 +13,7 @@ The base cases are the empty list and the singleton list, both of which are alre
 
 To merge two sorted lists, there are two basic cases to consider:
  1. If one of the input lists is empty, then the result is the other list.
- 2. If both lists are non-empty, then their heads should be compared. The result of the function is smaller of the two heads, followed by the result of merging the remaining entries of both lists.
+ 2. If both lists are non-empty, then their heads should be compared. The result of the function is the smaller of the two heads, followed by the result of merging the remaining entries of both lists.
 
 This is not structurally recursive on either list.
 The recursion terminates because an entry is removed from one of the two lists in each recursive call, but it could be either list.
@@ -105,7 +105,7 @@ Writing `A ∧ B` in Lean is short for `And A B`.
 ```lean
 {{#example_decl Examples/ProgramsProofs/Inequalities.lean And}}
 ```
-In other words, a proof of `A ∧ B` consists of the `And.intro` constructor applied to a proof of `A` in the `left` field and a proof of `B` in the `right` field`.
+In other words, a proof of `A ∧ B` consists of the `And.intro` constructor applied to a proof of `A` in the `left` field and a proof of `B` in the `right` field.
 
 The `cases` tactic allows a proof to consider each constructor of a datatype or each potential proof of a proposition in turn.
 It corresponds to a `match` expression without recursion.
@@ -261,7 +261,7 @@ The next step is to return to the actual theorem that is needed to prove that me
 {{#example_out Examples/ProgramsProofs/Inequalities.lean splitList_shorter_start}}
 ```
 Pattern matching works just as well in tactic scripts as it does in programs.
-Because `lst` has at least two entries, they can be exposed using with `match`, which also refines the type through dependent pattern matching:
+Because `lst` has at least two entries, they can be exposed with `match`, which also refines the type through dependent pattern matching:
 ```leantac
 {{#example_in Examples/ProgramsProofs/Inequalities.lean splitList_shorter_1}}
 ```
@@ -303,7 +303,10 @@ The `sorry` tactic can prove any goal, even false ones.
 It isn't intended for use in production code or final proofs, but it is a convenient way to "sketch out" a proof or program ahead of time.
 Any definitions or theorems that use `sorry` are annotated with a warning.
 
-The initial sketch of `mergeSort`'s termination argument that uses `sorry` can be written by copying the goals that Lean couldn't prove into `have`-expressions:
+The initial sketch of `mergeSort`'s termination argument that uses `sorry` can be written by copying the goals that Lean couldn't prove into `have`-expressions.
+In Lean, `have` is similar to `let`.
+When using `have`, the name is optional.
+Typically, `let` is used to define names that refer to interesting values, while `have` is used to locally prove propositions that can be found when Lean is searching for evidence that an array lookup is in-bounds or that a function terminates.
 ```leantac
 {{#example_in Examples/ProgramsProofs/Inequalities.lean mergeSortSorry}}
 ```
@@ -383,7 +386,7 @@ Using this theorem requires demonstrating that both `n` and `k` are greater than
 Because `k > 0` is syntactic sugar for `0 < k`, the only necessary goal is to show that `0 < n`.
 There are two possibilities: either `n` is `0`, or it is `n' + 1` for some other `Nat` `n'`.
 But `n` cannot be `0`.
-The fact that the `if` selected the second branch means that `¬ n < k`, but if `n = 0` and `k > 0` then must be less than `k`, which would be a contradiction.
+The fact that the `if` selected the second branch means that `¬ n < k`, but if `n = 0` and `k > 0` then `n` must be less than `k`, which would be a contradiction.
 This, `n = Nat.succ n'`, and `Nat.succ n'` is clearly greater than `0`.
 
 The full definition of `div`, including the termination proof, is:
