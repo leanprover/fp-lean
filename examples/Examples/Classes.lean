@@ -686,7 +686,7 @@ end bookExample
 
 book declaration {{{ northernTrees }}}
   def northernTrees : Array String :=
-    #["beech", "birch", "elm", "oak"]
+    #["sloe", "birch", "elm", "oak"]
 stop book declaration
 
 bookExample {{{ northernTreesSize }}}
@@ -1597,9 +1597,9 @@ book declaration {{{ trees }}}
       commonNames := ["silver birch", "warty birch"]
     }
 
-  def beech : Tree where
-    latinName := "Fagus sylvatica"
-    commonNames := ["European beech", "common beech"]
+  def sloe : Tree where
+    latinName := "Prunus spinosa"
+    commonNames := ["sloe", "blackthorn"]
 stop book declaration
 
 
