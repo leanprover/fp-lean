@@ -237,3 +237,6 @@ def main : IO Unit := do
   stdout.putStrLn s!"Hello, {name}!"
 stop book declaration
 end HelloName3
+
+open Nat (toFloat)
+#eval toFloat 32

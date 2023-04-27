@@ -90,7 +90,12 @@ The module name hierarchy is decoupled from the namespace hierarchy.
 In Lean, modules are units of code distribution, while namespaces are units of code organization.
 That is, names defined in the module `Greeting.Smile` are not automatically in a corresponding namespace `Greeting.Smile`.
 Modules may place names into any namespace they like, and the code that imports them may `open` the namespace or not.
-`import` is used to make the contents of a source file available, while `open` makes names from a namespace available in the current context.
+`import` is used to make the contents of a source file available, while `open` makes names from a namespace available in the current context without prefixes.
 In the Lakefile, the line `import Lake` makes the contents of the `Lake` module available, while the line `open Lake DSL` makes the contents of the `Lake` and `Lake.DSL` namespaces available without any prefixes.
 `Lake.DSL` is opened because opening `Lake` makes `Lake.DSL` available as just `DSL`, just like all other names in the `Lake` namespace.
 The `Lake` module places names into both the `Lake` and `Lake.DSL` namespaces.
+
+Namespaces may also be opened _selectively_, making only some of their names available without explicit prefixes.
+This is done by writing the desired names in parentheses.
+For example, `Nat.toFloat` converts a natural number to a `Float`.
+It can be made available as `toFloat` using `open Nat (toFloat)`.
