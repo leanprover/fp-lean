@@ -28,7 +28,7 @@ In other words, they take up no space, and any computations that might have been
 This means that proofs can take advantage of the convenient interface to strings and arrays as inductively-defined lists, including using induction to prove things about them, without imposing slow conversion steps while the program is running.
 For these built-in types, a convenient logical representation of the data does not imply that the program must be slow.
 
-If a constructor of an inductive datatype or structure type has only a single non-type non-proof argument, then the constructor itself disappears at run time, being replaced with its single argument.
+If a structure type has only a single non-type non-proof field, then the constructor itself disappears at run time, being replaced with its single argument.
 In other words, a subtype is represented identically to its underlying type, rather than with an extra layer of indirection.
 Similarly, `Fin` is just `Nat` in memory, and single-field structures can be created to keep track of different uses of `Nat`s or `String`s without paying a performance penalty.
 If a constructor has no non-type non-proof arguments, then the constructor also disappears and is replaced with a constant value where the pointer would otherwise be used.
