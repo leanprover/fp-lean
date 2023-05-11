@@ -16,7 +16,7 @@ The program displays `{{#command_out {hello} {lean --run Hello.lean} }}` and exi
 When Lean is invoked with the `--run` option, it invokes the program's `main` definition.
 In programs that do not take command-line arguments, `main` should have type `IO Unit`.
 This means that `main` is not a function, because there are no arrows (`→`) in its type.
-Instead of a being a function that has side effects, `main` consists of a description of effects to be carried out.
+Instead of being a function that has side effects, `main` consists of a description of effects to be carried out.
 
 As discussed in [the preceding chapter](../getting-to-know/polymorphism.md), `Unit` is the simplest inductive type.
 It has a single constructor called `unit` that takes no arguments.
