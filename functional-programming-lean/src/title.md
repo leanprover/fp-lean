@@ -2,6 +2,10 @@
 
 *by David Thrane Christiansen*
 
+*Copyright Microsoft Corporation 2023*
+
+
+
 This is an in-progress book on using Lean 4 as a programming language.
 The most recent release is found at [https://leanprover.github.io/functional_programming_in_lean/](https://leanprover.github.io/functional_programming_in_lean/), and it will be updated monthly.
 This version of the text is written for Lean 4 release `{{#lean_version}}`.
@@ -58,3 +62,7 @@ He has a Ph.D. from the IT University of Copenhagen.
 During his studies, he was a major contributor to the first version of the Idris language.
 Since leaving academia, he has worked at Galois in Portland, Oregon and Deon Digital in Copenhagen, Denmark.
 At the time of writing, he is the Executive Director of the Haskell Foundation.
+
+## License
+
+<a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
