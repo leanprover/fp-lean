@@ -16,4 +16,4 @@ The code exists to create the rendered HTML version of the book, primarily when 
 
 ## Pull Requests
 
-Generally speaking, pull requests are not welcome without prior agreement.
+Generally speaking, pull requests are not welcome without prior agreement. Should you wish to contribute a pull request, you'll need to [sign a CLA](https://cla.opensource.microsoft.com/) with Microsoft. Please contact Sarah Smith (smithsarah@microsoft.com) or Gabriel Ebner (gabrielebner@microsoft.com) if you have any questions about this.

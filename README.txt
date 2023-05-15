@@ -1,8 +1,8 @@
 Functional Programming in Lean
 
-This repository contains the in-progress book, Functional Programming in Lean, by David Thrane Christiansen.
+This repository contains the source code of the book Functional Programming in Lean by David Thrane Christiansen.
 
-All contents are copyright (C) Microsoft Corporation.
+All contents are copyright (C) Microsoft Corporation. As an open-source release by Microsoft, this project is covered by the Microsoft Open Source Code of Conduct at https://opensource.microsoft.com/codeofconduct/ . This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft trademarks or logos is subject to and must follow Microsoft’s Trademark & Brand Guidelines. Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship. Any use of third-party trademarks or logos are subject to those third-party’s policies.
 
 The book's build has been tested with:
 
