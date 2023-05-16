@@ -78,7 +78,7 @@ Careful abstraction boundaries can make this style of programming safe.
 If every primitive `IO` action accepts one world and returns a new one, and they can only be combined with tools that preserve this invariant, then the problem cannot occur.
 
 This model cannot be implemented.
-After all, the entire universe cannot be turned in to a Lean value and placed into memory.
+After all, the entire universe cannot be turned into a Lean value and placed into memory.
 However, it is possible to implement a variation of this model with an abstract token that stands for the world.
 When the program is started, it is provided with a world token.
 This token is then passed on to the IO primitives, and their returned tokens are similarly passed to the next step.
