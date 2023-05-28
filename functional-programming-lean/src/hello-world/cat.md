@@ -117,7 +117,7 @@ If it could, then it is dumped, and the recursive call to `process` leaves the e
 
 `process` does not need to be marked `partial` because it is structurally recursive.
 Each recursive call is provided with the tail of the input list, and all Lean lists are finite.
-Thus, `process` does not introduce any non-termination itself.
+Thus, `process` does not introduce any non-termination.
 
 ### Main
 
