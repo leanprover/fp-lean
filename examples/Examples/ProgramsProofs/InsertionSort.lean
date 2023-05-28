@@ -666,7 +666,7 @@ expect error {{{ insertionSortLoopRw }}}
 termination_by insertionSortLoop arr i => arr.size - i
 message
 "unsolved goals
-α : Type ?u.22463
+α : Type ?u.22342
 inst✝ : Ord α
 arr : Array α
 i : Nat
