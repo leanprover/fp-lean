@@ -6,9 +6,7 @@
 
 
 
-This is an in-progress book on using Lean 4 as a programming language.
-The most recent release is found at [https://leanprover.github.io/functional_programming_in_lean/](https://leanprover.github.io/functional_programming_in_lean/), and it will be updated monthly.
-This version of the text is written for Lean 4 release `{{#lean_version}}`.
+This is a free book on using Lean 4 as a programming language. All code samples are tested with Lean 4 release `{{#lean_version}}`.
 
 ## Release history
 
