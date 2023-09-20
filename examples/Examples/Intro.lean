@@ -345,7 +345,7 @@ message
 end expect
 
 expect info {{{ originWithAnnot2 }}}
-  #check { x := 0.0, y := 0.0 : Point}
+  #check { x := 0.0, y := 0.0 : Point }
 message
 "{ x := 0.0, y := 0.0 } : Point"
 end expect
