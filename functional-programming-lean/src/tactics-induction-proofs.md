@@ -128,7 +128,7 @@ But proofs with tactics can be shorter, easier, and more maintainable.
 Just as a lower score is better in the game of golf, a shorter proof is better in the game of tactic golf.
 
 The induction step of `plusR_zero_left` can be proved using the simplification tactic `simp`.
-Using `simp` on its own does not help, and the goal is left unmodified:
+Using `simp` on its own does not help:
 ```leantac
 {{#example_in Examples/Induction.lean plusR_zero_left_golf_1}}
 ```
