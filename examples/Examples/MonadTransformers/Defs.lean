@@ -21,9 +21,9 @@ message
 argument
   some x
 has type
-  Option α✝ : Type ?u.28
+  Option α✝ : Type ?u.25
 but is expected to have type
-  α✝ : Type ?u.28"
+  α✝ : Type ?u.25"
 end expect
 
 namespace OneAttempt
@@ -204,7 +204,7 @@ expect error {{{ MonadMissingUni }}}
       | .ok x => next x
 message
 "stuck at solving universe constraint
-  max ?u.12286 ?u.12287 =?= u
+  max ?u.12144 ?u.12145 =?= u
 while trying to unify
   ExceptT ε m α✝
 with

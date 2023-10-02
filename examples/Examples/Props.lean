@@ -1,5 +1,6 @@
 import Examples.Support
 
+import Examples.Intro
 
 book declaration {{{ woodlandCritters }}}
   def woodlandCritters : List String :=
@@ -170,7 +171,7 @@ message
   - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
-α : Type ?u.3900
+α : Type ?u.3908
 xs : List α
 ⊢ 2 < List.length xs"
 end expect
@@ -226,3 +227,4 @@ message
 term has type
   List String"
 end expect
+

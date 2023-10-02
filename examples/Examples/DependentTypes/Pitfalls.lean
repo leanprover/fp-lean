@@ -190,11 +190,11 @@ expect error {{{ appendR3 }}}
     | n + 1, k, .cons x xs, ys => _
 message
 "type mismatch
-  ?m.3079
+  ?m.3036
 has type
-  Vect α k : Type ?u.3016
+  Vect α k : Type ?u.2973
 but is expected to have type
-  Vect α (Nat.plusR 0 k) : Type ?u.3016"
+  Vect α (Nat.plusR 0 k) : Type ?u.2973"
 end expect
 
 expect error {{{ appendR4 }}}
@@ -203,11 +203,11 @@ expect error {{{ appendR4 }}}
     | n + 1, k, .cons x xs, ys => _
 message
 "type mismatch
-  ?m.3111
+  ?m.3068
 has type
-  Vect α k : Type ?u.3016
+  Vect α k : Type ?u.2973
 but is expected to have type
-  Vect α (0 + k) : Type ?u.3016"
+  Vect α (0 + k) : Type ?u.2973"
 end expect
 
 expect error {{{ plusR_zero_left1 }}}

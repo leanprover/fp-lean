@@ -554,7 +554,7 @@ expect error {{{ mergeSortNeedsGte }}}
 message
 "unsolved goals
 case h
-α : Type ?u.37632
+α : Type ?u.37732
 inst✝ : Ord α
 xs : List α
 h : ¬List.length xs < 2
@@ -625,15 +625,6 @@ theorem zero_lt_succ : 0 < Nat.succ n := by
   induction n with
   | zero => constructor
   | succ n' ih => constructor; exact ih
-
-theorem not_lt_ge : (n k : Nat) → ¬ n < k → n ≥ k
-  | .zero, .zero, _ => by simp
-  | .zero, .succ k', _ => by
-    have : 0 < k'.succ := by apply zero_lt_succ
-    contradiction
-  | .succ n', .zero, notLT => by
-    simp
-  | .succ n', .succ k', notLT => by sorry
 
 namespace Proofs
 

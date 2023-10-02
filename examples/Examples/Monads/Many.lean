@@ -160,7 +160,6 @@ instance : LawfulMonad Many where
         | more z zs =>
           simp [Many.union]
           funext _
-          simp [*]
           rw [Many.union_assoc]
 
 

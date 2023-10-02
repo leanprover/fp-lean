@@ -69,7 +69,8 @@ inductive GEven (basis : Nat) : Nat → Type where
 
 
 theorem geven_is_even (n : Nat) (even : GEven basis n) : n % 2 = 0 := by
-  induction even <;> simp [*]
+  induction even
+  case base => simp [*]
   case plusTwo _ ih =>
     have step (n : Nat) : (n + 2) % 2 = n % 2 := by
       have : (n + 2) % 2 = if 0 < 2 ∧ 2 ≤ n + 2 then (n + 2 - 2) % 2 else n + 2 := Nat.mod_eq (n + 2) 2
@@ -79,7 +80,8 @@ theorem geven_is_even (n : Nat) (even : GEven basis n) : n % 2 = 0 := by
 
 theorem geven_is_ge (n : Nat) (even : GEven basis n) : n ≥ basis := by
   simp_arith
-  induction even <;> simp
+  induction even
+  case base => simp
   case plusTwo _ ih =>
     constructor; constructor; assumption
 

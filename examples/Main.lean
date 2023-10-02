@@ -4,6 +4,7 @@ import Examples.Cat
 import Examples.Props
 import Examples.Classes
 import Examples.Classes.Even
+import Examples.Induction
 import Examples.Monads
 import Examples.Monads.Class
 import Examples.Monads.Many

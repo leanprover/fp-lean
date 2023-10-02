@@ -117,11 +117,7 @@ expect error {{{ plusR_zero_left_golf_1 }}}
     | succ n ih =>
       simp
 message
-"unsolved goals
-case succ
-n : Nat
-ih : n = Nat.plusR 0 n
-⊢ Nat.succ n = Nat.plusR 0 (Nat.succ n)"
+"simp made no progress"
 end expect
 
 

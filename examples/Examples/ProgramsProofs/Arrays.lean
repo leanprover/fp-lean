@@ -194,8 +194,8 @@ message
   - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
-α : Type ?u.1742
-β : Type ?u.1745
+α : Type ?u.1704
+β : Type ?u.1707
 f : α → β
 arr : Array α
 soFar : Array β

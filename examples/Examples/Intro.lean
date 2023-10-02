@@ -1046,18 +1046,18 @@ expect error {{{ headNoneBad }}}
   #eval [].head?
 message
 "don't know how to synthesize implicit argument
-  @List.nil ?m.20368
+  @List.nil ?m.20264
 context:
-⊢ Type ?u.20365"
+⊢ Type ?u.20261"
 end expect
 
 expect error {{{ headNoneBad2 }}}
   #eval [].head?
 message
 "don't know how to synthesize implicit argument
-  @_root_.List.head? ?m.20368 []
+  @_root_.List.head? ?m.20264 []
 context:
-⊢ Type ?u.20365"
+⊢ Type ?u.20261"
 end expect
 
 
@@ -1662,7 +1662,7 @@ end bookExample
 expect error {{{ pointPosEvalNoType }}}
   #eval ⟨1, 2⟩
 message
-"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.35347"
+"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.34991"
 end expect
 
 expect info {{{ pointPosWithType }}}
