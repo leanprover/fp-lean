@@ -55,7 +55,7 @@ Avoiding these slowdowns for complicated programs can require specialized techni
 
 ## Definitional and Propositional Equality
 
-Lean's type checker must, from time to time, check whether two types should be considered interchangable.
+Lean's type checker must, from time to time, check whether two types should be considered interchangeable.
 Because types can contain arbitrary programs, it must therefore be able to check arbitrary programs for equality.
 However, there is no efficient algorithm to check arbitrary programs for fully-general mathematical equality.
 To work around this, Lean contains two notions of equality:

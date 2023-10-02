@@ -1674,7 +1674,7 @@ end expect
 
 
 bookExample type {{{ swapLambda }}}
-  fun (point : Point) => { x := point.y, y := point.x : Point}
+  fun (point : Point) => { x := point.y, y := point.x : Point }
   ===>
   (Point → Point)
 end bookExample

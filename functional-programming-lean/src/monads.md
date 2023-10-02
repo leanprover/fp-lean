@@ -1,7 +1,7 @@
 # Monads
 
 In C# and Kotlin, the `?.` operator is a way to look up a property or call a method on a potentially-null value.
-If the reciever is `null`, the whole expression is null.
+If the receiver is `null`, the whole expression is null.
 Otherwise, the underlying non-`null` value receives the call.
 Uses of `?.` can be chained, in which case the first `null` result terminates the chain of lookups.
 Chaining null-checks like this is much more convenient than writing and maintaining deeply nested `if`s.
