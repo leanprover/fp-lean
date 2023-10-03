@@ -10,6 +10,10 @@ This is a free book on using Lean 4 as a programming language. All code samples 
 
 ## Release history
 
+### October, 2023
+
+In this first maintenance release, a number of smaller issues were fixed and the text was brought up to date with the latest release of Lean.
+
 ### May, 2023
 
 The book is now complete! Compared to the April pre-release, many small details have been improved and minor mistakes have been fixed.
