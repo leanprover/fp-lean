@@ -271,7 +271,8 @@ This function is useful to account for comma-separated elements in JSON arrays a
 `{{#example_in Examples/Classes.lean sep2ex}}` yields `{{#example_out Examples/Classes.lean sep2ex}}`, `{{#example_in Examples/Classes.lean sep1ex}}` yields `{{#example_out Examples/Classes.lean sep1ex}}`, and `{{#example_in Examples/Classes.lean sep0ex}}` yields `{{#example_out Examples/Classes.lean sep0ex}}`.
 
 Finally, a string escaping procedure is needed for JSON strings, so that the Lean string containing `"Hello!"` can be output as `"\"Hello!\""`.
-Happily, Lean contains a function for escaping JSON strings already, called `Lean.Json.escape`.
+Fortunately, the Lean compiler contains an internal function for escaping JSON strings already, called `Lean.Json.escape`.
+To access this function, add `import Lean` to the beginning of your file.
 
 The function that emits a string from a `JSON` value is declared `partial` because Lean cannot see that it terminates.
 This is because recursive calls to `asString` occur in functions that are being applied by `List.map`, and this pattern of recursion is complicated enough that Lean cannot see that the recursive calls are actually being performed on smaller values.
