@@ -191,10 +191,10 @@ book declaration {{{ Subschema }}}
         Subschema (⟨n, t⟩ :: smaller) bigger
 stop book declaration
 
-
-abbrev travelDiary : Schema :=
-  [⟨"name", .string⟩, ⟨"location", .string⟩, ⟨"lastVisited", .int⟩]
-
+book declaration {{{ travelDiary }}}
+  abbrev travelDiary : Schema :=
+    [⟨"name", .string⟩, ⟨"location", .string⟩, ⟨"lastVisited", .int⟩]
+stop book declaration
 
 book declaration {{{ peakDiarySub }}}
   example : Subschema travelDiary peak :=

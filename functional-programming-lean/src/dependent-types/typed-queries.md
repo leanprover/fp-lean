@@ -172,7 +172,10 @@ This is represented by the constructor `cons`.
 ```
 In other words, `Subschema` assigns each column of the smaller schema a `HasCol` that points to its location in the larger schema.
 
-The schema `travelDiary` represents the fields that are common to both `peak` and `waterfall`.
+The schema `travelDiary` represents the fields that are common to both `peak` and `waterfall`:
+```lean
+{{#example_decl Examples/DependentTypes/DB.lean travelDiary}}
+```
 It is certainly a subschema of `peak`, as shown by this example:
 ```lean
 {{#example_decl Examples/DependentTypes/DB.lean peakDiarySub}}
