@@ -15,7 +15,7 @@ To get started with a project that uses Lake, use the command `{{#command {first
 This creates a directory called `greeting` that contains the following files:
 
  * `Main.lean` is the file in which the Lean compiler will look for the `main` action.
- * `Greeting.lean` is the scaffolding of a support library for the program.
+ * `Greeting.lean` and `Greeting/Basic.lean` are the scaffolding of a support library for the program.
  * `lakefile.lean` contains the configuration that `lake` needs to build the application.
  * `lean-toolchain` contains an identifier for the specific version of Lean that is used for the project.
 
@@ -23,17 +23,24 @@ Additionally, `lake new` initializes the project as a Git repository and configu
 Typically, the majority of the application logic will be in a collection of libraries for the program, while `Main.lean` will contain a small wrapper around these pieces that does things like parsing command lines and executing the central application logic.
 To create a project in an already-existing directory, run `lake init` instead of `lake new`.
 
-By default, the library file `Greeting.lean` contains a single definition:
+By default, the library file `Greeting/Basic.lean` contains a single definition:
+```lean
+{{#file_contents {lake} {first-lake/greeting/Greeting/Basic.lean} {first-lake/expected/Greeting/Basic.lean}}}
+```
+The library file `Greeting.lean` imports `Greeting/Basic.lean`:
 ```lean
 {{#file_contents {lake} {first-lake/greeting/Greeting.lean} {first-lake/expected/Greeting.lean}}}
 ```
-while the executable source `Main.lean` contains:
+This means that everything defined in `Greetings/Basic.lean` is also available to files that import `Greetings.lean`.
+In `import` statements, dots are interpreted as directories on disk.
+Placing guillemets around a name, as in `«Greeting»`, allow it to contain spaces or other characters that are normally not allowed in Lean names, and it allows reserved keywords such as `if` or `def` to be used as ordinary names by writing `«if»` or `«def»`.
+This prevents issues when the package name provided to `lake new` contains such characters.
+
+The executable source `Main.lean` contains:
 ```lean
 {{#file_contents {lake} {first-lake/greeting/Main.lean} {first-lake/expected/Main.lean}}}
 ```
-The `import` line makes the contents of `Greeting.lean` available in `Main.lean`.
-Placing guillemets around a name, as in `«Greeting»`, allow it to contain spaces or other characters that are normally not allowed in Lean names, and it allows reserved keywords such as `if` or `def` to be used as ordinary names by writing `«if»` or `«def»`.
-This prevents issues when the package name provided to `lake new` contains such characters.
+Because `Main.lean` imports `Greetings.lean` and `Greetings.lean` imports `Greetings/Basic.lean`, the definition of `hello` is available in `main`.
 
 To build the package, run the command `{{#command {first-lake/greeting} {lake} {lake build} }}`.
 After a number of build commands scroll by, the resulting binary has been placed in `build/bin`.
