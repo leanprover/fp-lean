@@ -471,7 +471,7 @@ end expect
 
 book declaration {{{ modifyBoth }}}
   def Point.modifyBoth (f : Float → Float) (p : Point) : Point :=
-    { x:= f p.x, y := f p.y }
+    { x := f p.x, y := f p.y }
 stop book declaration
 
 expect info {{{ modifyBothTest }}}
