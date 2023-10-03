@@ -118,7 +118,7 @@ Looking up an in-bounds value yields an `Except.ok`:
 ```output info
 {{#example_out Examples/Monads.lean success}}
 ```
-Looking up an out-of-bounds value yields an `Except.failure`:
+Looking up an out-of-bounds value yields an `Except.error`:
 ```lean
 {{#example_in Examples/Monads.lean failure}}
 ```
