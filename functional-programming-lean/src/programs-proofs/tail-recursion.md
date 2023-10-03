@@ -83,7 +83,7 @@ In `Tail.sumHelper`, the recursive call is in tail position because it is immedi
 
 At the time of writing, Lean only eliminates direct tail calls in recursive functions.
 This means that tail calls to `f` in `f`'s definition will be eliminated, but not tail calls to some other function `g`.
-While it is certainly possible to eliminate a tall call to some other function, saving a stack frame, this is not yet implemented in Lean.
+While it is certainly possible to eliminate a tail call to some other function, saving a stack frame, this is not yet implemented in Lean.
 
 ## Reversing Lists
 

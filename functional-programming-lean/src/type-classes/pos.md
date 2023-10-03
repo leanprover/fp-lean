@@ -181,7 +181,7 @@ With this instance, multiplication works as expected:
 It is quite inconvenient to write out a sequence of constructors for positive numbers.
 One way to work around the problem would be to provide a function to convert a `Nat` into a `Pos`.
 However, this approach has downsides.
-First off, because `Pos` cannot represent `0`, the resulting function would either convert a `Nat` to a bigger number, or it would return `Option Nat`.
+First off, because `Pos` cannot represent `0`, the resulting function would either convert a `Nat` to a bigger number, or it would return `Option Pos`.
 Neither is particularly convenient for users.
 Secondly, the need to call the function explicitly would make programs that use positive numbers much less convenient to write than programs that use `Nat`.
 Having a trade-off between precise types and convenient APIs means that the precise types become less useful.
