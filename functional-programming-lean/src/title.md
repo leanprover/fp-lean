@@ -66,8 +66,8 @@ David Thrane Christiansen has been using functional languages for twenty years, 
 Together with Daniel P. Friedman, he wrote [_The Little Typer_](https://thelittletyper.com/), an introduction to the key ideas of dependent type theory.
 He has a Ph.D. from the IT University of Copenhagen.
 During his studies, he was a major contributor to the first version of the Idris language.
-Since leaving academia, he has worked at Galois in Portland, Oregon and Deon Digital in Copenhagen, Denmark.
-At the time of writing, he is the Executive Director of the Haskell Foundation.
+Since leaving academia, he has worked as a software developer at Galois in Portland, Oregon and Deon Digital in Copenhagen, Denmark, and he was the Executive Director of the Haskell Foundation.
+At the time of writing, he is employed at the [Lean Focused Research Organization](https://lean-fro.org) working full-time on Lean.
 
 ## License
 
