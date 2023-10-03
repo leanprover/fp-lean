@@ -11,8 +11,8 @@ In C++, Java, C# and Kotlin, multiple implementations of a method are allowed, w
 The compiler uses the number of arguments and their types to determine which overload was intended.
 
 Function and operator overloading has a key limitation: polymorphic functions can't restrict their type arguments to types for which a given overload exists.
-That is, there is no way to write a function that works for any type that has addition defined.
-Instead, this function must itself be overloaded for each type that has addition, resulting in many boilerplate definitions instead of a single polymorphic definition.
+For example, an overloaded method might be defined for strings, byte arrays, and file pointers, but there's no way to write a second method that works for any of these.
+Instead, this second method must itself be overloaded for each type that has an overload of the original method, resulting in many boilerplate definitions instead of a single polymorphic definition.
 Another consequence of this restriction is that some operators (such as equality in Java) end up being defined for _every_ combination of arguments, even when it is not necessarily sensible to do so.
 If programmers are not very careful, this can lead to programs that crash at runtime or silently compute an incorrect result.
 
