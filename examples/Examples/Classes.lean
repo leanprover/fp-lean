@@ -781,9 +781,9 @@ stop book declaration
 
 
 book declaration {{{ spiderBoundsChecks }}}
-theorem atLeastThreeSpiders : idahoSpiders.inBounds 2 := by simp
+theorem atLeastThreeSpiders : idahoSpiders.inBounds 2 := by decide
 
-theorem notSixSpiders : ¬idahoSpiders.inBounds 5 := by simp
+theorem notSixSpiders : ¬idahoSpiders.inBounds 5 := by decide
 stop book declaration
 
 namespace Demo
