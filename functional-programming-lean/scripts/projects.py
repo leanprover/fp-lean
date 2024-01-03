@@ -3,6 +3,7 @@ import json
 import re
 from pathlib import Path
 import os
+from pprint import pformat
 import shlex
 import shutil
 import subprocess
@@ -20,6 +21,13 @@ file_contents_re = re.compile(r'\{\{#file_contents\s+\{(?P<container>[^}]+)\}\s*
 def mangle(string):
     return string.replace('-', '---').replace('/', '-slash-')
 
+def diff(str1, str2):
+    d = difflib.Differ()
+    result = list(d.compare(str1.splitlines(keepends=True), str2.splitlines(keepends=True)))
+    return pformat(result)
+
+def ditch_cr(s):
+    return s.replace('\r', '')
 
 class ContainerContext:
 
@@ -102,7 +110,7 @@ class ContainerContext:
                     expected_output = f.read()
             output = self.outputs[container][command].rstrip()
             if expected_output is not None:
-                assert output == expected_output.rstrip(), f'expected {command} in {self.project_root}{os.path.sep}examples{os.path.sep}{expect} to match actual:\n{output}'
+                assert ditch_cr(output) == ditch_cr(expected_output.rstrip()), f'expected {command} in {self.project_root}{os.path.sep}examples{os.path.sep}{expect} to match actual:\n{output}\nDiff:\n{diff(expected_output, output)}'
             return output.rstrip()
         return rewrite
 

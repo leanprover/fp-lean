@@ -72,7 +72,7 @@ The following version of [the greeting program `hello-name`](../hello-world/runn
 Running it with no arguments and typing the name `David` yields the same result as the previous version:
 ```
 $ {{#command {early-return} {early-return} {./run} {lean --run EarlyReturn.lean}}}
-{{#command_out {early-return} {./run} }}
+{{#command_out {early-return} {./run} {early-return/expected}}}
 ```
 
 Providing the name as a command-line argument instead of an answer causes an error:

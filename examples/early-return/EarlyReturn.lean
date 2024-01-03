@@ -50,6 +50,6 @@ theorem mains_match : main = Nested.main := by
   simp [main, Nested.main]
   simp [bind, EStateM.bind, EStateM.pure, liftM, monadLift, pure, ite]
   funext s
-  repeat split <;> try simp
+  repeat split <;> try simp_all
   cases argv <;>
-    simp [instDecidableEqString, instDecidableEqList, List.hasDecEq, bne, BEq.beq, List.beq, not, instDecidableEqBool, Bool.decEq]
+    simp [instDecidableEqString, instDecidableEqList, List.hasDecEq, bne, BEq.beq, List.beq, not, instDecidableEqBool, Bool.decEq, IO.FS.Stream.putStrLn, IO.FS.Stream.putStr, String.push, String.decEq, String.trim, instDecidableNot, *]
