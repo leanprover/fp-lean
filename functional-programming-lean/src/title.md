@@ -10,7 +10,7 @@ This is a free book on using Lean 4 as a programming language. All code samples 
 
 ## Release history
 
-### January, 2023
+### January, 2024
 
 This is a minor bugfix release that fixes a regression in an example program.
 
