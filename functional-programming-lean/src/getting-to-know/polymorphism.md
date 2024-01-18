@@ -357,19 +357,8 @@ In other words, it describes only a single value, which consists of said constru
 {{#example_decl Examples/Intro.lean Unit}}
 ```
 
-On its own, `Unit` is not particularly useful.
-However, in polymorphic code, it can be used as a placeholder for data that is missing.
-For instance, the following inductive datatype represents arithmetic expressions:
-```lean
-{{#example_decl Examples/Intro.lean ArithExpr}}
-```
-The type argument `ann` stands for annotations, and each constructor is annotated.
-Expressions coming from a parser might be annotated with source locations, so a return type of `ArithExpr SourcePos` ensures that the parser put a `SourcePos` at each subexpression.
-Expressions that don't come from the parser, however, will not have source locations, so their type can be `ArithExpr Unit`.
-
-
-Additionally, because all Lean functions have arguments, zero-argument functions in other languages can be represented as functions that take a `Unit` argument.
-In a return position, the `Unit` type is similar to `void` in languages derived from C.
+Because all Lean functions have arguments, zero-argument functions in other languages can be represented as functions that take a `Unit` argument.
+Because all Lean functions have a return value, `Unit` can be used a return type similar to `void` in languages derived from C.
 In the C family, a function that returns `void` will return control to its caller, but it will not return any interesting value.
 By being an intentionally uninteresting value, `Unit` allows this to be expressed without requiring a special-purpose `void` feature in the type system.
 Unit's constructor can be written as empty parentheses: `{{#example_in Examples/Intro.lean unitParens}} : {{#example_out Examples/Intro.lean unitParens}}`.
