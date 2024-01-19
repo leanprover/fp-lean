@@ -357,11 +357,9 @@ In other words, it describes only a single value, which consists of said constru
 {{#example_decl Examples/Intro.lean Unit}}
 ```
 
-Because all Lean functions have arguments, zero-argument functions in other languages can be represented as functions that take a `Unit` argument.
-Because all Lean functions have a return value, `Unit` can be used a return type similar to `void` in languages derived from C.
-In the C family, a function that returns `void` will return control to its caller, but it will not return any interesting value.
-By being an intentionally uninteresting value, `Unit` allows this to be expressed without requiring a special-purpose `void` feature in the type system.
-Unit's constructor can be written as empty parentheses: `{{#example_in Examples/Intro.lean unitParens}} : {{#example_out Examples/Intro.lean unitParens}}`.
+Because all Lean functions have arguments, zero-argument functions in other languages can be represented as functions that take a `Unit` argument. This may facilitate polymorphism, for instance, a function that takes n-tuples as an argument can handle the 0-tuple `()`, which is another name for `Unit`. `Unit`'s constructor can be written as empty parentheses: `{{#example_in Examples/Intro.lean unitParens}} : {{#example_out Examples/Intro.lean unitParens}}`.
+
+Because all Lean functions have a return value, `Unit` can be used a return type similar to `void` in languages derived from C. In the C family, a function that returns `void` will return control to its caller, but it will not return any interesting value. By being an intentionally uninteresting value, `Unit` allows this to be expressed without requiring a special-purpose `void` feature in the type system. We will see examples of this below, for instance, in the `Hello World` program, in the main method, input-output methods, and tactics.
 
 ### `Empty`
 
