@@ -67,7 +67,7 @@ The empty schema describes the unit type, a schema with a single column describe
 {{#example_decl Examples/DependentTypes/DB.lean Row}}
 ```
 
-As described in [the initial section on product types](../getting-to-know/polymorphism.md#Prod), Lean's product type and tuples are right-associative.
+As described in [the initial section on product types](../getting-to-know/polymorphism.md#prod), Lean's product type and tuples are right-associative.
 This means that nested pairs are equivalent to ordinary flat tuples.
 
 A table is a list of rows that share a schema:
