@@ -10,7 +10,7 @@ Lean 4 itself is described in the following resources:
 
  * [Theorem Proving in Lean 4](https://leanprover.github.io/theorem_proving_in_lean4/) is a tutorial on writing proofs using Lean.
  * [The Lean 4 Manual](https://leanprover.github.io/lean4/doc/) provides a reference for the language and its features. At the time of writing, it is still incomplete, but it describes many aspects of Lean in greater detail than this book.
- * [How To Prove It With Lean](https://djvelleman.github.io/HTPIwL/) is a Lean-based accompaniment to the well-regarded textbook [_How To Prove It_](https://www.cambridge.org/highereducation/books/how-to-prove-it/6D2965D625C6836CD4A785A2C843B3DA#overview) that provides an introduction to writing paper-and-pencil mathematical proofs.
+ * [How To Prove It With Lean](https://djvelleman.github.io/HTPIwL/) is a Lean-based accompaniment to the well-regarded textbook [_How To Prove It_](https://www.cambridge.org/highereducation/books/how-to-prove-it/6D2965D625C6836CD4A785A2C843B3DA) that provides an introduction to writing paper-and-pencil mathematical proofs.
  * [Metaprogramming in Lean 4](https://github.com/arthurpaulino/lean4-metaprogramming-book) provides an overview of Lean's extension mechanisms, from infix operators and notations to macros, custom tactics, and full-on custom embedded languages.
  * [Functional Programming in Lean](https://leanprover.github.io/functional_programming_in_lean/) may be interesting to readers who enjoy jokes about recursion.
 
