@@ -23,11 +23,9 @@ Lean is self-hosted, and the included code is just enough to implement Lean itse
 For many applications, a larger standard library is needed.
 
 [std4](https://github.com/leanprover/std4) is an in-progress standard library that includes many data structures, tactics, type class instances, and functions that are out of scope for the Lean compiler itself.
-To use `std4`, the first step is to find a commit in its history that's compatible with the version of Lean 4 that you're using (that is, one in which the `lean-toolchain` file matches the one in your project).
-Then, add the following to the top level of your `lakefile.lean`, where `COMMIT_HASH` is the appropriate version:
+To use `std4`, add the following to the top level of your `lakefile.lean`:
 ```lean
-require std from git
-  "https://github.com/leanprover/std4/" @ "COMMIT_HASH"
+require std from git "https://github.com/leanprover/std4" @ "main"
 ```
 
 
