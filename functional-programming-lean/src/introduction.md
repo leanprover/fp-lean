@@ -40,7 +40,7 @@ The Lean tooling consists of the following:
    Normally, `lean` is invoked by other tools rather than directly by users.
  * Plugins for editors, such as Visual Studio Code or Emacs, that communicate with `lean` and present its information conveniently.
 
-Please refer to the [Lean manual](https://leanprover.github.io/lean4/doc/quickstart.html) for up-to-date instructions for installing Lean.
+Please refer to the [Lean manual](https://lean-lang.org/lean4/doc/quickstart.html) for up-to-date instructions for installing Lean.
 
 # Typographical Conventions
 
