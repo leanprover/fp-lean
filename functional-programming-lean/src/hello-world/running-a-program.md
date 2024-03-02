@@ -28,7 +28,7 @@ If `Bool` represents a single bit of information, `Unit` represents zero bits of
 During execution, this program may have side effects.
 These programs are referred to as `IO` _actions_.
 Lean distinguishes between _evaluation_ of expressions, which strictly adheres to the mathematical model of substitution of values for variables and reduction of sub-expressions without side effects, and _execution_ of `IO` actions, which rely on an external system to interact with the world.
-`IO.println` is a function from strings to `IO` actions that, when executed, write the given string to standard output.
+`IO.println` is a function from strings to `IO` actions that, when executed, writes the given string to standard output.
 Because this action doesn't read any interesting information from the environment in the process of emitting the string, `IO.println` has type `String → IO Unit`.
 If it did return something interesting, then that would be indicated by the `IO` action having a type other than `Unit`.
 
