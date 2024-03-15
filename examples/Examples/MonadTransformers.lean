@@ -321,10 +321,10 @@ stop book declaration
 
 book declaration {{{ showFileAndDir }}}
   def showFileName (file : String) : ConfigIO Unit := do
-    IO.println s!"{(← read).currentPrefix} {file}"
-
+    IO.println ((← read).fileName file)
+  
   def showDirName (dir : String) : ConfigIO Unit := do
-    IO.println s!"{(← read).currentPrefix} {dir}/"
+    IO.println ((← read).dirName dir)
 stop book declaration
 
 
