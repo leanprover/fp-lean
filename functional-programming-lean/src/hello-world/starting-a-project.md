@@ -31,7 +31,7 @@ The library file `Greeting.lean` imports `Greeting/Basic.lean`:
 ```lean
 {{#file_contents {lake} {first-lake/greeting/Greeting.lean} {first-lake/expected/Greeting.lean}}}
 ```
-This means that everything defined in `Greetings/Basic.lean` is also available to files that import `Greetings.lean`.
+This means that everything defined in `Greeting/Basic.lean` is also available to files that import `Greeting.lean`.
 In `import` statements, dots are interpreted as directories on disk.
 Placing guillemets around a name, as in `«Greeting»`, allow it to contain spaces or other characters that are normally not allowed in Lean names, and it allows reserved keywords such as `if` or `def` to be used as ordinary names by writing `«if»` or `«def»`.
 This prevents issues when the package name provided to `lake new` contains such characters.
@@ -40,7 +40,7 @@ The executable source `Main.lean` contains:
 ```lean
 {{#file_contents {lake} {first-lake/greeting/Main.lean} {first-lake/expected/Main.lean}}}
 ```
-Because `Main.lean` imports `Greetings.lean` and `Greetings.lean` imports `Greetings/Basic.lean`, the definition of `hello` is available in `main`.
+Because `Main.lean` imports `Greeting.lean` and `Greeting.lean` imports `Greeting/Basic.lean`, the definition of `hello` is available in `main`.
 
 To build the package, run the command `{{#command {first-lake/greeting} {lake} {lake build} }}`.
 After a number of build commands scroll by, the resulting binary has been placed in `build/bin`.

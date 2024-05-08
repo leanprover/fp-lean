@@ -59,13 +59,14 @@ When a defined function like `maximum` has been provided with its arguments, the
 {{#example_eval Examples/Intro.lean maximum_eval}}
 ```
 
+Every valid expression in Lean has a type.
 Expressions that evaluate to natural numbers, integers, and strings have types that say this (`Nat`, `Int`, and `String`, respectively).
-This is also true of functions.
+This is also true of expressions that evaluate to functions.
 A function that accepts a `Nat` and returns a `Bool` has type `Nat → Bool`, and a function that accepts two `Nat`s and returns a `Nat` has type `Nat → Nat → Nat`.
 
-As a special case, Lean returns a function's signature when its name is used directly with `#check`.
+As a special case, Lean returns a function's *signature* when its name is used directly with `#check`.
 Entering `{{#example_in Examples/Intro.lean add1sig}}` yields `{{#example_out Examples/Intro.lean add1sig}}`.
-However, Lean can be "tricked" into showing the function's type by writing the function's name in parentheses, which causes the function to be treated as an ordinary expression, so `{{#example_in Examples/Intro.lean add1type}}` yields `{{#example_out Examples/Intro.lean add1type}}` and `{{#example_in Examples/Intro.lean maximumType}}` yields `{{#example_out Examples/Intro.lean maximumType}}`.
+However, Lean can be "tricked" into showing the function's *type* by writing the function's name in parentheses, which causes it to be treated as an ordinary expression, so `{{#example_in Examples/Intro.lean add1type}}` yields `{{#example_out Examples/Intro.lean add1type}}` and `{{#example_in Examples/Intro.lean maximumType}}` yields `{{#example_out Examples/Intro.lean maximumType}}`.
 This arrow can also be written with an ASCII alternative arrow `->`, so the preceding function types can be written `{{#example_out Examples/Intro.lean add1typeASCII}}` and `{{#example_out Examples/Intro.lean maximumTypeASCII}}`, respectively.
 
 Behind the scenes, all functions actually expect precisely one argument.
@@ -73,7 +74,7 @@ Functions like `maximum` that seem to take more than one argument are in fact fu
 This new function takes the next argument, and the process continues until no more arguments are expected.
 This can be seen by providing one argument to a multiple-argument function: `{{#example_in Examples/Intro.lean maximum3Type}}` yields `{{#example_out Examples/Intro.lean maximum3Type}}` and `{{#example_in Examples/Intro.lean stringAppendHelloType}}` yields `{{#example_out Examples/Intro.lean stringAppendHelloType}}`.
 Using a function that returns a function to implement multiple-argument functions is called _currying_ after the mathematician Haskell Curry.
-Function arrows associate to the right, which means that `Nat → Nat → Nat` should be parenthesized `Nat → (Nat → Nat)`.
+Function arrows associate to the right, which means that `Nat → Nat → Nat` is parsed as `Nat → (Nat → Nat)`.
 
 ### Exercises
 

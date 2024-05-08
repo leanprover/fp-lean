@@ -24,7 +24,7 @@ expressions have the same value, then replacing one with the other
 will not cause the program to compute a different result. This does
 not mean that Lean cannot be used to write `Hello, world!` to the
 console, but performing I/O is not a core part of the experience of
-using Lean in the same way. Thus, this chapter focuses on how to
+using Lean in the same way as other languages. Thus, this chapter focuses on how to
 evaluate expressions interactively with Lean, while the next chapter
 describes how to write, compile, and run the `Hello, world!` program.
 
@@ -54,7 +54,7 @@ arguments, Lean simply writes the function next to its
 arguments (e.g. `f x`). Function application is one of the most common operations,
 so it pays to keep it concise. Rather than writing
 ```lean
-#eval String.append("Hello, ", "Lean!")
+#eval String.append("Hello, ", "Lean!") -- generates an error
 ```
 to compute `{{#example_out Examples/Intro.lean stringAppendHello}}`,
 one would instead write

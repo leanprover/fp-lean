@@ -7,7 +7,8 @@ The actual process of interacting with Lean is much more pleasant.
 Lean provides information about the proof as the cursor is moved through it and there are a number of interactive features that make proving easier.
 Please consult the documentation of your Lean development environment for more information.
 
-The approach in this book that focuses on incrementally building a proof and showing the messages that result demonstrates the kinds of interactive feedback that Lean provides while writing a proof, even though it is much slower than the process used by experts.
+The approach in this book, focusing on incrementally building a proof and showing the messages that result,
+demonstrates the kinds of interactive feedback that Lean provides while writing a proof, even though it is much slower than the process used by experts.
 At the same time, seeing incomplete proofs evolve towards completeness is a useful perspective on proving.
 As your skill in writing proofs increases, Lean's feedback will come to feel less like errors and more like support for your own thought processes.
 Learning the interactive approach is very important.

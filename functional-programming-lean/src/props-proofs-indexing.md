@@ -16,7 +16,7 @@ However, attempting to extract the fourth element results in a compile-time erro
 ```output error
 {{#example_out Examples/Props.lean outOfBounds}}
 ```
-This error message is saying Lean tried to automatically mathematically prove that `3 < List.length woodlandCritters`, which would mean that the lookup was safe, but that it could not do so.
+This error message is saying that Lean tried to automatically mathematically prove that `3 < List.length woodlandCritters`, which would mean that the lookup was safe, but that it could not do so.
 Out-of-bounds errors are a common class of bugs, and Lean uses its dual nature as a programming language and a theorem prover to rule out as many as possible.
 
 Understanding how this works requires an understanding of three key ideas: propositions, proofs, and tactics.
