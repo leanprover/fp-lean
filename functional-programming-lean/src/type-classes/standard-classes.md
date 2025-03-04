@@ -175,7 +175,7 @@ When this is the case, it's fine to write an `Ord` instance by hand.
 The collection of classes for which instances can be derived can be extended by advanced users of Lean.
 
 Aside from the clear advantages in programmer productivity and code readability, deriving instances also makes code easier to maintain, because the instances are updated as the definitions of types evolve.
-Changesets involving updates to datatypes are easier to read without line after line of formulaic modifications to equality tests and hash computation.
+Changes involving updates to datatypes are easier to read without line after line of formulaic modifications to equality tests and hash computation.
 
 ## Appending
 
