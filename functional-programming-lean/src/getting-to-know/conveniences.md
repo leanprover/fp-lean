@@ -2,11 +2,11 @@
 
 Lean contains a number of convenience features that make programs much more concise.
 
-## Automatic Implicit Arguments
+## Automatic Implicit Parameters
 
-When writing polymorphic functions in Lean, it is typically not necessary to list all the implicit arguments.
+When writing polymorphic functions in Lean, it is typically not necessary to list all the implicit parameters.
 Instead, they can simply be mentioned.
-If Lean can determine their type, then they are automatically inserted as implicit arguments.
+If Lean can determine their type, then they are automatically inserted as implicit parameters.
 In other words, the previous definition of `length`:
 ```lean
 {{#example_decl Examples/Intro.lean lengthImp}}
@@ -15,7 +15,7 @@ can be written without `{α : Type}`:
 ```lean
 {{#example_decl Examples/Intro.lean lengthImpAuto}}
 ```
-This can greatly simplify highly polymorphic definitions that take many implicit arguments.
+This can greatly simplify highly polymorphic definitions that take many implicit parameters.
 
 ## Pattern-Matching Definitions
 
@@ -78,7 +78,7 @@ However, both recursive calls will have the same result, so there is no reason t
 In Lean, the result of the recursive call can be named, and thus saved, using `let`.
 Local definitions with `let` resemble top-level definitions with `def`: it takes a name to be locally defined, arguments if desired, a type signature, and then a body following `:=`.
 After the local definition, the expression in which the local definition is available (called the _body_ of the `let`-expression) must be on a new line, starting at a column in the file that is less than or equal to that of the `let` keyword.
-For instance, `let` can be used in `unzip` like this:
+A local definition with `let` in `unzip` looks like this:
 ```lean
 {{#example_decl Examples/Intro.lean unzip}}
 ```
@@ -105,14 +105,14 @@ When it reaches the end of the input list, `soFar` contains a reversed version o
 
 In many situations, Lean can automatically determine an expression's type.
 In these cases, explicit types may be omitted from both top-level definitions (with `def`) and local definitions (with `let`).
-For instance, the recursive call to `unzip` does not need an annotation:
+For example, the recursive call to `unzip` does not need an annotation:
 ```lean
 {{#example_decl Examples/Intro.lean unzipNT}}
 ```
 
 As a rule of thumb, omitting the types of literal values (like strings and numbers) usually works, although Lean may pick a type for literal numbers that is more specific than the intended type.
 Lean can usually determine a type for a function application, because it already knows the argument types and the return type.
-Omitting return types for function definitions will often work, but function arguments typically require annotations.
+Omitting return types for function definitions will often work, but function parameters typically require annotations.
 Definitions that are not functions, like `unzipped` in the example, do not need type annotations if their bodies do not need type annotations, and the body of this definition is a function application.
 
 Omitting the return type for `unzip` is possible when using an explicit `match` expression:
@@ -196,7 +196,7 @@ In the section on [datatypes and patterns](datatypes-and-patterns.md), `even` wa
 {{#example_decl Examples/Intro.lean even}}
 ```
 Just as there is special syntax to make list patterns more readable than using `List.cons` and `List.nil` directly, natural numbers can be matched using literal numbers and `+`.
-For instance, `even` can also be defined like this:
+For example, `even` can also be defined like this:
 ```lean
 {{#example_decl Examples/Intro.lean evenFancy}}
 ```
@@ -228,7 +228,7 @@ This restriction enables Lean to transform all uses of the `+` notation in a pat
 
 Functions in Lean need not be defined at the top level.
 As expressions, functions are produced with the `fun` syntax.
-Function expressions begin with the keyword `fun`, followed by one or more arguments, which are separated from the return expression using `=>`.
+Function expressions begin with the keyword `fun`, followed by one or more parameters, which are separated from the return expression using `=>`.
 For instance, a function that adds one to a number can be written:
 ```lean
 {{#example_in Examples/Intro.lean incr}}
@@ -243,7 +243,7 @@ Type annotations are written the same way as on `def`, using parentheses and col
 ```output info
 {{#example_out Examples/Intro.lean incrInt}}
 ```
-Similarly, implicit arguments may be written with curly braces:
+Similarly, implicit parameters may be written with curly braces:
 ```lean
 {{#example_in Examples/Intro.lean identLambda}}
 ```
@@ -273,12 +273,12 @@ For instance, a function that doubles its argument can be written as follows:
 When an anonymous function is very simple, like `{{#example_eval Examples/Intro.lean incrSteps 0}}`, the syntax for creating the function can be fairly verbose.
 In that particular example, six non-whitespace characters are used to introduce the function, and its body consists of only three non-whitespace characters.
 For these simple cases, Lean provides a shorthand.
-In an expression surrounded by parentheses, a centered dot character `·` can stand for an argument, and the expression inside the parentheses becomes the function's body.
+In an expression surrounded by parentheses, a centered dot character `·` can stand for an parameter, and the expression inside the parentheses becomes the function's body.
 That particular function can also be written `{{#example_eval Examples/Intro.lean incrSteps 1}}`.
 
 The centered dot always creates a function out of the _closest_ surrounding set of parentheses.
 For instance, `{{#example_eval Examples/Intro.lean funPair 0}}` is a function that returns a pair of numbers, while `{{#example_eval Examples/Intro.lean pairFun 0}}` is a pair of a function and a number.
-If multiple dots are used, then they become arguments from left to right:
+If multiple dots are used, then they become parameters from left to right:
 ```lean
 {{#example_eval Examples/Intro.lean twoDots}}
 ```
@@ -355,7 +355,7 @@ To do this, simply omit the `in` from a top-level usage of `open`.
 ## if let
 
 When consuming values that have a sum type, it is often the case that only a single constructor is of interest.
-For instance, given this type that represents a subset of Markdown inline elements:
+For example, given this type that represents a subset of Markdown inline elements:
 ```lean
 {{#example_decl Examples/Intro.lean Inline}}
 ```
@@ -415,8 +415,8 @@ For instance, attempting to interpolate a function results in an error.
 ```lean
 {{#example_in Examples/Intro.lean interpolationOops}}
 ```
-yields the output
-```output info
+yields the error
+```output error
 {{#example_out Examples/Intro.lean interpolationOops}}
 ```
 This is because there is no standard way to convert functions into strings.

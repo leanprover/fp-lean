@@ -54,6 +54,12 @@ Just as functions are applied to multiple arguments by writing spaces between ea
 {{#example_decl Examples/Intro.lean maximum}}
 ```
 
+Similarly, the function `spaceBetween` joins two strings with a space between them.
+
+```lean
+{{#example_decl Examples/Intro.lean spaceBetween}}
+```
+
 When a defined function like `maximum` has been provided with its arguments, the result is determined by first replacing the argument names with the provided values in the body, and then evaluating the resulting body. For example:
 ```lean
 {{#example_eval Examples/Intro.lean maximum_eval}}
@@ -87,7 +93,7 @@ Most typed programming languages have some means of defining aliases for types, 
 In Lean, however, types are a first-class part of the language - they are expressions like any other.
 This means that definitions can refer to types just as well as they can refer to other values.
 
-For instance, if ``String`` is too much to type, a shorter abbreviation ``Str`` can be defined:
+For example, if ``String`` is too much to type, a shorter abbreviation ``Str`` can be defined:
 ```lean
 {{#example_decl Examples/Intro.lean StringTypeDef}}
 ```

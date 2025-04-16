@@ -76,7 +76,7 @@ Happily, with `deriving Repr`, the result of `{{#example_in Examples/Intro.lean 
 ```
 
 Because structures exist to "bundle up" a collection of data, naming it and treating it as a single unit, it is also important to be able to extract the individual fields of a structure.
-This is done using dot notation, as in C, Python, or Rust.
+This is done using dot notation, as in C, Python, Rust, or JavaScript.
 
 ```lean
 {{#example_in Examples/Intro.lean originx}}
@@ -118,7 +118,7 @@ For example, the distance between (1, 2) and (5, -1) is 5:
 
 
 Multiple structures may have fields with the same names.
-For instance, a three-dimensional point datatype may share the fields `x` and `y`, and be instantiated with the same field names:
+A three-dimensional point datatype may share the fields `x` and `y`, and be instantiated with the same field names:
 ```lean
 {{#example_decl Examples/Intro.lean Point3D}}
 
@@ -126,7 +126,7 @@ For instance, a three-dimensional point datatype may share the fields `x` and `y
 ```
 This means that the structure's expected type must be known in order to use the curly-brace syntax.
 If the type is not known, Lean will not be able to instantiate the structure.
-For instance,
+For example,
 ```lean
 {{#example_in Examples/Intro.lean originNoType}}
 ```
@@ -155,7 +155,7 @@ To make programs more concise, Lean also allows the structure type annotation in
 
 Imagine a function `zeroX` that replaces the `x` field of a `Point` with `0.0`.
 In most programming language communities, this sentence would mean that the memory location pointed to by `x` was to be overwritten with a new value.
-However, Lean does not have mutable state.
+However, Lean is a functional programming language.
 In functional programming communities, what is almost always meant by this kind of statement is that a fresh `Point` is allocated with the `x` field pointing to the new value, and all other fields pointing to the original values from the input.
 One way to write `zeroX` is to follow this description literally, filling out the new value for `x` and manually transferring `y`:
 ```lean
@@ -169,14 +169,14 @@ Finally, the program becomes long and bureaucratic.
 Lean provides a convenient syntax for replacing some fields in a structure while leaving the others alone.
 This is done by using the `with` keyword in a structure initialization.
 The source of unchanged fields occurs before the `with`, and the new fields occur after.
-For instance, `zeroX` can be written with only the new `x` value:
+For example, `zeroX` can be written with only the new `x` value:
 
 ```lean
 {{#example_decl Examples/Intro.lean zeroX}}
 ```
 
 Remember that this structure update syntax does not modify existing values—it creates new values that share some fields with old values.
-For instance, given the point `fourAndThree`:
+Given the point `fourAndThree`:
 ```lean
 {{#example_decl Examples/Intro.lean fourAndThree}}
 ```

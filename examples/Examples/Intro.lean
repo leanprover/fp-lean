@@ -86,16 +86,16 @@ end expect
 
 
 expect error {{{ stringAppendList }}}
-  #check String.append "hello" [" ", "world"]
+  #check String.append ["hello", " "] "world"
 message
-r#"application type mismatch
-  "hello".append [" ", "world"]
+"application type mismatch
+  String.append [\"hello\", \" \"]
 argument
-  [" ", "world"]
+  [\"hello\", \" \"]
 has type
   List String : Type
 but is expected to have type
-  String : Type"#
+  String : Type"
 end expect
 
 
@@ -170,6 +170,11 @@ book declaration {{{ maximum }}}
     else n
 stop book declaration
 
+book declaration {{{ spaceBetween }}}
+  def spaceBetween (before : String) (after : String) : String :=
+    String.append before (String.append " " after)
+stop book declaration
+
 expect info {{{ maximumType }}}
   #check (maximum)
 message
@@ -190,9 +195,9 @@ message
 end expect
 
 expect info {{{ stringAppendHelloType }}}
-  #check String.append "Hello "
+  #check spaceBetween "Hello "
 message
-"\"Hello \".append : String → String"
+"spaceBetween \"Hello \" : String → String"
 end expect
 
 
@@ -730,7 +735,7 @@ Could not find a decreasing measure.
 The basic measures relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
              n k
-1) 715:19-32 ≤ =
+1) 720:19-32 ≤ =
 Please use `termination_by` to specify a decreasing measure."
 end expect
 
@@ -1053,18 +1058,18 @@ expect error {{{ headNoneBad }}}
   #eval [].head?
 message
 "don't know how to synthesize implicit argument 'α'
-  @List.nil ?m.18185
+  @List.nil ?m.18195
 context:
-⊢ Type ?u.18182"
+⊢ Type ?u.18192"
 end expect
 
 expect error {{{ headNoneBad2 }}}
   #eval [].head?
 message
 "don't know how to synthesize implicit argument 'α'
-  @_root_.List.head? ?m.18185 []
+  @_root_.List.head? ?m.18195 []
 context:
-⊢ Type ?u.18182"
+⊢ Type ?u.18192"
 end expect
 
 
@@ -1672,7 +1677,7 @@ expect error {{{ pointPosEvalNoType }}}
   #eval ⟨1, 2⟩
 message
 "invalid constructor ⟨...⟩, expected type must be an inductive type
-  ?m.29906"
+  ?m.29916"
 end expect
 
 expect info {{{ pointPosWithType }}}
