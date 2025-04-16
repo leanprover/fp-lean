@@ -97,11 +97,11 @@ Because the parts of the program that do not have effects are much more amenable
 Secondly, not all `IO` actions need be executed at the time that they come into existence.
 The ability to mention an action without carrying it out allows ordinary functions to be used as control structures.
 
-For instance, the function `twice` takes an `IO` action as its argument, returning a new action that will execute the first one twice.
+For example, the function `twice` takes an `IO` action as its argument, returning a new action that will execute the argument action twice.
 ```lean
 {{#example_decl Examples/HelloWorld.lean twice}}
 ```
-For instance, executing
+Executing
 ```lean
 {{#example_in Examples/HelloWorld.lean twiceShy}}
 ```

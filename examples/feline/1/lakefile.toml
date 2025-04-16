@@ -1,0 +1,7 @@
+name = "feline"
+version = "0.1.0"
+defaultTargets = ["feline"]
+
+[[lean_exe]]
+name = "feline"
+root = "Main"

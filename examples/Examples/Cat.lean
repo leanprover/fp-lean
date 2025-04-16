@@ -155,20 +155,14 @@ book declaration {{{ getNums }}}
 stop book declaration
 
 
-book declaration {{{ testEffects }}}
+expect error {{{ testEffects }}}
   def test : IO Unit := do
-    -- TODO this had the nested action in a branch, verify text!
-    let a : Nat ←  if (← getNumA) == 5 then pure 0 else getNumB
+    let a : Nat := if (← getNumA) == 5 then 0 else (← getNumB)
     (← IO.getStdout).putStrLn s!"The answer is {a}"
-stop book declaration
-
-expect info {{{ runTest }}}
-  #eval test
 message
-"A
-The answer is 0
-"
+"invalid use of `(<- ...)`, must be nested inside a 'do' expression"
 end expect
+
 
 namespace Foo
 book declaration {{{ testEffectsExpanded }}}
@@ -180,11 +174,6 @@ book declaration {{{ testEffectsExpanded }}}
 stop book declaration
 end Foo
 
-example : test = Foo.test := by
-  funext x
-  simp [test, Foo.test]
-  apply congrFun
-  sorry -- TODO - this changed!
 
 def a : IO Nat := do
   pure ((← getNumA) + (← getNums (← getNumB)).snd)

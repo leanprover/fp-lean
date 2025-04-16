@@ -23,7 +23,7 @@ Edit the Lakefile to remove the library, and delete the generated library code a
 Once this has been done, `lakefile.lean` should contain:
 
 ```lean
-{{#include ../../../examples/feline/1/lakefile.lean}}
+{{#include ../../../examples/feline/1/lakefile.toml}}
 ```
 
 and `Main.lean` should contain something like:
@@ -51,7 +51,8 @@ For the sake of simplicity, this implementation uses a conservative 20 kilobyte 
 
 ### Streams
 
-The main work of `feline` is done by `dump`, which reads input one block at a time, dumping the result to standard output, until the end of the input has been reached:
+The main work of `feline` is done by `dump`, which reads input one block at a time, dumping the result to standard output, until the end of the input has been reached.
+The end of the input is indicated by `read` returning an empty byte array:
 ```lean
 {{#include ../../../examples/feline/2/Main.lean:dump}}
 ```
@@ -67,13 +68,14 @@ Each operation is represented as an IO action that provides the corresponding op
 ```lean
 {{#example_decl Examples/Cat.lean Stream}}
 ```
+The type `BaseIO` is a variant of `IO` that rules out run-time errors.
 The Lean compiler contains `IO` actions (such as `IO.getStdout`, which is called in `dump`) to get streams that represent standard input, standard output, and standard error.
 These are `IO` actions rather than ordinary definitions because Lean allows these standard POSIX streams to be replaced in a process, which makes it easier to do things like capturing the output from a program into a string by writing a custom `IO.FS.Stream`.
 
 The control flow in `dump` is essentially a `while` loop.
 When `dump` is called, if the stream has reached the end of the file, `pure ()` terminates the function by returning the constructor for `Unit`.
 If the stream has not yet reached the end of the file, one block is read, and its contents are written to `stdout`, after which `dump` calls itself directly.
-The recursive calls continue until `stream.read` returns an empty byte array, which indicates that the end of the file has been reached.
+The recursive calls continue until `stream.read` returns an empty byte array, which indicates the end of the file.
 
 When an `if` expression occurs as a statement in a `do`, as in `dump`, each branch of the `if` is implicitly provided with a `do`.
 In other words, the sequence of steps following the `else` are treated as a sequence of `IO` actions to be executed, just as if they had a `do` at the beginning.
@@ -141,9 +143,9 @@ To check whether `feline` works, the first step is to build it with `{{#command 
 First off, when called without arguments, it should emit what it receives from standard input.
 Check that
 ```
-{{#command {feline/2} {feline/2} {echo "It works!" | ./.lake/build/bin/feline} }}
+{{#command {feline/2} {feline/2} {echo "It works!" | lake exe feline} }}
 ```
-emits `{{#command_out {feline/2} {echo "It works!" | ./.lake/build/bin/feline} }}`.
+emits `{{#command_out {feline/2} {echo "It works!" | lake exe feline} }}`.
 
 Secondly, when called with files as arguments, it should print them.
 If the file `test1.txt` contains
@@ -156,20 +158,20 @@ and `test2.txt` contains
 ```
 then the command
 ```
-{{#command {feline/2} {feline/2} {./.lake/build/bin/feline test1.txt test2.txt} }}
+{{#command {feline/2} {feline/2} {lake exe feline test1.txt test2.txt} }}
 ```
 should emit
 ```
-{{#command_out {feline/2} {./.lake/build/bin/feline test1.txt test2.txt} {feline/2/expected/test12.txt} }}
+{{#command_out {feline/2} {lake exe feline test1.txt test2.txt} {feline/2/expected/test12.txt} }}
 ```
 
 Finally, the `-` argument should be handled appropriately.
 ```
-{{#command {feline/2} {feline/2} {echo "and purr" | ./.lake/build/bin/feline test1.txt - test2.txt} }}
+{{#command {feline/2} {feline/2} {echo "and purr" | lake exe feline test1.txt - test2.txt} }}
 ```
 should yield
 ```
-{{#command_out {feline/2} {echo "and purr" | ./.lake/build/bin/feline test1.txt - test2.txt} {feline/2/expected/test1purr2.txt}}}
+{{#command_out {feline/2} {echo "and purr" | lake exe feline test1.txt - test2.txt} {feline/2/expected/test1purr2.txt}}}
 ```
 
 ## Exercise

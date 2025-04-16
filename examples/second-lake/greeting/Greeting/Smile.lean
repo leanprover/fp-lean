@@ -1,1 +1,1 @@
-def expression : String := "a big smile"
+def Expression.happy : String := "a big smile"

@@ -2,12 +2,9 @@
 
 As a program written in Lean becomes more serious, an ahead-of-time compiler-based workflow that results in an executable becomes more attractive.
 Like other languages, Lean has tools for building multiple-file packages and managing dependencies.
-The standard Lean build tool is called Lake (short for "Lean Make"), and it is configured in Lean.
-Just as Lean contains a special-purpose language for writing programs with effects (the `do` language), Lake contains a special-purpose language for configuring builds.
-These languages are referred to as _embedded domain-specific languages_ (or sometimes _domain-specific embedded languages_, abbreviated EDSL or DSEL).
-They are _domain-specific_ in the sense that they are used for a particular purpose, with concepts from some sub-domain, and they are typically not suitable for general-purpose programming.
-They are _embedded_ because they occur inside another language's syntax.
-While Lean contains rich facilities for creating EDSLs, they are beyond the scope of this book.
+The standard Lean build tool is called Lake (short for "Lean Make").
+Lake is typically configured using a TOML file that declaratively specifies dependencies and describes what is to be built.
+For advanced use cases, Lake can also be configured in Lean itself.
 
 ## First steps
 
@@ -16,7 +13,7 @@ This creates a directory called `greeting` that contains the following files:
 
  * `Main.lean` is the file in which the Lean compiler will look for the `main` action.
  * `Greeting.lean` and `Greeting/Basic.lean` are the scaffolding of a support library for the program.
- * `lakefile.lean` contains the configuration that `lake` needs to build the application.
+ * `lakefile.toml` contains the configuration that `lake` needs to build the application.
  * `lean-toolchain` contains an identifier for the specific version of Lean that is used for the project.
 
 Additionally, `lake new` initializes the project as a Git repository and configures its `.gitignore` file to ignore intermediate build products.
@@ -33,8 +30,6 @@ The library file `Greeting.lean` imports `Greeting/Basic.lean`:
 ```
 This means that everything defined in `Greetings/Basic.lean` is also available to files that import `Greetings.lean`.
 In `import` statements, dots are interpreted as directories on disk.
-Placing guillemets around a name, as in `«Greeting»`, allow it to contain spaces or other characters that are normally not allowed in Lean names, and it allows reserved keywords such as `if` or `def` to be used as ordinary names by writing `«if»` or `«def»`.
-This prevents issues when the package name provided to `lake new` contains such characters.
 
 The executable source `Main.lean` contains:
 ```lean
@@ -45,35 +40,34 @@ Because `Main.lean` imports `Greetings.lean` and `Greetings.lean` imports `Greet
 To build the package, run the command `{{#command {first-lake/greeting} {lake} {lake build} }}`.
 After a number of build commands scroll by, the resulting binary has been placed in `.lake/build/bin`.
 Running `{{#command {first-lake/greeting} {lake} {./.lake/build/bin/greeting} }}` results in `{{#command_out {lake} {./.lake/build/bin/greeting} }}`.
+Instead of running the binary directly, the command `lake exe` can be used to build the binary if necessary and then run it.
+Running `{{#command {first-lake/greeting} {lake} {lake exe greeting} }}` also results in `{{#command_out {lake} {lake exe greeting} }}`.
+
 
 ## Lakefiles
 
 A `lakefile.lean` describes a _package_, which is a coherent collection of Lean code for distribution, analogous to an `npm` or `nuget` package or a Rust crate.
 A package may contain any number of libraries or executables.
-While the [documentation for Lake](https://github.com/leanprover/lean4/blob/master/src/lake/README.md) describes the available options in a lakefile, it makes use of a number of Lean features that have not yet been described here.
+The [documentation for Lake](https://lean-lang.org/doc/reference/latest/find/?domain=Verso.Genre.Manual.section&name=lake-config-toml) describes the available options in a Lake configuration.
 The generated `lakefile.toml` contains the following:
 ```lean
 {{#file_contents {lake} {first-lake/greeting/lakefile.toml} {first-lake/expected/lakefile.toml}}}
 ```
 
-This initial Lakefile consists of three items:
- * a _package_ declaration, named `greeting`,
+This initial Lake configuration consists of three items:
+ * _package_ settings, at the top of the file,
  * a _library_ declaration, named `Greeting`, and
- * an _executable_, also named `greeting`.
+ * an _executable_, named `greeting`.
 
-Each of these names is enclosed in guillemets to allow users more freedom in picking package names.
-
-Each Lakefile will contain exactly one package, but any number of libraries or executables.
-Additionally, Lakefiles may contain _external libraries_, which are libraries not written in Lean to be statically linked with the resulting executable, _custom targets_, which are build targets that don't fit naturally into the library/executable taxonomy, _dependencies_, which are declarations of other Lean packages (either locally or from remote Git repositories), and _scripts_, which are essentially `IO` actions (similar to `main`), but that additionally have access to metadata about the package configuration.
+Each Lake configuration file will contain exactly one package, but any number of dependencies, libraries, or executables.
+Dependencies are declarations of other Lean packages (either locally or from remote Git repositories)
 The items in the Lakefile allow things like source file locations, module hierarchies, and compiler flags to be configured.
 Generally speaking, however, the defaults are reasonable.
+Lake configuration files written in the Lean format may additionally contain _external libraries_, which are libraries not written in Lean to be statically linked with the resulting executable, _custom targets_, which are build targets that don't fit naturally into the library/executable taxonomy, and _scripts_, which are essentially `IO` actions (similar to `main`), but that additionally have access to metadata about the package configuration.
 
 Libraries, executables, and custom targets are all called _targets_.
-By default, `lake build` builds those targets that are annotated with `@[default_target]`.
-This annotation is an _attribute_, which is metadata that can be associated with a Lean declaration.
-Attributes are similar to Java annotations or C# and Rust attributes.
-They are used pervasively throughout Lean.
-To build a target that is not annotated with `@[default_target]`, specify the target's name as an argument after `lake build`.
+By default, `lake build` builds those targets that are specified in the `defaultTargets` list.
+To build a target that is not a default target, specify the target's name as an argument after `lake build`.
 
 ## Libraries and Imports
 
@@ -96,12 +90,11 @@ means that `Main.lean` can use the definition as follows:
 The module name hierarchy is decoupled from the namespace hierarchy.
 In Lean, modules are units of code distribution, while namespaces are units of code organization.
 That is, names defined in the module `Greeting.Smile` are not automatically in a corresponding namespace `Greeting.Smile`.
+In particular, `happy` is in the `Expression` namespace.
 Modules may place names into any namespace they like, and the code that imports them may `open` the namespace or not.
 `import` is used to make the contents of a source file available, while `open` makes names from a namespace available in the current context without prefixes.
-In the Lakefile, the line `import Lake` makes the contents of the `Lake` module available, while the line `open Lake DSL` makes the contents of the `Lake` and `Lake.DSL` namespaces available without any prefixes.
-`Lake.DSL` is opened because opening `Lake` makes `Lake.DSL` available as just `DSL`, just like all other names in the `Lake` namespace.
-The `Lake` module places names into both the `Lake` and `Lake.DSL` namespaces.
 
+The line `open Expression` makes the name `Expression.happy` accessible as `happy` in `main`.
 Namespaces may also be opened _selectively_, making only some of their names available without explicit prefixes.
 This is done by writing the desired names in parentheses.
 For example, `Nat.toFloat` converts a natural number to a `Float`.

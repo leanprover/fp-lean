@@ -35,6 +35,8 @@ Even though it's often good style to use nested actions, it can still sometimes 
 
 It is important to remember, however, that nested actions are only a shorter notation for `IO` actions that occur in a surrounding `do` block.
 The side effects that are involved in executing them still occur in the same order, and execution of side effects is not interspersed with the evaluation of expressions.
+Therefore, nested actions cannot be lifted from the branches of an `if`.
+
 For an example of where this might be confusing, consider the following helper definitions that return data after announcing to the world that they have been executed:
 ```lean
 {{#example_decl Examples/Cat.lean getNumA}}
@@ -43,23 +45,19 @@ For an example of where this might be confusing, consider the following helper d
 ```
 These definitions are intended to stand in for more complicated `IO` code that might validate user input, read a database, or open a file.
 
-A program that prints `0` when number A is five, or number `B` otherwise, can be written as follows:
+A program that prints `0` when number A is five, or number `B` otherwise, might be written as follows:
 ```lean
-{{#example_decl Examples/Cat.lean testEffects}}
+{{#example_in Examples/Cat.lean testEffects}}
 ```
-However, this program probably has more side effects (such as prompting for user input or reading a database) than was intended.
-The definition of `getNumA` makes it clear that it will always return `5`, and thus the program should not read number B.
-However, running the program results in the following output:
-```output info
-{{#example_out Examples/Cat.lean runTest}}
-```
-`getNumB` was executed because `test` is equivalent to this definition:
+This program would be equivalent to:
 ```lean
 {{#example_decl Examples/Cat.lean testEffectsExpanded}}
 ```
-This is due to the rule that nested actions are lifted to the _closest enclosing_ `do` block.
-The branches of the `if` were not implicitly wrapped in `do` blocks because the `if` is not itself a statement in the `do` block—the statement is the `let` that defines `a`.
-Indeed, they could not be wrapped this way, because the type of the conditional expression is `Nat`, not `IO Nat`.
+which runs `getNumB` regardless of whether the result of `getNumA` is equal to `5`.
+To prevent this confusion, nested actions are not allowed in an `if` that is not itself a line in the `do`, and the following error message results:
+```output error
+{{#example_out Examples/Cat.lean testEffects}}
+```
 
 ## Flexible Layouts for `do`
 
@@ -102,4 +100,4 @@ Quickly testing `IO` actions with `#eval` can be much more convenient that compi
 However, there are some limitations.
 For instance, reading from standard input simply returns empty input.
 Additionally, the `IO` action is re-executed whenever Lean needs to update the diagnostic information that it provides to users, and this can happen at unpredictable times.
-An action that reads and writes files, for instance, may do so at inconvenient times.
+An action that reads and writes files, for instance, may do so unexpectedly.
