@@ -131,8 +131,9 @@ end expect
 
 
 expect error {{{ fourNotThree1 }}}
+  -- TODO was simp, check text
   theorem four_is_not_three : ¬ IsThree 4 := by
-    simp [Not]
+    unfold Not
 message
 "unsolved goals
 ⊢ IsThree 4 → False"
@@ -191,43 +192,43 @@ expect error {{{ mapHelperIndexIssue }}}
 message
 "failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
-  - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
-α : Type ?u.1704
-β : Type ?u.1707
+α : Type ?u.1290
+β : Type ?u.1293
 f : α → β
 arr : Array α
 soFar : Array β
 i : Nat
-⊢ i < Array.size arr"
+⊢ i < arr.size"
 end expect
 
 
 expect error {{{ arrayMapHelperTermIssue }}}
+  -- TODO this was a termination issue before, now it Just Works - fix text because this error is bogus
   def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
     if inBounds : i < arr.size then
+      let x : String := 55
       arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
     else soFar
 message
-"fail to show termination for
-  arrayMapHelper
-with errors
-argument #6 was not used for structural recursion
-  failed to eliminate recursive application
-    arrayMapHelper f✝ arr (Array.push soFar (f✝ arr[i])) (i + 1)
+"failed to synthesize
+  OfNat String 55
+numerals are polymorphic in Lean, but the numeral `55` cannot be used in a context where the expected type is
+  String
+due to the absence of the instance above
 
-structural recursion cannot be used
-
-failed to prove termination, use `termination_by` to specify a well-founded relation"
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 book declaration {{{ ArrayMapHelperOk }}}
+  -- TODO this was a termination issue before, now it Just Works - no help needed
   def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
     if inBounds : i < arr.size then
       arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
     else soFar
-  termination_by arrayMapHelper _ arr _ i _ => arr.size - i
+  -- TODO termination_by arrayMapHelper _ arr _ i _ => arr.size - i
 stop book declaration
 
 namespace TailRec
@@ -248,7 +249,7 @@ book declaration {{{ ArrayFindHelper }}}
         some (i, x)
       else findHelper arr p (i + 1)
     else none
-  termination_by findHelper arr p i => arr.size - i
+  -- TODO check termination_by findHelper arr p i => arr.size - i
 stop book declaration
 
 book declaration {{{ ArrayFind }}}

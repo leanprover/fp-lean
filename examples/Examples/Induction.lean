@@ -11,12 +11,12 @@ expect error {{{ plusR_ind_zero_left_1 }}}
 message
 "unsolved goals
 case zero
-⊢ Nat.zero = Nat.plusR 0 Nat.zero
+⊢ 0 = Nat.plusR 0 0
 
 case succ
 n✝ : Nat
-n_ih✝ : n✝ = Nat.plusR 0 n✝
-⊢ Nat.succ n✝ = Nat.plusR 0 (Nat.succ n✝)"
+a✝ : n✝ = Nat.plusR 0 n✝
+⊢ n✝ + 1 = Nat.plusR 0 (n✝ + 1)"
 end expect
 
 expect error {{{ plusR_ind_zero_left_2a }}}
@@ -27,7 +27,7 @@ expect error {{{ plusR_ind_zero_left_2a }}}
 message
 "unsolved goals
 case zero
-⊢ Nat.zero = Nat.plusR 0 Nat.zero"
+⊢ 0 = Nat.plusR 0 0"
 end expect
 
 expect error {{{ plusR_ind_zero_left_2b }}}
@@ -40,7 +40,7 @@ message
 case succ
 n : Nat
 ih : n = Nat.plusR 0 n
-⊢ Nat.succ n = Nat.plusR 0 (Nat.succ n)"
+⊢ n + 1 = Nat.plusR 0 (n + 1)"
 end expect
 
 
@@ -63,7 +63,7 @@ message
 case succ
 n : Nat
 ih : n = Nat.plusR 0 n
-⊢ Nat.succ n = Nat.plusR 0 (Nat.succ n)"
+⊢ n + 1 = Nat.plusR 0 (n + 1)"
 end expect
 
 
@@ -78,7 +78,7 @@ message
 case succ
 n : Nat
 ih : n = Nat.plusR 0 n
-⊢ Nat.succ n = Nat.plusR 0 n + 1"
+⊢ n + 1 = Nat.plusR 0 n + 1"
 end expect
 
 
@@ -94,7 +94,7 @@ message
 case succ
 n : Nat
 ih : n = Nat.plusR 0 n
-⊢ Nat.succ (Nat.plusR 0 n) = Nat.plusR 0 (Nat.plusR 0 n) + 1"
+⊢ Nat.plusR 0 n + 1 = Nat.plusR 0 (Nat.plusR 0 n) + 1"
 end expect
 
 
@@ -178,7 +178,7 @@ message
 "unsolved goals
 case succ
 n✝ : Nat
-n_ih✝ : n✝ = Nat.plusR 0 n✝
+a✝ : n✝ = Nat.plusR 0 n✝
 ⊢ n✝ = Nat.plusR 0 n✝"
 end expect
 
@@ -222,7 +222,7 @@ end expect
       simp
 
 theorem List.append_assoc (xs ys zs : List α) : xs ++ (ys ++ zs) = (xs ++ ys) ++ zs := by
-  induction xs <;> simp [*]
+  induction xs <;> simp only [List.nil_append, List.cons_append, *]
 
 end Tactical
 
@@ -244,7 +244,7 @@ message
 "unsolved goals
 case leaf
 α : Type
-⊢ count (mirror leaf) = count leaf"
+⊢ leaf.mirror.count = leaf.count"
 end expect
 
 expect error {{{ mirror_count_0b }}}
@@ -259,9 +259,9 @@ case branch
 l : BinTree α
 x : α
 r : BinTree α
-ihl : count (mirror l) = count l
-ihr : count (mirror r) = count r
-⊢ count (mirror (branch l x r)) = count (branch l x r)"
+ihl : l.mirror.count = l.count
+ihr : r.mirror.count = r.count
+⊢ (l.branch x r).mirror.count = (l.branch x r).count"
 end expect
 
 expect error {{{ mirror_count_1 }}}
@@ -276,9 +276,9 @@ case branch
 l : BinTree α
 x : α
 r : BinTree α
-ihl : count (mirror l) = count l
-ihr : count (mirror r) = count r
-⊢ count (mirror (branch l x r)) = count (branch l x r)"
+ihl : l.mirror.count = l.count
+ihr : r.mirror.count = r.count
+⊢ (l.branch x r).mirror.count = (l.branch x r).count"
 end expect
 
 
@@ -295,9 +295,9 @@ case branch
 l : BinTree α
 x : α
 r : BinTree α
-ihl : count (mirror l) = count l
-ihr : count (mirror r) = count r
-⊢ 1 + count (mirror r) + count (mirror l) = 1 + count l + count r"
+ihl : l.mirror.count = l.count
+ihr : r.mirror.count = r.count
+⊢ 1 + r.mirror.count + l.mirror.count = 1 + l.count + r.count"
 end expect
 
 
@@ -315,9 +315,9 @@ case branch
 l : BinTree α
 x : α
 r : BinTree α
-ihl : count (mirror l) = count l
-ihr : count (mirror r) = count r
-⊢ 1 + count r + count l = 1 + count l + count r"
+ihl : l.mirror.count = l.count
+ihr : r.mirror.count = r.count
+⊢ 1 + r.count + l.count = 1 + l.count + r.count"
 end expect
 
 book declaration {{{ mirror_count_4 }}}
@@ -327,7 +327,7 @@ book declaration {{{ mirror_count_4 }}}
     | branch l x r ihl ihr =>
       simp [BinTree.mirror, BinTree.count]
       rw [ihl, ihr]
-      simp_arith
+      simp +arith
 stop book declaration
 
 namespace Golf
@@ -338,7 +338,7 @@ book declaration {{{ mirror_count_5 }}}
     induction t with
     | leaf => simp [BinTree.mirror]
     | branch l x r ihl ihr =>
-      simp_arith [BinTree.mirror, BinTree.count, ihl, ihr]
+      simp +arith [BinTree.mirror, BinTree.count, ihl, ihr]
 stop book declaration
 
 namespace B
@@ -347,7 +347,7 @@ book declaration {{{ mirror_count_6 }}}
     induction t with
     | leaf => simp [BinTree.mirror]
     | branch l x r ihl ihr =>
-      simp_arith [BinTree.mirror, BinTree.count, *]
+      simp +arith [BinTree.mirror, BinTree.count, *]
 stop book declaration
 end B
 
@@ -355,7 +355,7 @@ end B
 namespace A
 book declaration {{{ mirror_count_7 }}}
   theorem BinTree.mirror_count (t : BinTree α) : t.mirror.count = t.count := by
-    induction t <;> simp_arith [BinTree.mirror, BinTree.count, *]
+    induction t <;> simp +arith [BinTree.mirror, BinTree.count, *]
 stop book declaration
 end A
 

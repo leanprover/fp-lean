@@ -45,7 +45,7 @@ namespace F
 expect info {{{ FunctionConstType }}}
   #check Function.const
 message
-"Function.const.{u, v} {α : Sort u} (β : Sort v) (a : α) (a✝ : β) : α"
+"Function.const.{u, v} {α : Sort u} (β : Sort v) (a : α) : β → α"
 end expect
 end F
 
@@ -196,7 +196,8 @@ stop book declaration
 
 
 book declaration {{{ Monad }}}
-  class Monad (m : Type u → Type v) extends Applicative m, Bind m : Type (max (u+1) v) where
+  -- TODO: Structure type annotation syntax change - check text
+  class Monad (m : Type u → Type v) : Type (max (u+1) v) extends Applicative m, Bind m  where
     map      f x := bind x (Function.comp pure f)
     seq      f x := bind f fun y => Functor.map y (x ())
     seqLeft  x y := bind x fun a => bind (y ()) (fun _ => pure a)

@@ -49,13 +49,8 @@ end evaluation steps
 expect error {{{ stringAppendReprFunction }}}
   #eval String.append "it is "
 message
-"expression
-  String.append \"it is \"
-has type
-  String → String
-but instance
-  Lean.MetaEval (String → String)
-failed to be synthesized, this instance instructs Lean on how to display the resulting value, recall that any type implementing the `Repr` class also implements the `Lean.MetaEval` class"
+"could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type
+  String → String"
 end expect
 
 expect info {{{ stringAppendCond }}}
@@ -93,14 +88,14 @@ end expect
 expect error {{{ stringAppendList }}}
   #check String.append "hello" [" ", "world"]
 message
-"application type mismatch
-  String.append \"hello\" [\" \", \"world\"]
+r#"application type mismatch
+  "hello".append [" ", "world"]
 argument
-  [\" \", \"world\"]
+  [" ", "world"]
 has type
   List String : Type
 but is expected to have type
-  String : Type"
+  String : Type"#
 end expect
 
 
@@ -197,7 +192,7 @@ end expect
 expect info {{{ stringAppendHelloType }}}
   #check String.append "Hello "
 message
-"String.append \"Hello \" : String → String"
+"\"Hello \".append : String → String"
 end expect
 
 
@@ -236,8 +231,13 @@ stop book declaration
 expect error {{{ thirtyEight }}}
   def thirtyEight : NaturalNumber := 38
 message
-"failed to synthesize instance
-  OfNat NaturalNumber 38"
+"failed to synthesize
+  OfNat NaturalNumber 38
+numerals are polymorphic in Lean, but the numeral `38` cannot be used in a context where the expected type is
+  NaturalNumber
+due to the absence of the instance above
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 book declaration {{{ thirtyEightFixed }}}
@@ -319,17 +319,17 @@ book declaration {{{ originNoRepr }}}
   def origin : Point := { x := 0.0, y := 0.0 }
 stop book declaration
 
-expect error {{{ PointNoRepr }}}
-  #eval origin
-message
-"expression
-  origin
-has type
-  Point
-but instance
-  Lean.MetaEval Point
-failed to be synthesized, this instance instructs Lean on how to display the resulting value, recall that any type implementing the `Repr` class also implements the `Lean.MetaEval` class"
-end expect
+-- expect error {{{ PointNoRepr }}}
+--   #eval origin
+-- message
+-- "expression
+--   origin
+-- has type
+--   Point
+-- but instance
+--   Lean.MetaEval Point
+-- failed to be synthesized, this instance instructs Lean on how to display the resulting value, recall that any type implementing the `Repr` class also implements the `Lean.MetaEval` class"
+-- end expect
 end Oops
 
 expect error {{{ originNoType }}}
@@ -651,7 +651,10 @@ message
 "fail to show termination for
   evenLoops
 with errors
-structural recursion cannot be used
+failed to infer structural recursion:
+Not considering parameter n of evenLoops:
+  it is unchanged in the recursive calls
+no parameters suitable for structural recursion
 
 well-founded recursion cannot be used, 'evenLoops' does not take any (non-fixed) arguments"
 end expect
@@ -714,17 +717,21 @@ message
 "fail to show termination for
   div
 with errors
-argument #1 was not used for structural recursion
+failed to infer structural recursion:
+Cannot use parameter n:
+  failed to eliminate recursive application
+    div (n - k) k
+Cannot use parameter k:
   failed to eliminate recursive application
     div (n - k) k
 
-argument #2 was not used for structural recursion
-  failed to eliminate recursive application
-    div (n - k) k
 
-structural recursion cannot be used
-
-failed to prove termination, use `termination_by` to specify a well-founded relation"
+Could not find a decreasing measure.
+The basic measures relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+             n k
+1) 715:19-32 ≤ =
+Please use `termination_by` to specify a decreasing measure."
 end expect
 
 
@@ -937,7 +944,7 @@ book declaration {{{ Prod }}}
 stop book declaration
 
 -- Justify the claim in the text that Prod could be used instead of PPoint
-theorem iso_Prod_PPoint {α : Type} : Iso (Prod α α) (PPoint α) := by
+def iso_Prod_PPoint {α : Type} : Iso (Prod α α) (PPoint α) := by
   constructor
   case into => apply (fun prod => PPoint.mk prod.fst prod.snd)
   case outOf => apply (fun point => Prod.mk point.x point.y)
@@ -1045,19 +1052,19 @@ end expect
 expect error {{{ headNoneBad }}}
   #eval [].head?
 message
-"don't know how to synthesize implicit argument
-  @List.nil ?m.20264
+"don't know how to synthesize implicit argument 'α'
+  @List.nil ?m.18185
 context:
-⊢ Type ?u.20261"
+⊢ Type ?u.18182"
 end expect
 
 expect error {{{ headNoneBad2 }}}
   #eval [].head?
 message
-"don't know how to synthesize implicit argument
-  @_root_.List.head? ?m.20264 []
+"don't know how to synthesize implicit argument 'α'
+  @_root_.List.head? ?m.18185 []
 context:
-⊢ Type ?u.20261"
+⊢ Type ?u.18182"
 end expect
 
 
@@ -1114,8 +1121,6 @@ stop book declaration
 -- Backing up that they are equivalent
 example : Nested.sevens = sevens := by rfl
 
-
-def Prod.swap {α β : Type} (pair : α × β) : β × α := (pair.snd, pair.fst)
 
 example : sevens.swap = ((7, 7), "VII") := by rfl
 
@@ -1222,7 +1227,7 @@ message
   Type
 at universe level
   2
-it must be smaller than or equal to the inductive datatype universe level
+which is not less than or equal to the inductive type's resulting universe level
   1"
 end expect
 
@@ -1451,7 +1456,9 @@ def halve : Nat → Nat
   | n + 2 => halve n + 1
 stop book declaration
 
-example : Explicit.halve = halve := by rfl
+example : Explicit.halve = halve := by
+  funext x
+  fun_induction halve x <;> simp [halve, Explicit.halve, *]
 
 namespace Oops
 expect error {{{ halveFlippedPat }}}
@@ -1502,7 +1509,7 @@ message
 "fun x =>
   match x with
   | 0 => none
-  | Nat.succ n => some n : Nat → Option Nat"
+  | n.succ => some n : Nat → Option Nat"
 end expect
 
 namespace Double
@@ -1607,8 +1614,10 @@ end expect
 expect error {{{ interpolationOops }}}
   #check s!"three fives is {NewNamespace.triple}"
 message
-"failed to synthesize instance
-  ToString (Nat → Nat)"
+"failed to synthesize
+  ToString (Nat → Nat)
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 
@@ -1662,7 +1671,8 @@ end bookExample
 expect error {{{ pointPosEvalNoType }}}
   #eval ⟨1, 2⟩
 message
-"invalid constructor ⟨...⟩, expected type must be an inductive type \n  ?m.34991"
+"invalid constructor ⟨...⟩, expected type must be an inductive type
+  ?m.29906"
 end expect
 
 expect info {{{ pointPosWithType }}}

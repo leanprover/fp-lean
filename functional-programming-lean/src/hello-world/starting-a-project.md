@@ -43,17 +43,17 @@ The executable source `Main.lean` contains:
 Because `Main.lean` imports `Greetings.lean` and `Greetings.lean` imports `Greetings/Basic.lean`, the definition of `hello` is available in `main`.
 
 To build the package, run the command `{{#command {first-lake/greeting} {lake} {lake build} }}`.
-After a number of build commands scroll by, the resulting binary has been placed in `build/bin`.
-Running `{{#command {first-lake/greeting} {lake} {./build/bin/greeting} }}` results in `{{#command_out {lake} {./build/bin/greeting} }}`.
+After a number of build commands scroll by, the resulting binary has been placed in `.lake/build/bin`.
+Running `{{#command {first-lake/greeting} {lake} {./.lake/build/bin/greeting} }}` results in `{{#command_out {lake} {./.lake/build/bin/greeting} }}`.
 
 ## Lakefiles
 
 A `lakefile.lean` describes a _package_, which is a coherent collection of Lean code for distribution, analogous to an `npm` or `nuget` package or a Rust crate.
 A package may contain any number of libraries or executables.
 While the [documentation for Lake](https://github.com/leanprover/lean4/blob/master/src/lake/README.md) describes the available options in a lakefile, it makes use of a number of Lean features that have not yet been described here.
-The generated `lakefile.lean` contains the following:
+The generated `lakefile.toml` contains the following:
 ```lean
-{{#file_contents {lake} {first-lake/greeting/lakefile.lean} {first-lake/expected/lakefile.lean}}}
+{{#file_contents {lake} {first-lake/greeting/lakefile.toml} {first-lake/expected/lakefile.toml}}}
 ```
 
 This initial Lakefile consists of three items:

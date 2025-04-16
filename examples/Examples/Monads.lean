@@ -297,8 +297,8 @@ book declaration {{{ isEven }}}
     i % 2 == 0
 stop book declaration
 
-example : isEven 34 := by simp
-example : ¬isEven 39 := by simp
+example : isEven 34 := by decide
+example : ¬isEven 39 := by decide
 
 
 book declaration {{{ sumAndFindEvensDirect }}}
@@ -511,6 +511,3 @@ end Monadicish
 example : number aTree = Monadicish.number aTree := by rfl
 
 end Monads.State
-
-
-

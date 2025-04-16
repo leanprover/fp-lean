@@ -231,16 +231,19 @@ end expect
 expect error {{{ mapMIdNoHint }}}
   #eval mapM (· + 1) [1, 2, 3, 4, 5]
 message
-"failed to synthesize instance
-  HAdd Nat Nat (?m.9063 ?m.9065)"
+"failed to synthesize
+  HAdd Nat Nat (?m.4319 ?m.4321)
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 
 expect error {{{ mapMIdId }}}
-  #eval mapM (fun x => x) [1, 2, 3, 4, 5]
+  -- TODO added type annotation - check
+  #eval mapM (fun (x : Nat) => x) [1, 2, 3, 4, 5]
 message
 "typeclass instance problem is stuck, it is often due to metavariables
-  Monad ?m.9063"
+  Monad ?m.4319"
 end expect
 
 end MyListStuff

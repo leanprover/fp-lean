@@ -102,7 +102,7 @@ expect error {{{ trollLargeNoDot }}}
   #eval MythicalCreature.large troll
 message
 "application type mismatch
-  troll.large
+  MythicalCreature.large troll
 argument
   troll
 has type
@@ -158,8 +158,7 @@ expect info {{{ printMonstrousAssistantToHelper }}}
   #print MonstrousAssistant.toHelper
 message
 "@[reducible] def MonstrousAssistant.toHelper : MonstrousAssistant → Helper :=
-fun self =>
-  { toMythicalCreature := self.toMonster.toMythicalCreature, assistance := self.assistance, payment := self.payment }"
+fun self => { toMythicalCreature := self.toMythicalCreature, assistance := self.assistance, payment := self.payment }"
 end expect
 
 book declaration {{{ domesticatedTroll }}}
@@ -200,7 +199,7 @@ book declaration {{{ huldresize }}}
     size := .medium
 
   example : SizesMatch huldre := by
-    simp
+    decide
 stop book declaration
 
 book declaration {{{ small }}}
@@ -598,7 +597,7 @@ equational steps : m γ {{{ mSeqRespComp }}}
    w >>= fun z =>
    pure (h z)
   ={
-  by simp [LawfulMonad.pure_bind]
+  by simp only [LawfulMonad.pure_bind]
   -- `pure` is a left identity of `>>=`
   }=
   ((u >>= fun x =>
@@ -617,7 +616,7 @@ equational steps : m γ {{{ mSeqRespComp }}}
    w >>= fun z =>
    pure (h z)
   ={
-  by simp [LawfulMonad.bind_assoc]
+  by simp only [LawfulMonad.bind_assoc]
   -- Associativity of `>>=`
   }=
   (u >>= fun x =>
@@ -626,7 +625,7 @@ equational steps : m γ {{{ mSeqRespComp }}}
    w >>= fun z =>
    pure (h z)
   ={
-  by simp [LawfulMonad.pure_bind]
+  by simp only [LawfulMonad.pure_bind]
   -- `pure` is a left identity of `>>=`
   }=
   (u >>= fun x =>
@@ -635,7 +634,7 @@ equational steps : m γ {{{ mSeqRespComp }}}
    w >>= fun z =>
    pure (h z)
   ={
-  by simp [LawfulMonad.bind_assoc]
+  by simp only [LawfulMonad.bind_assoc]
   -- Associativity of `>>=`
   }=
   u >>= fun x =>
@@ -644,7 +643,7 @@ equational steps : m γ {{{ mSeqRespComp }}}
   w >>= fun z =>
   pure (h z)
   ={
-  by simp [LawfulMonad.pure_bind]
+  by simp [bind_pure_comp]; rfl
   -- `pure` is a left identity of `>>=`
   }=
   u >>= fun x =>
@@ -797,8 +796,9 @@ theorem NonEmptyList.append_assoc (xs ys zs : NonEmptyList α) : (xs ++ ys) ++ z
     | mk y ys =>
       cases zs with
       | mk x xs =>
-        simp [HAppend.hAppend, Append.append]
-        apply List.append_assoc
+        simp only [HAppend.hAppend]
+        dsimp [Append.append]
+        simp
 
 
 book declaration {{{ Validate }}}
@@ -936,7 +936,7 @@ stop book declaration
 
 book declaration {{{ OfNatFastPos }}}
   instance : OfNat FastPos (n + 1) where
-    ofNat := ⟨n + 1, by simp_arith⟩
+    ofNat := ⟨n + 1, by simp⟩
 stop book declaration
 
 def seven : FastPos := 7

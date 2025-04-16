@@ -18,24 +18,26 @@ stop book declaration
 deriving instance Repr for Vect
 
 expect error {{{ nilNotLengthThree }}}
+  -- TODO check text - the new Lean introduced metas in this message that weren't there
   example : Vect String 3 := Vect.nil
 message
 "type mismatch
   Vect.nil
 has type
-  Vect String 0 : Type
+  Vect ?m.1580 0 : Type ?u.1579
 but is expected to have type
   Vect String 3 : Type"
 end expect
 
 
 expect error {{{ nilNotLengthN }}}
+  -- TODO check text - the new Lean introduced metas in this message that weren't there
   example : Vect String n := Vect.nil
 message
 "type mismatch
   Vect.nil
 has type
-  Vect String 0 : Type
+  Vect ?m.1577 0 : Type ?u.1576
 but is expected to have type
   Vect String n : Type"
 end expect
@@ -152,9 +154,9 @@ message
 argument
   cons x (replicate k x)
 has type
-  Vect α (k + 1) : Type ?u.1998
+  Vect α (k + 1) : Type ?u.1578
 but is expected to have type
-  Vect α k : Type ?u.1998"
+  Vect α k : Type ?u.1578"
 end expect
 
 
@@ -226,9 +228,9 @@ message
 "type mismatch
   Vect.cons y ys
 has type
-  Vect β (?m.4718 + 1) : Type ?u.4530
+  Vect ?m.3469 (?m.3480 + 1) : Type ?u.3477
 but is expected to have type
-  Vect β 0 : Type ?u.4530"
+  Vect β 0 : Type ?u.3344"
 end expect
 end Other
 

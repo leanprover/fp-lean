@@ -255,7 +255,7 @@ end expect
 theorem helper_add_sum_accum (xs : List Nat) :
     (n : Nat) → n + Tail.sumHelper 0 xs = Tail.sumHelper n xs := by
   induction xs with
-  | nil => simp_arith [Tail.sum, Tail.sumHelper]
+  | nil => simp [Tail.sum, Tail.sumHelper]
   | cons y ys ih =>
     intro n
     simp [Tail.sumHelper]
@@ -657,11 +657,7 @@ theorem reverse_helper (xs : List α) : (ys : List α) → NonTail.reverse xs ++
   | nil => intro ys; simp [NonTail.reverse, Tail.reverseHelper]
   | cons x xs ih =>
     intro ys
-    simp [NonTail.reverse, Tail.reverseHelper]
-    rw [List.append_assoc]
-    simp
-    apply ih
-
+    simp [NonTail.reverse, Tail.reverseHelper, ← ih]
 
 expect error {{{ reverseEqStart }}}
   theorem non_tail_reverse_eq_tail_reverse : @NonTail.reverse = @Tail.reverse := by

@@ -15,7 +15,7 @@ expect info {{{ printCharIsAlpha }}}
   #print Char.isAlpha
 message
 "def Char.isAlpha : Char → Bool :=
-fun c => Char.isUpper c || Char.isLower c"
+fun c => c.isUpper || c.isLower"
 end expect
 
 

@@ -10,9 +10,11 @@ def insertSorted [Ord α] (arr : Array α) (i : Fin arr.size) : Array α :=
     match Ord.compare arr[i'] arr[i] with
     | .lt | .eq => arr
     | .gt =>
+      have : (dbgTraceIfShared "array to swap" arr).size = arr.size := by
+        simp [dbgTraceIfShared]
       insertSorted
-        ((dbgTraceIfShared "array to swap" arr).swap ⟨i', by assumption⟩ i)
-        ⟨i', by simp [dbgTraceIfShared, *]⟩
+        ((dbgTraceIfShared "array to swap" arr).swap i' i)
+        ⟨i', by simp [*]⟩
 
 theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
     (arr : Array α) → (isLt : i < arr.size) → (arr.size = len) →
@@ -34,7 +36,7 @@ def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
     insertionSortLoop (insertSorted arr ⟨i, h⟩) (i + 1)
   else
     arr
-termination_by insertionSortLoop arr i => arr.size - i
+termination_by arr.size - i
 
 def insertionSort [Ord α] (arr : Array α) : Array α :=
   insertionSortLoop arr 0

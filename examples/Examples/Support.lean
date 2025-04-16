@@ -23,7 +23,7 @@ stop book declaration
 
 #check MyNamespaceIsGreat.twentyFive
 
-syntax withPosition("bookExample" "{{{" ws ident ws "}}}" colGt term:10 colGt "===>" colGt term:10 "end bookExample") : command
+syntax withPosition("bookExample" "{{{" ws ident ws "}}}" colGt term:10 colGt "===>" colGt term:10 "end" "bookExample") : command
 
 elab_rules : command
   | `(bookExample {{{ $_name:ident }}} $x:term ===> $y:term end bookExample) =>
@@ -36,7 +36,7 @@ elab_rules : command
       unless (← isDefEq x y) do
         throwError "Expected {y}, but got {← reduce x}"
 
-syntax withPosition("bookExample" ":" term "{{{" ws ident ws "}}}" colGt term:10 colGt "===>" colGt term:10 "end bookExample") : command
+syntax withPosition("bookExample" ":" term "{{{" ws ident ws "}}}" colGt term:10 colGt "===>" colGt term:10 "end" "bookExample") : command
 
 elab_rules : command
   | `(bookExample : $type:term {{{ $_name:ident }}} $x:term ===> $y:term end bookExample) =>
@@ -63,7 +63,7 @@ bookExample {{{ two }}}
   2
 end bookExample
 
-syntax withPosition("bookExample" "type" "{{{" ws ident ws "}}}" colGt term:1 colGt "===>" colGt term:1 "end bookExample") : command
+syntax withPosition("bookExample" "type" "{{{" ws ident ws "}}}" colGt term:1 colGt "===>" colGt term:1 "end" "bookExample") : command
 
 elab_rules : command
   | `(bookExample type {{{ $name:ident }}} $x:term ===> $y:term end bookExample) =>
@@ -89,7 +89,7 @@ bookExample type {{{ listT }}}
   Type → Type
 end bookExample
 
-syntax withPosition("bookExample" "type" "{{{" ws ident ws "}}}" colGt term:10 colGt "<===" colGt term:0 "end bookExample") : command
+syntax withPosition("bookExample" "type" "{{{" ws ident ws "}}}" colGt term:10 colGt "<===" colGt term:0 "end" "bookExample") : command
 
 elab_rules : command
   | `(bookExample type {{{ $name:ident }}} $x:term <=== $y:term end bookExample) =>
@@ -111,9 +111,11 @@ syntax withPosition("expect" "error" "{{{" ws ident ws "}}}" colGt term "message
 syntax withPosition("expect" "error" colGt term "message" str "end" "expect") : command
 
 -- Compare info and errors modulo leading and trailing whitespace to work around
--- #eval always sticking a \n at the end
+-- #eval always sticking a \n at the end plus trailing spaces
 def messagesMatch (msg1 msg2 : String) : Bool :=
-  msg1.trim == msg2.trim
+  let lines1 := msg1.split (· == '\n') |>.map (·.trimRight) |>.reverse |>.dropWhile String.isEmpty |>.reverse
+  let lines2 := msg2.split (· == '\n') |>.map (·.trimRight) |>.reverse |>.dropWhile String.isEmpty |>.reverse
+  lines1 == lines2
 
 def List.containsBy (xs : List α) (pred : α → Bool) : Bool :=
   xs.find? pred |>.isSome
@@ -154,11 +156,13 @@ elab_rules : command
       let desiredError := msg.getString
       elabCommand cmd
       let afterState <- get
-      let newMessages := afterState.messages.msgs.toList
+      let newMessages := afterState.messages.toList
       let newErrors := newMessages.filter (·.severity == MessageSeverity.error)
       let errStrings <- newErrors.mapM (·.data.toString)
       unless errStrings.containsBy (messagesMatch desiredError) do
-        throwError "The desired error {desiredError} was not found in\n{errStrings}"
+        let desired := errStrings.map (· |> repr |>.pretty |>.replace "\\n" "\n")
+        let desired := Std.Format.joinSep desired .line
+        throwError "The desired error {desiredError} was not found in:\n{desired}"
 
 expect error {{{ errorEx1 }}}
   def x : Nat := "I am not a Nat"
@@ -188,11 +192,13 @@ elab_rules : command
       let desiredInfo := msg.getString
       elabCommand cmd
       let afterState <- get
-      let newMessages := afterState.messages.msgs.toList
+      let newMessages := afterState.messages.toList
       let newInfos := newMessages.filter fun m => m.severity == MessageSeverity.information
       let errStrings <- newInfos.mapM fun err => err.data.toString
       unless errStrings.containsBy (messagesMatch desiredInfo) do
-        throwError "The desired info {repr desiredInfo} was not found in\n{List.map repr errStrings}"
+        let desired := errStrings.map (· |> repr |>.pretty |>.replace "\\n" "\n")
+        let desired := Std.Format.joinSep desired .line
+        throwError "The desired info {repr desiredInfo} was not found in\n{desired}"
 
 expect info {{{ infoEx1 }}}
   #check 1 + 2
@@ -224,11 +230,13 @@ elab_rules : command
       let desiredWarning := msg.getString
       elabCommand cmd
       let afterState <- get
-      let newMessages := afterState.messages.msgs.toList
+      let newMessages := afterState.messages.toList
       let newWarnings := newMessages.filter (·.severity == MessageSeverity.warning)
       let errStrings <- newWarnings.mapM (·.data.toString)
       unless errStrings.containsBy (messagesMatch desiredWarning) do
-        throwError "The desired warning {desiredWarning} was not found in\n{errStrings}"
+        let desired := errStrings.map (· |> repr |>.pretty |>.replace "\\n" "\n")
+        let desired := Std.Format.joinSep desired .line
+        throwError "The desired warning {desiredWarning} was not found in\n{desired}"
 
 
 syntax withPosition("expect" "eval" "info" "{{{" ws ident ws "}}}" colGt term "message" str "end" "expect") : command
@@ -399,7 +407,7 @@ def Lean.Name.last : Lean.Name -> Option String
   | Lean.Name.str _ s => some s
   | _ => none
 
-syntax "similar datatypes" ident ident : command
+syntax "similar " "datatypes" ident ident : command
 elab_rules : command
   | `(similar datatypes $C1:ident $C2:ident) =>
     open Lean.Elab.Command in

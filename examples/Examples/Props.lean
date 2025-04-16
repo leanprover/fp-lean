@@ -19,10 +19,10 @@ expect error {{{ outOfBounds }}}
 message
 "failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
-  - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
-⊢ 3 < List.length woodlandCritters"
+⊢ 3 < woodlandCritters.length"
 end expect
 
 book declaration {{{ onePlusOneIsTwo }}}
@@ -35,7 +35,7 @@ message
 "type mismatch
   rfl
 has type
-  1 + 1 = 1 + 1 : Prop
+  ?m.911 = ?m.911 : Prop
 but is expected to have type
   1 + 1 = 15 : Prop"
 end expect
@@ -111,7 +111,7 @@ end bookExample
 
 
 book declaration {{{ AndIntroExTac }}}
-  theorem addAndAppend : 1 + 1 = 2 ∧ "Str".append "ing" = "String" := by simp
+  theorem addAndAppend : 1 + 1 = 2 ∧ "Str".append "ing" = "String" := by decide
 stop book declaration
 
 bookExample type {{{ OrProp }}}
@@ -140,7 +140,7 @@ end bookExample
 
 
 book declaration {{{ OrIntroExTac }}}
-  theorem addOrAppend : 1 + 1 = 90 ∨ "Str".append "ing" = "String" := by simp
+  theorem addOrAppend : 1 + 1 = 90 ∨ "Str".append "ing" = "String" := by decide
 stop book declaration
 
 
@@ -168,12 +168,12 @@ expect error {{{ thirdErr }}}
 message
 "failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
-  - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
-α : Type ?u.3908
+α : Type ?u.3552
 xs : List α
-⊢ 2 < List.length xs"
+⊢ 2 < xs.length"
 end expect
 
 book declaration {{{ third }}}
@@ -181,7 +181,7 @@ book declaration {{{ third }}}
 stop book declaration
 
 expect info {{{ thirdCritters }}}
-  #eval third woodlandCritters (by simp)
+  #eval third woodlandCritters (by decide)
 message
   "\"snail\""
 end expect
@@ -215,8 +215,10 @@ end expect
 expect error {{{ unsafeThird }}}
   def unsafeThird (xs : List α) : α := xs[2]!
 message
-"failed to synthesize instance
-  Inhabited α"
+"failed to synthesize
+  Inhabited α
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 expect error {{{ extraSpace }}}
@@ -227,4 +229,3 @@ message
 term has type
   List String"
 end expect
-

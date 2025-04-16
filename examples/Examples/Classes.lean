@@ -49,8 +49,10 @@ end bookExample
 expect error {{{ plusFloatFail }}}
   #eval plus 5.2 917.25861
 message
-"failed to synthesize instance
-  Plus Float"
+"failed to synthesize
+  Plus Float
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 
@@ -64,8 +66,13 @@ stop book declaration
 expect error {{{ sevenOops }}}
   def seven : Pos := 7
 message
-"failed to synthesize instance
-  OfNat Pos 7"
+"failed to synthesize
+  OfNat Pos 7
+numerals are polymorphic in Lean, but the numeral `7` cannot be used in a context where the expected type is
+  Pos
+due to the absence of the instance above
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 
@@ -78,15 +85,19 @@ stop book declaration
 expect error {{{ fourteenOops }}}
   def fourteen : Pos := seven + seven
 message
-"failed to synthesize instance
-  HAdd Pos Pos ?m.291"
+"failed to synthesize
+  HAdd Pos Pos ?m.332
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 expect error {{{ fortyNineOops }}}
   def fortyNine : Pos := seven * seven
 message
-"failed to synthesize instance
-  HMul Pos Pos ?m.291"
+"failed to synthesize
+  HMul Pos Pos ?m.332
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 
@@ -268,8 +279,13 @@ end expect
 expect error {{{ LT4four }}}
   #eval (4 : LT4)
 message
-  "failed to synthesize instance
-  OfNat LT4 4"
+"failed to synthesize
+  OfNat LT4 4
+numerals are polymorphic in Lean, but the numeral `4` cannot be used in a context where the expected type is
+  LT4
+due to the absence of the instance above
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 
@@ -292,8 +308,13 @@ stop book declaration
 expect error {{{ zeroBad }}}
   def zero : Pos := 0
 message
-"failed to synthesize instance
-  OfNat Pos 0"
+"failed to synthesize
+  OfNat Pos 0
+numerals are polymorphic in Lean, but the numeral `0` cannot be used in a context where the expected type is
+  Pos
+due to the absence of the instance above
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 namespace AltPos
@@ -317,7 +338,7 @@ end bookExample
 expect info {{{ printlnMetas }}}
   #check (IO.println)
 message
-"IO.println : ?m.3620 → IO Unit"
+"IO.println : ?m.2620 → IO Unit"
 end expect
 
 expect info {{{ printlnNoMetas }}}
@@ -328,7 +349,8 @@ end expect
 
 
 book declaration {{{ ListSum }}}
-  def List.sum [Add α] [OfNat α 0] : List α → α
+  -- TODO this is in stdlib - verify text
+  def List.sum' [Add α] [OfNat α 0] : List α → α
     | [] => 0
     | x :: xs => x + xs.sum
 stop book declaration
@@ -352,10 +374,13 @@ end expect
 
 
 expect error {{{ fourPosSum }}}
+  -- TODO message changed - figure out Zero in text
   #eval fourPos.sum
 message
-"failed to synthesize instance
-  OfNat Pos 0"
+"failed to synthesize
+  Zero Pos
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 namespace PointStuff
@@ -598,10 +623,13 @@ book declaration {{{ HPlusInstances }}}
 stop book declaration
 
 expect error {{{ hPlusOops }}}
+  -- TODO CommandM snuck in here, find a new example!
   #eval HPlus.hPlus (3 : Pos) (5 : Nat)
 message
-"typeclass instance problem is stuck, it is often due to metavariables
-  HPlus Pos Nat ?m.7527"
+"failed to synthesize
+  HPlus Pos Nat (Lean.Elab.Command.CommandElabM ?α)
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 
@@ -656,7 +684,7 @@ end expect
 expect info {{{ plusFiveMeta }}}
   #check HPlus.hPlus (5 : Nat)
 message
-  "HPlus.hPlus 5 : ?m.7706 → ?m.7708"
+"HPlus.hPlus 5 : ?m.5985 → ?m.5987"
 end expect
 
 
@@ -707,10 +735,10 @@ expect error {{{ northernTreesEight }}}
 message
 "failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
-  - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
-⊢ 8 < Array.size northernTrees"
+⊢ 8 < northernTrees.size"
 end expect
 
 inductive EvenList (α : Type) : Type where
@@ -761,7 +789,7 @@ namespace UseList
 book declaration {{{ NEListGetHuhList }}}
   def NonEmptyList.get? : NonEmptyList α → Nat → Option α
     | xs, 0 => some xs.head
-    | xs, n + 1 => xs.tail.get? n
+    | xs, n + 1 => xs.tail[n]?
 stop book declaration
 end UseList
 
@@ -781,9 +809,9 @@ stop book declaration
 
 
 book declaration {{{ spiderBoundsChecks }}}
-theorem atLeastThreeSpiders : idahoSpiders.inBounds 2 := by simp
+theorem atLeastThreeSpiders : idahoSpiders.inBounds 2 := by decide
 
-theorem notSixSpiders : ¬idahoSpiders.inBounds 5 := by simp
+theorem notSixSpiders : ¬idahoSpiders.inBounds 5 := by decide
 stop book declaration
 
 namespace Demo
@@ -813,10 +841,10 @@ expect error {{{ tenthSpider }}}
 message
 "failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
-  - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
-⊢ NonEmptyList.inBounds idahoSpiders 9"
+⊢ idahoSpiders.inBounds 9"
 end expect
 
 
@@ -859,8 +887,10 @@ end bookExample
 expect error {{{ functionEq }}}
   (fun (x : Nat) => 1 + x) == (Nat.succ ·)
 message
-"failed to synthesize instance
-  BEq (Nat → Nat)"
+"failed to synthesize
+  BEq (Nat → Nat)
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 bookExample type {{{ functionEqProp }}}
@@ -870,7 +900,7 @@ bookExample type {{{ functionEqProp }}}
 end bookExample
 
 example : (fun (x : Nat) => 1 + x) = (Nat.succ ·) := by
-  funext x ; induction x <;> simp_arith
+  funext x ; induction x <;> simp +arith
 
 -- Example for exercise
 inductive Method where
@@ -893,8 +923,10 @@ end expect
 expect error {{{ funEqDec }}}
   if (fun (x : Nat) => 1 + x) = (Nat.succ ·) then "yes" else "no"
 message
-"failed to synthesize instance
-  Decidable ((fun x => 1 + x) = fun x => Nat.succ x)"
+"failed to synthesize
+  Decidable ((fun x => 1 + x) = fun x => x.succ)
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 bookExample : Nat {{{ ifProp }}}
@@ -1221,8 +1253,13 @@ expect error {{{ ofNatBeforeCoe }}}
   def perhapsPerhapsPerhapsNat : Option (Option (Option Nat)) :=
     392
 message
-"failed to synthesize instance
-  OfNat (Option (Option (Option Nat))) 392"
+"failed to synthesize
+  OfNat (Option (Option (Option Nat))) 392
+numerals are polymorphic in Lean, but the numeral `392` cannot be used in a context where the expected type is
+  Option (Option (Option Nat))
+due to the absence of the instance above
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 
@@ -1510,7 +1547,7 @@ argument
 has type
   NonEmptyList String : Type
 but is expected to have type
-  List ?m.34258 : Type"
+  List ?m.25402 : Type"
 end expect
 
 expect error {{{ lastSpiderC }}}

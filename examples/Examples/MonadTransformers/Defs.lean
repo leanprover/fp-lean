@@ -196,6 +196,7 @@ book declaration {{{ ExceptTNoUnis }}}
 stop book declaration
 
 expect error {{{ MonadMissingUni }}}
+  -- TODO error message changed radically, check!
   instance {ε : Type u} {m : Type u → Type v} [Monad m] : Monad (ExceptT ε m) where
     pure x := ExceptT.mk (pure (Except.ok x))
     bind result next := ExceptT.mk do
@@ -204,11 +205,11 @@ expect error {{{ MonadMissingUni }}}
       | .ok x => next x
 message
 "stuck at solving universe constraint
-  max ?u.12144 ?u.12145 =?= u
+  max ?u.8974 ?u.8975 =?= u
 while trying to unify
-  ExceptT ε m α✝
+  ExceptT ε m α✝ : Type v
 with
-  (ExceptT ε m α✝) ε m α✝"
+  ExceptT.{max ?u.8975 ?u.8974, v} ε m α✝ : Type v"
 end expect
 end Huh
 

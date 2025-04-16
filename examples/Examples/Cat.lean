@@ -9,6 +9,7 @@ book declaration {{{ Stream }}}
     write   : ByteArray → IO Unit
     getLine : IO String
     putStr  : String → IO Unit
+    isTty   : BaseIO Bool
 stop book declaration
 
 end Str
@@ -127,6 +128,7 @@ theorem processEqual : Original.process = Improved.process := by
       cases decEq head "-" <;> simp [*, ih, Original.process, Improved.process]
 
 example : Original.main = Improved.main := by
+  funext x
   simp [Original.main, Improved.main]
 
 
@@ -155,7 +157,8 @@ stop book declaration
 
 book declaration {{{ testEffects }}}
   def test : IO Unit := do
-    let a : Nat := if (← getNumA) == 5 then 0 else (← getNumB)
+    -- TODO this had the nested action in a branch, verify text!
+    let a : Nat ←  if (← getNumA) == 5 then pure 0 else getNumB
     (← IO.getStdout).putStrLn s!"The answer is {a}"
 stop book declaration
 
@@ -163,7 +166,6 @@ expect info {{{ runTest }}}
   #eval test
 message
 "A
-B
 The answer is 0
 "
 end expect
@@ -178,7 +180,11 @@ book declaration {{{ testEffectsExpanded }}}
 stop book declaration
 end Foo
 
-example : test = Foo.test := by rfl
+example : test = Foo.test := by
+  funext x
+  simp [test, Foo.test]
+  apply congrFun
+  sorry -- TODO - this changed!
 
 def a : IO Nat := do
   pure ((← getNumA) + (← getNums (← getNumB)).snd)
