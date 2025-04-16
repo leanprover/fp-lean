@@ -53,7 +53,7 @@ end Foo
 namespace Foo2
 book declaration {{{ onePlusOneIsTwoTactics }}}
   theorem onePlusOneIsTwo : 1 + 1 = 2 := by
-    simp
+    decide
 stop book declaration
 end Foo2
 
@@ -67,10 +67,20 @@ example : String := second ["a", "b", "c", "d"] (by simp)
 book declaration {{{ connectives }}}
   theorem onePlusOneAndLessThan : 1 + 1 = 2 ∨ 3 < 5 := by simp
   theorem notTwoEqualFive : ¬(1 + 1 = 5) := by simp
-  theorem trueIsTrue : True := True.intro
+  theorem trueIsTrue : True := by simp
   theorem trueOrFalse : True ∨ False := by simp
   theorem falseImpliesTrue : False → True := by simp
 stop book declaration
+
+namespace Decide
+book declaration {{{ connectivesD }}}
+  theorem onePlusOneAndLessThan : 1 + 1 = 2 ∨ 3 < 5 := by decide
+  theorem notTwoEqualFive : ¬(1 + 1 = 5) := by decide
+  theorem trueIsTrue : True := by decide
+  theorem trueOrFalse : True ∨ False := by decide
+  theorem falseImpliesTrue : False → True := by decide
+stop book declaration
+end Decide
 
 def foo : True ∧ True := And.intro True.intro True.intro
 def bar : True ∨ False := Or.inl True.intro
@@ -171,7 +181,7 @@ message
   - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
-α : Type ?u.3552
+α : Type ?u.4181
 xs : List α
 ⊢ 2 < xs.length"
 end expect
@@ -184,6 +194,14 @@ expect info {{{ thirdCritters }}}
   #eval third woodlandCritters (by decide)
 message
   "\"snail\""
+end expect
+
+expect error {{{ thirdRabbitErr }}}
+  #eval third ["rabbit"] (by decide)
+message
+"tactic 'decide' proved that the proposition
+  [\"rabbit\"].length > 2
+is false"
 end expect
 
 book declaration {{{ thirdOption }}}

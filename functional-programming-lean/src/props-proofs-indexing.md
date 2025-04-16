@@ -16,7 +16,7 @@ However, attempting to extract the fourth element results in a compile-time erro
 ```output error
 {{#example_out Examples/Props.lean outOfBounds}}
 ```
-This error message is saying Lean tried to automatically mathematically prove that `3 < List.length woodlandCritters`, which would mean that the lookup was safe, but that it could not do so.
+This error message is saying Lean tried to automatically mathematically prove that `3 < woodlandCritters.length` (i.e. `3 < List.length woodlandCritters`), which would mean that the lookup was safe, but that it could not do so.
 Out-of-bounds errors are a common class of bugs, and Lean uses its dual nature as a programming language and a theorem prover to rule out as many as possible.
 
 Understanding how this works requires an understanding of three key ideas: propositions, proofs, and tactics.
@@ -48,6 +48,7 @@ A _proof_ is a convincing argument that a proposition is true.
 For mathematical propositions, these arguments make use of the definitions of the concepts that are involved as well as the rules of logical argumentation.
 Most proofs are written for people to understand, and leave out many tedious details.
 Computer-aided theorem provers like Lean are designed to allow mathematicians to write proofs while omitting many details, and it is the software's responsibility to fill in the missing explicit steps.
+These steps can be mechanically checked.
 This decreases the likelihood of oversights or mistakes.
 
 In Lean, a program's type describes the ways it can be interacted with.
@@ -80,6 +81,7 @@ In Lean, it is conventional to declare theorems with the `theorem` keyword inste
 This helps readers see which declarations are intended to be read as mathematical proofs, and which are definitions.
 Generally speaking, with a proof, what matters is that there is evidence that a proposition is true, but it's not particularly important _which_ evidence was provided.
 With definitions, on the other hand, it matters very much which particular value is selected—after all, a definition of addition that always returns `0` is clearly wrong.
+Because the details of a proof don't matter for later proofs, using the `theorem` keyword enables greater parallelism in the Lean compiler.
 
 The prior example could be rewritten as follows:
 ```lean
@@ -101,10 +103,13 @@ Written with tactics, `onePlusOneIsTwo` is still quite short:
 ```leantac
 {{#example_decl Examples/Props.lean onePlusOneIsTwoTactics}}
 ```
-The `simp` tactic, short for "simplify", is the workhorse of Lean proofs.
-It rewrites the goal to as simple a form as possible, taking care of parts of the proof that are small enough.
-In particular, it proves simple equality statements.
+The `decide` tactic invokes a _decision procedure_, which is a program that can check whether a statement is true or false, returning a suitable proof in either case.
+It is primarily used when working with concrete values like `1` and `2`.
+The other important tactic in this book is `simp`, short for "simplify", which is the workhorse of Lean proofs.
+It rewrites the goal to as simple a form as possible.
+In many cases, this rewriting simplifies the statement so much that it can be automatically proved.
 Behind the scenes, a detailed formal proof is constructed, but using `simp` hides this complexity.
+
 
 Tactics are useful for a number of reasons:
  1. Many proofs are complicated and tedious when written out down to the smallest detail, and tactics can automate these uninteresting parts.
@@ -112,7 +117,7 @@ Tactics are useful for a number of reasons:
  3. Because a single tactic can prove many different theorems, Lean can use tactics behind the scenes to free users from writing proofs by hand. For instance, an array lookup requires a proof that the index is in bounds, and a tactic can typically construct that proof without the user needing to worry about it.
 
 Behind the scenes, indexing notation uses a tactic to prove that the user's lookup operation is safe.
-This tactic is `simp`, configured to take certain arithmetic identities into account.
+This tactic takes many facts about arithemtic into account, combining them with any locally-known facts to attempt to prove that the index is in bounds.
 
 
 ## Connectives
@@ -127,7 +132,7 @@ In particular, most of these connectives are defined like datatypes, and they ha
 If `A` and `B` are propositions, then "`A` and `B`" (written `{{#example_in Examples/Props.lean AndProp}}`) is a proposition.
 Evidence for `A ∧ B` consists of the constructor `{{#example_in Examples/Props.lean AndIntro}}`, which has the type `{{#example_out Examples/Props.lean AndIntro}}`.
 Replacing `A` and `B` with concrete propositions, it is possible to prove `{{#example_out Examples/Props.lean AndIntroEx}}` with `{{#example_in Examples/Props.lean AndIntroEx}}`.
-Of course, `simp` is also powerful enough to find this proof:
+Of course, `decide` is also powerful enough to find this proof:
 ```leantac
 {{#example_decl Examples/Props.lean AndIntroExTac}}
 ```
@@ -155,19 +160,17 @@ For instance, a proof that _A_ and _B_ implies _A_ or _B_ is a function that pul
 | _A_ implies _B_ | `A → B`     | A function that transforms evidence of _A_ into evidence of _B_ |
 | not _A_         | `¬A`        | A function that would transform evidence of _A_ into evidence of `False` |
 
-The `simp` tactic can prove theorems that use these connectives.
+The `decide` tactic can prove theorems that use these connectives.
 For example:
 ```leantac
-{{#example_decl Examples/Props.lean connectives}}
+{{#example_decl Examples/Props.lean connectivesD}}
 ```
 
 ## Evidence as Arguments
 
-While `simp` does a great job proving propositions that involve equalities and inequalities of specific numbers, it is not very good at proving statements that involve variables.
-For instance, `simp` can prove that `4 < 15`, but it can't easily tell that because `x < 4`, it's also true that `x < 15`.
-Because index notation uses `simp` behind the scenes to prove that array access is safe, it can require a bit of hand-holding.
-
-One of the easiest ways to make indexing notation work well is to have the function that performs a lookup into a data structure take the required evidence of safety as an argument.
+In some cases, safely indexing into a list requires that the list have some minimum size, but the list itself is a variable rather than a concrete value.
+For this lookup to be safe, there must be some evidence that the list is long enough.
+One of the easiest ways to make indexing safe is to have the function that performs a lookup into a data structure take the required evidence of safety as an argument.
 For instance, a function that returns the third entry in a list is not generally safe because lists might contain zero, one, or two entries:
 ```lean
 {{#example_in Examples/Props.lean thirdErr}}
@@ -183,7 +186,7 @@ In this example, `xs.length > 2` is not a program that checks _whether_ `xs` has
 It is a proposition that could be true or false, and the argument `ok` must be evidence that it is true.
 
 When the function is called on a concrete list, its length is known.
-In these cases, `by simp` can construct the evidence automatically:
+In these cases, `by decide` can construct the evidence automatically:
 ```leantac
 {{#example_in Examples/Props.lean thirdCritters}}
 ```
@@ -218,10 +221,17 @@ There is also a version that crashes the program when the index is out of bounds
 ```output info
 {{#example_out Examples/Props.lean crittersBang}}
 ```
-Be careful!
-Because code that is run with `#eval` runs in the context of the Lean compiler, selecting the wrong index can crash your IDE.
+
 
 ## Messages You May Meet
+In addition to proving that a statement is true, the `decide` tactic can also prove that it is false.
+When asked to prove that a one-element list has more than two elements, it returns an error that indicates that the statement is indeed false:
+```lean
+{{#example_in Examples/Props.lean thirdRabbitErr}}
+```
+```output error
+{{#example_out Examples/Props.lean thirdRabbitErr}}
+```
 
 In addition to the error that occurs when Lean is unable to find compile-time evidence that an indexing operation is safe, polymorphic functions that use unsafe indexing may produce the following message:
 ```lean
@@ -253,5 +263,5 @@ This error message results from having Lean attempt to treat `woodlandCritters` 
 ## Exercises
 
 * Prove the following theorems using `rfl`: `2 + 3 = 5`, `15 - 8 = 7`, `"Hello, ".append "world" = "Hello, world"`. What happens if `rfl` is used to prove `5 < 18`? Why?
-* Prove the following theorems using `by simp`: `2 + 3 = 5`, `15 - 8 = 7`, `"Hello, ".append "world" = "Hello, world"`, `5 < 18`.
+* Prove the following theorems using `by decide`: `2 + 3 = 5`, `15 - 8 = 7`, `"Hello, ".append "world" = "Hello, world"`, `5 < 18`.
 * Write a function that looks up the fifth entry in a list. Pass the evidence that this lookup is safe as an argument to the function.
