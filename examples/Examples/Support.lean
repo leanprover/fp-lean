@@ -113,7 +113,7 @@ syntax withPosition("expect" "error" "{{{" ws ident ws "}}}" colGt term "message
 syntax withPosition("expect" "error" colGt term "message" str "end" "expect") : command
 
 -- Compare info and errors modulo leading and trailing whitespace to work around
--- #eval always sticking a \n at the end plus trailing spaces
+-- #eval always sticking a \n at the end plus trailing spaces, and with normalized metavars
 def messagesMatch (msg1 msg2 : String) : Bool :=
   let msg1 := normalizeMetavars msg1
   let msg2 := normalizeMetavars msg2

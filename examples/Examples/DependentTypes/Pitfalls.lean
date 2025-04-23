@@ -265,14 +265,21 @@ k : Nat
 ⊢ k + 1 = Nat.plusR 0 k + 1"
 end expect
 
-
+discarding
 book declaration {{{ plusR_zero_left_done }}}
   def plusR_zero_left : (k : Nat) → k = Nat.plusR 0 k
     | 0 => by rfl
     | k + 1 =>
       congrArg (· + 1) (plusR_zero_left k)
 stop book declaration
+stop discarding
 
+book declaration {{{ plusR_zero_left_thm }}}
+  theorem plusR_zero_left : (k : Nat) → k = Nat.plusR 0 k
+    | 0 => by rfl
+    | k + 1 =>
+      congrArg (· + 1) (plusR_zero_left k)
+stop book declaration
 
 expect error {{{ appendRsubst }}}
   def appendR : (n k : Nat) → Vect α n → Vect α k → Vect α (n.plusR k)
@@ -304,7 +311,7 @@ end expect
 
 
 expect error {{{ plusR_succ_left_0 }}}
-  def plusR_succ_left (n : Nat) : (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
+  theorem plusR_succ_left (n : Nat) : (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
     | 0 => by rfl
     | k + 1 => _
 message
@@ -317,7 +324,7 @@ end expect
 
 
 expect error {{{ plusR_succ_left_2 }}}
-  def plusR_succ_left (n : Nat) : (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
+  theorem plusR_succ_left (n : Nat) : (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
     | 0 => by rfl
     | k + 1 => _
 message
@@ -329,7 +336,7 @@ end expect
 
 
 book declaration {{{ plusR_succ_left }}}
-  def plusR_succ_left (n : Nat) : (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
+  theorem plusR_succ_left (n : Nat) : (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
     | 0 => by rfl
     | k + 1 => congrArg (· + 1) (plusR_succ_left n k)
 stop book declaration

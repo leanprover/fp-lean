@@ -11,9 +11,17 @@ The "hello world" of indexed families is a type of lists that contains the lengt
 {{#example_decl Examples/DependentTypes.lean Vect}}
 ```
 
+The type of a vector of three `String`s includes the fact that it contains three `String`s:
+```lean
+{{#example_decl Examples/DependentTypes.lean vect3}}
+```
+
+
 Function declarations may take some arguments before the colon, indicating that they are available in the entire definition, and some arguments after, indicating a desire to pattern-match on them and define the function case by case.
 Inductive datatypes have a similar principle: the argument `α` is named at the top of the datatype declaration, prior to the colon, which indicates that it is a parameter that must be provided as the first argument in all occurrences of `Vect` in the definition, while the `Nat` argument occurs after the colon, indicating that it is an index that may vary.
 Indeed, the three occurrences of `Vect` in the `nil` and `cons` constructor declarations consistently provide `α` as the first argument, while the second argument is different in each case.
+
+
 
 The declaration of `nil` states that it is a constructor of type `Vect α 0`.
 This means that using `Vect.nil` in a context expecting a `Vect String 3` is a type error, just as `[1, 2, 3]` is a type error in a context that expects a `List String`:
@@ -24,6 +32,7 @@ This means that using `Vect.nil` in a context expecting a `Vect String 3` is a t
 {{#example_out Examples/DependentTypes.lean nilNotLengthThree}}
 ```
 The mismatch between `0` and `3` in this example plays exactly the same role as any other type mismatch, even though `0` and `3` are not themselves types.
+The metavariable in the message can be ignored because its presence indicates that `Vect.nil` can have any element type.
 
 Indexed families are called _families_ of types because different index values can make different constructors available for use.
 In some sense, an indexed family is not a type; rather, it is a collection of related types, and the choice of index values also chooses a type from the collection.
@@ -188,7 +197,7 @@ This is also a good way to develop a feel for the error messages.
 
  * Define a function `Vect.unzip` that splits a `Vect` of pairs into a pair of `Vect`s. It should have the type `Vect (α × β) n → Vect α n × Vect β n`.
 
- * Define a function `Vect.snoc` that adds an entry to the _end_ of a `Vect`. Its type should be `Vect α n → α → Vect α (n + 1)` and `{{#example_in Examples/DependentTypes.lean snocSnowy}}` should yield `{{#example_out Examples/DependentTypes.lean snocSnowy}}`. The name `snoc` is a traditional functional programming pun: it is `cons` backwards.
+ * Define a function `Vect.push` that adds an entry to the _end_ of a `Vect`. Its type should be `Vect α n → α → Vect α (n + 1)` and `{{#example_in Examples/DependentTypes.lean snocSnowy}}` should yield `{{#example_out Examples/DependentTypes.lean snocSnowy}}`.
  
  * Define a function `Vect.reverse` that reverses the order of a `Vect`.
  

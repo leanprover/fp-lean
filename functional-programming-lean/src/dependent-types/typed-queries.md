@@ -29,7 +29,7 @@ Simply using `BEq` directly fails:
 ```lean
 {{#example_in Examples/DependentTypes/DB.lean dbEqNoSplit}}
 ```
-```output info
+```output error
 {{#example_out Examples/DependentTypes/DB.lean dbEqNoSplit}}
 ```
 Just as in the nested pairs universe, type class search doesn't automatically check each possibility for `t`'s value
@@ -42,12 +42,12 @@ The definition of `dbEq` can be used to define a `BEq` instance for the types th
 ```lean
 {{#example_decl Examples/DependentTypes/DB.lean BEqDBType}}
 ```
-This is not the same as an instance for the codes themselves:
+This is not the same as an instance for the codes:
 ```lean
 {{#example_decl Examples/DependentTypes/DB.lean BEqDBTypeCodes}}
 ```
 The former instance allows comparison of values drawn from the types described by the codes, while the latter allows comparison of the codes themselves.
- 
+
 A `Repr` instance can be written using the same technique.
 The method of the `Repr` class is called `reprPrec` because it is designed to take things like operator precedence into account when displaying values.
 Refining the type through dependent pattern matching allows the `reprPrec` methods from the `Repr` instances for `Int`, `String`, and `Bool` to be used:
@@ -386,7 +386,7 @@ When the first row contains multiple columns, the first column's value is added 
 {{#example_decl Examples/DependentTypes/DB.lean RowAppend}}
 ```
 
-`List.flatMap` applies a function that itself returns a list to every entry in an input list, returning the result of appending the resulting lists in order:
+`List.flatMap`, found in the standard library, applies a function that itself returns a list to every entry in an input list, returning the result of appending the resulting lists in order:
 ```lean
 {{#example_decl Examples/DependentTypes/DB.lean ListFlatMap}}
 ```

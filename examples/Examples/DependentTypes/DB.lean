@@ -92,9 +92,9 @@ stop book declaration
 
 book declaration {{{ peak }}}
   abbrev peak : Schema := [
-    ⟨"name", DBType.string⟩,
-    ⟨"location", DBType.string⟩,
-    ⟨"elevation", DBType.int⟩,
+    ⟨"name", .string⟩,
+    ⟨"location", .string⟩,
+    ⟨"elevation", .int⟩,
     ⟨"lastVisited", .int⟩
   ]
 stop book declaration
@@ -282,8 +282,9 @@ stop book declaration
 
 
 book declaration {{{ SubschemaAdd }}}
-  def Subschema.addColumn (sub : Subschema smaller bigger) : Subschema smaller (c :: bigger) :=
-    match sub with
+  def Subschema.addColumn :
+      Subschema smaller bigger →
+      Subschema smaller (c :: bigger)
     | .nil  => .nil
     | .cons col sub' => .cons (.there col) sub'.addColumn
 stop book declaration
@@ -409,13 +410,13 @@ book declaration {{{ RowAppend }}}
 stop book declaration
 
 
+namespace Mine
 book declaration {{{ ListFlatMap }}}
-  -- TODO this is in the library with name flatMap - new example
-  def List.flatMap' (f : α → List β) : (xs : List α) → List β
+  def List.flatMap (f : α → List β) : (xs : List α) → List β
     | [] => []
-    | x :: xs => f x ++ xs.flatMap' f
+    | x :: xs => f x ++ xs.flatMap f
 stop book declaration
-
+end Mine
 
 book declaration {{{ TableCartProd }}}
   def Table.cartesianProduct (table1 : Table s1) (table2 : Table s2) : Table (s1 ++ s2) :=

@@ -17,27 +17,30 @@ stop book declaration
 
 deriving instance Repr for Vect
 
+book declaration {{{ vect3 }}}
+  example : Vect String 3 :=
+    .cons "one" (.cons "two" (.cons "three" .nil))
+stop book declaration
+
 expect error {{{ nilNotLengthThree }}}
-  -- TODO check text - the new Lean introduced metas in this message that weren't there
   example : Vect String 3 := Vect.nil
 message
 "type mismatch
   Vect.nil
 has type
-  Vect ?m.1580 0 : Type ?u.1579
+  Vect ?m.1605 0 : Type ?u.1604
 but is expected to have type
   Vect String 3 : Type"
 end expect
 
 
 expect error {{{ nilNotLengthN }}}
-  -- TODO check text - the new Lean introduced metas in this message that weren't there
   example : Vect String n := Vect.nil
 message
 "type mismatch
   Vect.nil
 has type
-  Vect ?m.1577 0 : Type ?u.1576
+  Vect ?m.1602 0 : Type ?u.1576
 but is expected to have type
   Vect String n : Type"
 end expect
@@ -278,20 +281,20 @@ def Vect.unzip : Vect (α × β) n → Vect α n × Vect β n
     let (xs, ys) := unzip xys
     (.cons x xs, .cons y ys)
 
-def Vect.snoc : Vect α n → α → Vect α (n + 1)
+def Vect.push : Vect α n → α → Vect α (n + 1)
   | .nil, x => .cons x .nil
-  | .cons y ys, x => .cons y (snoc ys x)
+  | .cons y ys, x => .cons y (push ys x)
 
 
 expect info {{{ snocSnowy }}}
-  #eval Vect.snoc (.cons "snowy" .nil) "peaks"
+  #eval Vect.push (.cons "snowy" .nil) "peaks"
 message
 "Vect.cons \"snowy\" (Vect.cons \"peaks\" (Vect.nil))"
 end expect
 
 def Vect.reverse : Vect α n → Vect α n
   | .nil => .nil
-  | .cons x xs => Vect.snoc (reverse xs) x
+  | .cons x xs => Vect.push (reverse xs) x
 
 def Vect.drop : (n : Nat) → Vect α (k + n) → Vect α k
   | 0, xs => xs

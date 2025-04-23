@@ -40,8 +40,10 @@ expect error {{{ beqNoCases }}}
   instance {t : NestedPairs} : BEq t.asType where
     beq x y := x == y
 message
-"failed to synthesize instance
-  BEq (NestedPairs.asType t)"
+"failed to synthesize
+  BEq t.asType
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 book declaration {{{ NestedPairsbeq }}}
@@ -177,11 +179,7 @@ book declaration {{{ FiniteBeq }}}
 stop book declaration
 
 theorem list_all_true : List.all xs (fun _ => true) = true := by
-  induction xs <;> simp [List.all, List.foldr]
-  case cons y ys ih =>
-    simp [List.all] at ih
-    simp [*]
-
+  simp
 
 theorem beq_refl (t : Finite) (x : t.asType) : t.beq x x = true := by
   induction t with
@@ -190,12 +188,7 @@ theorem beq_refl (t : Finite) (x : t.asType) : t.beq x x = true := by
   | pair t1 t2 ih1 ih2 =>
     simp [Finite.beq, *]
   | arr t1 t2 ih1 ih2 =>
-    simp [Finite.beq]
-    conv =>
-     lhs; rhs; intro arg
-     rw [ih2]
-    rw [list_all_true]
-
+    simp [Finite.beq, *]
 
 def Finite.isSingleton : Finite → Bool
   | .unit => true
