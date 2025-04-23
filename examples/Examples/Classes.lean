@@ -228,6 +228,17 @@ end expect
 
 namespace NatLits
 
+book declaration {{{ Zero }}}
+class Zero (α : Type) where
+  zero : α
+stop book declaration
+
+expect error {{{ updateMe }}}
+  -- To make sure this gets update next Lean release
+  #check One
+message
+  "unknown identifier 'One'"
+end expect
 
 book declaration {{{ OfNat }}}
 class OfNat (α : Type) (_ : Nat) where
@@ -235,7 +246,7 @@ class OfNat (α : Type) (_ : Nat) where
 stop book declaration
 
 end NatLits
-
+similar datatypes Zero NatLits.Zero
 similar datatypes OfNat NatLits.OfNat
 
 
@@ -347,12 +358,18 @@ message
 "@IO.println : {α : Type u_1} → [inst : ToString α] → α → IO Unit"
 end expect
 
-
+discarding
 book declaration {{{ ListSum }}}
-  -- TODO this is in stdlib - verify text
-  def List.sum' [Add α] [OfNat α 0] : List α → α
+  def List.sumOfContents [Add α] [OfNat α 0] : List α → α
     | [] => 0
-    | x :: xs => x + xs.sum
+    | x :: xs => x + xs.sumOfContents
+stop book declaration
+stop discarding
+
+book declaration {{{ ListSumZ }}}
+  def List.sumOfContents [Add α] [Zero α] : List α → α
+    | [] => 0
+    | x :: xs => x + xs.sumOfContents
 stop book declaration
 
 
@@ -367,15 +384,14 @@ stop book declaration
 
 
 expect info {{{ fourNatsSum }}}
-  #eval fourNats.sum
+  #eval fourNats.sumOfContents
 message
 "10"
 end expect
 
 
 expect error {{{ fourPosSum }}}
-  -- TODO message changed - figure out Zero in text
-  #eval fourPos.sum
+  #eval fourPos.sumOfContents
 message
 "failed to synthesize
   Zero Pos
@@ -641,7 +657,17 @@ end expect
 
 end ProblematicHPlus
 
+inductive Even where
+  | zero
+  | plusTwo : Even → Even
 
+instance : OfNat Even 0 where
+  ofNat := .zero
+
+instance [OfNat Even n] : OfNat Even (n + 2) where
+  ofNat := .plusTwo (OfNat.ofNat n)
+
+#eval (6 : Even)
 
 namespace BetterHPlus
 
@@ -684,7 +710,7 @@ end expect
 expect info {{{ plusFiveMeta }}}
   #check HPlus.hPlus (5 : Nat)
 message
-"HPlus.hPlus 5 : ?m.5985 → ?m.5987"
+"HPlus.hPlus 5 : ?m.6076 → ?m.6078"
 end expect
 
 
@@ -899,8 +925,39 @@ bookExample type {{{ functionEqProp }}}
   Prop
 end bookExample
 
-example : (fun (x : Nat) => 1 + x) = (Nat.succ ·) := by
-  funext x ; induction x <;> simp +arith
+book declaration {{{ LTPos }}}
+  instance : LT Pos where
+    lt x y := LT.lt x.toNat y.toNat
+stop book declaration
+
+book declaration {{{ LEPos }}}
+  instance : LE Pos where
+    le x y := LE.le x.toNat y.toNat
+stop book declaration
+
+book declaration {{{ DecLTLEPos }}}
+instance {x : Pos} {y : Pos} : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.toNat < y.toNat))
+
+instance {x : Pos} {y : Pos} : Decidable (x ≤ y) :=
+  inferInstanceAs (Decidable (x.toNat ≤ y.toNat))
+stop book declaration
+
+expect error {{{ LTLEMismatch }}}
+  instance {x : Pos} {y : Pos} : Decidable (x ≤ y) :=
+    inferInstanceAs (Decidable (x.toNat < y.toNat))
+message
+"type mismatch
+  inferInstanceAs (Decidable (x.toNat < y.toNat))
+has type
+  Decidable (x.toNat < y.toNat) : Type
+but is expected to have type
+  Decidable (x ≤ y) : Type"
+end expect
+
+#eval (5 : Pos) < (3 : Pos)
+
+example : (fun (x : Nat) => 1 + x) = (Nat.succ ·) := by ext; simp +arith
 
 -- Example for exercise
 inductive Method where
@@ -938,9 +995,9 @@ end bookExample
 namespace Cmp
 book declaration {{{ Ordering }}}
   inductive Ordering where
-  | lt
-  | eq
-  | gt
+    | lt
+    | eq
+    | gt
 stop book declaration
 end Cmp
 
@@ -1020,7 +1077,7 @@ stop book declaration
 
 book declaration {{{ BEqHashableDerive }}}
   deriving instance BEq, Hashable for Pos
-  deriving instance BEq, Hashable, Repr for NonEmptyList
+  deriving instance BEq, Hashable for NonEmptyList
 stop book declaration
 
 
@@ -1295,6 +1352,21 @@ book declaration {{{ CoeDepListNEList }}}
     coe := { head := x, tail := xs }
 stop book declaration
 
+/--
+error: type mismatch
+  []
+has type
+  List ?m.20153 : Type
+but is expected to have type
+  NonEmptyList Nat : Type
+-/
+#guard_msgs in
+#eval ([] : NonEmptyList Nat)
+
+/-- info: { head := 1, tail := [2, 3] } -/
+#guard_msgs in
+#eval ([1, 2, 3] : NonEmptyList Nat)
+
 book declaration {{{ JSON }}}
   inductive JSON where
     | true : JSON
@@ -1547,7 +1619,7 @@ argument
 has type
   NonEmptyList String : Type
 but is expected to have type
-  List ?m.25402 : Type"
+  List ?m.25493 : Type"
 end expect
 
 expect error {{{ lastSpiderC }}}

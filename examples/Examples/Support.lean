@@ -2,6 +2,8 @@ import Lean
 import Lean.Message
 import Lean.Data.PersistentArray
 
+import Examples.Support.NormalizeMetavars
+
 syntax withPosition("book" "declaration" "{{{" ws ident ws "}}}" (command*) "stop" "book" "declaration") : command
 
 elab_rules : command
@@ -113,6 +115,8 @@ syntax withPosition("expect" "error" colGt term "message" str "end" "expect") : 
 -- Compare info and errors modulo leading and trailing whitespace to work around
 -- #eval always sticking a \n at the end plus trailing spaces
 def messagesMatch (msg1 msg2 : String) : Bool :=
+  let msg1 := normalizeMetavars msg1
+  let msg2 := normalizeMetavars msg2
   let lines1 := msg1.split (· == '\n') |>.map (·.trimRight) |>.reverse |>.dropWhile String.isEmpty |>.reverse
   let lines2 := msg2.split (· == '\n') |>.map (·.trimRight) |>.reverse |>.dropWhile String.isEmpty |>.reverse
   lines1 == lines2
@@ -439,6 +443,14 @@ elab_rules : command
         | _ => throwError "Not a constructor {c2}"
         if ctor1.numFields != ctor2.numFields then throwError "Constructor field count mismatch for {n1}"
 
+
+syntax withPosition("discarding" (colGe command)* "stop " "discarding") : command
+open Lean Elab Command in
+elab_rules : command
+  | `(discarding $cmds* stop discarding) => do
+    withoutModifyingEnv do
+      for c in cmds do
+        elabCommand c
 
 namespace Foo
   inductive List (α : Type) : Type where

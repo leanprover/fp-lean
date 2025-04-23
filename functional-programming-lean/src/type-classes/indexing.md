@@ -11,7 +11,7 @@ Also, looking up a value in an array takes constant time, while lookup in a link
 
 In pure functional languages like Lean, it is not possible to mutate a given position in a data structure.
 Instead, a copy is made that has the desired modifications.
-When using an array, the Lean compiler and runtime contain an optimization that can allow modifications to be implemented as mutations behind the scenes when there is only a single unique reference to an array.
+However, copying is not always necessary: the Lean compiler and runtime contain an optimization that can allow modifications to be implemented as mutations behind the scenes when there is only a single unique reference to an array.
 
 Arrays are written similarly to lists, but with a leading `#`:
 ```lean

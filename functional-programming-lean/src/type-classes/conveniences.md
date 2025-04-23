@@ -17,7 +17,7 @@ Similarly, type class instances can be defined using all three syntaxes:
 {{#example_decl Examples/Classes.lean Display}}
 ```
 
-Generally speaking, the `where` syntax should be used for instances, and the curly-brace syntax should be used for structures.
+The `where` syntax is typically used for instances, while structures use either the curly-brace syntax or the `where` syntax.
 The `⟨...⟩` syntax can be useful when emphasizing that a structure type is very much like a tuple in which the fields happen to be named, but the names are not important at the moment.
 However, there are situations where it can make sense to use other alternatives.
 In particular, a library might provide a function that constructs an instance value.

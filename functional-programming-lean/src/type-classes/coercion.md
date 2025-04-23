@@ -11,7 +11,7 @@ Unlike Java, C, and Kotlin, the coercions are extensible by defining instances o
 
 ## Positive Numbers
 
-For example, every positive number corresponds to a natural number.
+Every positive number corresponds to a natural number.
 The function `Pos.toNat` that was defined earlier converts a `Pos` to the corresponding `Nat`:
 ```lean
 {{#example_decl Examples/Classes.lean posToNat}}
@@ -110,7 +110,7 @@ It can also make the programmer's intentions more clear.
 ## Non-Empty Lists and Dependent Coercions
 
 An instance of `Coe α β` makes sense when the type `β` has a value that can represent each value from the type `α`.
-Coercing from `Nat` to `Int` makes sense, because the type `Int` contains all the natural numbers.
+Coercing from `Nat` to `Int` makes sense, because the type `Int` contains all the natural numbers, but a coercion from `Int` to `Nat` is a poor idea because `Nat` does not contain the negative numbers.
 Similarly, a coercion from non-empty lists to ordinary lists makes sense because the `List` type can represent every non-empty list:
 ```lean
 {{#example_decl Examples/Classes.lean CoeNEList}}
@@ -269,6 +269,7 @@ The next step is to define a helper function to append a list of strings with a 
 ```
 This function is useful to account for comma-separated elements in JSON arrays and objects.
 `{{#example_in Examples/Classes.lean sep2ex}}` yields `{{#example_out Examples/Classes.lean sep2ex}}`, `{{#example_in Examples/Classes.lean sep1ex}}` yields `{{#example_out Examples/Classes.lean sep1ex}}`, and `{{#example_in Examples/Classes.lean sep0ex}}` yields `{{#example_out Examples/Classes.lean sep0ex}}`.
+In the Lean standard library, this function is called `String.intercalate`.
 
 Finally, a string escaping procedure is needed for JSON strings, so that the Lean string containing `"Hello!"` can be output as `"\"Hello!\""`.
 Fortunately, the Lean compiler contains an internal function for escaping JSON strings already, called `Lean.Json.escape`.
