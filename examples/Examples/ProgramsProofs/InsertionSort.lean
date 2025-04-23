@@ -10,13 +10,10 @@ end expect
 
 
 expect error {{{ insertSortedNoProof }}}
-  -- TODO arr.swap now uses auto params instead of Fin, check text
   def insertSorted [Ord α] (arr : Array α) (i : Fin arr.size) : Array α :=
     match i with
     | ⟨0, _⟩ => arr
     | ⟨i' + 1, _⟩ =>
-      have : i' < arr.size := by
-        skip
       match Ord.compare arr[i'] arr[i] with
       | .lt | .eq => arr
       | .gt =>
@@ -47,7 +44,7 @@ book declaration {{{ insertSorted }}}
     | ⟨0, _⟩ => arr
     | ⟨i' + 1, _⟩ =>
       have : i' < arr.size := by
-        simp [Nat.lt_of_succ_lt, *]
+        omega
       match Ord.compare arr[i'] arr[i] with
       | .lt | .eq => arr
       | .gt =>
@@ -96,7 +93,6 @@ end expect
 
 
 expect error {{{ insert_sorted_size_eq_1 }}}
-  -- TODO describe elided proofs in text - these appeared here
   theorem insert_sorted_size_eq [Ord α] (arr : Array α) (i : Fin arr.size) :
       (insertSorted arr i).size = arr.size := by
     match i with
@@ -147,7 +143,6 @@ end expect
 
 
 expect error {{{ insert_sorted_size_eq_2 }}}
-  -- TODO big in-bounds proofs are now elided - check text
   theorem insert_sorted_size_eq [Ord α] (arr : Array α) (i : Fin arr.size) :
       (insertSorted arr i).size = arr.size := by
     match i with
@@ -498,7 +493,7 @@ Could not find a decreasing measure.
 The basic measures relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
             arr i #1
-1) 478:6-57   ? ?  ?
+1) 473:6-57   ? ?  ?
 
 #1: arr.size - i
 
@@ -531,7 +526,6 @@ end Partial
 
 
 expect error {{{ insertionSortLoopProof1 }}}
-  -- TODO syntax change for termination_by - no longer binds args. Check text!
   def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
     if h : i < arr.size then
       insertionSortLoop (insertSorted arr ⟨i, h⟩) (i + 1)
@@ -576,7 +570,7 @@ expect error {{{ insertionSortLoopRw }}}
       insertionSortLoop (insertSorted arr ⟨i, h⟩) (i + 1)
     else
       arr
-termination_by arr.size - i
+  termination_by arr.size - i
 message
 "unsolved goals
 α : Type ?u.23737
@@ -600,7 +594,7 @@ book declaration {{{ insertionSortLoop }}}
     if h : i < arr.size then
       have : (insertSorted arr ⟨i, h⟩).size - (i + 1) < arr.size - i := by
         rw [insert_sorted_size_eq arr.size i arr h rfl]
-        simp [Nat.sub_succ_lt_self, *]
+        omega
       insertionSortLoop (insertSorted arr ⟨i, h⟩) (i + 1)
     else
       arr

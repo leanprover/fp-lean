@@ -11,22 +11,8 @@ book declaration {{{ merge }}}
       match Ord.compare x' y' with
       | .lt | .eq => x' :: merge xs' (y' :: ys')
       | .gt => y' :: merge (x'::xs') ys'
-  -- TODO this is automatic now: termination_by merge xs ys => xs.length + ys.length
 stop book declaration
 
-namespace Other
-book declaration {{{ mergePairTerm }}}
-  def merge [Ord α] (xs : List α) (ys : List α) : List α :=
-    match xs, ys with
-    | [], _ => ys
-    | _, [] => xs
-    | x'::xs', y'::ys' =>
-      match Ord.compare x' y' with
-      | .lt | .eq => x' :: merge xs' (y' :: ys')
-      | .gt => y' :: merge (x'::xs') ys'
-  -- TODO this is automatic now: termination_by merge xs ys => (xs, ys)
-stop book declaration
-end Other
 
 book declaration {{{ splitList }}}
   def splitList (lst : List α) : (List α × List α) :=
@@ -242,108 +228,122 @@ right✝ : (splitList xs).snd.length ≤ xs.length
 ⊢ (splitList xs).fst.length ≤ xs.length + 1"
 end expect
 
+expect error {{{ splitList_shorter_le5 }}}
+  theorem splitList_shorter_le (lst : List α) :
+      (splitList lst).fst.length ≤ lst.length ∧
+        (splitList lst).snd.length ≤ lst.length := by
+    induction lst with
+    | nil => simp [splitList]
+    | cons x xs ih =>
+      simp [splitList]
+      cases ih
+      constructor
+      case left => assumption
+message
+"unsolved goals
+case cons.intro.right
+α : Type u_1
+x : α
+xs : List α
+left✝ : (splitList xs).fst.length ≤ xs.length
+right✝ : (splitList xs).snd.length ≤ xs.length
+⊢ (splitList xs).fst.length ≤ xs.length + 1"
+end expect
+
 namespace Extras
 
-
-expect error {{{ succ_le_succ0 }}}
-  -- TODO probably don't need this anymore
-  theorem Nat.succ_le_succ : n ≤ m → Nat.succ n ≤ Nat.succ m := by
+expect error {{{ le_succ_of_le0 }}}
+  theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
     skip
 message
 "unsolved goals
 n m : Nat
-⊢ n ≤ m → n.succ ≤ m.succ"
+⊢ n ≤ m → n ≤ m + 1"
 end expect
 
-
-expect error {{{ succ_le_succ1 }}}
-  theorem Nat.succ_le_succ : n ≤ m → Nat.succ n ≤ Nat.succ m := by
+expect error {{{ le_succ_of_le1 }}}
+  theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
     intro h
 message
 "unsolved goals
 n m : Nat
 h : n ≤ m
-⊢ n.succ ≤ m.succ"
+⊢ n ≤ m + 1"
 end expect
 
-
-expect error {{{ succ_le_succ2 }}}
-  theorem Nat.succ_le_succ : n ≤ m → Nat.succ n ≤ Nat.succ m := by
+expect error {{{ le_succ_of_le2a }}}
+  theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
     intro h
-    cases h
-message
-"unsolved goals
-case refl
-n : Nat
-⊢ n.succ ≤ n.succ
-
-case step
-n m✝ : Nat
-a✝ : n.le m✝
-⊢ n.succ ≤ m✝.succ.succ"
-end expect
-
-
-
-
-expect error {{{ succ_le_succ3 }}}
-  theorem Nat.succ_le_succ : n ≤ m → Nat.succ n ≤ Nat.succ m := by
-    intro h
-    induction h
+    induction h with
+    | refl => skip
+    | step _ ih => skip
 message
 "unsolved goals
 case refl
 n m : Nat
-⊢ n.succ ≤ n.succ
+⊢ n ≤ n + 1"
+end expect
 
+expect error {{{ le_succ_of_le2b }}}
+  theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
+    intro h
+    induction h with
+    | refl => skip
+    | step _ ih => skip
+message
+"unsolved goals
 case step
 n m m✝ : Nat
 a✝ : n.le m✝
-a_ih✝ : n.succ ≤ m✝.succ
-⊢ n.succ ≤ m✝.succ.succ"
+ih : n ≤ m✝ + 1
+⊢ n ≤ m✝.succ + 1"
 end expect
 
-
-expect error {{{ succ_le_succ4 }}}
-  theorem Nat.succ_le_succ : n ≤ m → Nat.succ n ≤ Nat.succ m := by
+expect error {{{ le_succ_of_le3 }}}
+  theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
     intro h
     induction h with
     | refl => constructor
-    | step h' ih => constructor
+    | step _ ih => skip
+message
+"unsolved goals
+case refl.a
+n m : Nat
+⊢ n.le n"
+end expect
+
+expect error {{{ le_succ_of_le4 }}}
+  theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
+    intro h
+    induction h with
+    | refl => constructor; constructor
+    | step _ ih => skip
+message
+"unsolved goals
+case step
+n m m✝ : Nat
+a✝ : n.le m✝
+ih : n ≤ m✝ + 1
+⊢ n ≤ m✝.succ + 1"
+end expect
+
+expect error {{{ le_succ_of_le5 }}}
+  theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
+    intro h
+    induction h with
+    | refl => constructor; constructor
+    | step _ ih => constructor
 message
 "unsolved goals
 case step.a
 n m m✝ : Nat
-h' : n.le m✝
-ih : n.succ ≤ m✝.succ
-⊢ n.succ.le (m✝ + 1)"
+a✝ : n.le m✝
+ih : n ≤ m✝ + 1
+⊢ n.le (m✝ + 1)"
 end expect
 
-
-book declaration {{{ succ_le_succ5 }}}
-  theorem Nat.succ_le_succ : n ≤ m → Nat.succ n ≤ Nat.succ m := by
-    intro h
-    induction h with
-    | refl => constructor
-    | step h' ih =>
-      constructor
-      assumption
-stop book declaration
-
-namespace more
-
-
-book declaration {{{ succ_le_succ_recursive }}}
-  theorem Nat.succ_le_succ : n ≤ m → Nat.succ n ≤ Nat.succ m
-    | .refl => .refl
-    | .step h' => .step (Nat.succ_le_succ h')
-stop book declaration
-
-end more
-
-
 book declaration {{{ le_succ_of_le }}}
-  theorem Nat.le_succ_of_le : n ≤ m → n ≤ Nat.succ m := by
+  theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
     intro h
     induction h with
     | refl => constructor; constructor
@@ -352,7 +352,7 @@ stop book declaration
 
 namespace Apply
 book declaration {{{ le_succ_of_le_apply }}}
-  theorem Nat.le_succ_of_le : n ≤ m → n ≤ Nat.succ m := by
+  theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
     intro h
     induction h with
     | refl => apply Nat.le.step; exact Nat.le.refl
@@ -362,64 +362,27 @@ end Apply
 
 namespace Golf
 book declaration {{{ le_succ_of_le_golf }}}
-  theorem Nat.le_succ_of_le (h : n ≤ m) : n ≤ Nat.succ m := by
+  theorem Nat.le_succ_of_le (h : n ≤ m) : n ≤ m + 1:= by
     induction h <;> repeat (first | constructor | assumption)
 stop book declaration
 end Golf
 
+namespace Golf'
+book declaration {{{ le_succ_of_le_omega }}}
+  theorem Nat.le_succ_of_le (h : n ≤ m) : n ≤ m + 1:= by
+    omega
+stop book declaration
+end Golf'
+
 namespace NoTac
 
 book declaration {{{ le_succ_of_le_recursive }}}
-  theorem Nat.le_succ_of_le : n ≤ m → n ≤ Nat.succ m
+  theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1
     | .refl => .step .refl
     | .step h => .step (Nat.le_succ_of_le h)
 stop book declaration
 end NoTac
 end Extras
-
-
-expect error {{{ splitList_shorter_le5a }}}
-  theorem splitList_shorter_le (lst : List α) :
-      (splitList lst).fst.length ≤ lst.length ∧ (splitList lst).snd.length ≤ lst.length := by
-    induction lst with
-    | nil => simp [splitList]
-    | cons x xs ih =>
-      simp [splitList]
-      cases ih
-      constructor
-      case left => skip
-      case right => skip
-message
-"unsolved goals
-α : Type u_1
-x : α
-xs : List α
-left✝ : (splitList xs).fst.length ≤ xs.length
-right✝ : (splitList xs).snd.length ≤ xs.length
-⊢ (splitList xs).snd.length ≤ xs.length"
-end expect
-
-expect error {{{ splitList_shorter_le5b }}}
-  theorem splitList_shorter_le (lst : List α) :
-      (splitList lst).fst.length ≤ lst.length ∧ (splitList lst).snd.length ≤ lst.length := by
-    induction lst with
-    | nil => simp [splitList]
-    | cons x xs ih =>
-      simp [splitList]
-      cases ih
-      constructor
-      case left => skip
-      case right => skip
-message
-"unsolved goals
-α : Type u_1
-x : α
-xs : List α
-left✝ : (splitList xs).fst.length ≤ xs.length
-right✝ : (splitList xs).snd.length ≤ xs.length
-⊢ (splitList xs).fst.length ≤ xs.length + 1"
-end expect
-
 
 book declaration {{{ splitList_shorter_le }}}
   theorem splitList_shorter_le (lst : List α) :
@@ -430,9 +393,10 @@ book declaration {{{ splitList_shorter_le }}}
       simp [splitList]
       cases ih
       constructor
-      -- TODO Nat.succ_le_succ removed here
       case left => assumption
-      case right => omega -- TODO was apply Nat.le_succ_of_le
+      case right =>
+        apply Nat.le_succ_of_le
+        assumption
 stop book declaration
 
 
@@ -604,8 +568,7 @@ book declaration {{{ mergeSort }}}
     else
       let halves := splitList xs
       have : xs.length ≥ 2 := by
-        apply Nat.ge_of_not_lt
-        assumption
+        omega
       have : halves.fst.length < xs.length := by
         apply splitList_shorter_fst
         assumption

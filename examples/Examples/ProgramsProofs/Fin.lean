@@ -50,7 +50,6 @@ end expect
 namespace Finny
 
 book declaration {{{ ArrayFindHelper }}}
-  -- TODO check text for new termination_by syntax
   def findHelper (arr : Array α) (p : α → Bool) (i : Nat) : Option (Fin arr.size × α) :=
     if h : i < arr.size then
       let x := arr[i]
@@ -58,7 +57,6 @@ book declaration {{{ ArrayFindHelper }}}
         some (⟨i, h⟩, x)
       else findHelper arr p (i + 1)
     else none
-  termination_by arr.size - i
 stop book declaration
 
 book declaration {{{ ArrayFind }}}

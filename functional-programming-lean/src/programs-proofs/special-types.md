@@ -37,16 +37,18 @@ This means that `true`, `false`, and `none` are constant values, rather than poi
 
 The following types have special representations:
 
-| Type                                  | Logical representation                                                                | Run-time Representation                 |
-|---------------------------------------|---------------------------------------------------------------------------------------|-----------------------------------------|
-| `Nat`                                 | Unary, with one pointer from each `Nat.succ`                                          | Efficient arbitrary-precision integers  |
-| `Int`                                 | A sum type with constructors for positive or negative values, each containing a `Nat` | Efficient arbitrary-precision integers  |
-| `UInt8`, `UInt16`, `UInt32`, `UInt64` | A `Fin` with an appropriate bound                                                     | Fixed-precision machine integers        |
-| `Char`                                | A `UInt32` paired with a proof that it's a valid code point                           | Ordinary characters                     |
-| `String`                              | A structure that contains a `List Char` in a field called `data`                      | UTF-8-encoded string                    |
-| `Array α`                             | A structure that contains a `List α` in a field called `data`                         | Packed arrays of pointers to `α` values |
-| `Sort u`                              | A type                                                                                | Erased completely                       |
-| Proofs of propositions                | Whatever data is suggested by the proposition when considered as a type of evidence   | Erased completely                       |
+| Type                                           | Logical representation                                                                | Run-time Representation                 |
+|------------------------------------------------|---------------------------------------------------------------------------------------|-----------------------------------------|
+| `Nat`                                          | Unary, with one pointer from each `Nat.succ`                                          | Efficient arbitrary-precision integers  |
+| `Int`                                          | A sum type with constructors for positive or negative values, each containing a `Nat` | Efficient arbitrary-precision integers  |
+| `BitVec w`                                     | A `Fin` with an appropriate bound \\( 2^w \\)                                         | Efficient arbitrary-precision integers  |
+| `UInt8`, `UInt16`, `UInt32`, `UInt64`, `USize` | A bitvector of the correct width                                                      | Fixed-precision machine integers        |
+| `Int8`, `Int16`, `Int32`, `Int64`, `ISize`     | A wrapped unsigned integer of the same width                                          | Fixed-precision machine integers        |
+| `Char`                                         | A `UInt32` paired with a proof that it's a valid code point                           | Ordinary characters                     |
+| `String`                                       | A structure that contains a `List Char` in a field called `data`                      | UTF-8-encoded string                    |
+| `Array α`                                      | A structure that contains a `List α` in a field called `data`                         | Packed arrays of pointers to `α` values |
+| `Sort u`                                       | A type                                                                                | Erased completely                       |
+| Proofs of propositions                         | Whatever data is suggested by the proposition when considered as a type of evidence   | Erased completely                       |
 
 ## Exercise
 

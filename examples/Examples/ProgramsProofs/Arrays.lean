@@ -131,7 +131,6 @@ end expect
 
 
 expect error {{{ fourNotThree1 }}}
-  -- TODO was simp, check text
   theorem four_is_not_three : ¬ IsThree 4 := by
     unfold Not
 message
@@ -204,31 +203,21 @@ i : Nat
 ⊢ i < arr.size"
 end expect
 
-
-expect error {{{ arrayMapHelperTermIssue }}}
-  -- TODO this was a termination issue before, now it Just Works - fix text because this error is bogus
+discarding
+book declaration {{{ arrayMapHelperTermIssue }}}
   def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
     if inBounds : i < arr.size then
-      let x : String := 55
       arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
     else soFar
-message
-"failed to synthesize
-  OfNat String 55
-numerals are polymorphic in Lean, but the numeral `55` cannot be used in a context where the expected type is
-  String
-due to the absence of the instance above
-
-Additional diagnostic information may be available using the `set_option diagnostics true` command."
-end expect
+stop book declaration
+stop discarding
 
 book declaration {{{ ArrayMapHelperOk }}}
-  -- TODO this was a termination issue before, now it Just Works - no help needed
   def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
     if inBounds : i < arr.size then
       arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
     else soFar
-  -- TODO termination_by arrayMapHelper _ arr _ i _ => arr.size - i
+  termination_by arr.size - i
 stop book declaration
 
 namespace TailRec
@@ -249,10 +238,24 @@ book declaration {{{ ArrayFindHelper }}}
         some (i, x)
       else findHelper arr p (i + 1)
     else none
-  -- TODO check termination_by findHelper arr p i => arr.size - i
 stop book declaration
 
 book declaration {{{ ArrayFind }}}
   def Array.find (arr : Array α) (p : α → Bool) : Option (Nat × α) :=
     findHelper arr p 0
 stop book declaration
+
+namespace Huh
+expect info {{{ ArrayFindHelperSugg }}}
+  def findHelper (arr : Array α) (p : α → Bool) (i : Nat) : Option (Nat × α) :=
+    if h : i < arr.size then
+      let x := arr[i]
+      if p x then
+        some (i, x)
+      else findHelper arr p (i + 1)
+    else none
+  termination_by?
+message
+"Try this: termination_by arr.size - i"
+end expect
+end Huh

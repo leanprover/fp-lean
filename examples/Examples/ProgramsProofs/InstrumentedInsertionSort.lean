@@ -6,7 +6,7 @@ def insertSorted [Ord α] (arr : Array α) (i : Fin arr.size) : Array α :=
   | ⟨0, _⟩ => arr
   | ⟨i' + 1, _⟩ =>
     have : i' < arr.size := by
-      simp [Nat.lt_of_succ_lt, *]
+      omega
     match Ord.compare arr[i'] arr[i] with
     | .lt | .eq => arr
     | .gt =>
@@ -32,7 +32,7 @@ def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
   if h : i < arr.size then
     have : (insertSorted arr ⟨i, h⟩).size - (i + 1) < arr.size - i := by
       rw [insert_sorted_size_eq arr.size i arr h rfl]
-      simp [Nat.sub_succ_lt_self, *]
+      omega
     insertionSortLoop (insertSorted arr ⟨i, h⟩) (i + 1)
   else
     arr
