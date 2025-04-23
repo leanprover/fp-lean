@@ -274,6 +274,14 @@ produces three lines of output:
 {{#example_out Examples/MonadTransformers/Do.lean parallelLoopOut}}
 ```
 
+Many data structures implement an enhanced version of the `ForIn` type class that adds evidence that the element was drawn from the collection to the loop body.
+These can be used by providing a name for the evidence prior to the name of the element.
+This function prints all the elements of an array together with their indices, and the compiler is able to determine that the array lookups are all safe due to the evidence `h`:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean printArray}}
+```
+In this example, `h` is evidence that `i ∈ [0:xs.size]`, and the tactic that checks whether `xs[i]` is safe is able to transform this into evidence that `i < xs.size`.
+
 ## Mutable Variables
 
 In addition to early `return`, `else`-less `if`, and `for` loops, Lean supports local mutable variables within a `do` block.
