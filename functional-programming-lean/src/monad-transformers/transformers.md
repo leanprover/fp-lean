@@ -73,7 +73,7 @@ In fact, `OptionT` could have been defined as a structure:
 {{#example_decl Examples/MonadTransformers/Defs.lean OptionTStructure}}
 ```
 This would solve the problem, because the constructor `OptionT.mk` and the field accessor `OptionT.run` would guide type class inference to the correct instances.
-The downside to doing this is that structure values would need to be allocated and deallocated repeatedly when running code that uses it, while the direct definition is a compile-time-only feature.
+The downside to doing this is that the resulting code is more complicated, and these structures can make it more difficult to read proofs.
 The best of both worlds can be achieved by defining functions that serve the same role as `OptionT.mk` and `OptionT.run`, but that work with the direct definition:
 ```lean
 {{#example_decl Examples/MonadTransformers/Defs.lean FakeStructOptionT}}
@@ -271,6 +271,18 @@ In this case, the use of an output parameter makes it impossible to target both 
 For these cases, there are additional type classes in which the extra information is not an output parameter.
 These versions of the type classes use the word `Of` in the name.
 For example, `MonadStateOf` is like `MonadState`, but without an `outParam` modifier.
+
+Instead of an `outParam`, these classes use a `semiOutParam` for their respective state, environment, or exception types.
+Like an `outParam`, a `semiOutParam` is not required be known before Lean begins the process of searching for an instance.
+However, there is an important difference: `outParams` are ignored during the search for an instance, and as a result they are truly outputs.
+If an `outParam` is known prior to the search, then Lean merely checks that the result of the search is the same as what was known.
+On the other hand, a `semiOutParam` that is known prior to the start of the search can be used to narrow down candidates, just like an input parameter.
+
+When a state monad's state type is an `outParam`, then each monad can have at most one type of state.
+This is convenient, because it improves type inference: the state type can be inferred in more circumstances.
+This is also inconvenient, because a monad built from multiple uses of `StateT` cannot provide a useful `MonadState` instance.
+Using `MonadStateOf`, however, causes Lean to take the state type into account when it is available to select which instance to use, so one monad may provide multiple types of state.
+The downside of this is that the resulting instance may not be the one that was intended when the state type has not been specified explicitly enough, which can lead to confusing error messages.
 
 Similarly, there are versions of the type class methods that accept the type of the extra information as an _explicit_, rather than implicit, argument.
 For `MonadStateOf`, there are `{{#example_in Examples/MonadTransformers/Defs.lean getTheType}}` with type

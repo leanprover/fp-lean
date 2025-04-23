@@ -48,6 +48,7 @@ It must also return the appropriate exit code to the operating system:
 ```lean
 {{#example_decl Examples/MonadTransformers.lean OldMain}}
 ```
+`IO.eprintln` is a version of `IO.println` that outputs to standard error.
 
 Not all paths should be shown in the directory tree.
 In particular, files named `.` or `..` should be skipped, as they are actually features used for navigation rather than files _per se_.

@@ -173,8 +173,10 @@ stop book declaration
 book declaration {{{ interact }}}
   def interact : IO Unit := do
     match ← getUserInfo with
-    | none => IO.eprintln "Missing info"
-    | some ⟨name, beetle⟩ => IO.println s!"Hello {name}, whose favorite beetle is {beetle}."
+    | none =>
+      IO.eprintln "Missing info"
+    | some ⟨name, beetle⟩ =>
+      IO.println s!"Hello {name}, whose favorite beetle is {beetle}."
 stop book declaration
 
 end Opt
@@ -399,7 +401,8 @@ end Modify
 namespace Reorder
 
 book declaration {{{ countLettersClassy }}}
-  def countLetters [Monad m] [MonadState LetterCounts m] [MonadExcept Err m] (str : String) : m Unit :=
+  def countLetters [Monad m] [MonadState LetterCounts m] [MonadExcept Err m]
+      (str : String) : m Unit :=
     let rec loop (chars : List Char) := do
       match chars with
       | [] => pure ()
@@ -534,6 +537,7 @@ stop book declaration
 
 end Cls
 
+example {σ m : _} [MonadStateOf σ m] : MonadState σ m := inferInstance
 
 universe u
 universe v
