@@ -71,9 +71,8 @@ jobs:
 
     - name: Zip html contents
       run: |
-        pushd functional-programming-lean/book/
-        pwd
-        ls
+        pushd functional-programming-lean/
+        cp -r book html
         zip -rq html.zip html/
         popd
 
