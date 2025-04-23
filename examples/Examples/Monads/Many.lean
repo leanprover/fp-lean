@@ -195,10 +195,35 @@ book declaration {{{ addsTo }}}
            pure (x :: answer))
 stop book declaration
 
+book declaration {{{ printList }}}
+  def printList [ToString α] : List α → IO Unit
+    | [] => pure ()
+    | x :: xs => do
+      IO.println x
+      printList xs
+stop book declaration
+
 expect info {{{ addsToFifteen }}}
-  #eval (addsTo 15 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).takeAll
+  #eval printList (addsTo 15 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).takeAll
 message
-"[[7, 8], [6, 9], [5, 10], [4, 5, 6], [3, 5, 7], [3, 4, 8], [2, 6, 7], [2, 5, 8], [2, 4, 9], [2, 3, 10], [2, 3, 4, 6],
-  [1, 6, 8], [1, 5, 9], [1, 4, 10], [1, 3, 5, 6], [1, 3, 4, 7], [1, 2, 5, 7], [1, 2, 4, 8], [1, 2, 3, 9],
-  [1, 2, 3, 4, 5]]"
+"[7, 8]
+[6, 9]
+[5, 10]
+[4, 5, 6]
+[3, 5, 7]
+[3, 4, 8]
+[2, 6, 7]
+[2, 5, 8]
+[2, 4, 9]
+[2, 3, 10]
+[2, 3, 4, 6]
+[1, 6, 8]
+[1, 5, 9]
+[1, 4, 10]
+[1, 3, 5, 6]
+[1, 3, 4, 7]
+[1, 2, 5, 7]
+[1, 2, 4, 8]
+[1, 2, 3, 9]
+[1, 2, 3, 4, 5]"
 end expect

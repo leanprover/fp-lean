@@ -113,7 +113,8 @@ Using this function with `mapM` results in a log containing even numbers paired 
 
 Monads encode programs with effects, such as failure, exceptions, or logging, into explicit representations as data and functions.
 Sometimes, however, an API will be written to use a monad for flexibility, but the API's client may not require any encoded effects.
-The _identity monad_ is a monad that has no effects, and allows pure code to be used with monadic APIs:
+The _identity monad_ is a monad that has no effects.
+It allows pure code to be used with monadic APIs:
 ```lean
 {{#example_decl Examples/Monads/Class.lean IdMonad}}
 ```
