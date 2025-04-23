@@ -81,7 +81,7 @@ There is a value with type `β` in scope (namely `x`), and the error message fro
 {{#example_out Examples/FunctorApplicativeMonad.lean Pairpure2}}
 ```
 Unfortunately, there is no `α` available.
-Because `pure` would need to work for _all possible types_ α to define an instance of `Applicative (Pair α)`, this is impossible.
+Because `pure` would need to work for _all possible types_ `α` to define an instance of `Applicative (Pair α)`, this is impossible.
 After all, a caller could choose `α` to be `Empty`, which has no values at all.
 
 ## A Non-Monadic Applicative
@@ -142,11 +142,12 @@ The first argument is the underlying `Nat`, and the second argument is the evide
 ```leantac
 {{#example_decl Examples/FunctorApplicativeMonad.lean one}}
 ```
+The proposition `1 > 0` is decidable, so the `decide` tactic produces the necessary evidence.
 The `OfNat` instance is very much like that for `Pos`, except it uses a short tactic proof to provide evidence that `n + 1 > 0`:
 ```leantac
 {{#example_decl Examples/FunctorApplicativeMonad.lean OfNatFastPos}}
 ```
-The `simp_arith` tactic is a version of `simp` that takes additional arithmetic identities into account.
+Here, `simp` is needed because `decide` requires concrete values, but the proposition in question is `n + 1 > 0`.
 
 Subtypes are a two-edged sword.
 They allow efficient representation of validation rules, but they transfer the burden of maintaining these rules to the users of the library, who have to _prove_ that they are not violating important invariants.
@@ -181,7 +182,7 @@ This is represented by the `Validate` type:
 It looks very much like `Except`.
 The only difference is that the `error` constructor may contain more than one failure.
 
-Validate is a functor.
+`Validate` is a functor.
 Mapping a function over it transforms any successful value that might be present, just as in the `Functor` instance for `Except`:
 ```lean
 {{#example_decl Examples/FunctorApplicativeMonad.lean FunctorValidate}}

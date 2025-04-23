@@ -196,7 +196,6 @@ stop book declaration
 
 
 book declaration {{{ Monad }}}
-  -- TODO: Structure type annotation syntax change - check text
   class Monad (m : Type u → Type v) : Type (max (u+1) v) extends Applicative m, Bind m  where
     map      f x := bind x (Function.comp pure f)
     seq      f x := bind f fun y => Functor.map y (x ())

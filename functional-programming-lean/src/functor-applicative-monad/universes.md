@@ -18,7 +18,7 @@ In particular, `Type` cannot itself be a `Type`.
 This would allow a logical paradox to be constructed and undermine Lean's usefulness as a theorem prover.
 
 The formal argument for this is known as _Girard's Paradox_.
-It related to a better-known paradox known as _Russell's Paradox_, which was used to show that early versions of set theory were inconsistent.
+It is related to a better-known paradox known as _Russell's Paradox_, which was used to show that early versions of set theory were inconsistent.
 In these set theories, a set can be defined by a property.
 For example, one might have the set of all red things, the set of all fruit, the set of all natural numbers, or even the set of all sets.
 Given a set, one can ask whether a given element is contained in it.

@@ -163,7 +163,7 @@ end expect
 
 book declaration {{{ domesticatedTroll }}}
   def domesticatedTroll : MonstrousAssistant where
-    large := false
+    large := true
     assistance := "heavy labor"
     payment := "toy goats"
     vulnerability := "sunlight"
@@ -927,10 +927,8 @@ book declaration {{{ FastPos }}}
 stop book declaration
 
 
-
-
 book declaration {{{ one }}}
-  def one : FastPos := ⟨1, by simp⟩
+  def one : FastPos := ⟨1, by decide⟩
 stop book declaration
 
 
