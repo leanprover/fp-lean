@@ -254,7 +254,8 @@ Both induction hypotheses can be used to rewrite the left-hand side of the goal 
 {{#example_out Examples/Induction.lean mirror_count_3}}
 ```
 
-The `simp_arith` tactic, a version of `simp` that can use additional arithmetic identities, is enough to prove this goal, yielding:
+The `simp` tactic can use additional arithmetic identities when passed the `+arith` option.
+It is enough to prove this goal, yielding:
 ```leantac
 {{#example_decl Examples/Induction.lean mirror_count_4}}
 ```
