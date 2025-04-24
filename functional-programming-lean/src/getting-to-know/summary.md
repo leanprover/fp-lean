@@ -47,7 +47,7 @@ Some functions or datatypes take types as arguments.
 They are called _polymorphic_.
 Polymorphism allows programs such as one that calculates the length of a list without caring what type the entries in the list have.
 Because types are first class in Lean, polymorphism does not require any special syntax, so types are passed just like other arguments.
-Giving an argument a name in a function type allows later types to mention that argument, and the type of applying that function to an argument is found by replacing the argument's name with the argument's value.
+Naming an argument in a function type allows later types to mention that name, and when the function is applied to an argument, the type of the resulting term is found by replacing the argument's name with the actual value it was applied to.
 
 ## Structures and Inductive Types
 
