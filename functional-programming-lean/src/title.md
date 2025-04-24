@@ -2,7 +2,7 @@
 
 *by David Thrane Christiansen*
 
-*Copyright Microsoft Corporation 2023 and Lean FRO, LLC, 2023-2025*
+*Copyright Microsoft Corporation 2023 and Lean FRO, LLC 2023-2025*
 
 
 
