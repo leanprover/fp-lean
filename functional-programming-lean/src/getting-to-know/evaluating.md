@@ -77,18 +77,12 @@ an argument to the first, rather than as a function being passed
 call must be found first, after which it can be appended to `"great "`,
 yielding the final value `{{#example_out Examples/Intro.lean stringAppendNested}}`.
 
-Imperative languages often have two kinds of conditional: a
-conditional _statement_ that determines which instructions to carry
-out based on a Boolean value, and a conditional _expression_ that
-determines which of two expressions to evaluate based on a Boolean
-value. For instance, in C and C++, the conditional statement is
-written using `if` and `else`, while the conditional expression is
-written with a ternary operator `?` and `:`. In Python, the
-conditional statement begins with `if`, while the conditional
-expression puts `if` in the middle.
+Imperative languages often have two kinds of conditional: a conditional _statement_ that determines which instructions to carry out based on a Boolean value, and a conditional _expression_ that determines which of two expressions to evaluate based on a Boolean value.
+For instance, in C and C++, the conditional statement is written using `if` and `else`, while the conditional expression is written with a ternary operator in which `?` and `:` separate the condition from the branches.
+In Python, the conditional statement begins with `if`, while the conditional expression puts `if` in the middle.
 Because Lean is an expression-oriented functional language, there are no conditional statements, only conditional expressions.
-They are written using `if`, `then`, and `else`. For
-instance,
+They are written using `if`, `then`, and `else`.
+For example,
 ``` Lean
 {{#example_eval Examples/Intro.lean stringAppend 0}}
 ```
