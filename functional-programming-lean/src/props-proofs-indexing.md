@@ -57,11 +57,13 @@ In other words, each type specifies what counts as a program with that type.
 
 In Lean, propositions are in fact types.
 They specify what counts as evidence that the statement is true.
-The proposition is proved by providing this evidence.
+The proposition is proved by providing this evidence, which is checked by Lean.
 On the other hand, if the proposition is false, then it will be impossible to construct this evidence.
 
 For example, the proposition "1 + 1 = 2" can be written directly in Lean.
-The evidence for this proposition is the constructor `rfl`, which is short for _reflexivity_:
+The evidence for this proposition is the constructor `rfl`, which is short for _reflexivity_.
+In mathematics, a relation is _reflexive_ if every element is related to itself; this is a basic requirement in order to have a sensible notion of equality.
+Because `1 + 1` computes to `2`, they are really the same thing:
 ```lean
 {{#example_decl Examples/Props.lean onePlusOneIsTwo}}
 ```
@@ -232,6 +234,25 @@ When asked to prove that a one-element list has more than two elements, it retur
 ```output error
 {{#example_out Examples/Props.lean thirdRabbitErr}}
 ```
+
+The `simp` and `decide` tactics do not automatically unfold definitions with `def`.
+Attempting to prove `OnePlusOneIsTwo` using `simp` fails:
+```leantac
+{{#example_in Examples/Props.lean onePlusOneIsStillTwo}}
+```
+The error messages simply states that it could do nothing, because without unfolding `OnePlusOneIsTwo`, no progress can be made:
+```output error
+{{#example_out Examples/Props.lean onePlusOneIsStillTwo}}
+```
+Using `decide` also fails:
+```leantac
+{{#example_in Examples/Props.lean onePlusOneIsStillTwo2}}
+```
+This is also due to it not unfolding `OnePlusOneIsTwo`:
+```output error
+{{#example_out Examples/Props.lean onePlusOneIsStillTwo2}}
+```
+Defining `OnePlusOneIsTwo` with [`abbrev` fixes the problem](getting-to-know/functions-and-definitions.md#messages-you-may-meet) by marking the definition for unfolding.
 
 In addition to the error that occurs when Lean is unable to find compile-time evidence that an indexing operation is safe, polymorphic functions that use unsafe indexing may produce the following message:
 ```lean

@@ -47,8 +47,22 @@ book declaration {{{ onePlusOneIsTwoProp }}}
 
   theorem onePlusOneIsTwo : OnePlusOneIsTwo := rfl
 stop book declaration
-end Foo
 
+expect error {{{ onePlusOneIsStillTwo }}}
+  theorem onePlusOneIsStillTwo : OnePlusOneIsTwo := by simp
+message
+"simp made no progress"
+end expect
+expect error {{{ onePlusOneIsStillTwo2 }}}
+  theorem onePlusOneIsStillTwo : OnePlusOneIsTwo := by decide
+message
+"failed to synthesize
+  Decidable OnePlusOneIsTwo
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
+end expect
+
+end Foo
 
 namespace Foo2
 book declaration {{{ onePlusOneIsTwoTactics }}}
