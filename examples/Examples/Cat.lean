@@ -9,6 +9,7 @@ book declaration {{{ Stream }}}
     write   : ByteArray → IO Unit
     getLine : IO String
     putStr  : String → IO Unit
+    isTty   : BaseIO Bool
 stop book declaration
 
 end Str
@@ -127,6 +128,7 @@ theorem processEqual : Original.process = Improved.process := by
       cases decEq head "-" <;> simp [*, ih, Original.process, Improved.process]
 
 example : Original.main = Improved.main := by
+  funext x
   simp [Original.main, Improved.main]
 
 
@@ -153,20 +155,14 @@ book declaration {{{ getNums }}}
 stop book declaration
 
 
-book declaration {{{ testEffects }}}
+expect error {{{ testEffects }}}
   def test : IO Unit := do
     let a : Nat := if (← getNumA) == 5 then 0 else (← getNumB)
     (← IO.getStdout).putStrLn s!"The answer is {a}"
-stop book declaration
-
-expect info {{{ runTest }}}
-  #eval test
 message
-"A
-B
-The answer is 0
-"
+"invalid use of `(<- ...)`, must be nested inside a 'do' expression"
 end expect
+
 
 namespace Foo
 book declaration {{{ testEffectsExpanded }}}
@@ -178,7 +174,6 @@ book declaration {{{ testEffectsExpanded }}}
 stop book declaration
 end Foo
 
-example : test = Foo.test := by rfl
 
 def a : IO Nat := do
   pure ((← getNumA) + (← getNums (← getNumB)).snd)

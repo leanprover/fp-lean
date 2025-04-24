@@ -196,9 +196,9 @@ The split between definitional and propositional equality represents a division 
 Similarly, definitional equality is invoked automatically by the type checker, while propositional equality must be specifically appealed to.
 
 
-In [Propositions, Proofs, and Indexing](../props-proofs-indexing.md), some equality statements are proved using `simp`.
+In [Propositions, Proofs, and Indexing](../props-proofs-indexing.md), some equality statements are proved using `decide`.
 All of these equality statements are ones in which the propositional equality is in fact already a definitional equality.
-Typically, statements of propositional equality are proved by first getting them into a form where they are either definitional or close enough to existing proved equalities, and then using tools like `simp` to take care of the simplified cases.
+Typically, statements of propositional equality are proved by first getting them into a form where they are either definitional or close enough to existing proved equalities, and then using tools like `decide` or `simp` to take care of the simplified cases.
 The `simp` tactic is quite powerful: behind the scenes, it uses a number of fast, automated tools to construct a proof.
 A simpler tactic called `rfl` specifically uses definitional equality to prove propositional equality.
 The name `rfl` is short for _reflexivity_, which is the property of equality that states that everything equals itself.
@@ -245,8 +245,14 @@ In this case, the function is `(· + 1)`:
 {{#example_decl Examples/DependentTypes/Pitfalls.lean plusR_zero_left_done}}
 ```
 
+Because this is really a proof of a proposition, it should be declared as a `theorem`:
+```lean
+{{#example_decl Examples/DependentTypes/Pitfalls.lean plusR_zero_left_thm}}
+```
+
+
 Propositional equalities can be deployed in a program using the rightward triangle operator `▸`.
-Given an equality proof as its first argument and some other expression as its second, this operator replaces instances of the left side of the equality with the right side of the equality in the second argument's type.
+Given an equality proof as its first argument and some other expression as its second, this operator replaces instances of one side of the equality with the other side of the equality in the second argument's type.
 In other words, the following definition contains no type errors:
 ```lean
 {{#example_in Examples/DependentTypes/Pitfalls.lean appendRsubst}}

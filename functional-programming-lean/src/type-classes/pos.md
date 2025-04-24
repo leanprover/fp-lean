@@ -186,6 +186,14 @@ Neither is particularly convenient for users.
 Secondly, the need to call the function explicitly would make programs that use positive numbers much less convenient to write than programs that use `Nat`.
 Having a trade-off between precise types and convenient APIs means that the precise types become less useful.
 
+There are two type classes that are used to overload numeric literals: `Zero` and `OfNat`.
+Because many types have values that are naturally written with `0`, the `Zero` class allow these specific values to be overridden.
+It is defined as follows:
+```lean
+{{#example_decl Examples/Classes.lean Zero}}
+```
+Because `0` is not a positive number, there should be no instance of `Zero Pos`.
+
 In Lean, natural number literals are interpreted using a type class called `OfNat`:
 ```lean
 {{#example_decl Examples/Classes.lean OfNat}}
@@ -197,8 +205,9 @@ Because the class contains the `Nat` argument, it becomes possible to define onl
 `OfNat` demonstrates that the arguments to type classes do not need to be types.
 Because types in Lean are first-class participants in the language that can be passed as arguments to functions and given definitions with `def` and `abbrev`, there is no barrier that prevents non-type arguments in positions where a less-flexible language could not permit them.
 This flexibility allows overloaded operations to be provided for particular values as well as particular types.
+Additionally, it allows the Lean standard library to arrange for there to be a `Zero α` instance whenever there's an `OfNat α 0` instance, and vice versa.
 
-For example, a sum type that represents natural numbers less than four can be defined as follows:
+A sum type that represents natural numbers less than four can be defined as follows:
 ```lean
 {{#example_decl Examples/Classes.lean LT4}}
 ```

@@ -49,8 +49,10 @@ end bookExample
 expect error {{{ plusFloatFail }}}
   #eval plus 5.2 917.25861
 message
-"failed to synthesize instance
-  Plus Float"
+"failed to synthesize
+  Plus Float
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 
@@ -64,8 +66,13 @@ stop book declaration
 expect error {{{ sevenOops }}}
   def seven : Pos := 7
 message
-"failed to synthesize instance
-  OfNat Pos 7"
+"failed to synthesize
+  OfNat Pos 7
+numerals are polymorphic in Lean, but the numeral `7` cannot be used in a context where the expected type is
+  Pos
+due to the absence of the instance above
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 
@@ -78,15 +85,19 @@ stop book declaration
 expect error {{{ fourteenOops }}}
   def fourteen : Pos := seven + seven
 message
-"failed to synthesize instance
-  HAdd Pos Pos ?m.291"
+"failed to synthesize
+  HAdd Pos Pos ?m.332
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 expect error {{{ fortyNineOops }}}
   def fortyNine : Pos := seven * seven
 message
-"failed to synthesize instance
-  HMul Pos Pos ?m.291"
+"failed to synthesize
+  HMul Pos Pos ?m.332
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 
@@ -127,7 +138,22 @@ end evaluation steps
 
 end Foo
 
+bookExample type {{{ readFile }}}
+  IO.FS.readFile
+  ===>
+  System.FilePath → IO String
+end bookExample
 
+book declaration {{{ fileDumper }}}
+  def fileDumper : IO Unit := do
+    let stdin ← IO.getStdin
+    let stdout ← IO.getStdout
+    stdout.putStr "Which file? "
+    stdout.flush
+    let f := (← stdin.getLine).trim
+    stdout.putStrLn s!"'The file {f}' contains:"
+    stdout.putStrLn (← IO.FS.readFile f)
+stop book declaration
 
 book declaration {{{ posToNat }}}
 def Pos.toNat : Pos → Nat
@@ -217,6 +243,17 @@ end expect
 
 namespace NatLits
 
+book declaration {{{ Zero }}}
+class Zero (α : Type) where
+  zero : α
+stop book declaration
+
+expect error {{{ updateMe }}}
+  -- To make sure this gets update next Lean release
+  #check One
+message
+  "unknown identifier 'One'"
+end expect
 
 book declaration {{{ OfNat }}}
 class OfNat (α : Type) (_ : Nat) where
@@ -224,7 +261,7 @@ class OfNat (α : Type) (_ : Nat) where
 stop book declaration
 
 end NatLits
-
+similar datatypes Zero NatLits.Zero
 similar datatypes OfNat NatLits.OfNat
 
 
@@ -268,8 +305,13 @@ end expect
 expect error {{{ LT4four }}}
   #eval (4 : LT4)
 message
-  "failed to synthesize instance
-  OfNat LT4 4"
+"failed to synthesize
+  OfNat LT4 4
+numerals are polymorphic in Lean, but the numeral `4` cannot be used in a context where the expected type is
+  LT4
+due to the absence of the instance above
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 
@@ -292,8 +334,13 @@ stop book declaration
 expect error {{{ zeroBad }}}
   def zero : Pos := 0
 message
-"failed to synthesize instance
-  OfNat Pos 0"
+"failed to synthesize
+  OfNat Pos 0
+numerals are polymorphic in Lean, but the numeral `0` cannot be used in a context where the expected type is
+  Pos
+due to the absence of the instance above
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 namespace AltPos
@@ -317,7 +364,7 @@ end bookExample
 expect info {{{ printlnMetas }}}
   #check (IO.println)
 message
-"IO.println : ?m.3620 → IO Unit"
+"IO.println : ?m.2620 → IO Unit"
 end expect
 
 expect info {{{ printlnNoMetas }}}
@@ -326,11 +373,18 @@ message
 "@IO.println : {α : Type u_1} → [inst : ToString α] → α → IO Unit"
 end expect
 
-
+discarding
 book declaration {{{ ListSum }}}
-  def List.sum [Add α] [OfNat α 0] : List α → α
+  def List.sumOfContents [Add α] [OfNat α 0] : List α → α
     | [] => 0
-    | x :: xs => x + xs.sum
+    | x :: xs => x + xs.sumOfContents
+stop book declaration
+stop discarding
+
+book declaration {{{ ListSumZ }}}
+  def List.sumOfContents [Add α] [Zero α] : List α → α
+    | [] => 0
+    | x :: xs => x + xs.sumOfContents
 stop book declaration
 
 
@@ -345,17 +399,19 @@ stop book declaration
 
 
 expect info {{{ fourNatsSum }}}
-  #eval fourNats.sum
+  #eval fourNats.sumOfContents
 message
 "10"
 end expect
 
 
 expect error {{{ fourPosSum }}}
-  #eval fourPos.sum
+  #eval fourPos.sumOfContents
 message
-"failed to synthesize instance
-  OfNat Pos 0"
+"failed to synthesize
+  Zero Pos
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 namespace PointStuff
@@ -598,10 +654,13 @@ book declaration {{{ HPlusInstances }}}
 stop book declaration
 
 expect error {{{ hPlusOops }}}
+  -- TODO CommandM snuck in here, find a new example!
   #eval HPlus.hPlus (3 : Pos) (5 : Nat)
 message
-"typeclass instance problem is stuck, it is often due to metavariables
-  HPlus Pos Nat ?m.7527"
+"failed to synthesize
+  HPlus Pos Nat (Lean.Elab.Command.CommandElabM ?α)
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 
@@ -613,7 +672,17 @@ end expect
 
 end ProblematicHPlus
 
+inductive Even where
+  | zero
+  | plusTwo : Even → Even
 
+instance : OfNat Even 0 where
+  ofNat := .zero
+
+instance [OfNat Even n] : OfNat Even (n + 2) where
+  ofNat := .plusTwo (OfNat.ofNat n)
+
+#eval (6 : Even)
 
 namespace BetterHPlus
 
@@ -656,7 +725,7 @@ end expect
 expect info {{{ plusFiveMeta }}}
   #check HPlus.hPlus (5 : Nat)
 message
-  "HPlus.hPlus 5 : ?m.7706 → ?m.7708"
+"HPlus.hPlus 5 : ?m.6076 → ?m.6078"
 end expect
 
 
@@ -707,10 +776,10 @@ expect error {{{ northernTreesEight }}}
 message
 "failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
-  - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
-⊢ 8 < Array.size northernTrees"
+⊢ 8 < northernTrees.size"
 end expect
 
 inductive EvenList (α : Type) : Type where
@@ -761,7 +830,7 @@ namespace UseList
 book declaration {{{ NEListGetHuhList }}}
   def NonEmptyList.get? : NonEmptyList α → Nat → Option α
     | xs, 0 => some xs.head
-    | xs, n + 1 => xs.tail.get? n
+    | xs, n + 1 => xs.tail[n]?
 stop book declaration
 end UseList
 
@@ -781,9 +850,9 @@ stop book declaration
 
 
 book declaration {{{ spiderBoundsChecks }}}
-theorem atLeastThreeSpiders : idahoSpiders.inBounds 2 := by simp
+theorem atLeastThreeSpiders : idahoSpiders.inBounds 2 := by decide
 
-theorem notSixSpiders : ¬idahoSpiders.inBounds 5 := by simp
+theorem notSixSpiders : ¬idahoSpiders.inBounds 5 := by decide
 stop book declaration
 
 namespace Demo
@@ -813,10 +882,10 @@ expect error {{{ tenthSpider }}}
 message
 "failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
-  - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
-⊢ NonEmptyList.inBounds idahoSpiders 9"
+⊢ idahoSpiders.inBounds 9"
 end expect
 
 
@@ -859,8 +928,10 @@ end bookExample
 expect error {{{ functionEq }}}
   (fun (x : Nat) => 1 + x) == (Nat.succ ·)
 message
-"failed to synthesize instance
-  BEq (Nat → Nat)"
+"failed to synthesize
+  BEq (Nat → Nat)
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 bookExample type {{{ functionEqProp }}}
@@ -869,8 +940,39 @@ bookExample type {{{ functionEqProp }}}
   Prop
 end bookExample
 
-example : (fun (x : Nat) => 1 + x) = (Nat.succ ·) := by
-  funext x ; induction x <;> simp_arith
+book declaration {{{ LTPos }}}
+  instance : LT Pos where
+    lt x y := LT.lt x.toNat y.toNat
+stop book declaration
+
+book declaration {{{ LEPos }}}
+  instance : LE Pos where
+    le x y := LE.le x.toNat y.toNat
+stop book declaration
+
+book declaration {{{ DecLTLEPos }}}
+instance {x : Pos} {y : Pos} : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.toNat < y.toNat))
+
+instance {x : Pos} {y : Pos} : Decidable (x ≤ y) :=
+  inferInstanceAs (Decidable (x.toNat ≤ y.toNat))
+stop book declaration
+
+expect error {{{ LTLEMismatch }}}
+  instance {x : Pos} {y : Pos} : Decidable (x ≤ y) :=
+    inferInstanceAs (Decidable (x.toNat < y.toNat))
+message
+"type mismatch
+  inferInstanceAs (Decidable (x.toNat < y.toNat))
+has type
+  Decidable (x.toNat < y.toNat) : Type
+but is expected to have type
+  Decidable (x ≤ y) : Type"
+end expect
+
+#eval (5 : Pos) < (3 : Pos)
+
+example : (fun (x : Nat) => 1 + x) = (Nat.succ ·) := by ext; simp +arith
 
 -- Example for exercise
 inductive Method where
@@ -893,8 +995,10 @@ end expect
 expect error {{{ funEqDec }}}
   if (fun (x : Nat) => 1 + x) = (Nat.succ ·) then "yes" else "no"
 message
-"failed to synthesize instance
-  Decidable ((fun x => 1 + x) = fun x => Nat.succ x)"
+"failed to synthesize
+  Decidable ((fun x => 1 + x) = fun x => x.succ)
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 bookExample : Nat {{{ ifProp }}}
@@ -906,9 +1010,9 @@ end bookExample
 namespace Cmp
 book declaration {{{ Ordering }}}
   inductive Ordering where
-  | lt
-  | eq
-  | gt
+    | lt
+    | eq
+    | gt
 stop book declaration
 end Cmp
 
@@ -988,7 +1092,7 @@ stop book declaration
 
 book declaration {{{ BEqHashableDerive }}}
   deriving instance BEq, Hashable for Pos
-  deriving instance BEq, Hashable, Repr for NonEmptyList
+  deriving instance BEq, Hashable for NonEmptyList
 stop book declaration
 
 
@@ -1221,8 +1325,13 @@ expect error {{{ ofNatBeforeCoe }}}
   def perhapsPerhapsPerhapsNat : Option (Option (Option Nat)) :=
     392
 message
-"failed to synthesize instance
-  OfNat (Option (Option (Option Nat))) 392"
+"failed to synthesize
+  OfNat (Option (Option (Option Nat))) 392
+numerals are polymorphic in Lean, but the numeral `392` cannot be used in a context where the expected type is
+  Option (Option (Option Nat))
+due to the absence of the instance above
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 
@@ -1257,6 +1366,21 @@ book declaration {{{ CoeDepListNEList }}}
   instance : CoeDep (List α) (x :: xs) (NonEmptyList α) where
     coe := { head := x, tail := xs }
 stop book declaration
+
+/--
+error: type mismatch
+  []
+has type
+  List ?m.20732 : Type
+but is expected to have type
+  NonEmptyList Nat : Type
+-/
+#guard_msgs in
+#eval ([] : NonEmptyList Nat)
+
+/-- info: { head := 1, tail := [2, 3] } -/
+#guard_msgs in
+#eval ([1, 2, 3] : NonEmptyList Nat)
 
 book declaration {{{ JSON }}}
   inductive JSON where
@@ -1510,7 +1634,7 @@ argument
 has type
   NonEmptyList String : Type
 but is expected to have type
-  List ?m.34258 : Type"
+  List ?m.25493 : Type"
 end expect
 
 expect error {{{ lastSpiderC }}}
@@ -1553,7 +1677,9 @@ book declaration {{{ CoercionCycle }}}
   def coercedToB : B := ()
 stop book declaration
 
+book declaration {{{ ReprB }}}
 deriving instance Repr for B
+stop book declaration
 
 
 expect info {{{ coercedToBEval }}}

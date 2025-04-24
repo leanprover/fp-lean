@@ -23,8 +23,10 @@ expect error {{{ dbEqNoSplit }}}
   def DBType.beq (t : DBType) (x y : t.asType) : Bool :=
     x == y
 message
-"failed to synthesize instance
-  BEq (asType t)"
+"failed to synthesize
+  BEq t.asType
+
+Additional diagnostic information may be available using the `set_option diagnostics true` command."
 end expect
 
 
@@ -90,9 +92,9 @@ stop book declaration
 
 book declaration {{{ peak }}}
   abbrev peak : Schema := [
-    ⟨"name", DBType.string⟩,
-    ⟨"location", DBType.string⟩,
-    ⟨"elevation", DBType.int⟩,
+    ⟨"name", .string⟩,
+    ⟨"location", .string⟩,
+    ⟨"elevation", .int⟩,
     ⟨"lastVisited", .int⟩
   ]
 stop book declaration
@@ -137,7 +139,7 @@ message
 "type mismatch
   (v1, r1')
 has type
-  ?m.6559 × ?m.6562 : Type (max ?u.6571 ?u.6570)
+  ?m.3093 × ?m.3096 : Type (max ?u.3105 ?u.3104)
 but is expected to have type
   Row (col :: cols) : Type"
 end expect
@@ -280,8 +282,9 @@ stop book declaration
 
 
 book declaration {{{ SubschemaAdd }}}
-  def Subschema.addColumn (sub : Subschema smaller bigger) : Subschema smaller (c :: bigger) :=
-    match sub with
+  def Subschema.addColumn :
+      Subschema smaller bigger →
+      Subschema smaller (c :: bigger)
     | .nil  => .nil
     | .cons col sub' => .cons (.there col) sub'.addColumn
 stop book declaration
@@ -407,12 +410,13 @@ book declaration {{{ RowAppend }}}
 stop book declaration
 
 
+namespace Mine
 book declaration {{{ ListFlatMap }}}
   def List.flatMap (f : α → List β) : (xs : List α) → List β
     | [] => []
     | x :: xs => f x ++ xs.flatMap f
 stop book declaration
-
+end Mine
 
 book declaration {{{ TableCartProd }}}
   def Table.cartesianProduct (table1 : Table s1) (table2 : Table s2) : Table (s1 ++ s2) :=
@@ -496,7 +500,7 @@ open Query in
 def example2 :=
   let mountain := table mountainDiary |>.prefixWith "mountain"
   let waterfall := table waterfallDiary |>.prefixWith "waterfall"
-  mountain.product waterfall (by simp)
+  mountain.product waterfall (by decide)
     |>.select (.eq (c! "mountain.location") (c! "waterfall.location"))
     |>.project [⟨"mountain.name", .string⟩, ⟨"waterfall.name", .string⟩] (by repeat constructor)
 stop book declaration
@@ -505,12 +509,9 @@ stop book declaration
 expect info {{{ Query2Exec }}}
   #eval example2.exec
 message
-"[(\"Mount Nebo\", \"Multnomah Falls\"),
- (\"Mount Nebo\", \"Shoshone Falls\"),
- (\"Moscow Mountain\", \"Multnomah Falls\"),
- (\"Moscow Mountain\", \"Shoshone Falls\"),
- (\"Mount St. Helens\", \"Multnomah Falls\"),
- (\"Mount St. Helens\", \"Shoshone Falls\")]"
+"[(\"Mount Nebo\", \"Multnomah Falls\"), (\"Mount Nebo\", \"Shoshone Falls\"), (\"Moscow Mountain\", \"Multnomah Falls\"),
+  (\"Moscow Mountain\", \"Shoshone Falls\"), (\"Mount St. Helens\", \"Multnomah Falls\"),
+  (\"Mount St. Helens\", \"Shoshone Falls\")]"
 end expect
 
 namespace Ooops
@@ -531,7 +532,7 @@ mountains : Query (List.map (fun c => { name := \"mountain\" ++ \".\" ++ c.name,
   prefixWith \"mountain\" (table mountainDiary)
 waterfalls : Query (List.map (fun c => { name := \"waterfall\" ++ \".\" ++ c.name, contains := c.contains }) waterfall) :=
   prefixWith \"waterfall\" (table waterfallDiary)
-⊢ HasCol (List.map (fun c => { name := \"waterfall\" ++ \".\" ++ c.name, contains := c.contains }) []) \"location\" ?m.109970"
+⊢ HasCol (List.map (fun c => { name := \"waterfall\" ++ \".\" ++ c.name, contains := c.contains }) []) \"location\" ?m.52988"
 end expect
 
 expect error {{{ QueryOops2 }}}
@@ -539,14 +540,13 @@ expect error {{{ QueryOops2 }}}
   def example2 :=
     let mountains := table mountainDiary
     let waterfalls := table waterfallDiary
-    mountains.product waterfalls (by simp)
+    mountains.product waterfalls (by decide)
       |>.select (.eq (c! "mountain.location") (c! "waterfall.location"))
       |>.project [⟨"mountain.name", .string⟩, ⟨"waterfall.name", .string⟩] (by repeat constructor)
 message
-"unsolved goals
-mountains : Query peak := table mountainDiary
-waterfalls : Query waterfall := table waterfallDiary
-⊢ False"
+"tactic 'decide' proved that the proposition
+  disjoint (List.map Column.name peak) (List.map Column.name waterfall) = true
+is false"
 end expect
 end Ooops
 

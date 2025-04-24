@@ -67,28 +67,21 @@ The inner loop is structurally recursive on the `Nat` that is inside the `Fin` u
 If the index `i` is `0`, then the element being inserted into the sorted region has reached the beginning of the region and is the smallest.
 If the index is `i' + 1`, then the element at `i'` should be compared to the element at `i`.
 Note that while `i` is a `Fin arr.size`, `i'` is just a `Nat` because it results from the `val` field of `i`.
-It is thus necessary to prove that `i' < arr.size` before `i'` can be used to index into `arr`.
+Nonetheless, the proof automation used for checking array index notation includes `omega`, so `i'` is automatically usable as an index.
 
+The two elements are looked up and compared. 
+If the element to the left is less than or equal to the element being inserted, then the loop is finished and the invariant has been restored.
+If the element to the left is greater than the element being inserted, then the elements are swapped and the inner loop begins again.
+`Array.swap` takes both of its indices as `Nat`s, using the same tactics as array indexing behind the scenes to ensure that they are in bounds.
+
+Nonetheless, the `Fin` used for the recursive call needs a proof that `i'` is in bounds for the result of swapping two elements.
+The `simp` tactic's database contains the fact that swapping two elements of an array doesn't change its size, and the `[*]` argument instructs it to additionally use the assumption introduced by `have`.
 Omitting the `have`-expression with the proof that `i' < arr.size` reveals the following goal:
 ```output error
 {{#example_out Examples/ProgramsProofs/InsertionSort.lean insertSortedNoProof}}
 ```
 
-The hint `Nat.lt_of_succ_lt` is a theorem from Lean's standard library.
-Its signature, found by `{{#example_in Examples/ProgramsProofs/InsertionSort.lean lt_of_succ_lt_type}}`, is
-```output info
-{{#example_out Examples/ProgramsProofs/InsertionSort.lean lt_of_succ_lt_type}}
-```
-In other words, it states that if `n + 1 < m`, then `n < m`.
-The `*` passed to `simp` causes it to combine `Nat.lt_of_succ_lt` with the `isLt` field from `i` to get the final proof.
 
-Having established that `i'` can be used to look up the element to the left of the element being inserted, the two elements are looked up and compared. 
-If the element to the left is less than or equal to the element being inserted, then the loop is finished and the invariant has been restored.
-If the element to the left is greater than the element being inserted, then the elements are swapped and the inner loop begins again.
-`Array.swap` takes both of its indices as `Fin`s, and the `by assumption` that establishes that `i' < arr.size` makes use of the `have`.
-The index to be examined on the next round through the inner loop is also `i'`, but `by assumption` is not sufficient in this case.
-This is because the proof was written for the original array `arr`, not the result of swapping two elements.
-The `simp` tactic's database contains the fact that swapping two elements of an array doesn't change its size, and the `[*]` argument instructs it to additionally use the assumption introduced by `have`.
 
 ## The Outer Loop
 
@@ -97,10 +90,11 @@ The basic form of the loop resembles the implementation of `Array.map`:
 ```lean
 {{#example_in Examples/ProgramsProofs/InsertionSort.lean insertionSortLoopTermination}}
 ```
-The resulting error is also the same as the error that occurs without a `termination_by` clause on `Array.map`, because there is no argument that decreases at every recursive call:
+An error occurs because there is no argument that decreases at every recursive call:
 ```output error
 {{#example_out Examples/ProgramsProofs/InsertionSort.lean insertionSortLoopTermination}}
 ```
+While Lean can prove that a `Nat` that increases towards a constant bound at each iteration leads to a terminating function, this function has no constant bound because the array is replaced with the result of calling `insertSorted` at each iteration.
 
 Before constructing the termination proof, it can be convenient to test the definition with a `partial` modifier to make sure that it returns the expected answers:
 ```lean
@@ -158,6 +152,7 @@ When faced with a goal that includes `if` or `match`, the `split` tactic (not to
 ```leantac
 {{#example_in Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_1}}
 ```
+Because it typically doesn't matter _how_ a statement was proved, but only _that_ it was proved, proofs in Lean's output are typically replaced by `⋯`.
 Additionally, each new goal has an assumption that indicates which branch led to that goal, named `heq✝` in this case:
 ```output error
 {{#example_out Examples/ProgramsProofs/InsertionSort.lean insert_sorted_size_eq_1}}
@@ -187,7 +182,7 @@ In the resulting goal, `arr` is now part of a "for all" statement in the inducti
 
 However, this whole proof is beginning to get unmanageable.
 The next step would be to introduce a variable standing for the length of the result of swapping, show that it is equal to `arr.size`, and then show that this variable is also equal to the length of the array that results from the recursive call.
-These equality statement can then be chained together to prove the goal.
+These equality statements can then be chained together to prove the goal.
 It's much easier, however, to carefully reformulate the theorem statement such that the induction hypothesis is automatically strong enough and the variables are already introduced.
 The reformulated statement reads:
 ```leantac
@@ -274,8 +269,7 @@ Providing `arr.size` as the `len` argument to the theorem causes the final concl
 ```output error
 {{#example_out Examples/ProgramsProofs/InsertionSort.lean insertionSortLoopRw}}
 ```
-The proof `{{#example_in Examples/ProgramsProofs/InsertionSort.lean sub_succ_lt_self_type}}` is part of Lean's standard library.
-It's type is `{{#example_out Examples/ProgramsProofs/InsertionSort.lean sub_succ_lt_self_type}}`, which is exactly what's needed:
+The `omega` tactic can prove this:
 ```leantacnorfl
 {{#example_decl Examples/ProgramsProofs/InsertionSort.lean insertionSortLoop}}
 ```
@@ -322,7 +316,7 @@ Adding calls to `dbgTraceIfShared` at each point where mutation is desired cause
 Insertion sort has precisely one place that is at risk of copying rather than mutating: the call to `Array.swap`.
 Replacing `arr.swap ⟨i', by assumption⟩ i` with `((dbgTraceIfShared "array to swap" arr).swap ⟨i', by assumption⟩ i)` causes the program to emit `shared RC array to swap` whenever it is unable to mutate the array.
 However, this change to the program changes the proofs as well, because now there's a call to an additional function.
-Because `dbgTraceIfShared` returns its second argument directly, adding it to the calls to `simp` is enough to fix the proofs.
+Adding a local assumption that `dbgTraceIfShared` preserves the length of its argument and adding it to some calls to `simp` is enough to fix the program and proofs.
 
 The complete instrumented code for insertion sort is:
 ```leantacnorfl

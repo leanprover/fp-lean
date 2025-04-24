@@ -62,7 +62,7 @@ Because propositions are like types that describe evidence for some statement, p
 This means that it can't automatically be checked.
 However, the equality of any two expressions can be stated in Lean, so long as they have the same type.
 The statement `{{#example_in Examples/Classes.lean functionEqProp}}` is a perfectly reasonable statement.
-From the perspective of mathematics, two functions are equal if they map equal inputs to equal outputs, so this statement is even true, though it requires a two-line proof to convince Lean of this fact.
+From the perspective of mathematics, two functions are equal if they map equal inputs to equal outputs, so this statement is even true, though it requires a one-line proof to convince Lean of this fact.
 
 Generally speaking, when using Lean as a programming language, it's easiest to stick to Boolean functions rather than propositions.
 However, as the names `true` and `false` for `Bool`'s constructors suggest, this difference is sometimes blurred.
@@ -84,7 +84,7 @@ For example, `{{#example_in Examples/Classes.lean ifProp}}` has type `Nat` and e
 
 Not all propositions are decidable.
 If they were, then computers would be able to prove any true proposition just by running the decision procedure, and mathematicians would be out of a job.
-More specifically, decidable propositions have an instance of the `Decidable` type class which has a method that is the decision procedure.
+More specifically, decidable propositions have an instance of the `Decidable` type class, which contains the decision procedure.
 Trying to use a proposition that isn't decidable as if it were a `Bool` results in a failure to find the `Decidable` instance.
 For example, `{{#example_in Examples/Classes.lean funEqDec}}` results in:
 ```output error
@@ -100,13 +100,33 @@ The following propositions, that are usually decidable, are overloaded with type
 | `{{#example_in Examples/Classes.lean gtDesugar}}` | `{{#example_out Examples/Classes.lean gtDesugar}}` | `LT` |
 | `{{#example_in Examples/Classes.lean geDesugar}}` | `{{#example_out Examples/Classes.lean geDesugar}}` | `LE` |
 
-Because defining new propositions hasn't yet been demonstrated, it may be difficult to define new instances of `LT` and `LE`.
+Because defining new propositions hasn't yet been demonstrated, it may be difficult to define completely new instances of `LT` and `LE`.
+However, they can be defined in terms of existing instances.
+`LT` and `LE` instances for `Pos` can use the existing instances for `Nat`:
+```lean
+{{#example_decl Examples/Classes.lean LTPos}}
 
-Additionally, comparing values using `<`, `==`, and `>` can be inefficient.
+{{#example_decl Examples/Classes.lean LEPos}}
+```
+These propositions are not decidable by default because Lean doesn't unfold the definitions of propositions while synthesizing an instance.
+This can be bridged using the `inferInstanceAs` operator, which finds an instance for a given class if it exists:
+```lean
+{{#example_decl Examples/Classes.lean DecLTLEPos}}
+```
+The type checker confirms that the definitions of the propositions match.
+Confusing them results in an error:
+```lean
+{{#example_in Examples/Classes.lean LTLEMismatch}}
+```
+```output error
+{{#example_out Examples/Classes.lean LTLEMismatch}}
+```
+
+Comparing values using `<`, `==`, and `>` can be inefficient.
 Checking first whether one value is less than another, and then whether they are equal, can require two traversals over large data structures.
 To solve this problem, Java and C# have standard `compareTo` and `CompareTo` methods (respectively) that can be overridden by a class in order to implement all three operations at the same time.
 These methods return a negative integer if the receiver is less than the argument, zero if they are equal, and a positive integer if the receiver is greater than the argument.
-Rather than overload the meaning of integers, Lean has a built-in inductive type that describes these three possibilities:
+Rather than overloading the meaning of integers, Lean has a built-in inductive type that describes these three possibilities:
 ```lean
 {{#example_decl Examples/Classes.lean Ordering}}
 ```
@@ -175,7 +195,7 @@ When this is the case, it's fine to write an `Ord` instance by hand.
 The collection of classes for which instances can be derived can be extended by advanced users of Lean.
 
 Aside from the clear advantages in programmer productivity and code readability, deriving instances also makes code easier to maintain, because the instances are updated as the definitions of types evolve.
-Changesets involving updates to datatypes are easier to read without line after line of formulaic modifications to equality tests and hash computation.
+When reviewing changes to code, modifications that involve updates to datatypes are much easier to read without line after line of formulaic modifications to equality tests and hash computation.
 
 ## Appending
 
@@ -215,7 +235,7 @@ results in
 ## Functors
 
 A polymorphic type is a _functor_ if it has an overload for a function named `map` that transforms every element contained in it by a function.
-While most languages use this terminology, C#'s equivalent to `map` is called `System.Linq.Enumerable.Select`.
+While most languages use this terminology, C#'s equivalent of `map` is called `System.Linq.Enumerable.Select`.
 For example, mapping a function over a list constructs a new list in which each entry from the starting list has been replaced by the result of the function on that entry.
 Mapping a function `f` over an `Option` leaves `none` untouched, and replaces `some x` with `some (f x)`.
 
@@ -270,7 +290,7 @@ Here is the definition of `Functor`, in which `mapConst` has a default implement
 
 Just as a `Hashable` instance that doesn't respect `BEq` is buggy, a `Functor` instance that moves around the data as it maps the function is also buggy.
 For example, a buggy `Functor` instance for `List` might throw away its argument and always return the empty list, or it might reverse the list.
-A bad instance for `PPoint` might place `f x` in both the `x` and the `y` fields.
+A bad `Functor` instance for `PPoint` might place `f x` in both the `x` and the `y` fields, or swap them.
 Specifically, `Functor` instances should follow two rules:
  1. Mapping the identity function should result in the original argument.
  2. Mapping two composed functions should have the same effect as composing their mapping.

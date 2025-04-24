@@ -152,7 +152,7 @@ Both `replaceX` and `length` are somewhat bureaucratic to use, because the type 
 Indeed, in most languages, the compiler is perfectly capable of determining type arguments on its own, and only occasionally needs help from users.
 This is also the case in Lean.
 Arguments can be declared _implicit_ by wrapping them in curly braces instead of parentheses when defining a function.
-For instance, a version of `replaceX` with an implicit type argument looks like this:
+For example, a version of `replaceX` with an implicit type argument looks like this:
 ```lean
 {{#example_decl Examples/Intro.lean replaceXImp}}
 ```
@@ -187,7 +187,7 @@ In the standard library, Lean calls this function `List.length`, which means tha
 
 Just as C# and Java require type arguments to be provided explicitly from time to time, Lean is not always capable of finding implicit arguments.
 In these cases, they can be provided using their names.
-For instance, a version of `List.length` that only works for lists of integers can be specified by setting `α` to `Int`:
+For example, a version of `List.length` that only works for lists of integers can be specified by setting `α` to `Int`:
 ```lean
 {{#example_in Examples/Intro.lean lengthExpNat}}
 ```
@@ -221,7 +221,7 @@ In these languages, if a type (say, `Boolean`) always refers to actual values of
 Tracking this in the type system is very useful: the type checker and other tooling can help programmers remember to check for null, and APIs that explicitly describe nullability through type signatures are more informative than ones that don't.
 However, these nullable types differ from Lean's `Option` in one very important way, which is that they don't allow multiple layers of optionality.
 `{{#example_out Examples/Intro.lean nullThree}}` can be constructed with `{{#example_in Examples/Intro.lean nullOne}}`, `{{#example_in Examples/Intro.lean nullTwo}}`, or `{{#example_in Examples/Intro.lean nullThree}}`.
-C#, on the other hand, forbids multiple layers of nullability by only allowing `?` to be added to non-nullable types, while Kotlin treats `T??` as being equivalent to `T?`.
+Kotlin, for example, treats `T??` as being equivalent to `T?`.
 This subtle difference is rarely relevant in practice, but it can matter from time to time.
 
 To find the first entry in a list, if it exists, use `List.head?`.
@@ -233,7 +233,7 @@ Using underscores instead of names is a way to clearly communicate to readers th
 {{#example_decl Examples/Intro.lean headHuh}}
 ```
 A Lean naming convention is to define operations that might fail in groups using the suffixes `?` for a version that returns an `Option`, `!` for a version that crashes when provided with invalid input, and `D` for a version that returns a default value when the operation would otherwise fail.
-For instance, `head` requires the caller to provide mathematical evidence that the list is not empty, `head?` returns an `Option`, `head!` crashes the program when passed an empty list, and `headD` takes a default value to return in case the list is empty.
+Following this pattern, `head` requires the caller to provide mathematical evidence that the list is not empty, `head?` returns an `Option`, `head!` crashes the program when passed an empty list, and `headD` takes a default value to return in case the list is empty.
 The question mark and exclamation mark are part of the name, not special syntax, as Lean's naming rules are more liberal than many languages.
 
 Because `head?` is defined in the `List` namespace, it can be used with accessor notation:
@@ -330,7 +330,7 @@ These names are abbreviations for "left injection" and "right injection", respec
 Just as the Cartesian product notation is used for `Prod`, a "circled plus" notation is used for `Sum`, so `α ⊕ β` is another way to write `Sum α β`.
 There is no special syntax for `Sum.inl` and `Sum.inr`.
 
-For instance, if pet names can either be dog names or cat names, then a type for them can be introduced as a sum of strings:
+As an example, if pet names can either be dog names or cat names, then a type for them can be introduced as a sum of strings:
 ```lean
 {{#example_decl Examples/Intro.lean PetName}}
 ```
@@ -423,6 +423,22 @@ yields the message:
 ```
 For technical reasons, allowing these datatypes could make it possible to undermine Lean's internal logic, making it unsuitable for use as a theorem prover.
 
+Recursive functions that take two parameters should not match against the pair, but rather match each parameter independently.
+Otherwise, the mechanism in Lean that checks whether recursive calls are made on smaller values is unable to see the connection between the input value and the argument in the recursive call.
+For example, this function that determines whether two lists have the same length is rejected:
+```lean
+{{#example_in Examples/Intro.lean sameLengthPair}}
+```
+The error message is:
+```output error
+{{#example_out Examples/Intro.lean sameLengthPair}}
+```
+The problem can be fixed through nested pattern matching:
+```lean
+{{#example_decl Examples/Intro.lean sameLengthOk1}}
+```
+[Simultaneous matching](conveniences.md#simultaneous-matching), described in the next section, is another way to solve the problem that is often more elegant.
+
 Forgetting an argument to an inductive type can also yield a confusing message.
 For example, when the argument `α` is not passed to `MyType` in `ctor`'s type:
 ```lean
@@ -446,9 +462,9 @@ The same message can appear when type arguments are omitted in other contexts, s
 
  * Write a function to find the last entry in a list. It should return an `Option`.
  * Write a function that finds the first entry in a list that satisfies a given predicate. Start the definition with `def List.findFirst? {α : Type} (xs : List α) (predicate : α → Bool) : Option α :=`
- * Write a function `Prod.swap` that swaps the two fields in a pair. Start the definition with `def Prod.swap {α β : Type} (pair : α × β) : β × α :=`
+ * Write a function `Prod.switch` that switches the two fields in a pair for each other. Start the definition with `def Prod.switch {α β : Type} (pair : α × β) : β × α :=`
  * Rewrite the `PetName` example to use a custom datatype and compare it to the version that uses `Sum`.
  * Write a function `zip` that combines two lists into a list of pairs. The resulting list should be as long as the shortest input list. Start the definition with `def zip {α β : Type} (xs : List α) (ys : List β) : List (α × β) :=`.
- * Write a polymorphic function `take` that returns the first \\( n \\) entries in a list, where \\( n \\) is a `Nat`. If the list contains fewer than `n` entries, then the resulting list should be the input list. `{{#example_in Examples/Intro.lean takeThree}}` should yield `{{#example_out Examples/Intro.lean takeThree}}`, and `{{#example_in Examples/Intro.lean takeOne}}` should yield `{{#example_out Examples/Intro.lean takeOne}}`.
+ * Write a polymorphic function `take` that returns the first \\( n \\) entries in a list, where \\( n \\) is a `Nat`. If the list contains fewer than `n` entries, then the resulting list should be the entire input list. `{{#example_in Examples/Intro.lean takeThree}}` should yield `{{#example_out Examples/Intro.lean takeThree}}`, and `{{#example_in Examples/Intro.lean takeOne}}` should yield `{{#example_out Examples/Intro.lean takeOne}}`.
  * Using the analogy between types and arithmetic, write a function that distributes products over sums. In other words, it should have type `α × (β ⊕ γ) → (α × β) ⊕ (α × γ)`.
  * Using the analogy between types and arithmetic, write a function that turns multiplication by two into a sum. In other words, it should have type `Bool × α → α ⊕ α`.

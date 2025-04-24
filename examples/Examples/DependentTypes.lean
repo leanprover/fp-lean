@@ -17,13 +17,18 @@ stop book declaration
 
 deriving instance Repr for Vect
 
+book declaration {{{ vect3 }}}
+  example : Vect String 3 :=
+    .cons "one" (.cons "two" (.cons "three" .nil))
+stop book declaration
+
 expect error {{{ nilNotLengthThree }}}
   example : Vect String 3 := Vect.nil
 message
 "type mismatch
   Vect.nil
 has type
-  Vect String 0 : Type
+  Vect ?m.1605 0 : Type ?u.1604
 but is expected to have type
   Vect String 3 : Type"
 end expect
@@ -35,7 +40,7 @@ message
 "type mismatch
   Vect.nil
 has type
-  Vect String 0 : Type
+  Vect ?m.1602 0 : Type ?u.1576
 but is expected to have type
   Vect String n : Type"
 end expect
@@ -152,9 +157,9 @@ message
 argument
   cons x (replicate k x)
 has type
-  Vect α (k + 1) : Type ?u.1998
+  Vect α (k + 1) : Type ?u.1578
 but is expected to have type
-  Vect α k : Type ?u.1998"
+  Vect α k : Type ?u.1578"
 end expect
 
 
@@ -226,9 +231,9 @@ message
 "type mismatch
   Vect.cons y ys
 has type
-  Vect β (?m.4718 + 1) : Type ?u.4530
+  Vect ?m.3469 (?m.3480 + 1) : Type ?u.3477
 but is expected to have type
-  Vect β 0 : Type ?u.4530"
+  Vect β 0 : Type ?u.3344"
 end expect
 end Other
 
@@ -276,20 +281,20 @@ def Vect.unzip : Vect (α × β) n → Vect α n × Vect β n
     let (xs, ys) := unzip xys
     (.cons x xs, .cons y ys)
 
-def Vect.snoc : Vect α n → α → Vect α (n + 1)
+def Vect.push : Vect α n → α → Vect α (n + 1)
   | .nil, x => .cons x .nil
-  | .cons y ys, x => .cons y (snoc ys x)
+  | .cons y ys, x => .cons y (push ys x)
 
 
 expect info {{{ snocSnowy }}}
-  #eval Vect.snoc (.cons "snowy" .nil) "peaks"
+  #eval Vect.push (.cons "snowy" .nil) "peaks"
 message
 "Vect.cons \"snowy\" (Vect.cons \"peaks\" (Vect.nil))"
 end expect
 
 def Vect.reverse : Vect α n → Vect α n
   | .nil => .nil
-  | .cons x xs => Vect.snoc (reverse xs) x
+  | .cons x xs => Vect.push (reverse xs) x
 
 def Vect.drop : (n : Nat) → Vect α (k + n) → Vect α k
   | 0, xs => xs

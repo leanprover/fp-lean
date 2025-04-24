@@ -2,13 +2,17 @@
 
 *by David Thrane Christiansen*
 
-*Copyright Microsoft Corporation 2023*
+*Copyright Microsoft Corporation 2023 and Lean FRO, LLC 2023-2025*
 
 
 
-This is a free book on using Lean 4 as a programming language. All code samples are tested with Lean 4 release `{{#lean_version}}`.
+This is a free book on using Lean as a programming language. All code samples are tested with Lean release `{{#lean_version}}`.
 
 ## Release history
+
+### April, 2025
+
+The book has been extensively updated and now describes Lean version 4.18.
 
 ### January, 2024
 
@@ -76,3 +80,9 @@ At the time of writing, he is employed at the [Lean Focused Research Organizatio
 ## License
 
 <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+
+The original version of the book was written by David Thrane Christiansen on contract to Microsoft Corporation, who generously released it under a Creative Commons Attribution 4.0 International License.
+The current version has been modified by the author from the original version to account for changes in newer versions of Lean.
+A detailed account of the changes can be found in the book's [source code repository](https://github.com/leanprover/fp-lean/).
+
+

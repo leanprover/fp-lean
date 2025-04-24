@@ -1224,7 +1224,7 @@ hljs.registerLanguage("leantac", function(hljs) {
       'universe variable ' +
       'import open export prelude renaming hiding ' +
       'calc match nomatch with do by let have extends ' +
-      'induction simp dsimp simpa simp_arith simp_intros exact funext assumption cases case skip unfold rw|10 intro constructor split generalizing rfl apply ' +
+      'induction decide simp dsimp simpa simp_arith simp_intros exact funext assumption cases case skip unfold rw|10 intro constructor split generalizing rfl apply ' +
       'for in unless try catch finally mutual mut return continue break where rec while repeat ' +
       'syntax macro_rules macro deriving ' +
       'termination_by ' +

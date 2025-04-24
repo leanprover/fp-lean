@@ -74,12 +74,12 @@ theorem geven_is_even (n : Nat) (even : GEven basis n) : n % 2 = 0 := by
   case plusTwo _ ih =>
     have step (n : Nat) : (n + 2) % 2 = n % 2 := by
       have : (n + 2) % 2 = if 0 < 2 ∧ 2 ≤ n + 2 then (n + 2 - 2) % 2 else n + 2 := Nat.mod_eq (n + 2) 2
-      have : 2 ≤ n + 2 := by simp_arith
+      have : 2 ≤ n + 2 := by simp
       simp [*, Nat.add_sub_self_right n 2]
     simp [*]
 
 theorem geven_is_ge (n : Nat) (even : GEven basis n) : n ≥ basis := by
-  simp_arith
+  simp
   induction even
   case base => simp
   case plusTwo _ ih =>

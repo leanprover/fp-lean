@@ -71,7 +71,8 @@ jobs:
 
     - name: Zip html contents
       run: |
-        pushd functional-programming-lean/book/
+        pushd functional-programming-lean/
+        cp -r book html
         zip -rq html.zip html/
         popd
 
@@ -93,7 +94,7 @@ jobs:
       uses: peaceiris/actions-gh-pages@v3
       if: ${{ startsWith(github.ref, 'refs/tags/release-') }}
       with:
-        publish_dir: functional-programming-lean/book/html
+        publish_dir: functional-programming-lean/book/
         publish_branch: gh-pages
         external_repository: leanprover/functional_programming_in_lean
         personal_token: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
@@ -101,7 +102,7 @@ jobs:
     - name: Deploy to Netlify hosting
       uses: nwtgck/actions-netlify@v2.0
       with:
-        publish-dir: functional-programming-lean/book/html
+        publish-dir: functional-programming-lean/book/
         production-branch: master
         github-token: ${{ secrets.GITHUB_TOKEN }}
         deploy-message: |

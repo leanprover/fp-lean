@@ -3,29 +3,25 @@
 Types classify programs based on the values that they can
 compute. Types serve a number of roles in a program:
 
- 1. They allow the compiler to make decisions about the in-memory
-    representation of a value.
+ 1. They allow the compiler to make decisions about the in-memory representation of a value.
 
- 2. They help programmers to communicate their intent to others,
-    serving as a lightweight specification for the inputs and outputs
-    of a function that the compiler can ensure the program adheres to.
+ 2. They help programmers to communicate their intent to others, serving as a lightweight specification for the inputs and outputs of a function.
+    The compiler ensures that the program adheres to this specification.
 
- 3. They prevent various potential mistakes, such as adding a number
-    to a string, and thus reduce the number of tests that are
-    necessary for a program.
+ 3. They prevent various potential mistakes, such as adding a number to a string, and thus reduce the number of tests that are necessary for a program.
 
  4. They help the Lean compiler automate the production of auxiliary code that can save boilerplate.
 
 Lean's type system is unusually expressive.
 Types can encode strong specifications like "this sorting function returns a permutation of its input" and flexible specifications like "this function has different return types, depending on the value of its argument".
 The type system can even be used as a full-blown logic for proving mathematical theorems.
-This cutting-edge expressive power doesn't obviate the need for simpler types, however, and understanding these simpler types is a prerequisite for using the more advanced features.
+This cutting-edge expressive power doesn't make simpler types unnecessary, however, and understanding these simpler types is a prerequisite for using the more advanced features.
 
 Every program in Lean must have a type. In particular, every
 expression must have a type before it can be evaluated. In the
 examples so far, Lean has been able to discover a type on its own, but
 it is sometimes necessary to provide one. This is done using the colon
-operator:
+operator inside parentheses:
 
 ```lean
 #eval {{#example_in Examples/Intro.lean onePlusTwoType}}
@@ -75,5 +71,4 @@ outputs
 {{#example_out Examples/Intro.lean stringAppendList}}
 ```
 
-because the second argument to ``String.append`` is expected to be a
-string, but a list of strings was provided instead.
+because the first argument to ``String.append`` is expected to be a string, but a list of strings was provided instead.

@@ -213,9 +213,8 @@ Testing it reveals that it works just like the prior version:
 {{#example_out Examples/MonadTransformers/Do.lean countSevenFor}}
 ```
 
-At the time of writing, the `for ... in ... do ...` syntax desugars to the use of a type class called `ForIn`, which is a somewhat more complicated version of `ForM` that keeps track of state and early termination.
-However, there is a plan to refactor `for` loops to use the simpler `ForM`, with monad transformers inserted as necessary.
-In the meantime, an adapter is provided that converts a `ForM` instance into a `ForIn` instance, called `ForM.forIn`.
+The `for ... in ... do ...` syntax desugars to the use of a type class called `ForIn`, which is a somewhat more complicated version of `ForM` that keeps track of state and early termination.
+The standard library provides an adapter that converts a `ForM` instance into a `ForIn` instance, called `ForM.forIn`.
 To enable `for` loops based on a `ForM` instance, add something like the following, with appropriate replacements for `AllLessThan` and `Nat`:
 ```lean
 {{#example_decl Examples/MonadTransformers/Do.lean ForInIOAllLessThan}}
@@ -275,10 +274,18 @@ produces three lines of output:
 {{#example_out Examples/MonadTransformers/Do.lean parallelLoopOut}}
 ```
 
+Many data structures implement an enhanced version of the `ForIn` type class that adds evidence that the element was drawn from the collection to the loop body.
+These can be used by providing a name for the evidence prior to the name of the element.
+This function prints all the elements of an array together with their indices, and the compiler is able to determine that the array lookups are all safe due to the evidence `h`:
+```lean
+{{#example_decl Examples/MonadTransformers/Do.lean printArray}}
+```
+In this example, `h` is evidence that `i ∈ [0:xs.size]`, and the tactic that checks whether `xs[i]` is safe is able to transform this into evidence that `i < xs.size`.
+
 ## Mutable Variables
 
 In addition to early `return`, `else`-less `if`, and `for` loops, Lean supports local mutable variables within a `do` block.
-Behind the scenes, these mutable variables desugar to a use of `StateT`, rather than being implemented by true mutable variables.
+Behind the scenes, these mutable variables desugar to code that's equivalent to `StateT`, rather than being implemented by true mutable variables.
 Once again, functional programming is used to simulate imperative programming.
 
 A local mutable variable is introduced with `let mut` instead of plain `let`.

@@ -44,7 +44,7 @@ n k n✝ : Nat
 x : α
 xs : Vect α n✝
 ys : Vect α k
-⊢ Vect α (Nat.plusL (n✝ + 1) k)"
+⊢ Vect α ((n✝ + 1).plusL k)"
 end expect
 
 expect error {{{ appendL3 }}}
@@ -73,7 +73,7 @@ n k : Nat
 x : α
 xs : Vect α n
 ys : Vect α k
-⊢ Vect α (Nat.plusL (n + 1) k)"
+⊢ Vect α ((n + 1).plusL k)"
 end expect
 
 
@@ -103,7 +103,7 @@ n k : Nat
 x : α
 xs : Vect α n
 ys : Vect α k
-⊢ Vect α (Nat.plusL n k + 1)"
+⊢ Vect α (n.plusL k + 1)"
 end expect
 
 
@@ -119,7 +119,7 @@ n k : Nat
 x : α
 xs : Vect α n
 ys : Vect α k
-⊢ Vect α (Nat.plusL n k + 1)"
+⊢ Vect α (n.plusL k + 1)"
 end expect
 
 expect error {{{ appendL8 }}}
@@ -134,7 +134,7 @@ n k : Nat
 x : α
 xs : Vect α n
 ys : Vect α k
-⊢ Vect α (Nat.plusL n k)"
+⊢ Vect α (n.plusL k)"
 end expect
 
 namespace Almost
@@ -180,7 +180,7 @@ n k : Nat
 x : α
 xs : Vect α n
 ys : Vect α k
-⊢ Vect α (Nat.plusR (n + 1) k)"
+⊢ Vect α ((n + 1).plusR k)"
 end expect
 
 
@@ -190,11 +190,11 @@ expect error {{{ appendR3 }}}
     | n + 1, k, .cons x xs, ys => _
 message
 "type mismatch
-  ?m.3036
+  ?m.2199
 has type
-  Vect α k : Type ?u.2973
+  Vect α k : Type ?u.2135
 but is expected to have type
-  Vect α (Nat.plusR 0 k) : Type ?u.2973"
+  Vect α (Nat.plusR 0 k) : Type ?u.2135"
 end expect
 
 expect error {{{ appendR4 }}}
@@ -203,11 +203,11 @@ expect error {{{ appendR4 }}}
     | n + 1, k, .cons x xs, ys => _
 message
 "type mismatch
-  ?m.3068
+  ?m.2234
 has type
-  Vect α k : Type ?u.2973
+  Vect α k : Type ?u.2135
 but is expected to have type
-  Vect α (0 + k) : Type ?u.2973"
+  Vect α (0 + k) : Type ?u.2135"
 end expect
 
 expect error {{{ plusR_zero_left1 }}}
@@ -265,14 +265,21 @@ k : Nat
 ⊢ k + 1 = Nat.plusR 0 k + 1"
 end expect
 
-
+discarding
 book declaration {{{ plusR_zero_left_done }}}
   def plusR_zero_left : (k : Nat) → k = Nat.plusR 0 k
     | 0 => by rfl
     | k + 1 =>
       congrArg (· + 1) (plusR_zero_left k)
 stop book declaration
+stop discarding
 
+book declaration {{{ plusR_zero_left_thm }}}
+  theorem plusR_zero_left : (k : Nat) → k = Nat.plusR 0 k
+    | 0 => by rfl
+    | k + 1 =>
+      congrArg (· + 1) (plusR_zero_left k)
+stop book declaration
 
 expect error {{{ appendRsubst }}}
   def appendR : (n k : Nat) → Vect α n → Vect α k → Vect α (n.plusR k)
@@ -299,37 +306,37 @@ n k : Nat
 x : α
 xs : Vect α n
 ys : Vect α k
-⊢ Vect α (Nat.plusR (n + 1) k)"
+⊢ Vect α ((n + 1).plusR k)"
 end expect
 
 
 expect error {{{ plusR_succ_left_0 }}}
-  def plusR_succ_left (n : Nat) : (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
+  theorem plusR_succ_left (n : Nat) : (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
     | 0 => by rfl
     | k + 1 => _
 message
 "don't know how to synthesize placeholder
 context:
 n k : Nat
-⊢ Nat.plusR (n + 1) (k + 1) = Nat.plusR n (k + 1) + 1"
+⊢ (n + 1).plusR (k + 1) = n.plusR (k + 1) + 1"
 end expect
 
 
 
 expect error {{{ plusR_succ_left_2 }}}
-  def plusR_succ_left (n : Nat) : (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
+  theorem plusR_succ_left (n : Nat) : (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
     | 0 => by rfl
     | k + 1 => _
 message
 "don't know how to synthesize placeholder
 context:
 n k : Nat
-⊢ Nat.plusR (n + 1) (k + 1) = Nat.plusR n (k + 1) + 1"
+⊢ (n + 1).plusR (k + 1) = n.plusR (k + 1) + 1"
 end expect
 
 
 book declaration {{{ plusR_succ_left }}}
-  def plusR_succ_left (n : Nat) : (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
+  theorem plusR_succ_left (n : Nat) : (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
     | 0 => by rfl
     | k + 1 => congrArg (· + 1) (plusR_succ_left n k)
 stop book declaration

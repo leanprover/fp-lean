@@ -72,7 +72,7 @@ message
   Type u
 at universe level
   u+2
-it must be smaller than or equal to the inductive datatype universe level
+which is not less than or equal to the inductive type's resulting universe level
   u+1"
 end expect
 

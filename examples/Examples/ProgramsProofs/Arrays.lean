@@ -132,7 +132,7 @@ end expect
 
 expect error {{{ fourNotThree1 }}}
   theorem four_is_not_three : ¬ IsThree 4 := by
-    simp [Not]
+    unfold Not
 message
 "unsolved goals
 ⊢ IsThree 4 → False"
@@ -191,43 +191,33 @@ expect error {{{ mapHelperIndexIssue }}}
 message
 "failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
-  - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
-α : Type ?u.1704
-β : Type ?u.1707
+α : Type ?u.1290
+β : Type ?u.1293
 f : α → β
 arr : Array α
 soFar : Array β
 i : Nat
-⊢ i < Array.size arr"
+⊢ i < arr.size"
 end expect
 
-
-expect error {{{ arrayMapHelperTermIssue }}}
+discarding
+book declaration {{{ arrayMapHelperTermIssue }}}
   def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
     if inBounds : i < arr.size then
       arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
     else soFar
-message
-"fail to show termination for
-  arrayMapHelper
-with errors
-argument #6 was not used for structural recursion
-  failed to eliminate recursive application
-    arrayMapHelper f✝ arr (Array.push soFar (f✝ arr[i])) (i + 1)
-
-structural recursion cannot be used
-
-failed to prove termination, use `termination_by` to specify a well-founded relation"
-end expect
+stop book declaration
+stop discarding
 
 book declaration {{{ ArrayMapHelperOk }}}
   def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
     if inBounds : i < arr.size then
       arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
     else soFar
-  termination_by arrayMapHelper _ arr _ i _ => arr.size - i
+  termination_by arr.size - i
 stop book declaration
 
 namespace TailRec
@@ -248,10 +238,24 @@ book declaration {{{ ArrayFindHelper }}}
         some (i, x)
       else findHelper arr p (i + 1)
     else none
-  termination_by findHelper arr p i => arr.size - i
 stop book declaration
 
 book declaration {{{ ArrayFind }}}
   def Array.find (arr : Array α) (p : α → Bool) : Option (Nat × α) :=
     findHelper arr p 0
 stop book declaration
+
+namespace Huh
+expect info {{{ ArrayFindHelperSugg }}}
+  def findHelper (arr : Array α) (p : α → Bool) (i : Nat) : Option (Nat × α) :=
+    if h : i < arr.size then
+      let x := arr[i]
+      if p x then
+        some (i, x)
+      else findHelper arr p (i + 1)
+    else none
+  termination_by?
+message
+"Try this: termination_by arr.size - i"
+end expect
+end Huh

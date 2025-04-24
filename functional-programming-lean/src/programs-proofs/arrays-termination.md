@@ -38,7 +38,7 @@ Defining `Nat.le` requires a feature of Lean that has not yet been presented: it
 ### Inductively-Defined Propositions, Predicates, and Relations
 
 `Nat.le` is an _inductively-defined relation_.
-Just as `inductive` can be used to create new datatypes, it can also be used to create new propositions.
+Just as `inductive` can be used to create new datatypes, it can be used to create new propositions.
 When a proposition takes an argument, it is referred to as a _predicate_ that may be true for some, but not all, potential arguments.
 Propositions that take multiple arguments are called _relations_.
 
@@ -129,7 +129,7 @@ The initial proof goal contains `Not`:
 ```output error
 {{#example_out Examples/ProgramsProofs/Arrays.lean fourNotThree0}}
 ```
-The fact that it's actually a function type can be exposed using `simp`:
+The fact that it's actually a function type can be exposed using `unfold`:
 ```leantac
 {{#example_in Examples/ProgramsProofs/Arrays.lean fourNotThree1}}
 ```
@@ -137,7 +137,7 @@ The fact that it's actually a function type can be exposed using `simp`:
 {{#example_out Examples/ProgramsProofs/Arrays.lean fourNotThree1}}
 ```
 Because the goal is a function type, `intro` can be used to convert the argument into an assumption.
-There is no need to keep `simp`, as `intro` can unfold the definition of `Not` itself:
+There is no need to keep `unfold`, as `intro` can unfold the definition of `Not` itself:
 ```leantac
 {{#example_in Examples/ProgramsProofs/Arrays.lean fourNotThree2}}
 ```
@@ -200,14 +200,13 @@ An initial implementation of this code fails because Lean is unable to prove tha
 However, the conditional expression already checks the precise condition that the array index's validity demands (namely, `i < arr.size`).
 Adding a name to the `if` resolves the issue, because it adds an assumption that the array indexing tactic can use:
 ```lean
-{{#example_in Examples/ProgramsProofs/Arrays.lean arrayMapHelperTermIssue}}
+{{#example_decl Examples/ProgramsProofs/Arrays.lean arrayMapHelperTermIssue}}
 ```
-Lean does not, however, accept the modified program, because the recursive call is not made on an argument to one of the input constructors.
-In fact, both the accumulator and the index grow, rather than shrinking:
-```output error
-{{#example_out Examples/ProgramsProofs/Arrays.lean arrayMapHelperTermIssue}}
-```
-Nevertheless, this function terminates, so simply marking it `partial` would be unfortunate.
+Lean accepts the modified program, even though the recursive call is not made on an argument to one of the input constructors.
+In fact, both the accumulator and the index grow, rather than shrinking.
+
+Behind the scenes, Lean's proof automation constructs a termination proof.
+Reconstructing this proof can make it easier to understand the cases that Lean cannot automatically recognize.
 
 Why does `arrayMapHelper` terminate?
 Each iteration checks whether the index `i` is still in bounds for the array `arr`.
@@ -216,9 +215,9 @@ If not, the program terminates.
 Because `arr.size` is a finite number, `i` can be incremented only a finite number of times.
 Even though no argument to the function decreases on each call, `arr.size - i` decreases toward zero.
 
-Lean can be instructed to use another expression for termination by providing a `termination_by` clause at the end of a definition.
-The `termination_by` clause has two components: names for the function's arguments and an expression using those names that should decrease on each call.
-For `arrayMapHelper`, the final definition looks like this:
+The value that decreases at each recursive call is called a _measure_.
+Lean can be instructed to use a specific expression as the measure of termination by providing a `termination_by` clause at the end of a definition.
+For `arrayMapHelper`, the explicit measure looks like this:
 ```lean
 {{#example_decl Examples/ProgramsProofs/Arrays.lean ArrayMapHelperOk}}
 ```
@@ -232,15 +231,22 @@ Once again, the helper function terminates because `arr.size - i` decreases as `
 {{#example_decl Examples/ProgramsProofs/Arrays.lean ArrayFindHelper}}
 ```
 
+Adding a question mark to `termination_by` (that is, using `termination_by?`) causes Lean to explicitly suggest the measure that it chose:
+```lean
+{{#example_in Examples/ProgramsProofs/Arrays.lean ArrayFindHelperSugg}}
+```
+```output info
+{{#example_out Examples/ProgramsProofs/Arrays.lean ArrayFindHelperSugg}}
+```
+
 Not all termination arguments are as quite as simple as this one.
 However, the basic structure of identifying some expression based on the function's arguments that will decrease in each call occurs in all termination proofs.
-Sometimes, creativity can be required in order to figure out just why a function terminates, and sometimes Lean requires additional proofs in order to accept the termination argument.
+Sometimes, creativity can be required in order to figure out just why a function terminates, and sometimes Lean requires additional proofs in order to accept that the measure in fact decreases.
 
 
 
 ## Exercises
 
  * Implement a `ForM (Array α)` instance on arrays using a tail-recursive accumulator-passing function and a `termination_by` clause.
- * Implement a function to reverse arrays using a tail-recursive accumulator-passing function that _doesn't_ need a `termination_by` clause.
  * Reimplement `Array.map`, `Array.find`, and the `ForM` instance using `for ... in ...` loops in the identity monad and compare the resulting code.
  * Reimplement array reversal using a `for ... in ...` loop in the identity monad. Compare it to the tail-recursive function.

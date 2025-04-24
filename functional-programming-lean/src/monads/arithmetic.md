@@ -4,7 +4,7 @@ Monads are a way of encoding programs with side effects into a language that doe
 It would be easy to read this as a sort of admission that pure functional programs are missing something important, requiring programmers to jump through hoops just to write a normal program.
 However, while using the `Monad` API does impose a syntactic cost on a program, it brings two important benefits:
  1. Programs must be honest about which effects they use in their types. A quick glance at a type signature describes _everything_ that the program can do, rather than just what it accepts and what it returns.
- 2. Not every language provides the same effects. For example, only some language have exceptions. Other languages have unique, exotic effects, such as [Icon's searching over multiple values](https://www2.cs.arizona.edu/icon/) and Scheme or Ruby's continuations. Because monads can encode _any_ effect, programmers can choose which ones are the best fit for a given application, rather than being stuck with what the language developers provided.
+ 2. Not every language provides the same effects. For example, only some languages have exceptions. Other languages have unique, exotic effects, such as [Icon's searching over multiple values](https://www2.cs.arizona.edu/icon/) and Scheme or Ruby's continuations. Because monads can encode _any_ effect, programmers can choose which ones are the best fit for a given application, rather than being stuck with what the language developers provided.
 
 One example of a program that can make sense in a variety of monads is an evaluator for arithmetic expressions.
 
@@ -221,6 +221,17 @@ If the head of the list is _not_ a candidate, then the search proceeds to the ta
 If the head is a candidate, then there are two possibilities to be combined with `Many.union`: either the solutions found contain the head, or they do not.
 The solutions that do not contain the head are found with a recursive call on the tail, while the solutions that do contain it result from subtracting the head from the goal, and then attaching the head to the solutions that result from the recursive call.
 
+The helper `printList` ensures that one result is displayed per line:
+```lean
+{{#example_decl Examples/Monads/Many.lean printList}}
+
+{{#example_in Examples/Monads/Many.lean addsToFifteen}}
+```
+```output info
+{{#example_out Examples/Monads/Many.lean addsToFifteen}}
+```
+
+
 Returning to the arithmetic evaluator that produces multisets of results, the `both` and `neither` operators can be written as follows:
 ```lean
 {{#example_decl Examples/Monads/Class.lean NeedsSearch}}
@@ -284,7 +295,7 @@ The fact that constants in arithmetic expressions evaluate to constant functions
 
 On the other hand, `bind` is a bit tricker.
 Its type is `{{#example_out Examples/Monads/Class.lean readerBindType}}`.
-This type can be easier to understand by expanding the definitions of `Reader`, which yields `{{#example_out Examples/Monads/Class.lean readerBindTypeEval}}`.
+This type can be easier to understand by unfolding the definition of `Reader`, which yields `{{#example_out Examples/Monads/Class.lean readerBindTypeEval}}`.
 It should take an environment-accepting function as its first argument, while the second argument should transform the result of the environment-accepting function into yet another environment-accepting function.
 The result of combining these is itself a function, waiting for an environment.
 
@@ -325,7 +336,7 @@ Attacking the first underscore, only one thing in the context can produce an `α
 ```lean
 {{#example_in Examples/Monads/Class.lean readerbind3}}
 ```
-Now, both underscores have the same error:
+Now, both underscores have the same error message:
 ```output error
 {{#example_out Examples/Monads/Class.lean readerbind3}}
 ```
@@ -334,7 +345,7 @@ Happily, both underscores can be replaced by `env`, yielding:
 {{#example_decl Examples/Monads/Class.lean readerbind4}}
 ```
 
-The final version can be obtained by undoing the expansion of `Reader` and cleaning up the explicit details:
+The final version can be obtained by undoing the unfolding of `Reader` and cleaning up the explicit details:
 ```lean
 {{#example_decl Examples/Monads/Class.lean Readerbind}}
 ```

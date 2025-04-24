@@ -365,7 +365,7 @@ expect error {{{ nonLocalMut }}}
         go ys
     return found
 message
-"`found` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intent to mutate but define `found`, consider using `let found` instead"
+"`found` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intend to mutate but define `found`, consider using `let found` instead"
 end expect
 
 end Mut
@@ -390,53 +390,51 @@ def rangeToList (r : Std.Range) : List Nat := Id.run do
 expect info {{{ rangeStop }}}
   #eval [:10]
 message
-"{ start := 0, stop := 10, step := 1 }"
+"{ start := 0, stop := 10, step := 1, step_pos := _ }"
 end expect
 
-bookExample {{{ rangeStopContents }}}
-  rangeToList [:10]
-  ===>
-  [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-end bookExample
+expect info {{{ rangeStopContents }}}
+  #eval rangeToList [:10]
+message
+  "[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]"
+end expect
 
 
 expect info {{{ rangeStartStop }}}
   #eval [2:10]
 message
-"{ start := 2, stop := 10, step := 1 }
-"
+"{ start := 2, stop := 10, step := 1, step_pos := _ }"
 end expect
 
-bookExample {{{ rangeStartStopContents }}}
-  rangeToList [2:10]
-  ===>
-  [2, 3, 4, 5, 6, 7, 8, 9]
-end bookExample
+expect info {{{ rangeStartStopContents }}}
+  #eval rangeToList [2:10]
+message
+"[2, 3, 4, 5, 6, 7, 8, 9]"
+end expect
 
 expect info {{{ rangeStopStep }}}
   #eval [:10:3]
 message
-"{ start := 0, stop := 10, step := 3 }"
+"{ start := 0, stop := 10, step := 3, step_pos := _ }"
 end expect
 
-bookExample {{{ rangeStopStepContents }}}
-  rangeToList [:10:3]
-  ===>
-  [0, 3, 6, 9]
-end bookExample
+expect info {{{ rangeStopStepContents }}}
+  #eval rangeToList [:10:3]
+message
+"[0, 3, 6, 9]"
+end expect
 
 expect info {{{ rangeStartStopStep }}}
   #eval [2:10:3]
 message
-"{ start := 2, stop := 10, step := 3 }
-"
+"{ start := 2, stop := 10, step := 3, step_pos := _ }"
 end expect
 
-bookExample {{{ rangeStartStopStepContents }}}
-  rangeToList [2:10:3]
-  ===>
-  [2, 5, 8]
-end bookExample
+expect info {{{ rangeStartStopStepContents }}}
+  #eval rangeToList [2:10:3]
+message
+  "[2, 5, 8]"
+end expect
 
 
 book declaration {{{ fourToEight }}}
@@ -455,8 +453,16 @@ end expect
 
 end Ranges
 
+book declaration {{{ printArray }}}
+  def printArray [ToString α] (xs : Array α) : IO Unit := do
+    for h : i in [0:xs.size] do
+      IO.println s!"{i}:\t{xs[i]}"
+stop book declaration
+
+
 namespace SameDo
 
+set_option linter.unusedVariables false
 
 book declaration {{{ sameBlock }}}
   example : Id Unit := do
@@ -479,7 +485,7 @@ expect error {{{ letBodyNotBlock }}}
       x := x + 1
     other
 message
-"`x` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intent to mutate but define `x`, consider using `let x` instead"
+"`x` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intend to mutate but define `x`, consider using `let x` instead"
 end expect
 
 
@@ -500,7 +506,7 @@ expect error {{{ funArgNotBlock }}}
     addFour do
       x := 5
 message
-"`x` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intent to mutate but define `x`, consider using `let x` instead"
+"`x` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intend to mutate but define `x`, consider using `let x` instead"
 end expect
 
 

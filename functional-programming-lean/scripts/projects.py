@@ -51,7 +51,7 @@ class ContainerContext:
 
     def env_with_examples_path(self):
         new_env = os.environ.copy()
-        new_env["PATH"] = f"{self.project_root}/examples/build/bin" + os.pathsep + new_env["PATH"]
+        new_env["PATH"] = f"{self.project_root}/examples/.lake/build/bin" + os.pathsep + new_env["PATH"]
         return new_env
 
 

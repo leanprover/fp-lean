@@ -36,6 +36,12 @@ A function that sums all entries in a list needs two instances: `Add` allows the
 ```lean
 {{#example_decl Examples/Classes.lean ListSum}}
 ```
+This function can be also defined with a `Zero α` requirement instead of `OfNat α 0`.
+Both are equivalent, but `Zero α` can be easier to read:
+```lean
+{{#example_decl Examples/Classes.lean ListSumZ}}
+```
+
 This function can be used for a list of `Nat`s:
 ```lean
 {{#example_decl Examples/Classes.lean fourNats}}
@@ -54,6 +60,7 @@ but not for a list of `Pos` numbers:
 ```output error
 {{#example_out Examples/Classes.lean fourPosSum}}
 ```
+The Lean standard library includes this function, where it is called `List.sum`.
 
 Specifications of required instances in square brackets are called _instance implicits_.
 Behind the scenes, every type class defines a structure that has a field for each overloaded operation.
@@ -92,7 +99,7 @@ The API's clients are freed from the burden of plumbing together all of the nece
 
 
 The type of `{{#example_in Examples/Classes.lean ofNatType}}` may be surprising.
-It is `{{#example_out Examples/Classes.lean ofNatType}}`, in which the `Nat` argument `n` occurs as an explicit function argument.
+It is `{{#example_out Examples/Classes.lean ofNatType}}`, in which the `Nat` argument `n` occurs as an explicit function parameter.
 In the declaration of the method, however, `ofNat` simply has type `α`.
 This seeming discrepancy is because declaring a type class really results in the following:
 
@@ -101,19 +108,19 @@ This seeming discrepancy is because declaring a type class really results in the
  * For each method, a function in the class's namespace that retrieves its implementation from an instance
 
 This is analogous to the way that declaring a new structure also declares accessor functions.
-The primary difference is that a structure's accessors take the structure value as an explicit argument, while the type class methods take the instance value as an instance implicit to be found automatically by Lean.
+The primary difference is that a structure's accessors take the structure value as an explicit parameter, while the type class methods take the instance value as an instance implicit to be found automatically by Lean.
 
-In order for Lean to find an instance, its arguments must be available.
-This means that each argument to the type class must be an argument to the method that occurs before the instance.
-It is most convenient when these arguments are implicit, because Lean does the work of discovering their values.
+In order for Lean to find an instance, its parameters must be available.
+This means that each parameter to the type class must be a parameter to the method that occurs before the instance.
+It is most convenient when these parameters are implicit, because Lean does the work of discovering their values.
 For example, `{{#example_in Examples/Classes.lean addType}}` has the type `{{#example_out Examples/Classes.lean addType}}`.
-In this case, the type argument `α` can be implicit because the arguments to `Add.add` provide information about which type the user intended.
+In this case, the type parameter `α` can be implicit because the arguments to `Add.add` provide information about which type the user intended.
 This type can then be used to search for the `Add` instance.
 
-In the case of `ofNat`, however, the particular `Nat` literal to be decoded does not appear as part of any other argument.
-This means that Lean would have no information to use when attempting to figure out the implicit argument `n`.
+In the case of `ofNat`, however, the particular `Nat` literal to be decoded does not appear as part of any other parameter's type.
+This means that Lean would have no information to use when attempting to figure out the implicit parameter `n`.
 The result would be a very inconvenient API.
-Thus, in these cases, Lean uses an explicit argument for the class's method.
+Thus, in these cases, Lean uses an explicit parameter for the class's method.
 
 
 
@@ -122,7 +129,6 @@ Thus, in these cases, Lean uses an explicit argument for the class's method.
 ### Even Number Literals
 
 Write an instance of `OfNat` for the even number datatype from the [previous section's exercises](pos.md#even-numbers) that uses recursive instance search.
-For the base instance, it is necessary to write `OfNat Even Nat.zero` instead of `OfNat Even 0`.
 
 ### Recursive Instance Search Depth
 

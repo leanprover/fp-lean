@@ -17,22 +17,17 @@ To merge two sorted lists, there are two basic cases to consider:
 
 This is not structurally recursive on either list.
 The recursion terminates because an entry is removed from one of the two lists in each recursive call, but it could be either list.
-The `termination_by` clause uses the sum of the length of both lists as a decreasing value:
+Behind the scenes, Lean uses this fact to prove that it terminates:
 ```lean
 {{#example_decl Examples/ProgramsProofs/Inequalities.lean merge}}
 ```
 
-In addition to using the lengths of the lists, a pair that contains both lists can also be provided:
-```lean
-{{#example_decl Examples/ProgramsProofs/Inequalities.lean mergePairTerm}}
-```
-This works because Lean has a built-in notion of sizes of data, expressed through a type class called `WellFoundedRelation`.
-The instance for pairs automatically considers them to be smaller if either the first or the second item in the pair shrinks.
 
 A simple way to split a list is to add each entry in the input list to two alternating output lists:
 ```lean
 {{#example_decl Examples/ProgramsProofs/Inequalities.lean splitList}}
 ```
+This splitting function is structurally recursive.
 
 Merge sort checks whether a base case has been reached.
 If so, it returns the input list.
@@ -41,11 +36,11 @@ If not, it splits the input, and merges the result of sorting each half:
 {{#example_in Examples/ProgramsProofs/Inequalities.lean mergeSortNoTerm}}
 ```
 Lean's pattern match compiler is able to tell that the assumption `h` introduced by the `if` that tests whether `xs.length < 2` rules out lists longer than one entry, so there is no "missing cases" error.
-However, even though this program always terminates, it is not structurally recursive:
+However, even though this program always terminates, it is not structurally recursive, and Lean is unable to automatically discover a decreasing measure:
 ```output error
 {{#example_out Examples/ProgramsProofs/Inequalities.lean mergeSortNoTerm}}
 ```
-The reason it terminates is that `splitList` always returns lists that are shorter than its input.
+The reason it terminates is that `splitList` always returns lists that are shorter than its input, at least when applied to lists that contain at least two elements.
 Thus, the length of `halves.fst` and `halves.snd` are less than the length of `xs`.
 This can be expressed using a `termination_by` clause:
 ```lean
@@ -128,76 +123,77 @@ Because the goal of the proof is also an `And`, the `constructor` tactic can be 
 {{#example_out Examples/ProgramsProofs/Inequalities.lean splitList_shorter_le4}}
 ```
 
-The `left` goal is very similar to the `left✝` assumption, except the goal wraps both sides of the inequality in `Nat.succ`.
-Likewise, the `right` goal resembles the `right✝` assumption, except the goal adds a `Nat.succ` only to the length of the input list.
-It's time to prove that these wrappings of `Nat.succ` preserve the truth of the statement.
-
-### Adding One to Both Sides
-
-For the `left` goal, the statement to prove is `Nat.succ_le_succ : n ≤ m → Nat.succ n ≤ Nat.succ m`.
-In other words, if `n ≤ m`, then adding one to both sides doesn't change this fact.
-Why is this true?
-The proof that `n ≤ m` is a `Nat.le.refl` constructor with `m - n` instances of the `Nat.le.step` constructor wrapped around it.
-Adding one to both sides simply means that the `refl` applies to a number that's one larger than before, with the same number of `step` constructors.
-
-More formally, the proof is by induction on the evidence that `n ≤ m`.
-If the evidence is `refl`, then `n = m`, so `Nat.succ n = Nat.succ m` and `refl` can be used again.
-If the evidence is `step`, then the induction hypothesis provides evidence that `Nat.succ n ≤ Nat.succ m`, and the goal is to show that `Nat.succ n ≤ Nat.succ (Nat.succ m)`.
-This can be done by using `step` together with the induction hypothesis.
-
-In Lean, the theorem statement is:
+The `left` goal is identical to the `left✝` assumption, so the `assumption` tactic dispatches it:
 ```leantac
-{{#example_in Examples/ProgramsProofs/Inequalities.lean succ_le_succ0}}
-```
-and the error message recapitulates it:
-```output error
-{{#example_out Examples/ProgramsProofs/Inequalities.lean succ_le_succ0}}
-```
-
-The first step is to use the `intro` tactic, bringing the hypothesis that `n ≤ m` into scope and giving it a name:
-```leantac
-{{#example_in Examples/ProgramsProofs/Inequalities.lean succ_le_succ1}}
+{{#example_in Examples/ProgramsProofs/Inequalities.lean splitList_shorter_le5}}
 ```
 ```output error
-{{#example_out Examples/ProgramsProofs/Inequalities.lean succ_le_succ1}}
+{{#example_out Examples/ProgramsProofs/Inequalities.lean splitList_shorter_le5}}
 ```
 
-Because the proof is by induction on the evidence that `n ≤ m`, the next tactic is `induction h`:
-```leantac
-{{#example_in Examples/ProgramsProofs/Inequalities.lean succ_le_succ3}}
-```
-This results in two goals, once for each constructor of `Nat.le`:
-```output error
-{{#example_out Examples/ProgramsProofs/Inequalities.lean succ_le_succ3}}
-```
-The goal for `refl` can itself be solved using `refl`, which the `constructor` tactic selects.
-The goal for `step` will also require a use of the `step` constructor:
-```leantac
-{{#example_in Examples/ProgramsProofs/Inequalities.lean succ_le_succ4}}
-```
-```output error
-{{#example_out Examples/ProgramsProofs/Inequalities.lean succ_le_succ4}}
-```
-The goal is no longer shown using the `≤` operator, but it is equivalent to the induction hypothesis `ih`.
-The `assumption` tactic automatically selects an assumption that fulfills the goal, and the proof is complete:
-```leantac
-{{#example_decl Examples/ProgramsProofs/Inequalities.lean succ_le_succ5}}
-```
 
-Written as a recursive function, the proof is:
-```lean
-{{#example_decl Examples/ProgramsProofs/Inequalities.lean succ_le_succ_recursive}}
-```
-It can be instructional to compare the tactic-based proof by induction with this recursive function.
-Which proof steps correspond to which parts of the definition?
+The `right` goal resembles the `right✝` assumption, except the goal adds a `+ 1` only to the length of the input list.
+It's time to prove that the inequality holds.
 
 ### Adding One to the Greater Side
 
-The second inequality needed to prove `splitList_shorter_le` is `∀(n m : Nat), n ≤ m → n ≤ Nat.succ m`.
-This proof is almost identical to `Nat.succ_le_succ`.
-Once again, the incoming assumption that `n ≤ m` essentially tracks the difference between `n` and `m` in the number of `Nat.le.step` constructors.
+The inequality needed to prove `splitList_shorter_le` is `∀(n m : Nat), n ≤ m → n ≤ Nat.succ m`.
+The incoming assumption that `n ≤ m` essentially tracks the difference between `n` and `m` in the number of `Nat.le.step` constructors.
 Thus, the proof should add an extra `Nat.le.step` in the base case.
-The proof can be written:
+
+Starting out, the statement reads:
+```leantac
+{{#example_in Examples/ProgramsProofs/Inequalities.lean le_succ_of_le0}}
+```
+```output error
+{{#example_out Examples/ProgramsProofs/Inequalities.lean le_succ_of_le0}}
+```
+
+The first step is to introduce a name for the assumption that `n ≤ m`:
+```leantac
+{{#example_in Examples/ProgramsProofs/Inequalities.lean le_succ_of_le1}}
+```
+```output error
+{{#example_out Examples/ProgramsProofs/Inequalities.lean le_succ_of_le1}}
+```
+
+The proof is by induction on this assumption:
+```leantac
+{{#example_in Examples/ProgramsProofs/Inequalities.lean le_succ_of_le2a}}
+```
+In the case for `refl`, where `n = m`, the goal is to prove that `n ≤ n + 1`:
+```output error
+{{#example_out Examples/ProgramsProofs/Inequalities.lean le_succ_of_le2a}}
+```
+In the case for `step`, the goal is to prove that `n ≤ m + 1` under the assumption that `n ≤ m`:
+```output error
+{{#example_out Examples/ProgramsProofs/Inequalities.lean le_succ_of_le2b}}
+```
+
+For the `refl` case, the `step` constructor can be applied:
+```leantac
+{{#example_in Examples/ProgramsProofs/Inequalities.lean le_succ_of_le3}}
+```
+```output error
+{{#example_out Examples/ProgramsProofs/Inequalities.lean le_succ_of_le3}}
+```
+After `step`, `refl` can be used, which leaves only the goal for `step`:
+```leantac
+{{#example_in Examples/ProgramsProofs/Inequalities.lean le_succ_of_le4}}
+```
+```output error
+{{#example_out Examples/ProgramsProofs/Inequalities.lean le_succ_of_le4}}
+```
+
+For the step, applying the `step` constructor transforms the goal into the induction hypothesis:
+```leantac
+{{#example_in Examples/ProgramsProofs/Inequalities.lean le_succ_of_le5}}
+```
+```output error
+{{#example_out Examples/ProgramsProofs/Inequalities.lean le_succ_of_le5}}
+```
+
+The final proof is as follows:
 ```leantac
 {{#example_decl Examples/ProgramsProofs/Inequalities.lean le_succ_of_le}}
 ```
@@ -216,6 +212,11 @@ In this short tactic script, both goals introduced by `induction` are addressed 
 The tactic `first | T1 | T2 | ... | Tn` means to use try `T1` through `Tn` in order, using the first tactic that succeeds.
 In other words, `repeat (first | constructor | assumption)` applies constructors as long as it can, and then attempts to solve the goal using an assumption.
 
+The proof can be shortened even further by using `omega`, a built-in solver for linear arithmetic:
+```leantac
+{{#example_decl Examples/ProgramsProofs/Inequalities.lean le_succ_of_le_omega}}
+```
+
 Finally, the proof can be written as a recursive function:
 ```lean
 {{#example_decl Examples/ProgramsProofs/Inequalities.lean le_succ_of_le_recursive}}
@@ -229,26 +230,12 @@ The recursive function is typically both harder to understand from the perspecti
 ### Finishing the Proof
 
 Now that both helper theorems have been proved, the rest of `splitList_shorter_le` will be completed quickly.
-The current proof state has two goals, for the left and right sides of the `And`:
+The current proof state has one goal remaining:
 ```output error
-{{#example_out Examples/ProgramsProofs/Inequalities.lean splitList_shorter_le4}}
+{{#example_out Examples/ProgramsProofs/Inequalities.lean splitList_shorter_le5}}
 ```
 
-The goals are named for the fields of the `And` structure. This means that the `case` tactic (not to be confused with `cases`) can be used to focus on each of them in turn:
-```leantac
-{{#example_in Examples/ProgramsProofs/Inequalities.lean splitList_shorter_le5a}}
-```
-Instead of a single error that lists both unsolved goals, there are now two messages, one on each `skip`.
-For the `left` goal, `Nat.succ_le_succ` can be used:
-```output error
-{{#example_out Examples/ProgramsProofs/Inequalities.lean splitList_shorter_le5a}}
-```
-In the right goal, `Nat.le_suc_of_le` fits:
-```output error
-{{#example_out Examples/ProgramsProofs/Inequalities.lean splitList_shorter_le5b}}
-```
-Both theorems include the precondition that `n ≤ m`.
-These can be found as the `left✝` and `right✝` assumptions, which means that the `assumption` tactic takes care of the final goals:
+Using `Nat.le_succ_of_le` together with the `right✝` assumption completes the proof:
 ```leantac
 {{#example_decl Examples/ProgramsProofs/Inequalities.lean splitList_shorter_le}}
 ```
@@ -268,14 +255,14 @@ Because `lst` has at least two entries, they can be exposed with `match`, which 
 ```output error
 {{#example_out Examples/ProgramsProofs/Inequalities.lean splitList_shorter_1}}
 ```
-Simplifying using `splitList` removes `x` and `y`, resulting in the computed lengths of lists each gaining a `Nat.succ`:
+Simplifying using `splitList` removes `x` and `y`, resulting in the computed lengths of lists each gaining a `+ 1`:
 ```leantac
 {{#example_in Examples/ProgramsProofs/Inequalities.lean splitList_shorter_2}}
 ```
 ```output error
 {{#example_out Examples/ProgramsProofs/Inequalities.lean splitList_shorter_2}}
 ```
-Replacing `simp` with `simp_arith` removes these `Nat.succ` constructors, because `simp_arith` makes use of the fact that `n + 1 < m + 1` implies `n < m`:
+Replacing `simp` with `simp +arith` removes these `+ 1`s, because `simp +arith` makes use of the fact that `n + 1 < m + 1` implies `n < m`:
 ```leantac
 {{#example_in Examples/ProgramsProofs/Inequalities.lean splitList_shorter_2b}}
 ```
@@ -335,8 +322,7 @@ Once again, there is only a warning.
 
 There is one promising assumption available: `h : ¬List.length xs < 2`, which comes from the `if`.
 Clearly, if it is not the case that `xs.length < 2`, then `xs.length ≥ 2`.
-The Lean library provides this theorem under the name `Nat.ge_of_not_lt`.
-The program is now complete:
+The `omega` tactic solves this goal, and the program is now complete:
 ```leantac
 {{#example_decl Examples/ProgramsProofs/Inequalities.lean mergeSort}}
 ```
@@ -361,37 +347,28 @@ Just as multiplication is iterated addition and exponentiation is iterated multi
 The [very first description of recursive functions in this book](../getting-to-know/datatypes-and-patterns.md#recursive-functions) presents a version of division that terminates when the divisor is not zero, but that Lean does not accept.
 Proving that division terminates requires the use of a fact about inequalities.
 
-The first step is to refine the definition of division so that it requires evidence that the divisor is not zero:
+Lean cannot prove that this definition of division terminates:
 ```lean
 {{#example_in Examples/ProgramsProofs/Div.lean divTermination}}
 ```
-The error message is somewhat longer, due to the additional argument, but it contains essentially the same information:
+
 ```output error
 {{#example_out Examples/ProgramsProofs/Div.lean divTermination}}
 ```
 
+That's a good thing, because it doesn't!
+When `k` is `0`, value of `n` does not decrease, so the program is an infinite loop.
+
+Rewriting the function to take evidence that `k` is not `0` allows Lean to automaically prove termination:
+```lean
+{{#example_decl Examples/ProgramsProofs/Div.lean divRecursiveNeedsProof}}
+```
+
 This definition of `div` terminates because the first argument `n` is smaller on each recursive call.
 This can be expressed using a `termination_by` clause:
+
 ```lean
-{{#example_in Examples/ProgramsProofs/Div.lean divRecursiveNeedsProof}}
-```
-Now, the error is confined to the recursive call:
-```output error
-{{#example_out Examples/ProgramsProofs/Div.lean divRecursiveNeedsProof}}
-```
-
-This can be proved using a theorem from the standard library, `Nat.sub_lt`.
-This theorem states that `{{#example_out Examples/ProgramsProofs/Div.lean NatSubLt}}` (the curly braces indicate that `n` and `k` are implicit arguments).
-Using this theorem requires demonstrating that both `n` and `k` are greater than zero.
-Because `k > 0` is syntactic sugar for `0 < k`, the only necessary goal is to show that `0 < n`.
-There are two possibilities: either `n` is `0`, or it is `n' + 1` for some other `Nat` `n'`.
-But `n` cannot be `0`.
-The fact that the `if` selected the second branch means that `¬ n < k`, but if `n = 0` and `k > 0` then `n` must be less than `k`, which would be a contradiction.
-This, `n = Nat.succ n'`, and `Nat.succ n'` is clearly greater than `0`.
-
-The full definition of `div`, including the termination proof, is:
-```leantac
-{{#example_decl Examples/ProgramsProofs/Div.lean div}}
+{{#example_decl Examples/ProgramsProofs/Div.lean divRecursiveWithProof}}
 ```
 
 
