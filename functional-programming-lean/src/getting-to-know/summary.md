@@ -57,7 +57,7 @@ Datatypes have _constructors_ that explain the ways in which their values can be
 Constructors in Lean are not the same as constructors in object-oriented languages: Lean's constructors are inert holders of data, rather than active code that initializes an allocated object.
 
 Typically, `structure` is used to introduce a product type (that is, a type with just one constructor that takes any number of arguments), while `inductive` is used to introduce a sum type (that is, a type with many distinct constructors).
-Datatypes defined with `structure` are provided with one accessor function for each of the constructor's arguments.
+Datatypes defined with `structure` are provided with one accessor function for each field.
 Both structures and inductive datatypes may be consumed with pattern matching, which exposes the values stored inside of constructors using a subset of the syntax used to call said constructors.
 Pattern matching means that knowing how to create a value implies knowing how to consume it.
 
