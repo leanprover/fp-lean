@@ -24,22 +24,22 @@ Understanding how this works requires an understanding of three key ideas: propo
 ## Propositions and Proofs
 
 A _proposition_ is a statement that can be true or false.
-All of the following are propositions:
+All of the following English sentences are propositions:
 
  * 1 + 1 = 2
- * Addition is commutative
- * There are infinitely many prime numbers
+ * Addition is commutative.
+ * There are infinitely many prime numbers.
  * 1 + 1 = 15
- * Paris is the capital of France
- * Buenos Aires is the capital of South Korea
- * All birds can fly
+ * Paris is the capital of France.
+ * Buenos Aires is the capital of South Korea.
+ * All birds can fly.
 
 On the other hand, nonsense statements are not propositions.
-None of the following are propositions:
+Despite being grammatical, none of the following are propositions:
 
  * 1 + green = ice cream
- * All capital cities are prime numbers
- * At least one gorg is a fleep
+ * All capital cities are prime numbers.
+ * At least one gorg is a fleep.
 
 Propositions come in two varieties: those that are purely mathematical, relying only on our definitions of concepts, and those that are facts about the world.
 Theorem provers like Lean are concerned with the former category, and have nothing to say about the flight capabilities of penguins or the legal status of cities.
