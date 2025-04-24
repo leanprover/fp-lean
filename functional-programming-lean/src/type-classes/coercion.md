@@ -9,6 +9,17 @@ In Lean, both purposes are served by a mechanism called _coercions_.
 When Lean encounters an expression of one type in a context that expects a different type, it will attempt to coerce the expression before reporting a type error.
 Unlike Java, C, and Kotlin, the coercions are extensible by defining instances of type classes.
 
+## Strings and Paths
+
+In the [source code to `feline`](../hello-world/cat.md#handling-input), a `String` is converted to a `FilePath` using the anonymous constructor syntax.
+In fact, this was not necessary: Lean defines a coercion from `String` to `FilePath`, so a string can be used in an position where a path is expected.
+Even though the function `{{#example_in Examples/Classes.lean readFile}}` has type `{{#example_out Examples/Classes.lean readFile}}`, the following code is accepted by Lean:
+```lean
+{{#example_decl Examples/Classes.lean fileDumper}}
+```
+`String.trim` removes leading and trailing whitespace from a string.
+On the last line of `fileDumper`, the coercion from `String` to `FilePath` automatically converts `f`, so it is not necessary to write `IO.FS.readFile ⟨f⟩`.
+
 ## Positive Numbers
 
 Every positive number corresponds to a natural number.

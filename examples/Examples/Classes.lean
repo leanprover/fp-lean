@@ -138,7 +138,22 @@ end evaluation steps
 
 end Foo
 
+bookExample type {{{ readFile }}}
+  IO.FS.readFile
+  ===>
+  System.FilePath → IO String
+end bookExample
 
+book declaration {{{ fileDumper }}}
+  def fileDumper : IO Unit := do
+    let stdin ← IO.getStdin
+    let stdout ← IO.getStdout
+    stdout.putStr "Which file? "
+    stdout.flush
+    let f := (← stdin.getLine).trim
+    stdout.putStrLn s!"'The file {f}' contains:"
+    stdout.putStrLn (← IO.FS.readFile f)
+stop book declaration
 
 book declaration {{{ posToNat }}}
 def Pos.toNat : Pos → Nat
@@ -1356,7 +1371,7 @@ stop book declaration
 error: type mismatch
   []
 has type
-  List ?m.20153 : Type
+  List ?m.20732 : Type
 but is expected to have type
   NonEmptyList Nat : Type
 -/
