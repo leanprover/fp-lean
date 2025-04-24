@@ -60,8 +60,9 @@ This initial Lake configuration consists of three items:
  * an _executable_, named `greeting`.
 
 Each Lake configuration file will contain exactly one package, but any number of dependencies, libraries, or executables.
+By convention, package and executable names begin with a lowercase letter, while libraries begin with an uppercase letter.
 Dependencies are declarations of other Lean packages (either locally or from remote Git repositories)
-The items in the Lakefile allow things like source file locations, module hierarchies, and compiler flags to be configured.
+The items in the Lake configuration file allow things like source file locations, module hierarchies, and compiler flags to be configured.
 Generally speaking, however, the defaults are reasonable.
 Lake configuration files written in the Lean format may additionally contain _external libraries_, which are libraries not written in Lean to be statically linked with the resulting executable, _custom targets_, which are build targets that don't fit naturally into the library/executable taxonomy, and _scripts_, which are essentially `IO` actions (similar to `main`), but that additionally have access to metadata about the package configuration.
 
