@@ -423,6 +423,22 @@ yields the message:
 ```
 For technical reasons, allowing these datatypes could make it possible to undermine Lean's internal logic, making it unsuitable for use as a theorem prover.
 
+Recursive functions that take two parameters should not match against the pair, but rather match each parameter independently.
+Otherwise, the mechanism in Lean that checks whether recursive calls are made on smaller values is unable to see the connection between the input value and the argument in the recursive call.
+For example, this function that determines whether two lists have the same length is rejected:
+```lean
+{{#example_in Examples/Intro.lean sameLengthPair}}
+```
+The error message is:
+```output error
+{{#example_out Examples/Intro.lean sameLengthPair}}
+```
+The problem can be fixed through nested pattern matching:
+```lean
+{{#example_decl Examples/Intro.lean sameLengthOk1}}
+```
+[Simultaneous matching](conveniences.md#simultaneous-matching), described in the next section, is another way to solve the problem that is often more elegant.
+
 Forgetting an argument to an inductive type can also yield a confusing message.
 For example, when the argument `α` is not passed to `MyType` in `ctor`'s type:
 ```lean

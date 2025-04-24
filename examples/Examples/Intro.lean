@@ -1275,6 +1275,62 @@ def zip {α β : Type} (xs : List α) (ys : List β) : List (α × β) :=
     | [] => []
     | y :: ys' => (x, y) :: zip xs' ys'
 
+expect error {{{ sameLengthPair }}}
+  def sameLength (xs : List α) (ys : List β) : Bool :=
+    match (xs, ys) with
+    | ([], []) => true
+    | (x :: xs', y :: ys') => sameLength xs' ys'
+    | _ => false
+message
+"fail to show termination for
+  sameLength
+with errors
+failed to infer structural recursion:
+Not considering parameter α of sameLength:
+  it is unchanged in the recursive calls
+Not considering parameter β of sameLength:
+  it is unchanged in the recursive calls
+Cannot use parameter xs:
+  failed to eliminate recursive application
+    sameLength xs' ys'
+Cannot use parameter ys:
+  failed to eliminate recursive application
+    sameLength xs' ys'
+
+
+Could not find a decreasing measure.
+The basic measures relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+              xs ys
+1) 1282:30-48  ?  ?
+Please use `termination_by` to specify a decreasing measure."
+end expect
+
+namespace Nested
+book declaration {{{ sameLengthOk1 }}}
+  def sameLength (xs : List α) (ys : List β) : Bool :=
+    match xs with
+    | [] =>
+      match ys with
+      | [] => true
+      | _ => false
+    | x :: xs' =>
+      match ys with
+      | y :: ys' => sameLength xs' ys'
+      | _ => false
+stop book declaration
+end Nested
+
+namespace Both
+book declaration {{{ sameLengthOk2 }}}
+  def sameLength (xs : List α) (ys : List β) : Bool :=
+    match xs, ys with
+    | [], [] => true
+    | x :: xs', y :: ys' => sameLength xs' ys'
+    | _, _ => false
+stop book declaration
+end Both
+
 namespace AutoImpl
 book declaration {{{ lengthImpAuto }}}
   def length (xs : List α) : Nat :=

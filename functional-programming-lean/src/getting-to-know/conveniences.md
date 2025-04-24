@@ -189,6 +189,21 @@ Here is a version of `drop` that uses simultaneous matching:
 {{#example_decl Examples/Intro.lean dropMatch}}
 ```
 
+Simultaneous matching resembles matching on a pair, but there is an important difference.
+Lean tracks the connection between the expression being matched and the patterns, and this information is used for purposes that include checking for termination and propagating static type information.
+As a result, the version of `sameLength` that matches a pair is rejected by the termination checker, because the connection between `xs` and `x :: xs'` is obscured by the intervening pair:
+```lean
+{{#example_in Examples/Intro.lean sameLengthPair}}
+```
+```output error
+{{#example_out Examples/Intro.lean sameLengthPair}}
+```
+Simultaneously matching both lists is accepted:
+```lean
+{{#example_decl Examples/Intro.lean sameLengthOk2}}
+```
+
+
 ## Natural Number Patterns
 
 In the section on [datatypes and patterns](datatypes-and-patterns.md), `even` was defined like this:
