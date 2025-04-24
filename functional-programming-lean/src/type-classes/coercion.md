@@ -74,7 +74,7 @@ For example, even if two types `A` and `B` can be coerced to one another, their 
 {{#example_decl Examples/Classes.lean CoercionCycle}}
 ```
 Remember: the double parentheses `()` is short for the constructor `Unit.unit`.
-After deriving a `Repr B` instance,
+After deriving a `Repr B` instance with `{{#example_decl Examples/Classes.lean ReprB}}`,
 ```lean
 {{#example_in Examples/Classes.lean coercedToBEval}}
 ```

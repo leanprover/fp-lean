@@ -1677,7 +1677,9 @@ book declaration {{{ CoercionCycle }}}
   def coercedToB : B := ()
 stop book declaration
 
+book declaration {{{ ReprB }}}
 deriving instance Repr for B
+stop book declaration
 
 
 expect info {{{ coercedToBEval }}}
