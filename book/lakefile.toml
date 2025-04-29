@@ -1,0 +1,15 @@
+name = "book"
+version = "0.1.0"
+defaultTargets = ["fp-lean"]
+
+[[require]]
+name = "verso"
+git = "https://github.com/leanprover/verso.git"
+rev = "main"
+
+[[lean_lib]]
+name = "FPLean"
+
+[[lean_exe]]
+name = "fp-lean"
+root = "Main"

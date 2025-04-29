@@ -81,15 +81,15 @@ axiom g : β → OptionT m γ
 
 equational steps {{{ OptionTFirstLaw }}}
   bind (pure v) f
-  ={ by simp [bind, pure, OptionT.mk]
-  -- Unfolding the definitions of `bind` and `pure`
+  ={ /-- Unfolding the definitions of `bind` and `pure` -/
+     by simp [bind, pure, OptionT.mk]
   }=
   OptionT.mk do
     match ← pure (some v) with
     | none => pure none
     | some x => f x
   ={
-  -- Desugaring nested action syntax
+  /-- Desugaring nested action syntax -/
   }=
   OptionT.mk do
     let y ← pure (some v)
@@ -97,7 +97,7 @@ equational steps {{{ OptionTFirstLaw }}}
     | none => pure none
     | some x => f x
   ={
-  -- Desugaring `do`-notation
+  /-- Desugaring `do`-notation -/
   }=
   OptionT.mk
     (pure (some v) >>= fun y =>
@@ -105,7 +105,7 @@ equational steps {{{ OptionTFirstLaw }}}
       | none => pure none
       | some x => f x)
   ={
-    -- Using the first monad rule for `m`
+    /-- Using the first monad rule for `m` -/
     by simp [LawfulMonad.pure_bind]
   }=
   OptionT.mk
@@ -113,11 +113,11 @@ equational steps {{{ OptionTFirstLaw }}}
      | none => pure none
      | some x => f x)
   ={
-  -- Reduce `match`
+  /-- Reduce `match` -/
   }=
   OptionT.mk (f v)
   ={
-  -- Definition of `OptionT.mk`
+  /-- Definition of `OptionT.mk` -/
   }=
   f v
 stop equational steps

@@ -1,10 +1,13 @@
 import Lake
 open Lake DSL
 
+require subverso from git "https://github.com/leanprover/subverso.git"@"main"
+
 package examples {
   -- add configuration options here
 }
 
+@[default_target]
 lean_lib Examples {
   -- add lib config here
 }

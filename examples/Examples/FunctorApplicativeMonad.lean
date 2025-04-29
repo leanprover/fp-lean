@@ -535,7 +535,7 @@ end MonadApplicativeDesugar
 equational steps {{{ testEq }}}
   1 + 1
   ={
-  -- Foo of `plus` and `stuff`
+  /-- Foo of `plus` and `stuff` -/
   }=
   2
 stop equational steps
@@ -550,20 +550,20 @@ axiom v : m α
 equational steps {{{ mSeqRespId }}}
   pure id >>= fun g => v >>= fun y => pure (g y)
   ={
+  /-- `pure` is a left identity of `>>=` -/
   by simp [LawfulMonad.pure_bind]
-  -- `pure` is a left identity of `>>=`
   }=
   v >>= fun y => pure (id y)
   ={
-  -- Reduce the call to `id`
+  /-- Reduce the call to `id` -/
   }=
   v >>= fun y => pure y
   ={
-  -- `fun x => f x` is the same as `f`
+  /-- `fun x => f x` is the same as `f` -/
   }=
   v >>= pure
   ={
-  -- `pure` is a right identity of `>>=`
+  /-- `pure` is a right identity of `>>=` -/
   by simp [LawfulMonad.bind_pure_comp]
   }=
   v
@@ -581,13 +581,16 @@ axiom u : m (β → γ)
 axiom v : m (α → β)
 axiom w : m α
 
+set_option pp.rawOnError true
+
+
 open MonadApplicativeDesugar
 equational steps : m γ {{{ mSeqRespComp }}}
   seq (seq (seq (pure (· ∘ ·)) (fun _ => u))
         (fun _ => v))
     (fun _ => w)
   ={
-  -- Definition of `seq`
+  /-- Definition of `seq` -/
   }=
   ((pure (· ∘ ·) >>= fun f =>
      u >>= fun x =>
@@ -597,8 +600,8 @@ equational steps : m γ {{{ mSeqRespComp }}}
    w >>= fun z =>
    pure (h z)
   ={
+  /-- `pure` is a left identity of `>>=` -/
   by simp only [LawfulMonad.pure_bind]
-  -- `pure` is a left identity of `>>=`
   }=
   ((u >>= fun x =>
      pure (x ∘ ·)) >>= fun g =>
@@ -607,7 +610,7 @@ equational steps : m γ {{{ mSeqRespComp }}}
    w >>= fun z =>
    pure (h z)
   ={
-  -- Insertion of parentheses for clarity
+  /-- Insertion of parentheses for clarity -/
   }=
   ((u >>= fun x =>
      pure (x ∘ ·)) >>= (fun g =>
@@ -616,8 +619,8 @@ equational steps : m γ {{{ mSeqRespComp }}}
    w >>= fun z =>
    pure (h z)
   ={
+  /-- Associativity of `>>=` -/
   by simp only [LawfulMonad.bind_assoc]
-  -- Associativity of `>>=`
   }=
   (u >>= fun x =>
     pure (x ∘ ·) >>= fun g =>
@@ -625,8 +628,8 @@ equational steps : m γ {{{ mSeqRespComp }}}
    w >>= fun z =>
    pure (h z)
   ={
+  /-- `pure` is a left identity of `>>=` -/
   by simp only [LawfulMonad.pure_bind]
-  -- `pure` is a left identity of `>>=`
   }=
   (u >>= fun x =>
     v >>= fun y =>
@@ -634,8 +637,8 @@ equational steps : m γ {{{ mSeqRespComp }}}
    w >>= fun z =>
    pure (h z)
   ={
+  /-- Associativity of `>>=` -/
   by simp only [LawfulMonad.bind_assoc]
-  -- Associativity of `>>=`
   }=
   u >>= fun x =>
   v >>= fun y =>
@@ -643,24 +646,26 @@ equational steps : m γ {{{ mSeqRespComp }}}
   w >>= fun z =>
   pure (h z)
   ={
+  /-- `pure` is a left identity of `>>=` -/
   by simp [bind_pure_comp]; rfl
-  -- `pure` is a left identity of `>>=`
   }=
   u >>= fun x =>
   v >>= fun y =>
   w >>= fun z =>
   pure ((x ∘ y) z)
   ={
-  -- Definition of function composition
+  /-- Definition of function composition -/
   }=
   u >>= fun x =>
   v >>= fun y =>
   w >>= fun z =>
   pure (x (y z))
   ={
-  -- Time to start moving backwards!
-  -- `pure` is a left identity of `>>=`
-    by simp [LawfulMonad.pure_bind]
+  /--
+  Time to start moving backwards!
+  `pure` is a left identity of `>>=`
+  -/
+  by simp [LawfulMonad.pure_bind]
   }=
   u >>= fun x =>
   v >>= fun y =>
@@ -668,8 +673,8 @@ equational steps : m γ {{{ mSeqRespComp }}}
   pure (y z) >>= fun q =>
   pure (x q)
   ={
+  /-- Associativity of `>>=` -/
   by simp [LawfulMonad.bind_assoc]
-  -- Associativity of `>>=`
   }=
   u >>= fun x =>
   v >>= fun y =>
@@ -677,8 +682,8 @@ equational steps : m γ {{{ mSeqRespComp }}}
     pure (y p)) >>= fun q =>
    pure (x q)
   ={
+  /-- Associativity of `>>=` -/
   by simp [LawfulMonad.bind_assoc]
-  -- Associativity of `>>=`
   }=
   u >>= fun x =>
    (v >>= fun y =>
@@ -686,13 +691,13 @@ equational steps : m γ {{{ mSeqRespComp }}}
     pure (y q)) >>= fun z =>
    pure (x z)
   ={
-  -- This includes the definition of `seq`
+  /-- This includes the definition of `seq` -/
   }=
   u >>= fun x =>
   seq v (fun () => w) >>= fun q =>
   pure (x q)
   ={
-  -- This also includes the definition of `seq`
+  /-- This also includes the definition of `seq` -/
   }=
   seq u (fun () => seq v (fun () => w))
 stop equational steps
@@ -712,19 +717,19 @@ open MonadApplicativeDesugar
 equational steps : m β {{{ mSeqPureNoOp }}}
   seq (pure f) (fun () => pure x)
   ={
-  -- Replacing `seq` with its definition
+  /-- Replacing `seq` with its definition -/
   }=
   pure f >>= fun g =>
   pure x >>= fun y =>
   pure (g y)
   ={
-  -- `pure` is a left identity of `>>=`
+  /-- `pure` is a left identity of `>>=` -/
   by simp [LawfulMonad.pure_bind]
   }=
   pure f >>= fun g =>
   pure (g x)
   ={
-  -- `pure` is a left identity of `>>=`
+  /-- `pure` is a left identity of `>>=` -/
   by simp [LawfulMonad.pure_bind]
   }=
   pure (f x)
@@ -744,31 +749,31 @@ open MonadApplicativeDesugar
 equational steps : m β {{{ mSeqPureNoOrder }}}
   seq u (fun () => pure x)
   ={
-  -- Definition of `seq`
+  /-- Definition of `seq` -/
   }=
   u >>= fun f =>
   pure x >>= fun y =>
   pure (f y)
   ={
-  -- `pure` is a left identity of `>>=`
+  /-- `pure` is a left identity of `>>=` -/
   by simp [LawfulMonad.pure_bind]
   }=
   u >>= fun f =>
   pure (f x)
   ={
-  -- Clever replacement of one expression by an equivalent one that makes the rule match
+  /-- Clever replacement of one expression by an equivalent one that makes the rule match -/
   }=
   u >>= fun f =>
   pure ((fun g => g x) f)
   ={
-  -- `pure` is a left identity of `>>=`
+  /-- `pure` is a left identity of `>>=` -/
   by simp [LawfulMonad.pure_bind]
   }=
   pure (fun g => g x) >>= fun h =>
   u >>= fun f =>
   pure (h f)
   ={
-  -- Definition of `seq`
+  /-- Definition of `seq` -/
   }=
   seq (pure (fun f => f x)) (fun () => u)
 stop equational steps

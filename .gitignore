@@ -2,4 +2,8 @@ functional-programming-lean/book
 *~
 *#
 .#*
-
+_out/
+*.olean
+.DS_Store
+.lake
+venv

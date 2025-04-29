@@ -808,6 +808,7 @@ book declaration {{{ idahoSpiders }}}
 stop book declaration
 
 bookExample {{{ firstSpider }}}
+  -- TODO there was a name overlap - check it
   idahoSpiders.head
    ===>
   "Banded Garden Spider"
@@ -870,7 +871,7 @@ book declaration {{{ GetElemNEList }}}
 stop book declaration
 
 
-bookExample {{{ firstSpider }}}
+bookExample {{{ firstSpiderZero }}}
   idahoSpiders[0]
    ===>
   "Banded Garden Spider"
@@ -1371,7 +1372,7 @@ stop book declaration
 error: type mismatch
   []
 has type
-  List ?m.20732 : Type
+  List ?m.22406 : Type
 but is expected to have type
   NonEmptyList Nat : Type
 -/

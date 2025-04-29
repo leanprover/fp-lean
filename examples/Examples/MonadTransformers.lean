@@ -257,8 +257,6 @@ book declaration {{{ MedMain }}}
         pure 1
 stop book declaration
 
--- #eval main ["--ascii"]
-
 end Readerish
 
 namespace MyMonadLift
