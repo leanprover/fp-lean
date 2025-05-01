@@ -48,31 +48,22 @@ jobs:
         cd examples
         lean --version
 
-    - name: Setup mdBook
-      uses: peaceiris/actions-mdbook@v1
-      with:
-        mdbook-version: '0.4.17'
-
-    - name: Install mdbook-wordcount
-      uses: baptiste0928/cargo-install@v1
-      with:
-        crate: mdbook-wordcount
-        version: latest
-
     - name: Build example code
       run: |
-        cd examples
-        lake build
+        pushd examples
+        lake build : examples
+        popd
 
     - name: Build book
       run: |
-        cd functional-programming-lean
-        mdbook build
+        pushd book
+        lake exe fp-lean --depth 2 --without-html-single --verbose
+        popd
 
     - name: Zip html contents
       run: |
-        pushd functional-programming-lean/
-        cp -r book html
+        pushd book/_out
+        cp -r html-multi html
         zip -rq html.zip html/
         popd
 
@@ -87,22 +78,13 @@ jobs:
       uses: softprops/action-gh-release@v1
       if: ${{ startsWith(github.ref, 'refs/tags/pre-') }}
       with:
-        files: functional-programming-lean/book/html.zip
+        files: book/_out/html.zip
         token: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Release bits if a new release tag is pushed
-      uses: peaceiris/actions-gh-pages@v3
-      if: ${{ startsWith(github.ref, 'refs/tags/release-') }}
-      with:
-        publish_dir: functional-programming-lean/book/
-        publish_branch: gh-pages
-        external_repository: leanprover/functional_programming_in_lean
-        personal_token: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
 
     - name: Deploy to Netlify hosting
       uses: nwtgck/actions-netlify@v2.0
       with:
-        publish-dir: functional-programming-lean/book/
+        publish-dir: book/_out/html-multi/
         production-branch: master
         github-token: ${{ secrets.GITHUB_TOKEN }}
         deploy-message: |

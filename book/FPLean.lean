@@ -2,6 +2,7 @@ import VersoManual
 
 import FPLean.Intro
 import FPLean.GettingToKnow
+import FPLean.HelloWorld
 
 open Verso.Genre Manual
 
@@ -29,3 +30,5 @@ This is a free book on using Lean as a programming language. All code samples ar
 {include 1 FPLean.Intro}
 
 {include 1 FPLean.GettingToKnow}
+
+{include 1 FPLean.HelloWorld}

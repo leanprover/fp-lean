@@ -8,6 +8,17 @@ package examples {
 }
 
 @[default_target]
+lean_lib SimpleHello where
+  srcDir := "simple-hello"
+  roots := #[`Hello]
+
+@[default_target]
+lean_lib HelloName where
+  srcDir := "hello-name"
+  roots := #[`HelloName]
+
+
+@[default_target]
 lean_lib Examples {
   -- add lib config here
 }
