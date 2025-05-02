@@ -273,7 +273,7 @@ elab_rules : command
     let hls ←
       withEmptyMessageLog do
         let desiredInfo := msg.getString
-        let cmd ← liftMacroM <| wrapExampleStx `forMessage name tok `(#eval %ex{$name}{$expr})
+        let cmd ← liftMacroM <| wrapExampleStx `evalInfo name tok `(#eval %ex{$(mkIdent `in)}{$expr})
         elabCommand cmd
         let afterState <- get
         let newMessages := afterState.messages.toList

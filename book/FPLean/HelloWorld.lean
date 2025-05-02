@@ -2,6 +2,11 @@ import VersoManual
 import FPLean.Examples
 
 import FPLean.HelloWorld.RunningAProgram
+import FPLean.HelloWorld.StepByStep
+import FPLean.HelloWorld.StartingAProject
+import FPLean.HelloWorld.Cat
+import FPLean.HelloWorld.Conveniences
+import FPLean.HelloWorld.Summary
 
 
 open Verso.Genre Manual
@@ -19,3 +24,13 @@ Programs that run and interact with their environment (e.g. by reading input fro
 In addition to a description of the Lean build tools, this chapter also provides a way to think about functional programs that interact with the world.
 
 {include 1 FPLean.HelloWorld.RunningAProgram}
+
+{include 1 FPLean.HelloWorld.StepByStep}
+
+{include 1 FPLean.HelloWorld.StartingAProject}
+
+{include 1 FPLean.HelloWorld.Cat}
+
+{include 1 FPLean.HelloWorld.Conveniences}
+
+{include 1 FPLean.HelloWorld.Summary}

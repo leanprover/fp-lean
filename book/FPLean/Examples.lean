@@ -18,6 +18,8 @@ open SubVerso.Examples.Messages
 open Lean
 open Std
 
+open InlineLean (FileType)
+
 section
 variable [Monad m] [MonadOptions m] [MonadLog m] [AddMessageContext m] [MonadRef m]
 
@@ -28,6 +30,13 @@ def logSilentInfo (message : MessageData) : m Unit := do
   logAt (← getRef) message (severity := .information) (isSilent := true)
 
 end
+
+private def hlToString : Highlighted → String
+  | .seq xs => xs.foldl (init := "") (fun s hl => s ++ hlToString hl)
+  | .point .. => ""
+  | .tactics _ _ _ x | .span _ x => hlToString x
+  | .text s | .token ⟨_, s⟩ => s
+
 
 
 private def oneCodeStr [Monad m] [MonadError m] (inlines : Array (TSyntax `inline)) : m StrLit := do
@@ -278,6 +287,20 @@ def exampleDecl : BlockRoleExpander
   | _args, _blocks =>
     throwError "Unexpected block arguments"
 
+@[code_block_expander exampleDecl]
+def exampleDeclCode : CodeBlockExpander
+  | args, codeStr => do
+    let (module, name) ← modAndName (← getRef) |>.run args
+    let some mod := exampleCode.code.find? module.getId
+      | throwErrorAt module m!"Module not found: '{module.getId}'"
+    let some ex := mod.find? name.getId
+      | throwErrorAt name m!"Example not found: '{name.getId}'"
+    _ ← ExpectString.expectString s!"'{name}' in '{module.getId}'" codeStr (hlToString (.seq ex.highlighted))
+    if ex.kind != some `FPLean.decl then
+      throwErrorAt name m!"Expected example kind 'FPLean.decl', got '{ex.kind}'"
+    return #[← ``(Block.other (Block.leanDecl $(quote (Highlighted.seq ex.highlighted))) #[Block.code $(quote ex.original)])]
+
+
 @[role_expander exampleDecl]
 def exampleDeclInline : RoleExpander
   | args, inls => do
@@ -301,7 +324,7 @@ def exampleIn : BlockRoleExpander
       | throwErrorAt name m!"Example not found: '{name.getId}'"
 
     match ex.kind with
-    | some `FPLean.decl =>
+    | some `FPLean.decl | some `FPLean.evalInfo =>
       let some exIn := mod.find? (name.getId ++ `in)
         | throwErrorAt name "Example input not found: '{name.getId ++ `in}'"
       return #[← ``(Block.other (Block.leanDecl $(quote (Highlighted.seq exIn.highlighted))) #[Block.code $(quote exIn.original)])]
@@ -312,6 +335,29 @@ def exampleIn : BlockRoleExpander
 
   | _args, _blocks =>
     throwError "Unexpected block arguments"
+
+@[code_block_expander exampleIn]
+def exampleInCode : CodeBlockExpander
+  | args, codeStr => do
+    let (module, name) ← modAndName (← getRef) |>.run args
+    let some mod := exampleCode.code.find? module.getId
+      | throwErrorAt module m!"Module not found: '{module.getId}'"
+    let some ex := mod.find? name.getId
+      | throwErrorAt name m!"Example not found: '{name.getId}'"
+
+    match ex.kind with
+    | some `FPLean.decl | some `FPLean.evalInfo =>
+      let some exIn := mod.find? (name.getId ++ `in)
+        | throwErrorAt name "Example input not found: '{name.getId ++ `in}'"
+      let _ ← ExpectString.expectString s!"'{name.getId ++ `in}' in {module.getId}" codeStr (hlToString <| .seq exIn.highlighted)
+      return #[← ``(Block.other (Block.leanDecl $(quote (Highlighted.seq exIn.highlighted))) #[Block.code $(quote exIn.original)])]
+    | some `FPLean.forMessage =>
+      let _ ← ExpectString.expectString s!"'{name.getId}' in {module.getId}" codeStr (hlToString <| .seq ex.highlighted)
+      return #[← ``(Block.other (Block.leanDecl $(quote (Highlighted.seq ex.highlighted))) #[Block.code $(quote ex.original)])]
+
+    | _ =>
+      throwErrorAt name m!"Expected example kind 'FPLean.inputOutput' or 'FPLean.forMessage', got '{ex.kind}'"
+
 
 @[block_role_expander exampleEval]
 def exampleEval : BlockRoleExpander
@@ -381,7 +427,7 @@ def exampleOut : BlockRoleExpander
       | throwErrorAt name m!"Example not found: '{name.getId}'"
 
     match ex.kind with
-    | some `FPLean.forMessage =>
+    | some `FPLean.forMessage | some `FPLean.evalInfo =>
       let [txt] := ex.messages.filterMap fun (sev', txt) => if sev == sev' then pure txt else failure
         | let msgs := ex.messages.map fun (sev, msg) => m!"{repr sev}:{indentD (repr msg)}"
           let msgs := MessageData.joinSep msgs Std.Format.line
@@ -412,7 +458,7 @@ def exampleOutCode : CodeBlockExpander
       | throwErrorAt name m!"Example not found: '{name.getId}'"
 
     match ex.kind with
-    | some `FPLean.forMessage =>
+    | some `FPLean.forMessage  | some `FPLean.evalInfo =>
       let txts := ex.messages.filterMap fun (sev', txt) => do
         guard <| sev == sev'
         pure txt
@@ -498,7 +544,7 @@ def exampleInInline : RoleExpander
       | throwErrorAt name m!"Example not found: '{name.getId}'"
 
     match ex.kind with
-    | some `FPLean.decl =>
+    | some `FPLean.decl | some `FPLean.evalInfo =>
       let some exIn := mod.find? (name.getId ++ `in)
         | throwErrorAt name m!"Example input not found: '{name.getId ++ `in}'"
       return #[← ``(Inline.other (Inline.leanTerm $(quote (Highlighted.seq exIn.highlighted))) #[Inline.code $(quote exIn.original)])]
@@ -571,12 +617,6 @@ def term : RoleExpander
 
     return #[← ``(Inline.other (Inline.leanTerm $(quote (Highlighted.seq ex.highlighted))) #[Inline.code $(quote ex.original)])]
 
-
-private def hlToString : Highlighted → String
-  | .seq xs => xs.foldl (init := "") (fun s hl => s ++ hlToString hl)
-  | .point .. => ""
-  | .tactics _ _ _ x | .span _ x => hlToString x
-  | .text s | .token ⟨_, s⟩ => s
 
 private def appendHl : Highlighted → Highlighted → Highlighted
   | .text str1, .text str2 => .text (str1 ++ str2)
@@ -745,7 +785,7 @@ def anchored' (hl : Highlighted) : Except String (HashMap String Highlighted) :=
   if openAnchors.isEmpty then return out
   else throw s!"Unclosed anchors: {", ".intercalate openAnchors.keys}"
 
-def anchored [Monad m] [MonadEnv m] [MonadLift IO m] [MonadError m] (moduleName : Ident) (blame : Syntax) : m (HashMap String Highlighted) := do
+def anchored [Monad m] [MonadEnv m] [MonadLift IO m] [MonadError m] [MonadOptions m] (moduleName : Ident) (blame : Syntax) : m (HashMap String Highlighted) := do
   let modName := moduleName.getId
   let modStr := modName.toString
 
@@ -793,12 +833,43 @@ def module : CodeBlockExpander
         (useLine := fun l => !l.trim.isEmpty)
       return #[← ``(Block.other (Block.leanDecl $(quote highlighted)) #[])]
 
-private def matchingName? (hl : Highlighted) (name : String) : Option Highlighted := do
+@[role_expander module]
+def moduleInline : RoleExpander
+  | args, inls => do
+    let moduleName ← oneCodeName inls
+    let anchor? ← ArgParse.run (.named `anchor .ident true) args
+    let modStr := moduleName.getId.toString
+    let items ← Examples.Files.loadModuleContent modStr
+    let highlighted := Highlighted.seq (items.map (·.code))
+    if let some anchor := anchor? then
+      try
+        let anchors ← anchored moduleName anchor
+        if let some hl := anchors[anchor.getId.toString]? then
+          return #[← ``(Inline.other (Inline.leanTerm $(quote hl)) #[])]
+        else
+          logErrorAt anchor "Anchor not found"
+          for x in anchors.keys do
+            Suggestion.saveSuggestion anchor x x
+          return #[]
+      catch
+        | .error ref e =>
+          logErrorAt ref e
+          return #[← ``(sorryAx _ true)]
+        | e => throw e
+    else
+
+      return #[← ``(Inline.other (Inline.leanTerm $(quote highlighted)) #[])]
+
+
+private def matchingName? (hl : Highlighted) (name : String) : Option Token := do
   match hl with
   | .seq xs => xs.attach.findSome? fun ⟨x, _⟩ => matchingName? x name
   | .point .. | .text .. => none
   | .tactics _ _ _ x | .span _ x => matchingName? x name
-  | .token ⟨_, s⟩ => if s == name then return hl else none
+  | .token t@⟨k, s⟩ =>
+    match k with
+    | .const .. | .var .. => if s == name then return t else none
+    | _ => none
 
 private partial def firstToken (hl : Highlighted) : Option (Highlighted × Highlighted) :=
   match hl with
@@ -826,7 +897,8 @@ private def matchingExprPrefix? (hl : Highlighted) (term : String) : Option High
     term := term.trimLeft
     let (first, rest) ← firstToken hl
     hl := rest
-    let term' ← term.dropPrefix? (hlToString first)
+    let firstStr := hlToString first
+    let term' ← term.dropPrefix? firstStr
     term := term'.toString
     out := out ++ first
   return out
@@ -851,7 +923,8 @@ private partial def toks (hl : Highlighted) : HashSet String :=
 @[role_expander moduleName]
 def moduleName : RoleExpander
   | args, inls => do
-    let (moduleName, anchor?) ← ArgParse.run ((·, ·) <$> .positional `module .ident <*> .named `anchor .ident true) args
+    let (moduleName, anchor?, show?) ←
+      ArgParse.run ((·, ·, ·) <$> .positional `module .ident <*> .named `anchor .ident true <*> (.named `show .ident true)) args
     let name ← oneCodeStr inls
 
     let modStr := moduleName.getId.toString
@@ -873,10 +946,11 @@ def moduleName : RoleExpander
             | e => throw e
       else pure highlighted
 
-      if let some tok := matchingName? fragment name.getString then
-        return #[← ``(Inline.other (Inline.leanTerm $(quote tok)) #[])]
+      if let some tok@⟨k, _txt⟩ := matchingName? fragment name.getString then
+        let tok := show?.map (⟨k, ·.getId.toString⟩) |>.getD tok
+        return #[← ``(Inline.other (Inline.leanTerm $(quote (Highlighted.token tok))) #[])]
       else
-        logErrorAt name "Not found"
+        logErrorAt name m!"'{name.getString}' not found in:{indentD (hlToString fragment)}"
         for t in toks fragment do
           Suggestion.saveSuggestion name t t
         return #[← ``(sorryAx _ true)]
@@ -919,21 +993,23 @@ def _root_.Verso.ArgParse.ValDesc.strLit [Monad m] [MonadError m] : ValDesc m St
     | other => throwError "Expected string, got {toMessageData other}"
 
 
+
+
 structure CommandConfig where
   container : Ident
   dir : StrLit
   «show» : Option StrLit := none
+  viaShell : Bool := false
 
-def CommandConfig.parse [Monad m] [MonadError m] : ArgParse m CommandConfig :=
-  CommandConfig.mk <$> .positional `container .ident <*> .positional `dir .strLit <*> .named `show .strLit true
-
+def CommandConfig.parse [Monad m] [MonadError m] [MonadLiftT CoreM m] : ArgParse m CommandConfig :=
+  CommandConfig.mk <$> .positional `container .ident <*> .positional `dir .strLit <*> .named `show .strLit true <*> .namedD `shell .bool false
 
 @[role_expander command]
 def command : RoleExpander
   | args, inls => do
-    let { container, dir, «show» } ← CommandConfig.parse.run args
+    let { container, dir, «show», viaShell } ← CommandConfig.parse.run args
     let cmd ← oneCodeStr inls
-    let output ← Commands.command container dir.getString cmd
+    let output ← Commands.command container dir.getString cmd (viaShell := viaShell)
     unless output.stdout.isEmpty do
       logSilentInfo <| "Stdout:\n" ++ output.stdout
     unless output.stderr.isEmpty do
@@ -944,26 +1020,33 @@ def command : RoleExpander
 structure CommandBlockConfig extends CommandConfig where
   command : StrLit
 
-def CommandBlockConfig.parse [Monad m] [MonadError m] : ArgParse m CommandBlockConfig :=
-  (fun container dir command «show» => {container, dir, command, «show»}) <$>
+def CommandBlockConfig.parse [Monad m] [MonadError m] [MonadLiftT CoreM m] : ArgParse m CommandBlockConfig :=
+  (fun container dir command «show» viaShell => {container, dir, command, «show», viaShell}) <$>
     .positional `container .ident <*>
     .positional `dir .strLit <*>
     .positional `command .strLit <*>
-    .named `show .strLit true
+    .named `show .strLit true <*>
+    .namedD `shell .bool false
 
 @[block_role_expander command]
 def commandBlock : BlockRoleExpander
   | args, blks => do
     unless blks.isEmpty do
       throwErrorAt (mkNullNode blks) "Expected no blocks"
-    let { container, dir, command, «show» } ← CommandBlockConfig.parse.run args
-    let output ← Commands.command container dir.getString command
+    let { container, dir, command, «show», viaShell } ← CommandBlockConfig.parse.run args
+    let output ← Commands.command container dir.getString command (viaShell := viaShell)
     unless output.stdout.isEmpty do
       logSilentInfo <| "Stdout:\n" ++ output.stdout
     unless output.stderr.isEmpty do
       logSilentInfo <| "Stderr:\n" ++ output.stderr
     let out := «show».getD command |>.getString
     return #[← ``(Block.code $(quote out))]
+
+instance : Coe StrLit (TSyntax `argument) where
+  coe stx := ⟨mkNode ``Verso.Syntax.anon #[mkNode ``Verso.Syntax.arg_str #[stx.raw]]⟩
+
+macro_rules
+  | `(block|```command $args* | $s```) => `(block|block_role{command $args* $s})
 
 @[role_expander commandOut]
 def commandOut : RoleExpander
@@ -984,3 +1067,30 @@ def commandOutCodeBlock : CodeBlockExpander
 
     logSilentInfo output
     return #[← ``(Block.code $(quote output))]
+
+@[code_block_expander file]
+def file : CodeBlockExpander
+  | args, expectedContentsStr => do
+    let (container, file, show?) ← ArgParse.run ((·, ·, ·) <$> .positional `container .ident <*> .positional `file .strLit <*> (some <$> .positional `show .strLit <|> pure none)) args
+    let show? := show?.map (·.getString)
+    let c ← Commands.requireContainer container
+    let fn := c.workingDirectory / "examples" / file.getString
+    let contents ← IO.FS.readFile fn
+    let _ ← ExpectString.expectString "file" expectedContentsStr (withNl contents)
+    logSilentInfo contents
+    return #[← ``(Block.other (InlineLean.Block.exampleFile (FileType.other $(quote (show?.getD (fn.fileName.getD fn.toString))))) #[Block.code $(quote contents)])]
+
+@[code_block_expander plainFile]
+def plainFile : CodeBlockExpander
+  | args, expectedContentsStr => do
+    let (file, show?) ← ArgParse.run ((·, ·) <$> .positional `file .strLit <*> (some <$> .positional `show .strLit <|> pure none)) args
+    let show? := show?.map (·.getString)
+
+    let projectDir : System.FilePath← Examples.Files.getProjectDir
+    let fn :=  projectDir / file.getString
+    let contents ← IO.FS.readFile fn
+
+    let _ ← ExpectString.expectString "file" expectedContentsStr (withNl contents)
+    logSilentInfo contents
+
+    return #[← ``(Block.other (InlineLean.Block.exampleFile (FileType.other $(quote (show?.getD (fn.fileName.getD fn.toString))))) #[Block.code $(quote contents)])]

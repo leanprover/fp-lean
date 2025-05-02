@@ -1,4 +1,5 @@
 import Examples.Support
+open SubVerso.Examples
 
 expect info {{{ dropBang }}}
   #eval "Hello!!!".dropRightWhile (· == '!')
@@ -22,6 +23,8 @@ def twice (action : IO Unit) : IO Unit := do
   action
 stop book declaration
 
+%show_name twice as twice.name
+
 expect eval info {{{ twiceShy }}}
   twice (IO.println "shy")
 message
@@ -30,7 +33,11 @@ shy
 "
 end expect
 
-
+example := Nat.zero
+example := Nat.succ
+example := "Hello, David!"
+example := "David"
+example {α : Type} := IO α
 
 book declaration {{{ nTimes }}}
 def nTimes (action : IO Unit) : Nat → IO Unit
@@ -48,6 +55,8 @@ Hello
 Hello
 "
 end expect
+
+example : α → List α → List α := List.cons
 
 book declaration {{{ countdown }}}
   def countdown : Nat → List (IO Unit)
@@ -137,7 +146,7 @@ namespace Exercises
   stop book declaration
 
   -- Part of a solution
-  expect info
+  expect info {{{ unused }}}
     #eval main
   message
   "Bonjour!\nHello!\n"

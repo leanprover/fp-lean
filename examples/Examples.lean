@@ -1,4 +1,5 @@
 import Examples.Intro
+import Examples.HelloWorld
 import Examples.Cat
 import Examples.Props
 import Examples.Classes

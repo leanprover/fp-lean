@@ -10,7 +10,10 @@ open Verso Doc Elab in
 open Lean (quote) in
 @[role_expander versionString]
 def versionString : RoleExpander
-  | #[], #[] => do pure #[← ``(Verso.Doc.Inline.code $(quote Lean.versionString))]
+  | #[], #[] => do
+    let version ← IO.FS.readFile "../examples/lean-toolchain"
+    let version := version.stripPrefix "leanprover/lean4:" |>.trim
+    pure #[← ``(Verso.Doc.Inline.code $(quote version))]
   | _, _ => throwError "Unexpected arguments"
 
 

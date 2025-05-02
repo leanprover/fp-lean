@@ -24,6 +24,18 @@ lean_lib Examples {
 }
 
 @[default_target]
+lean_lib FelineLib {
+  srcDir := "feline/2"
+  roots := #[`FelineLib]
+}
+
+@[default_target]
+lean_exe feline {
+  srcDir := "feline/2"
+  root := `Main
+}
+
+@[default_target]
 lean_exe examples {
   root := `Main
 }

@@ -27,13 +27,13 @@ def requireContainer (container : Ident) : m Container := do
   if let some c := (containersExt.getState (← getEnv)).find? name then return c
   else throwErrorAt container "Not found: '{name}'"
 
-def command (container : Ident) (dir : System.FilePath) (command : StrLit) : m IO.Process.Output := do
+def command (container : Ident) (dir : System.FilePath) (command : StrLit) (viaShell := false) : m IO.Process.Output := do
   let c ← ensureContainer container
   unless dir.isRelative do
     throwError "Relative directory expected, got '{dir}'"
   let dir := c.workingDirectory / "examples" / dir
   IO.FS.createDirAll dir
-  let (cmd, args) ← cmdAndArgs
+  let (cmd, args) ← if viaShell then pure ("bash", #["-c", command.getString]) else cmdAndArgs
   let out ← IO.Process.output {
     cmd := cmd,
     args := args,
@@ -43,7 +43,7 @@ def command (container : Ident) (dir : System.FilePath) (command : StrLit) : m I
     let stdout := m!"Stdout: {indentD out.stdout}"
     let stderr := m!"Stderr: {indentD out.stderr}"
     throwErrorAt command "Non-zero exit code from '{command.getString}' ({out.exitCode}).\n{indentD stdout}\n{indentD stderr}"
-  modifyEnv (containersExt.modifyState · (·.insert container.getId { c with outputs := c.outputs.insert command.getString out.stdout }))
+  modifyEnv (containersExt.modifyState · (·.insert container.getId { c with outputs := c.outputs.insert command.getString.trim out.stdout }))
   return out
 
 where
@@ -56,9 +56,10 @@ where
       else
         return (components[0], components.extract 1)
 
+
 def commandOut (container : Ident) (command : StrLit) : m String := do
   let c ← requireContainer container
-  if let some out := c.outputs[command.getString]? then
+  if let some out := c.outputs[command.getString.trim]? then
     return out
   else throwErrorAt command "Output not found: {indentD command}"
 
