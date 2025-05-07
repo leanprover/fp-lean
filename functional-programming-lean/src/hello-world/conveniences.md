@@ -96,7 +96,7 @@ displays
 This is the output produced by running the `IO` action, rather than some opaque representation of the action itself.
 In other words, for `IO` actions, `#eval` both _evaluates_ the provided expression and _executes_ the resulting action value.
 
-Quickly testing `IO` actions with `#eval` can be much more convenient that compiling and running whole programs.
+Quickly testing `IO` actions with `#eval` can be much more convenient than compiling and running whole programs.
 However, there are some limitations.
 For instance, reading from standard input simply returns empty input.
 Additionally, the `IO` action is re-executed whenever Lean needs to update the diagnostic information that it provides to users, and this can happen at unpredictable times.
