@@ -2,7 +2,7 @@ import VersoManual
 import FPLean.Examples
 
 
-open Verso.Genre Manual
+open Verso.Genre Manual ExternalLean
 
 open FPLean
 
@@ -32,7 +32,7 @@ Start with the program from the prior section:
 # Standard IO
 
 :::paragraph
-The first line is {anchor line1}`HelloName`, while the remainder is:
+The first line is {anchor line1}`let stdin ← IO.getStdin`, while the remainder is:
 ```anchor block2
   let stdout ← IO.getStdout
   stdout.putStrLn "How would you like to be addressed?"
@@ -48,7 +48,7 @@ The resulting value is a built-in primitive {moduleTerm}`IO` action.
 The next step is to execute this {moduleTerm}`IO` action, resulting in a value that represents the standard input stream, which has type {moduleTerm}`IO.FS.Stream`.
 Standard input is then associated with the name to the left of the arrow (here {anchorTerm line1}`stdin`) for the remainder of the {moduleTerm}`do` block.
 
-Executing the second line, {anchor line2}`HelloName`, proceeds similarly.
+Executing the second line, {anchor line2}`let stdout ← IO.getStdout`, proceeds similarly.
 First, the expression {moduleTerm}`IO.getStdout` is evaluated, yielding an {moduleTerm}`IO` action that will return the standard output.
 Next, this action is executed, actually returning the standard output.
 Finally, this value is associated with the name {anchorTerm line2}`stdout` for the remainder of the {moduleTerm}`do` block.
@@ -65,7 +65,7 @@ Now that {anchorTerm line1}`stdin` and {anchorTerm line2}`stdout` have been foun
 ```
 :::
 
-The first statement in the block, {anchor line3}`HelloName`, consists of an expression.
+The first statement in the block, {anchor line3}`stdout.putStrLn "How would you like to be addressed?"`, consists of an expression.
 To execute an expression, it is first evaluated.
 In this case, {moduleTerm}`IO.FS.Stream.putStrLn` has type {moduleTerm}`IO.FS.Stream → String → IO Unit`.
 This means that it is a function that accepts a stream and a string, returning an {moduleTerm}`IO` action.
@@ -75,7 +75,7 @@ The value of the expression is an {moduleTerm}`IO` action that will write the st
 Having found this value, the next step is to execute it, which causes the string and newline to actually be written to {anchorTerm setup}`stdout`.
 Statements that consist only of expressions do not introduce any new variables.
 
-The next statement in the block is {anchor line4}`HelloName`.
+The next statement in the block is {anchor line4}`let input ← stdin.getLine`.
 {moduleTerm}`IO.FS.Stream.getLine` has type {moduleTerm}`IO.FS.Stream → IO String`, which means that it is a function from a stream to an {moduleTerm}`IO` action that will return a string.
 Once again, this is an example of accessor notation.
 This {moduleTerm}`IO` action is executed, and the program waits until the user has typed a complete line of input.
@@ -88,7 +88,7 @@ The resulting line (`"David\n"`) is associated with {anchorTerm block5}`input`, 
 ```
 
 :::paragraph
-The next line, {anchor line5}`HelloName`, is a {kw}`let` statement.
+The next line, {anchor line5}`let name := input.dropRightWhile Char.isWhitespace`, is a {kw}`let` statement.
 Unlike the other {kw}`let` statements in this program, it uses `:=` instead of `←`.
 This means that the expression will be evaluated, but the resulting value need not be an {moduleTerm}`IO` action and will not be executed.
 In this case, {moduleTerm}`String.dropRightWhile` takes a string and a predicate over characters and returns a new string from which all the characters at the end of the string that satisfy the predicate have been removed.

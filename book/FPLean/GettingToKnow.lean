@@ -9,7 +9,7 @@ import FPLean.GettingToKnow.Polymorphism
 import FPLean.GettingToKnow.Conveniences
 import FPLean.GettingToKnow.Summary
 
-open Verso.Genre Manual
+open Verso.Genre Manual ExternalLean
 
 open FPLean
 

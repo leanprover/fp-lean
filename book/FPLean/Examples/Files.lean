@@ -7,6 +7,7 @@ import SubVerso.Helper
 import SubVerso.Module
 import MD4Lean
 import FPLean.Examples.Commands.Env
+import VersoManual
 
 open Lean
 
@@ -15,18 +16,6 @@ open SubVerso.Helper
 open SubVerso.Module
 
 namespace FPLean.Examples.Files
-
-register_option verso.exampleProject : String := {
-  defValue := "",
-  descr := "The directory in which to search for example code",
-  group := "verso"
-}
-
-register_option verso.exampleModule : String := {
-  defValue := "",
-  descr := "The default module to load examples from",
-  group := "verso"
-}
 
 
 open System in
@@ -120,6 +109,7 @@ where
       decorateOut "stderr" res.stderr
 
 open FPLean
+open Verso.Genre.Manual.ExternalLean
 
 variable [Monad m] [MonadLift IO m] [MonadEnv m] [MonadOptions m] [MonadError m]
 

@@ -1,5 +1,11 @@
 import Examples.Support
 
+-- Names in the chapter introduction
+-- ANCHOR: chapterIntro
+example := Add
+example := Nat
+-- ANCHOR_END: chapterIntro
+
 book declaration {{{ Plus }}}
   class Plus (α : Type) where
     plus : α → α → α
@@ -1372,7 +1378,7 @@ stop book declaration
 error: type mismatch
   []
 has type
-  List ?m.22406 : Type
+  List ?m.22415 : Type
 but is expected to have type
   NonEmptyList Nat : Type
 -/

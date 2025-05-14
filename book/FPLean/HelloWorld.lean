@@ -9,7 +9,7 @@ import FPLean.HelloWorld.Conveniences
 import FPLean.HelloWorld.Summary
 
 
-open Verso.Genre Manual
+open Verso.Genre Manual ExternalLean
 
 open FPLean
 

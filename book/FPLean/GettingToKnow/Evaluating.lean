@@ -1,7 +1,7 @@
 import VersoManual
 import FPLean.Examples
 
-open Verso.Genre Manual
+open Verso.Genre Manual ExternalLean
 
 open FPLean
 

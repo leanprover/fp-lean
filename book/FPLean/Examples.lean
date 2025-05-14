@@ -11,7 +11,7 @@ open Lean (NameMap MessageSeverity)
 namespace FPLean
 
 
-open Verso Doc Elab Genre.Manual ArgParse Code Highlighted WebAssets Output Html
+open Verso Doc Elab Genre.Manual ArgParse Code Highlighted WebAssets Output Html Log
 open SubVerso.Highlighting
 open SubVerso.Examples.Messages
 open Lean
@@ -19,36 +19,6 @@ open Std
 
 open InlineLean (FileType)
 
-section
-variable [Monad m] [MonadOptions m] [MonadLog m] [AddMessageContext m] [MonadRef m]
-
-def logSilentAt (ref : Syntax) (severity : MessageSeverity) (message : MessageData) : m Unit :=
-  logAt ref message (severity := severity) (isSilent := true)
-
-def logSilent (severity : MessageSeverity) (message : MessageData) : m Unit := do
-  logSilentAt (← getRef) severity message
-
-def logSilentInfoAt  (ref : Syntax) (message : MessageData) : m Unit :=
-  logSilentAt ref .information message
-
-def logSilentInfo (message : MessageData) : m Unit := do
-  logSilent .information message
-
-end
-
-section
-variable [Functor m]
-defmethod ValDesc.withSyntax (desc : ValDesc m α) : ValDesc m (α × Syntax) where
-  description := desc.description
-  get v := (·, v.syntax) <$> desc.get v
-
-def _root_.Verso.ArgParse.ValDesc.strLit [Monad m] [MonadError m] : ValDesc m StrLit where
-  description := m!"a string"
-  get
-    | .str s => pure s
-    | other => throwError "Expected string, got {toMessageData other}"
-
-end
 
 
 private def oneCodeStr [Monad m] [MonadError m] (inlines : Array (TSyntax `inline)) : m StrLit := do
@@ -138,64 +108,6 @@ def modAndThen (ref : Syntax) (more : ArgParse m α) : ArgParse m (Ident × α) 
 
 end
 
-
-section
-open FPLean.Examples Files
-
-variable [Monad m] [MonadOptions m] [MonadError m] [MonadLiftT CoreM m]
-
-private def defaultProject : m String := do
-  if let some p := verso.exampleProject.get? (← getOptions) then pure p else throwError "No default project specified"
-
-private def defaultModule : m Name := do
-  if let some m := verso.exampleModule.get? (← getOptions) then pure m.toName else throwError "No default module specified"
-
-def projectOrDefault : ArgParse m StrLit :=
-  .named `project .strLit false <|> (Syntax.mkStrLit <$> .lift "default project" defaultProject) <|> .fail none (some m!"No `(project := ...)` parameter provided and no default project set")
-
-def moduleOrDefault : ArgParse m Ident :=
-  .named `module .ident false <|> (mkIdent <$> .lift "default module" defaultModule) <|> .fail none (some m!"No `(module := ...)` parameter provided and no default module set")
-
-structure CodeModuleContext where
-  module : Ident
-  warningsAsErrors : Bool
-
-def CodeModuleContext.parse : ArgParse m CodeModuleContext :=
-  CodeModuleContext.mk <$> moduleOrDefault <*> .namedD `warningsAsErrors .bool false
-
-structure CodeContext extends CodeModuleContext where
-  anchor? : Option Ident
-
-def CodeContext.parse : ArgParse m CodeContext :=
-  CodeContext.mk <$> CodeModuleContext.parse <*> .named `anchor .ident true
-
-end
-
-block_extension Block.leanDecl (hls : Highlighted) where
-  data :=
-    let defined := hls.definedNames.toArray
-    Json.arr #[ToJson.toJson hls, ToJson.toJson defined]
-  traverse _ _ _ := pure none
-  toTeX := none
-  extraCss := [highlightingStyle]
-  extraJs := [highlightingJs]
-  extraJsFiles := [("popper.js", popper), ("tippy.js", tippy)]
-  extraCssFiles := [("tippy-border.css", tippy.border.css)]
-  toHtml :=
-    open Verso.Output.Html in
-    some <| fun _ _ _ data _ => do
-      let .arr #[hlJson, _] := data
-        | HtmlT.logError "Expected four-element JSON for Lean code"
-          pure .empty
-      match FromJson.fromJson? hlJson with
-      | .error err =>
-        HtmlT.logError <| "Couldn't deserialize Lean code block while rendering HTML: " ++ err
-        pure .empty
-      | .ok (hl : Highlighted) =>
-        let i := hl.indentation
-        let hl := hl.deIndent i
-        hl.blockHtml "examples"
-
 block_extension Block.leanEvalSteps (steps : Array Highlighted) where
   data := ToJson.toJson steps
   traverse _ _ _ := pure none
@@ -215,30 +127,6 @@ block_extension Block.leanEvalSteps (steps : Array Highlighted) where
         let i := steps.map (·.indentation) |>.toList |>.min? |>.getD 0
         return {{<div class="eval-steps">{{← steps.mapM (·.deIndent i |>.blockHtml "examples")}}</div>}}
 
-inline_extension Inline.leanTerm (hls : Highlighted) where
-  data :=
-    let defined := hls.definedNames.toArray
-    Json.arr #[ToJson.toJson hls, ToJson.toJson defined]
-  traverse _ _ _ := pure none
-  toTeX := none
-  extraCss := [highlightingStyle]
-  extraJs := [highlightingJs]
-  extraJsFiles := [("popper.js", popper), ("tippy.js", tippy)]
-  extraCssFiles := [("tippy-border.css", tippy.border.css)]
-  toHtml :=
-    open Verso.Output.Html in
-    some <| fun _ _ data _ => do
-      let .arr #[hlJson, _] := data
-        | HtmlT.logError "Expected four-element JSON for Lean code"
-          pure .empty
-      match FromJson.fromJson? hlJson with
-      | .error err =>
-        HtmlT.logError <| "Couldn't deserialize Lean code block while rendering HTML: " ++ err
-        pure .empty
-      | .ok (hl : Highlighted) =>
-        let i := hl.indentation
-        let hl := hl.deIndent i
-        hl.inlineHtml "examples"
 
 private def getClass : MessageSeverity → String
   | .error => "error"
@@ -270,29 +158,7 @@ block_extension Block.leanOutput (severity : MessageSeverity) (message : String)
           else html
         pure <| wrap {{<div class={{getClass sev}}><pre>{{txt}}</pre></div>}}
 
-inline_extension Inline.leanOutput (severity : MessageSeverity) (message : String) (plain : Bool) where
-  data := ToJson.toJson (severity, message, plain)
-  traverse _ _ _ := do
-    pure none
-  toTeX :=
-    some <| fun go _ _  content => do
-      pure <| .seq <| ← content.mapM fun b => do
-        pure <| .seq #[← go b, .raw "\n"]
-  extraCss := [highlightingStyle]
-  extraJs := [highlightingJs]
-  extraJsFiles := [("popper.js", popper), ("tippy.js", tippy)]
-  extraCssFiles := [("tippy-border.css", tippy.border.css)]
-  toHtml :=
-    open Verso.Output.Html in
-    some <| fun _ _ data _ => do
-      match FromJson.fromJson? data with
-      | .error err =>
-        HtmlT.logError <| "Couldn't deserialize Lean code while rendering HTML: " ++ err
-        pure .empty
-      | .ok ((sev, txt, plain) : MessageSeverity × String × Bool) =>
-        let plainHtml := {{<code>{{txt}}</code>}}
-        if plain then pure plainHtml
-        else pure {{<span class={{getClass sev}}>{{plainHtml}}</span>}}
+open ExternalLean
 
 @[block_role_expander exampleDecl]
 def exampleDecl : BlockRoleExpander
@@ -304,7 +170,7 @@ def exampleDecl : BlockRoleExpander
       | throwErrorAt name m!"Example not found: '{name.getId}'"
     if ex.kind != some `FPLean.decl then
       throwErrorAt name m!"Expected example kind 'FPLean.decl', got '{ex.kind}'"
-    return #[← ``(Block.other (Block.leanDecl $(quote (Highlighted.seq ex.highlighted))) #[Block.code $(quote ex.original)])]
+    return #[← ``(Block.other (Block.lean $(quote (Highlighted.seq ex.highlighted))) #[Block.code $(quote ex.original)])]
   | _args, _blocks =>
     throwError "Unexpected block arguments"
 
@@ -319,7 +185,7 @@ def exampleDeclCode : CodeBlockExpander
     _ ← ExpectString.expectString s!"'{name}' in '{module.getId}'" codeStr (Highlighted.seq ex.highlighted).toString
     if ex.kind != some `FPLean.decl then
       throwErrorAt name m!"Expected example kind 'FPLean.decl', got '{ex.kind}'"
-    return #[← ``(Block.other (Block.leanDecl $(quote (Highlighted.seq ex.highlighted))) #[Block.code $(quote ex.original)])]
+    return #[← ``(Block.other (Block.lean $(quote (Highlighted.seq ex.highlighted))) #[Block.code $(quote ex.original)])]
 
 
 @[role_expander exampleDecl]
@@ -333,7 +199,7 @@ def exampleDeclInline : RoleExpander
       | throwErrorAt name m!"Example not found: '{name.getId}'"
     if ex.kind != some `FPLean.decl then
       throwErrorAt name m!"Expected example kind 'FPLean.decl', got '{ex.kind}'"
-    return #[← ``(Inline.other (Inline.leanTerm $(quote (Highlighted.seq ex.highlighted))) #[Inline.code $(quote ex.original)])]
+    return #[← ``(Inline.other (Inline.lean $(quote (Highlighted.seq ex.highlighted))) #[Inline.code $(quote ex.original)])]
 
 @[block_role_expander exampleIn]
 def exampleIn : BlockRoleExpander
@@ -348,9 +214,9 @@ def exampleIn : BlockRoleExpander
     | some `FPLean.decl | some `FPLean.evalInfo =>
       let some exIn := mod.find? (name.getId ++ `in)
         | throwErrorAt name "Example input not found: '{name.getId ++ `in}'"
-      return #[← ``(Block.other (Block.leanDecl $(quote (Highlighted.seq exIn.highlighted))) #[Block.code $(quote exIn.original)])]
+      return #[← ``(Block.other (Block.lean $(quote (Highlighted.seq exIn.highlighted))) #[Block.code $(quote exIn.original)])]
     | some `FPLean.forMessage =>
-      return #[← ``(Block.other (Block.leanDecl $(quote (Highlighted.seq ex.highlighted))) #[Block.code $(quote ex.original)])]
+      return #[← ``(Block.other (Block.lean $(quote (Highlighted.seq ex.highlighted))) #[Block.code $(quote ex.original)])]
     | _ =>
       throwErrorAt name m!"Expected example kind 'FPLean.inputOutput' or 'FPLean.forMessage', got '{ex.kind}'"
 
@@ -371,10 +237,10 @@ def exampleInCode : CodeBlockExpander
       let some exIn := mod.find? (name.getId ++ `in)
         | throwErrorAt name "Example input not found: '{name.getId ++ `in}'"
       let _ ← ExpectString.expectString s!"'{name.getId ++ `in}' in {module.getId}" codeStr (Highlighted.seq exIn.highlighted).toString
-      return #[← ``(Block.other (Block.leanDecl $(quote (Highlighted.seq exIn.highlighted))) #[Block.code $(quote exIn.original)])]
+      return #[← ``(Block.other (Block.lean $(quote (Highlighted.seq exIn.highlighted))) #[Block.code $(quote exIn.original)])]
     | some `FPLean.forMessage =>
       let _ ← ExpectString.expectString s!"'{name.getId}' in {module.getId}" codeStr (Highlighted.seq ex.highlighted).toString
-      return #[← ``(Block.other (Block.leanDecl $(quote (Highlighted.seq ex.highlighted))) #[Block.code $(quote ex.original)])]
+      return #[← ``(Block.other (Block.lean $(quote (Highlighted.seq ex.highlighted))) #[Block.code $(quote ex.original)])]
 
     | _ =>
       throwErrorAt name m!"Expected example kind 'FPLean.inputOutput' or 'FPLean.forMessage', got '{ex.kind}'"
@@ -394,7 +260,7 @@ def exampleEval : BlockRoleExpander
       if let some step := step? then
         let some exIn := mod.find? (name.getId ++ s!"step{step}".toName)
           | throwErrorAt name m!"Example input not found: '{name.getId ++ s!"step{step}".toName}'"
-        return #[← ``(Block.other (Block.leanDecl $(quote (Highlighted.seq exIn.highlighted))) #[Block.code $(quote exIn.original)])]
+        return #[← ``(Block.other (Block.lean $(quote (Highlighted.seq exIn.highlighted))) #[Block.code $(quote exIn.original)])]
       else
         let mut hls := #[]
         repeat
@@ -424,7 +290,7 @@ def exampleEvalCodeblock : CodeBlockExpander
         let some exIn := mod.find? (name.getId ++ s!"step{step}".toName)
           | throwErrorAt name m!"Example input not found: '{name.getId ++ s!"step{step}".toName}'"
         _ ← ExpectString.expectString "step" str (Highlighted.seq exIn.highlighted).toString (preEq := String.trim)
-        return #[← ``(Block.other (Block.leanDecl $(quote (Highlighted.seq exIn.highlighted))) #[Block.code $(quote exIn.original)])]
+        return #[← ``(Block.other (Block.lean $(quote (Highlighted.seq exIn.highlighted))) #[Block.code $(quote exIn.original)])]
       else
         let mut hls := #[]
         repeat
@@ -454,7 +320,7 @@ def exampleEvalInline : RoleExpander
     | some `FPLean.evalSteps =>
       let some exIn := mod.find? (name.getId ++ s!"step{step}".toName)
         | throwErrorAt name m!"Example input not found: '{name.getId ++ s!"step{step}".toName}'"
-      return #[← ``(Inline.other (Inline.leanTerm $(quote (Highlighted.seq exIn.highlighted))) #[Inline.code $(quote exIn.original)])]
+      return #[← ``(Inline.other (Inline.lean $(quote (Highlighted.seq exIn.highlighted))) #[Inline.code $(quote exIn.original)])]
     | _ =>
       throwErrorAt name "Expected example kind 'FPLean.evalSteps', got '{ex.kind}'"
 
@@ -464,7 +330,7 @@ def kw : RoleExpander
     ArgParse.done.run args
     let kw ← oneCodeStr inls
     let hl : Highlighted := .token ⟨.keyword none none none, kw.getString⟩ -- TODO kw xref
-    return #[← ``(Inline.other (Inline.leanTerm $(quote hl)) #[Inline.code $(quote kw.getString)])]
+    return #[← ``(Inline.other (Inline.lean $(quote hl)) #[Inline.code $(quote kw.getString)])]
 
 
 @[block_role_expander exampleOut]
@@ -598,14 +464,14 @@ def exampleInInline : RoleExpander
     | some `FPLean.decl | some `FPLean.evalInfo =>
       let some exIn := mod.find? (name.getId ++ `in)
         | throwErrorAt name m!"Example input not found: '{name.getId ++ `in}'"
-      return #[← ``(Inline.other (Inline.leanTerm $(quote (Highlighted.seq exIn.highlighted))) #[Inline.code $(quote exIn.original)])]
+      return #[← ``(Inline.other (Inline.lean $(quote (Highlighted.seq exIn.highlighted))) #[Inline.code $(quote exIn.original)])]
     | some `FPLean.forMessage =>
-      return #[← ``(Inline.other (Inline.leanTerm $(quote (Highlighted.seq ex.highlighted))) #[Inline.code $(quote ex.original)])]
+      return #[← ``(Inline.other (Inline.lean $(quote (Highlighted.seq ex.highlighted))) #[Inline.code $(quote ex.original)])]
     | some `FPLean.inputOutput =>
       let inName := name.getId ++ `in
       let some ex := mod.find? name.getId
         | throwErrorAt name m!"Example not found: '{inName}'"
-      return #[← ``(Inline.other (Inline.leanTerm $(quote (Highlighted.seq ex.highlighted))) #[Inline.code $(quote ex.original)])]
+      return #[← ``(Inline.other (Inline.lean $(quote (Highlighted.seq ex.highlighted))) #[Inline.code $(quote ex.original)])]
     | _ =>
       throwErrorAt name m!"Expected example kind 'FPLean.inputOutput' or 'FPLean.forMessage', got '{ex.kind}'"
 
@@ -639,7 +505,7 @@ def exampleOutInline : RoleExpander
       let outName := name.getId ++ `out
       let some out := mod.find? outName
         | throwErrorAt name "Example not found: '{outName}'"
-      return #[← ``(Inline.other (Inline.leanTerm $(quote (Highlighted.seq out.highlighted))) #[Inline.code $(quote out.original)])]
+      return #[← ``(Inline.other (Inline.lean $(quote (Highlighted.seq out.highlighted))) #[Inline.code $(quote out.original)])]
     | _ =>
       throwErrorAt name "Unexpected example kind '{ex.kind}'"
 
@@ -666,362 +532,13 @@ def term : RoleExpander
       | logErrorAt name m!"Example not found: '{name.getId}'"
         return #[]
 
-    return #[← ``(Inline.other (Inline.leanTerm $(quote (Highlighted.seq ex.highlighted))) #[Inline.code $(quote ex.original)])]
-
-def anchored [Monad m] [MonadEnv m] [MonadLift IO m] [MonadError m] [MonadOptions m] (moduleName : Ident) (blame : Syntax) : m Highlighted.AnchoredExamples := do
-  let modName := moduleName.getId
-  let modStr := modName.toString
-
-  if let some cached := (loadedModuleAnchorExt.getState (← getEnv)).find? modName then return cached
-
-  let items ← Examples.Files.loadModuleContent modStr
-  let highlighted := Highlighted.seq (items.map (·.code))
-
-  match highlighted.anchored with
-  | .error e => throwErrorAt blame e
-  | .ok anchors => return anchors
+    return #[← ``(Inline.other (Inline.lean $(quote (Highlighted.seq ex.highlighted))) #[Inline.code $(quote ex.original)])]
 
 
 deriving instance Repr for SubVerso.Module.ModuleItem
 
 def withNl (s : String) : String := if s.endsWith "\n" then s else s ++ "\n"
 
-def warningsToErrors (hl : Highlighted) : Highlighted :=
-  match hl with
-  | .seq xs => .seq <| xs.map warningsToErrors
-  | .point .warning str => .point .error str
-  | .point .. => hl
-  | .tactics info start stop x => .tactics info start stop <| warningsToErrors x
-  | .span infos x => .span (infos.map fun (k, str) => (if k matches .warning then .error else k, str)) (warningsToErrors x)
-  | .text .. | .token .. => hl
-
-def allInfo (hl : Highlighted) : Array (MessageSeverity × String × Option Highlighted) :=
-  match hl with
-  | .seq xs => xs.flatMap allInfo
-  | .point k str => #[(toSev k, str, none)]
-  | .tactics _ _ _ x => allInfo x
-  | .span infos x => (infos.map fun (k, str) => (toSev k, str, some x)) ++ allInfo x
-  | .text .. | .token .. => #[]
-where
-  toSev : Highlighted.Span.Kind → MessageSeverity
-    | .error => .error
-    | .info => .information
-    | .warning => .warning
-
-@[code_block_expander module]
-def module : CodeBlockExpander
-  | args, code => do
-    let {module := moduleName, anchor?, warningsAsErrors} ← CodeContext.parse.run args
-    let modStr := moduleName.getId.toString
-    let items ← Examples.Files.loadModuleContent modStr
-    let highlighted := Highlighted.seq (items.map (·.code))
-    let highlighted := if warningsAsErrors then warningsToErrors highlighted else highlighted
-    if let some anchor := anchor? then
-      try
-        let {anchors, ..} ← anchored moduleName anchor
-        if let some hl := anchors[anchor.getId.toString]? then
-          let _ ← ExpectString.expectString "module contents" code (hl.toString |> withNl)
-            (useLine := fun l => !l.trim.isEmpty)
-          for (sev, msg, _) in allInfo hl do
-            logSilentInfo m!"{sevStr sev}:\n{msg}"
-          return #[← ``(Block.other (Block.leanDecl $(quote hl)) #[])]
-        else
-          logErrorAt anchor "Anchor not found"
-          for x in anchors.keys do
-            Suggestion.saveSuggestion anchor x x
-          return #[]
-      catch
-        | .error ref e =>
-          logErrorAt ref e
-          return #[← ``(sorryAx _ true)]
-        | e => throw e
-    else
-      let _ ← ExpectString.expectString "module contents" code (highlighted.toString |> withNl)
-        (useLine := fun l => !l.trim.isEmpty)
-      for (sev, msg, _) in allInfo highlighted do
-        logSilentInfo m!"{sevStr sev}:\n{msg}"
-      return #[← ``(Block.other (Block.leanDecl $(quote highlighted)) #[])]
-where
-  sevStr
-    | .error => "error"
-    | .warning => "warning"
-    | .information => "info"
-
-macro_rules
-  | `(block|```anchor $arg:arg_val $args* | $s ```) =>
-    `(block|```module anchor:=$arg $args* | $s ```)
-  | `(block|```%$tok anchor $args* | $_s ```) =>
-    Macro.throwErrorAt (mkNullNode (#[tok] ++ args)) "Expected a positional identifier as first argument"
-
-@[role_expander module]
-def moduleInline : RoleExpander
-  | args, inls => do
-    let moduleName ← oneCodeName inls
-    let anchor? ← ArgParse.run (.named `anchor .ident true) args
-    let modStr := moduleName.getId.toString
-    let items ← Examples.Files.loadModuleContent modStr
-    let highlighted := Highlighted.seq (items.map (·.code))
-    if let some anchor := anchor? then
-      try
-        let {anchors, ..} ← anchored moduleName anchor
-        if let some hl := anchors[anchor.getId.toString]? then
-          return #[← ``(Inline.other (Inline.leanTerm $(quote hl)) #[])]
-        else
-          logErrorAt anchor "Anchor not found"
-          for x in anchors.keys do
-            Suggestion.saveSuggestion anchor x x
-          return #[]
-      catch
-        | .error ref e =>
-          logErrorAt ref e
-          return #[← ``(sorryAx _ true)]
-        | e => throw e
-    else
-      return #[← ``(Inline.other (Inline.leanTerm $(quote highlighted)) #[])]
-
-macro_rules
-  | `(inline|role{ anchor $arg:arg_val $args* } [%$t1 $s ]%$t2) =>
-    `(inline|role{ module anchor:=$arg $args* } [%$t1 $s ]%$t2)
-  | `(inline|role{%$tok anchor $args* } [ $_s ]) =>
-    Macro.throwErrorAt (mkNullNode (#[tok] ++ args)) "Expected a positional identifier as first argument"
-
-private partial def allTokens (hl : Highlighted) : HashSet String :=
-  match hl with
-  | .seq xs => xs.map allTokens |>.foldl (init := {}) HashSet.union
-  | .point .. | .text .. => {}
-  | .tactics _ _ _ x | .span _ x => allTokens x
-  | .token ⟨_, s⟩ => {s}
-
-@[role_expander moduleName]
-def moduleName : RoleExpander
-  | args, inls => do
-    let ({module := moduleName, anchor?, warningsAsErrors}, show?) ←
-      ArgParse.run ((·, ·) <$> CodeContext.parse <*> (.named `show .ident true)) args
-    let name ← oneCodeStr inls
-
-    let modStr := moduleName.getId.toString
-    let items ← Examples.Files.loadModuleContent modStr
-    let highlighted := Highlighted.seq (items.map (·.code))
-    let fragment ←
-      if let some anchor := anchor? then
-        try
-          let {anchors, ..} ← anchored moduleName anchor
-          if let some hl := anchors[anchor.getId.toString]? then
-            pure hl
-          else
-            logErrorAt anchor "Anchor not found"
-            for x in anchors.keys do
-              Suggestion.saveSuggestion anchor x x
-            return #[← ``(sorryAx _ true)]
-          catch
-            | .error ref e => logErrorAt ref e; return #[← ``(sorryAx _ true)]
-            | e => throw e
-      else pure highlighted
-    let fragment := if warningsAsErrors then warningsToErrors fragment else fragment
-
-    if let some tok@⟨k, _txt⟩ := fragment.matchingName? name.getString then
-      let tok := show?.map (⟨k, ·.getId.toString⟩) |>.getD tok
-      return #[← ``(Inline.other (Inline.leanTerm $(quote (Highlighted.token tok))) #[])]
-    else
-      logErrorAt name m!"'{name.getString}' not found in:{indentD fragment.toString}"
-      for t in allTokens fragment do
-        Suggestion.saveSuggestion name t t
-      return #[← ``(sorryAx _ true)]
-
-@[role_expander moduleTerm]
-def moduleTerm : RoleExpander
-  | args, inls => do
-    let {module := moduleName, anchor?, warningsAsErrors} ← CodeContext.parse.run args
-    let term ← oneCodeStr inls
-
-    let modStr := moduleName.getId.toString
-    let items ← Examples.Files.loadModuleContent modStr
-    let highlighted := Highlighted.seq (items.map (·.code))
-    let highlighted := if warningsAsErrors then warningsToErrors highlighted else highlighted
-    let fragment ←
-      if let some anchor := anchor? then
-        try
-          let {anchors, ..} ← anchored moduleName anchor
-          if let some hl := anchors[anchor.getId.toString]? then
-            pure hl
-          else
-            logErrorAt anchor "Anchor not found"
-            for x in anchors.keys do
-              Suggestion.saveSuggestion anchor x x
-            return #[← ``(sorryAx _ true)]
-        catch
-          | .error ref e => logErrorAt ref e; return #[← ``(sorryAx _ true)]
-          | e => throw e
-      else pure highlighted
-
-      if let some e := fragment.matchingExpr? term.getString then
-        return #[← ``(Inline.other (Inline.leanTerm $(quote e)) #[])]
-      else
-        logErrorAt term m!"Not found: '{term.getString}' in{indentD fragment.toString}"
-        return #[← ``(sorryAx _ true)]
-
-macro_rules
-  | `(inline|role{%$rs anchorTerm $a:arg_val $arg* }%$re [%$s $str* ]%$e) =>
-    `(inline|role{%$rs moduleTerm $arg*  anchor:=$a }%$re [%$s $str* ]%$e)
-
-
-
-def severityName {m} [Monad m] [MonadEnv m] [MonadResolveName m] : MessageSeverity → m String
-  | .error => unresolveNameGlobal ``MessageSeverity.error <&> (·.toString)
-  | .warning => unresolveNameGlobal ``MessageSeverity.warning <&> (·.toString)
-  | .information => unresolveNameGlobal ``MessageSeverity.information <&> (·.toString)
-
-@[code_block_expander moduleOut]
-def moduleOut : CodeBlockExpander
-  | args, str => do
-    let (severity, {module := moduleName, anchor?, warningsAsErrors}) ← ArgParse.run ((·, ·) <$> .positional `severity (.withSyntax .messageSeverity) <*> CodeContext.parse) args
-
-    let modStr := moduleName.getId.toString
-    let items ← Examples.Files.loadModuleContent modStr
-    let highlighted := Highlighted.seq (items.map (·.code))
-    let fragment ←
-      if let some anchor := anchor? then
-        try
-          let {anchors, ..} ← anchored moduleName anchor
-          if let some hl := anchors[anchor.getId.toString]? then
-            pure hl
-          else
-            logErrorAt anchor "Anchor not found"
-            for x in anchors.keys do
-              Suggestion.saveSuggestion anchor x x
-            return #[← ``(sorryAx _ true)]
-        catch
-          | .error ref e => logErrorAt ref e; return #[← ``(sorryAx _ true)]
-          | e => throw e
-      else pure highlighted
-    let fragment := if warningsAsErrors then warningsToErrors fragment else fragment
-
-    let infos : Array _ := allInfo fragment
-
-    for (sev, msg, _) in infos do
-      if messagesMatch msg str.getString then
-        if sev == severity.1 then
-          return #[← ``(Block.other (Block.leanOutput $(quote sev) $(quote msg)) #[])]
-        else
-        let wanted ← severityName sev
-          if severity.2.getHeadInfo matches .original .. then
-            Suggestion.saveSuggestion severity.2 wanted wanted
-          throwError "Mismatched severity. Expected '{repr severity.1}', got '{wanted}'."
-
-    -- Didn't find it. Add suggestions.
-    for (_, msg, _) in infos do
-      Suggestion.saveSuggestion str (ExpectString.abbreviateString msg) (withNl msg)
-
-    let err := m!"Expected one of:{indentD (m!"\n".joinSep <| infos.toList.map (·.2.1))}\nbut got:{indentD str.getString}"
-    logErrorAt str err
-
-    return #[← ``(sorryAx _ true)]
-
-macro_rules
-  | `(block|```moduleInfo $arg* | $s ```) =>
-    `(block|```moduleOut MessageSeverity.information $arg* | $s ```)
-  | `(block|```moduleError $arg* | $s ```) =>
-    `(block|```moduleOut MessageSeverity.error $arg* | $s ```)
-  | `(block|```moduleWarning $arg* | $s ```) =>
-    `(block|```moduleOut MessageSeverity.warning $arg* | $s ```)
-  | `(block|```anchorInfo $a:arg_val $arg* | $s ```) =>
-    `(block|```moduleOut MessageSeverity.information anchor:=$a $arg* | $s ```)
-  | `(block|```anchorError $a:arg_val $arg* | $s ```) =>
-    `(block|```moduleOut MessageSeverity.error anchor:=$a $arg* | $s ```)
-  | `(block|```anchorWarning $a:arg_val $arg* | $s ```) =>
-    `(block|```moduleOut MessageSeverity.warning anchor:=$a $arg* | $s ```)
-
-@[role_expander moduleOut]
-def moduleOutRole : RoleExpander
-  | args, inls => do
-
-    let str? ← oneCodeStr? inls
-
-    let (severity, {module := moduleName, anchor?, warningsAsErrors}) ← ArgParse.run ((·, ·) <$> .positional `severity (.withSyntax .messageSeverity) <*> CodeContext.parse) args
-
-    let modStr := moduleName.getId.toString
-    let items ← Examples.Files.loadModuleContent modStr
-    let highlighted := Highlighted.seq (items.map (·.code))
-    let fragment ←
-      if let some anchor := anchor? then
-        try
-          let {anchors, ..} ← anchored moduleName anchor
-          if let some hl := anchors[anchor.getId.toString]? then
-            pure hl
-          else
-            logErrorAt anchor "Anchor not found"
-            for x in anchors.keys do
-              Suggestion.saveSuggestion anchor x x
-            return #[← ``(sorryAx _ true)]
-        catch
-          | .error ref e => logErrorAt ref e; return #[← ``(sorryAx _ true)]
-          | e => throw e
-      else pure highlighted
-    let fragment := if warningsAsErrors then warningsToErrors fragment else fragment
-
-    let infos := allInfo fragment
-
-    if let some str := str? then
-      for (sev, msg, _) in infos do
-        if messagesMatch msg str.getString then
-          if sev == severity.1 then
-            return #[← ``(Inline.other (Inline.leanOutput $(quote sev) $(quote msg) true) #[])]
-          else
-          let wanted ← severityName sev
-            if severity.2.getHeadInfo matches .original .. then
-              Suggestion.saveSuggestion severity.2 wanted wanted
-            throwError "Mismatched severity. Expected '{repr severity.1}', got '{wanted}'."
-
-      -- Didn't find it. Add suggestions.
-      for (_, msg, _) in infos do
-        Suggestion.saveSuggestion str (quoteCode <| ExpectString.abbreviateString msg.trim) msg.trim
-
-      let err := m!"Expected one of:{indentD (m!"\n".joinSep <| infos.toList.map (·.2.1))}\nbut got:{indentD str.getString}"
-      logErrorAt str err
-    else
-      let err := m!"Expected one of:{indentD (m!"\n".joinSep <| infos.toList.map (·.2.1))}"
-      logError m!"No expected term provided. {err}"
-      if let `(inline|role{$_ $_*} [%$tok1 $contents* ]%$tok2) := (← getRef) then
-        let stx :=
-          if tok1.getHeadInfo matches .original .. && tok2.getHeadInfo matches .original .. then
-            mkNullNode #[tok1, tok2]
-          else mkNullNode contents
-        for (_, msg, _) in infos do
-          Suggestion.saveSuggestion stx (quoteCode <| ExpectString.abbreviateString msg.trim) (quoteCode msg.trim)
-
-    return #[← ``(sorryAx _ true)]
-
-where
-  quoteCode (str : String) : String := Id.run do
-    let str := if str.startsWith "`" || str.endsWith "`" then " " ++ str ++ " " else str
-    let mut n := 1
-    let mut run := none
-    let mut iter := str.iter
-    while h : iter.hasNext do
-      let c := iter.curr' h
-      iter := iter.next
-      if c == '`' then
-        run := some (run.getD 0 + 1)
-      else if let some k := run then
-        if k > n then n := k
-        run := none
-
-    let delim := String.mk (List.replicate n '`')
-    return delim ++ str ++ delim
-
-macro_rules
-  | `(inline|role{%$rs moduleInfo $arg*}%$re [%$s $str* ]%$e) =>
-    `(inline|role{%$rs moduleOut MessageSeverity.information $arg*}%$re [%$s $str* ]%$e)
-  | `(inline|role{%$rs moduleError $arg*}%$re [%$s $str* ]%$e) =>
-    `(inline|role{%$rs moduleOut MessageSeverity.error $arg*}%$re [%$s $str* ]%$e)
-  | `(inline|role{%$rs moduleWarning $arg*}%$re [%$s $str* ]%$e) =>
-    `(inline|role{%$rs moduleOut MessageSeverity.warning $arg*}%$re [%$s $str* ]%$e)
-  | `(inline|role{%$rs anchorInfo $a:arg_val $arg*}%$re [%$s $str* ]%$e) =>
-    `(inline|role{%$rs moduleOut MessageSeverity.information anchor:=$a $arg*}%$re [%$s $str* ]%$e)
-  | `(inline|role{%$rs anchorError $a:arg_val $arg*}%$re [%$s $str* ]%$e) =>
-    `(inline|role{%$rs moduleOut MessageSeverity.error anchor:=$a $arg*}%$re [%$s $str* ]%$e)
-  | `(inline|role{%$rs anchorWarning $a:arg_val $arg*}%$re [%$s $str* ]%$e) =>
-    `(inline|role{%$rs moduleOut MessageSeverity.warning anchor:=$a $arg*}%$re [%$s $str* ]%$e)
 
 structure CommandConfig where
   container : Ident

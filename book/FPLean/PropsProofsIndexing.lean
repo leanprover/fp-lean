@@ -1,13 +1,17 @@
 import VersoManual
 import FPLean.Examples
 
-open Verso.Genre Manual
+open Verso.Genre Manual ExternalLean
 
 open FPLean
 
 set_option verso.exampleProject "../examples"
 
 set_option verso.exampleModule "Examples.Props"
+
+set_option verso.externalExamples.suppressedNamespaces "Foo Connectives"
+
+set_option pp.rawOnError true
 
 #doc (Manual) "Interlude: Propositions, Proofs, and Indexing" =>
 %%%
@@ -184,19 +188,20 @@ Replacing {anchorTerm AndIntro}`A` and {anchorTerm AndIntro}`B` with concrete pr
 Of course, {kw}`decide` is also powerful enough to find this proof:
 
 ```anchor AndIntroExTac
-theorem addAndAppend : 1 + 1 = 2 ∧ "Str".append "ing" = "String" := by decide
+theorem addAndAppend : 1 + 1 = 2 ∧ "Str".append "ing" = "String" := by
+  decide
 ```
 
 
-Similarly, “{anchorTerm OrProp}`A` or {anchorTerm OrProp}`B`” (written {anchorTerm OrProp}`A ∨ B`) has two constructors, because a proof of "{anchorTerm OrProp}`A` or {anchorTerm OrProp}`B`" requires only that one of the two underlying propositions be true.
+Similarly, “{anchorTerm OrProp}`A` or {anchorTerm OrProp}`B`” (written {anchorTerm OrProp}`A ∨ B`) has two constructors, because a proof of “{anchorTerm OrProp}`A` or {anchorTerm OrProp}`B`” requires only that one of the two underlying propositions be true.
 There are two constructors: {anchorTerm OrIntro1}`Or.inl`, with type {anchorTerm OrIntro1}`A → A ∨ B`, and {anchorTerm OrIntro2}`Or.inr`, with type {anchorTerm OrIntro2}`B → A ∨ B`.
 
-Implication (if _A_ then _B_) is represented using functions.
-In particular, a function that transforms evidence for _A_ into evidence for _B_ is itself evidence that _A_ implies _B_.
-This is different from the usual description of implication, in which `A → B` is shorthand for `¬A ∨ B`, but the two formulations are equivalent.
+Implication (if {anchorTerm impliesDef}`A` then {anchorTerm impliesDef}`B`) is represented using functions.
+In particular, a function that transforms evidence for {anchorTerm impliesDef}`A` into evidence for {anchorTerm impliesDef}`B` is itself evidence that {anchorTerm impliesDef}`A` implies {anchorTerm impliesDef}`B`.
+This is different from the usual description of implication, in which {anchorTerm impliesDef}`A → B` is shorthand for {anchorTerm impliesDef}`¬A ∨ B`, but the two formulations are equivalent.
 
-Because evidence for an "and" is a constructor, it can be used with pattern matching.
-For instance, a proof that _A_ and _B_ implies _A_ or _B_ is a function that pulls the evidence of _A_ (or of _B_) out of the evidence for _A_ and _B_, and then uses this evidence to produce evidence of _A_ or _B_:
+Because evidence for an “and” is a constructor, it can be used with pattern matching.
+For instance, a proof that {anchorTerm andImpliesOr}`A` and {anchorTerm andImpliesOr}`B` implies {anchorTerm andImpliesOr}`A` or {anchorTerm andImpliesOr}`B` is a function that pulls the evidence of {anchorTerm andImpliesOr}`A` (or of {anchorTerm andImpliesOr}`B`) out of the evidence for {anchorTerm andImpliesOr}`A` and {anchorTerm andImpliesOr}`B`, and then uses this evidence to produce evidence of {anchorTerm andImpliesOr}`A` or {anchorTerm andImpliesOr}`B`:
 
 ```anchor andImpliesOr
 theorem andImpliesOr : A ∧ B → A ∨ B :=

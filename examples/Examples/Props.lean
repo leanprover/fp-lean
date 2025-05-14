@@ -114,8 +114,7 @@ def foo : True ∧ True := And.intro True.intro True.intro
 def bar : True ∨ False := Or.inl True.intro
 
 namespace Connectives
-inductive A : Prop where | intro
-inductive B : Prop where | intro
+variable {A B : Prop}
 
 bookExample type {{{ TrueProp }}}
   True
@@ -144,7 +143,8 @@ example : 1 + 1 = 2 ∧ "Str".append "ing" = "String" :=  And.intro rfl rfl
 
 
 -- ANCHOR: AndIntroExTac
-theorem addAndAppend : 1 + 1 = 2 ∧ "Str".append "ing" = "String" := by decide
+theorem addAndAppend : 1 + 1 = 2 ∧ "Str".append "ing" = "String" := by
+  decide
 -- ANCHOR_END: AndIntroExTac
 
 -- ANCHOR: OrProp
@@ -159,6 +159,18 @@ example :  A → A ∨ B :=  Or.inl
 example : B → A ∨ B :=  Or.inr
 -- ANCHOR_END: OrIntro2
 
+
+-- ANCHOR: impliesDef
+example : (A → B) = (¬ A ∨ B) := by
+  simp only [eq_iff_iff]
+  constructor
+  . intro h
+    by_cases A
+    . apply Or.inr; simp_all
+    . apply Or.inl; simp_all
+  . intro h a
+    cases h <;> simp_all
+-- ANCHOR_END: impliesDef
 
 bookExample type {{{ OrIntroEx }}}
   Or.inr rfl
@@ -197,7 +209,7 @@ error: failed to prove index is valid, possible solutions:
   - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
-α : Type ?u.4816
+α : Type ?u.5228
 xs : List α
 ⊢ 2 < xs.length
 -/

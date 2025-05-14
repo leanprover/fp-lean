@@ -4,8 +4,9 @@ import FPLean.Intro
 import FPLean.GettingToKnow
 import FPLean.HelloWorld
 import FPLean.PropsProofsIndexing
+import FPLean.TypeClasses
 
-open Verso.Genre Manual
+open Verso.Genre Manual ExternalLean
 
 open Verso Doc Elab in
 open Lean (quote) in
@@ -38,3 +39,5 @@ This is a free book on using Lean as a programming language. All code samples ar
 {include 1 FPLean.HelloWorld}
 
 {include 1 FPLean.PropsProofsIndexing}
+
+{include 1 FPLean.TypeClasses}

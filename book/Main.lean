@@ -1,7 +1,7 @@
 import VersoManual
 import FPLean
 
-open Verso.Genre Manual
+open Verso.Genre Manual ExternalLean
 
 def config : Config where
   emitTeX := false
