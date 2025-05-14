@@ -7,6 +7,7 @@ open Verso.Genre Manual
 open FPLean
 
 set_option verso.exampleProject "../examples/second-lake/greeting"
+set_option verso.exampleModule "Main"
 
 #doc (Manual) "Starting a Project" =>
 
@@ -92,7 +93,7 @@ By convention, package and executable names begin with a lowercase letter, while
 Dependencies are declarations of other Lean packages (either locally or from remote Git repositories)
 The items in the Lake configuration file allow things like source file locations, module hierarchies, and compiler flags to be configured.
 Generally speaking, however, the defaults are reasonable.
-Lake configuration files written in the Lean format may additionally contain _external libraries_, which are libraries not written in Lean to be statically linked with the resulting executable, _custom targets_, which are build targets that don't fit naturally into the library/executable taxonomy, and _scripts_, which are essentially {moduleName Main}`IO` actions (similar to {moduleName Main}`main`), but that additionally have access to metadata about the package configuration.
+Lake configuration files written in the Lean format may additionally contain _external libraries_, which are libraries not written in Lean to be statically linked with the resulting executable, _custom targets_, which are build targets that don't fit naturally into the library/executable taxonomy, and _scripts_, which are essentially {moduleName}`IO` actions (similar to {moduleName}`main`), but that additionally have access to metadata about the package configuration.
 
 Libraries, executables, and custom targets are all called _targets_.
 By default, `lake build` builds those targets that are specified in the `defaultTargets` list.
@@ -103,7 +104,7 @@ To build a target that is not a default target, specify the target's name as an 
 A Lean library consists of a hierarchically organized collection of source files from which names can be imported, called _modules_.
 By default, a library has a single root file that matches its name.
 In this case, the root file for the library `Greeting` is `Greeting.lean`.
-The first line of `Main.lean`, which is {moduleTerm Main}`import Greeting`, makes the contents of `Greeting.lean` available in `Main.lean`.
+The first line of `Main.lean`, which is {moduleTerm}`import Greeting`, makes the contents of `Greeting.lean` available in `Main.lean`.
 
 Additional module files may be added to the library by creating a directory called `Greeting` and placing them inside.
 These names can be imported by replacing the directory separator with a dot.
@@ -127,12 +128,12 @@ def main : IO Unit :=
 The module name hierarchy is decoupled from the namespace hierarchy.
 In Lean, modules are units of code distribution, while namespaces are units of code organization.
 That is, names defined in the module `Greeting.Smile` are not automatically in a corresponding namespace `Greeting.Smile`.
-In particular, {moduleName Greeting.Smile (show:=happy)}`Expression.happy` is in the `Expression` namespace.
+In particular, {moduleName (module:=Greeting.Smile) (show:=happy)}`Expression.happy` is in the `Expression` namespace.
 Modules may place names into any namespace they like, and the code that imports them may {kw}`open` the namespace or not.
 {kw}`import` is used to make the contents of a source file available, while {kw}`open` makes names from a namespace available in the current context without prefixes.
 
-The line {moduleTerm Main}`open Expression` makes the name {moduleName Greeting.Smile}`Expression.happy` accessible as {moduleName Main}`happy` in {moduleName Main}`main`.
+The line {moduleTerm}`open Expression` makes the name {moduleName (module:=Greeting.Smile)}`Expression.happy` accessible as {moduleName}`happy` in {moduleName}`main`.
 Namespaces may also be opened _selectively_, making only some of their names available without explicit prefixes.
 This is done by writing the desired names in parentheses.
-For example, {moduleTerm Aux}`Nat.toFloat` converts a natural number to a {moduleTerm Aux}`Float`.
-It can be made available as {moduleName Aux}`toFloat` using {moduleTerm Aux}`open Nat (toFloat)`.
+For example, {moduleTerm (module:=Aux)}`Nat.toFloat` converts a natural number to a {moduleTerm (module:=Aux)}`Float`.
+It can be made available as {moduleName (module:=Aux)}`toFloat` using {moduleTerm (module:=Aux)}`open Nat (toFloat)`.

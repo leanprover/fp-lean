@@ -9,39 +9,37 @@ bookExample {{{ three }}}
   3
 end bookExample
 
-expect info {{{ threeEval }}}
-  #eval 1 + 2
-message
-"3"
-end expect
+/-- info: 3 -/
+#check_msgs in
+-- ANCHOR: threeEval
+#eval 1 + 2
+-- ANCHOR_END: threeEval
 
-expect info {{{ orderOfOperations }}}
-  #eval 1 + 2 * 5
-message
-"11
-"
-end expect
+/-- info: 11 -/
+#check_msgs in
+-- ANCHOR: orderOfOperations
+#eval 1 + 2 * 5
+-- ANCHOR_END: orderOfOperations
 
-expect info {{{ orderOfOperationsWrong }}}
-  #eval (1 + 2) * 5
-message
-"15
-"
-end expect
 
-expect info {{{ stringAppendHello }}}
-  #eval String.append "Hello, " "Lean!"
-message
-"\"Hello, Lean!\"
-"
-end expect
+/-- info: 15 -/
+#check_msgs in
+-- ANCHOR: orderOfOperationsWrong
+#eval (1 + 2) * 5
+-- ANCHOR_END: orderOfOperationsWrong
 
-expect info {{{ stringAppendNested }}}
-  #eval String.append "great " (String.append "oak " "tree")
-message
-"\"great oak tree\"
-"
-end expect
+/-- info: "Hello, Lean!" -/
+#check_msgs in
+--- ANCHOR: stringAppendHello
+#eval String.append "Hello, " "Lean!"
+--- ANCHOR_END: stringAppendHello
+
+/-- info: "great oak tree" -/
+#check_msgs in
+--- ANCHOR: stringAppendNested
+#eval String.append "great " (String.append "oak " "tree")
+--- ANCHOR_END: stringAppendNested
+
 
 evaluation steps {{{ stringAppend }}}
   String.append "it is " (if 1 > 2 then "yes" else "no")
@@ -53,12 +51,14 @@ evaluation steps {{{ stringAppend }}}
   "it is no"
 end evaluation steps
 
-expect error {{{ stringAppendReprFunction }}}
-  #eval String.append "it is "
-message
-"could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type
-  String → String"
-end expect
+/--
+error: could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type
+  String → String
+-/
+#check_msgs in
+-- ANCHOR: stringAppendReprFunction
+#eval String.append "it is "
+-- ANCHOR_END: stringAppendReprFunction
 
 expect info {{{ stringAppendCond }}}
   #eval 1 > 2
@@ -442,6 +442,8 @@ book declaration {{{ fourAndThree }}}
   def fourAndThree : Point :=
     { x := 4.3, y := 3.4 }
 stop book declaration
+
+
 
 expect info {{{ fourAndThreeEval }}}
   #eval fourAndThree
@@ -2146,11 +2148,13 @@ end
 %show_term «Nat→(Nat→Nat)» := Nat → (Nat → Nat)
 %show_name maximum as maximum.name
 %show_name spaceBetween as spaceBetween.name
+-- ANCHOR: evalEx
 %show_term ex1 := 42 + 19
 %show_term ex2 := String.append "A" (String.append "B" "C")
 %show_term ex3 := String.append (String.append "A" "B") "C"
 %show_term ex4 := if 3 == 3 then 5 else 7
 %show_term ex5 := if 3 == 4 then "equal" else "not equal"
+-- ANCHOR_END: evalEx
 %show_term zero := 0
 %show_term «0» := 0
 %show_term «5» := 5

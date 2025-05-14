@@ -2,73 +2,87 @@ import Examples.Support
 
 import Examples.Intro
 
-book declaration {{{ woodlandCritters }}}
-  def woodlandCritters : List String :=
-    ["hedgehog", "deer", "snail"]
-stop book declaration
+-- ANCHOR: woodlandCritters
+def woodlandCritters : List String :=
+  ["hedgehog", "deer", "snail"]
+-- ANCHOR_END: woodlandCritters
 
 
-book declaration {{{ animals }}}
-  def hedgehog := woodlandCritters[0]
-  def deer := woodlandCritters[1]
-  def snail := woodlandCritters[2]
-stop book declaration
+-- ANCHOR: animals
+def hedgehog := woodlandCritters[0]
+def deer := woodlandCritters[1]
+def snail := woodlandCritters[2]
+-- ANCHOR_END: animals
 
-expect error {{{ outOfBounds }}}
-  def oops := woodlandCritters[3]
-message
-"failed to prove index is valid, possible solutions:
+/--
+error: failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
   - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
-⊢ 3 < woodlandCritters.length"
-end expect
+⊢ 3 < woodlandCritters.length
+-/
+#check_msgs in
+--- ANCHOR: outOfBounds
+def oops := woodlandCritters[3]
+--- ANCHOR_END: outOfBounds
 
-book declaration {{{ onePlusOneIsTwo }}}
-  def onePlusOneIsTwo : 1 + 1 = 2 := rfl
-stop book declaration
+-- ANCHOR: onePlusOneIsTwo
+def onePlusOneIsTwo : 1 + 1 = 2 := rfl
+-- ANCHOR_END: onePlusOneIsTwo
 
-expect error {{{ onePlusOneIsFifteen }}}
-  def onePlusOneIsFifteen : 1 + 1 = 15 := rfl
-message
-"type mismatch
+/--
+error: type mismatch
   rfl
 has type
-  ?m.911 = ?m.911 : Prop
+  ?m.1247 = ?m.1247 : Prop
 but is expected to have type
-  1 + 1 = 15 : Prop"
-end expect
+  1 + 1 = 15 : Prop
+-/
+#check_msgs in
+-- ANCHOR: onePlusOneIsFifteen
+def onePlusOneIsFifteen : 1 + 1 = 15 := rfl
+-- ANCHOR_END: onePlusOneIsFifteen
+
 
 
 namespace Foo
-book declaration {{{ onePlusOneIsTwoProp }}}
-  def OnePlusOneIsTwo : Prop := 1 + 1 = 2
+-- ANCHOR: onePlusOneIsTwoProp
+def OnePlusOneIsTwo : Prop := 1 + 1 = 2
 
-  theorem onePlusOneIsTwo : OnePlusOneIsTwo := rfl
-stop book declaration
+theorem onePlusOneIsTwo : OnePlusOneIsTwo := rfl
+-- ANCHOR_END: onePlusOneIsTwoProp
 
-expect error {{{ onePlusOneIsStillTwo }}}
-  theorem onePlusOneIsStillTwo : OnePlusOneIsTwo := by simp
-message
-"simp made no progress"
-end expect
-expect error {{{ onePlusOneIsStillTwo2 }}}
-  theorem onePlusOneIsStillTwo : OnePlusOneIsTwo := by decide
-message
-"failed to synthesize
+discarding
+/-- error: simp made no progress -/
+#check_msgs in
+-- ANCHOR: onePlusOneIsStillTwo
+theorem onePlusOneIsStillTwo : OnePlusOneIsTwo := by simp
+-- ANCHOR_END: onePlusOneIsStillTwo
+stop discarding
+
+/--
+error: failed to synthesize
   Decidable OnePlusOneIsTwo
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command."
-end expect
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#check_msgs in
+-- ANCHOR: onePlusOneIsStillTwo2
+theorem onePlusOneIsStillTwo : OnePlusOneIsTwo := by decide
+-- ANCHOR_END: onePlusOneIsStillTwo2
 
 end Foo
 
+-- ANCHOR: implication
+example {A B : Prop} := A → B
+-- ANCHOR_END: implication
+
 namespace Foo2
-book declaration {{{ onePlusOneIsTwoTactics }}}
-  theorem onePlusOneIsTwo : 1 + 1 = 2 := by
-    decide
-stop book declaration
+-- ANCHOR: onePlusOneIsTwoTactics
+theorem onePlusOneIsTwo : 1 + 1 = 2 := by
+  decide
+-- ANCHOR_END: onePlusOneIsTwoTactics
 end Foo2
 
 theorem oneLessThanFive : 1 < 5 := by simp
@@ -78,22 +92,22 @@ def second (xs : List α) (ok : xs.length ≥ 3) : α :=
 
 example : String := second ["a", "b", "c", "d"] (by simp)
 
-book declaration {{{ connectives }}}
-  theorem onePlusOneAndLessThan : 1 + 1 = 2 ∨ 3 < 5 := by simp
-  theorem notTwoEqualFive : ¬(1 + 1 = 5) := by simp
-  theorem trueIsTrue : True := by simp
-  theorem trueOrFalse : True ∨ False := by simp
-  theorem falseImpliesTrue : False → True := by simp
-stop book declaration
+-- ANCHOR: connectives
+theorem onePlusOneAndLessThan : 1 + 1 = 2 ∨ 3 < 5 := by simp
+theorem notTwoEqualFive : ¬(1 + 1 = 5) := by simp
+theorem trueIsTrue : True := by simp
+theorem trueOrFalse : True ∨ False := by simp
+theorem falseImpliesTrue : False → True := by simp
+-- ANCHOR_END: connectives
 
 namespace Decide
-book declaration {{{ connectivesD }}}
-  theorem onePlusOneAndLessThan : 1 + 1 = 2 ∨ 3 < 5 := by decide
-  theorem notTwoEqualFive : ¬(1 + 1 = 5) := by decide
-  theorem trueIsTrue : True := by decide
-  theorem trueOrFalse : True ∨ False := by decide
-  theorem falseImpliesTrue : False → True := by decide
-stop book declaration
+-- ANCHOR: connectivesD
+theorem onePlusOneAndLessThan : 1 + 1 = 2 ∨ 3 < 5 := by decide
+theorem notTwoEqualFive : ¬(1 + 1 = 5) := by decide
+theorem trueIsTrue : True := by decide
+theorem trueOrFalse : True ∨ False := by decide
+theorem falseImpliesTrue : False → True := by decide
+-- ANCHOR_END: connectivesD
 end Decide
 
 def foo : True ∧ True := And.intro True.intro True.intro
@@ -115,46 +129,36 @@ bookExample type {{{ TrueIntro }}}
   True
 end bookExample
 
-bookExample type {{{ AndProp }}}
-  A ∧ B
-  ===>
-  Prop
-end bookExample
+-- ANCHOR: AndProp
+example : Prop :=  A ∧ B
+-- ANCHOR_END: AndProp
 
-bookExample type {{{ AndIntro }}}
-  And.intro
-  ===>
-  A → B → A ∧ B
-end bookExample
-
-bookExample type {{{ AndIntroEx }}}
-  And.intro rfl rfl
-  ===>
-  1 + 1 = 2 ∧ "Str".append "ing" = "String"
-end bookExample
+-- ANCHOR: AndIntro
+example : A → B → A ∧ B :=  And.intro
+-- ANCHOR_END: AndIntro
 
 
-book declaration {{{ AndIntroExTac }}}
-  theorem addAndAppend : 1 + 1 = 2 ∧ "Str".append "ing" = "String" := by decide
-stop book declaration
+-- ANCHOR: AndIntroEx
+example : 1 + 1 = 2 ∧ "Str".append "ing" = "String" :=  And.intro rfl rfl
+-- ANCHOR_END: AndIntroEx
 
-bookExample type {{{ OrProp }}}
-  A ∨ B
-  ===>
-  Prop
-end bookExample
 
-bookExample type {{{ OrIntro1 }}}
-  Or.inl
-  ===>
-  A → A ∨ B
-end bookExample
+-- ANCHOR: AndIntroExTac
+theorem addAndAppend : 1 + 1 = 2 ∧ "Str".append "ing" = "String" := by decide
+-- ANCHOR_END: AndIntroExTac
 
-bookExample type {{{ OrIntro2 }}}
-  Or.inr
-  ===>
-  B → A ∨ B
-end bookExample
+-- ANCHOR: OrProp
+example : Prop :=  A ∨ B
+-- ANCHOR_END: OrProp
+
+-- ANCHOR: OrIntro1
+example :  A → A ∨ B :=  Or.inl
+-- ANCHOR_END: OrIntro1
+
+-- ANCHOR: OrIntro2
+example : B → A ∨ B :=  Or.inr
+-- ANCHOR_END: OrIntro2
+
 
 bookExample type {{{ OrIntroEx }}}
   Or.inr rfl
@@ -163,17 +167,18 @@ bookExample type {{{ OrIntroEx }}}
 end bookExample
 
 
-book declaration {{{ OrIntroExTac }}}
+-- ANCHOR: OrIntroExTac
   theorem addOrAppend : 1 + 1 = 90 ∨ "Str".append "ing" = "String" := by decide
-stop book declaration
+-- ANCHOR_END: OrIntroExTac
 
+set_option linter.unusedVariables false in
+-- ANCHOR: andImpliesOr
+theorem andImpliesOr : A ∧ B → A ∨ B :=
+  fun andEvidence =>
+    match andEvidence with
+    | And.intro a b => Or.inl a
+-- ANCHOR_END: andImpliesOr
 
-book declaration {{{ andImpliesOr }}}
-  theorem andImpliesOr : A ∧ B → A ∨ B :=
-    fun andEvidence =>
-      match andEvidence with
-      | And.intro a b => Or.inl a
-stop book declaration
 
 bookExample type {{{ FalseProp }}}
   False
@@ -185,79 +190,106 @@ end bookExample
 end Connectives
 
 
-
-
-expect error {{{ thirdErr }}}
-  def third (xs : List α) : α := xs[2]
-message
-"failed to prove index is valid, possible solutions:
+discarding
+/--
+error: failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
   - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
-α : Type ?u.4181
+α : Type ?u.4816
 xs : List α
-⊢ 2 < xs.length"
-end expect
+⊢ 2 < xs.length
+-/
+#check_msgs in
+-- ANCHOR: thirdErr
+def third (xs : List α) : α := xs[2]
+-- ANCHOR_END: thirdErr
 
-book declaration {{{ third }}}
-  def third (xs : List α) (ok : xs.length > 2) : α := xs[2]
-stop book declaration
+stop discarding
 
-expect info {{{ thirdCritters }}}
-  #eval third woodlandCritters (by decide)
-message
-  "\"snail\""
-end expect
+-- ANCHOR: third
+def third (xs : List α) (ok : xs.length > 2) : α := xs[2]
+-- ANCHOR_END: third
 
-expect error {{{ thirdRabbitErr }}}
-  #eval third ["rabbit"] (by decide)
-message
-"tactic 'decide' proved that the proposition
-  [\"rabbit\"].length > 2
-is false"
-end expect
+example := 3 < woodlandCritters.length
 
-book declaration {{{ thirdOption }}}
-  def thirdOption (xs : List α) : Option α := xs[2]?
-stop book declaration
+example := 3 < List.length woodlandCritters
+
+example := Nat → List String
+
+example := Type
+
+example := List (Nat × String × (Int → Float))
+
+example := Prop
+
+/-- info: "snail" -/
+#check_msgs in
+-- ANCHOR: thirdCritters
+#eval third woodlandCritters (by decide)
+-- ANCHOR_END: thirdCritters
+
+/--
+error: tactic 'decide' proved that the proposition
+  ["rabbit"].length > 2
+is false
+-/
+#check_msgs in
+-- ANCHOR: thirdRabbitErr
+#eval third ["rabbit"] (by decide)
+-- ANCHOR_END: thirdRabbitErr
+
+-- ANCHOR: thirdOption
+def thirdOption (xs : List α) : Option α := xs[2]?
+-- ANCHOR_END: thirdOption
+
+/-- info: some "snail" -/
+#check_msgs in
+-- ANCHOR: thirdOptionCritters
+#eval thirdOption woodlandCritters
+-- ANCHOR_END: thirdOptionCritters
+
+/-- info: none -/
+#check_msgs in
+-- ANCHOR: thirdOptionTwo
+#eval thirdOption ["only", "two"]
+-- ANCHOR_END: thirdOptionTwo
+
+/-- info: "deer" -/
+#check_msgs in
+-- ANCHOR: crittersBang
+#eval woodlandCritters[1]!
+-- ANCHOR_END: crittersBang
 
 
-expect info {{{ thirdOptionCritters }}}
-  #eval thirdOption woodlandCritters
-message
-  "some \"snail\""
-end expect
-
-
-expect info {{{ thirdOptionTwo }}}
-  #eval thirdOption ["only", "two"]
-message
-  "none"
-end expect
-
-
-expect info {{{ crittersBang }}}
-  #eval woodlandCritters[1]!
-message
-  "\"deer\""
-end expect
-
-
-expect error {{{ unsafeThird }}}
-  def unsafeThird (xs : List α) : α := xs[2]!
-message
-"failed to synthesize
+/--
+error: failed to synthesize
   Inhabited α
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command."
-end expect
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#check_msgs in
+-- ANCHOR: unsafeThird
+def unsafeThird (xs : List α) : α := xs[2]!
+-- ANCHOR_END: unsafeThird
 
-expect error {{{ extraSpace }}}
-  #eval woodlandCritters [1]
-message
-"function expected at
+/--
+error: function expected at
   woodlandCritters
 term has type
-  List String"
-end expect
+  List String
+-/
+#check_msgs in
+-- ANCHOR: extraSpace
+#eval woodlandCritters [1]
+-- ANCHOR_END: extraSpace
+
+
+--ANCHOR: exercises
+example : 2 + 3 = 5 := rfl
+example : 15 - 8 = 7 := rfl
+example : "Hello, ".append "world" = "Hello, world" := rfl
+example : "Hello, ".append "world" = "Hello, world" := by decide
+example : Prop := 5 < 18
+--ANCHOR_END: exercises

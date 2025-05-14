@@ -22,6 +22,13 @@ register_option verso.exampleProject : String := {
   group := "verso"
 }
 
+register_option verso.exampleModule : String := {
+  defValue := "",
+  descr := "The default module to load examples from",
+  group := "verso"
+}
+
+
 open System in
 def loadModuleContent' (projectDir : String) (mod : String) : IO (Array ModuleItem) := do
 
@@ -51,8 +58,16 @@ def loadModuleContent' (projectDir : String) (mod : String) : IO (Array ModuleIt
     try
       IO.FS.withTempFile fun h f => do
         let cmd := "elan"
-        let args := #["run", "--install", toolchain, "lake", "env", "which", "subverso-extract-mod"]
 
+        let args := #["run", "--install", toolchain, "lake", "build"]
+        let res ← IO.Process.output {
+          cmd, args, cwd := projectDir
+          -- Unset Lake's environment variables
+          env := lakeVars.map (·, none)
+        }
+        if res.exitCode != 0 then reportFail projectDir cmd args res
+
+        let args := #["run", "--install", toolchain, "lake", "env", "which", "subverso-extract-mod"]
         let res ← IO.Process.output {
           cmd, args, cwd := projectDir
           -- Unset Lake's environment variables

@@ -6,7 +6,7 @@ import SubVerso.Module
 
 open Lean Std
 
-open SubVerso Highlighting Module
+open SubVerso Highlighting Module Highlighted
 
 namespace FPLean
 
@@ -20,4 +20,4 @@ initialize containersExt : (EnvExtension (NameMap Container)) ← registerEnvExt
 
 initialize loadedModulesExt : (EnvExtension (NameMap (Array ModuleItem))) ← registerEnvExtension (pure {})
 
-initialize loadedModuleAnchorExt : (EnvExtension (NameMap (HashMap String Highlighted))) ← registerEnvExtension (pure {})
+initialize loadedModuleAnchorExt : (EnvExtension (NameMap AnchoredExamples)) ← registerEnvExtension (pure {})

@@ -3,6 +3,7 @@ import VersoManual
 import FPLean.Intro
 import FPLean.GettingToKnow
 import FPLean.HelloWorld
+import FPLean.PropsProofsIndexing
 
 open Verso.Genre Manual
 
@@ -35,3 +36,5 @@ This is a free book on using Lean as a programming language. All code samples ar
 {include 1 FPLean.GettingToKnow}
 
 {include 1 FPLean.HelloWorld}
+
+{include 1 FPLean.PropsProofsIndexing}

@@ -8,6 +8,8 @@ open FPLean
 
 set_option verso.exampleProject "../examples"
 
+set_option verso.exampleModule "FelineLib"
+
 example_module Examples.Cat
 
 #doc (Manual) "Worked Example: `cat`" =>
@@ -64,7 +66,7 @@ Instead, it's better to read contiguous blocks of data all at once, directing th
 The first step is to decide how big of a block to read.
 For the sake of simplicity, this implementation uses a conservative 20 kilobyte block.
 `USize` is analogous to `size_t` in C—it's an unsigned integer type that is big enough to represent all valid array sizes.
-```module FelineLib (anchor:=bufsize)
+```module (anchor:=bufsize)
 def bufsize : USize := 20 * 1024
 ```
 
@@ -73,7 +75,7 @@ def bufsize : USize := 20 * 1024
 
 The main work of `feline` is done by `dump`, which reads input one block at a time, dumping the result to standard output, until the end of the input has been reached.
 The end of the input is indicated by `read` returning an empty byte array:
-```module FelineLib (anchor:=dump)
+```module (anchor:=dump)
 partial def dump (stream : IO.FS.Stream) : IO Unit := do
   let buf ← stream.read bufsize
   if buf.isEmpty then
@@ -117,7 +119,7 @@ If `feline` only redirected standard input to standard output, then `dump` would
 However, it also needs to be able to open files that are provided as command-line arguments and emit their contents.
 When its argument is the name of a file that exists, `fileStream` returns a stream that reads the file's contents.
 When the argument is not a file, `fileStream` emits an error and returns `none`.
-```module FelineLib (anchor:=fileStream)
+```module (anchor:=fileStream)
 def fileStream (filename : System.FilePath) : IO (Option IO.FS.Stream) := do
   let fileExists ← filename.pathExists
   if not fileExists then
@@ -140,7 +142,7 @@ Second, the file handle is given the same interface as a POSIX stream using `IO.
 The main loop of `feline` is another tail-recursive function, called `process`.
 In order to return a non-zero exit code if any of the inputs could not be read, `process` takes an argument `exitCode` that represents the current exit code for the whole program.
 Additionally, it takes a list of input files to be processed.
-```module FelineLib (anchor:=process)
+```module (anchor:=process)
 def process (exitCode : UInt32) (args : List String) : IO UInt32 := do
   match args with
   | [] => pure exitCode
@@ -184,7 +186,7 @@ In Lean, `main` can have one of three types:
 
 If no arguments were provided, `feline` should read from standard input as if it were called with a single `"-"` argument.
 Otherwise, the arguments should be processed one after the other.
-```module FelineLib (anchor:=main)
+```module (anchor:=main)
 def main (args : List String) : IO UInt32 :=
   match args with
   | [] => process 0 ["-"]

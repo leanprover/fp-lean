@@ -8,6 +8,7 @@ open FPLean
 
 
 set_option verso.exampleProject "../examples"
+set_option verso.exampleModule "Examples.HelloWorld"
 
 #doc (Manual) "Summary" =>
 
@@ -15,16 +16,16 @@ set_option verso.exampleProject "../examples"
 
 Side effects are aspects of program execution that go beyond the evaluation of mathematical expressions, such as reading files, throwing exceptions, or triggering industrial machinery.
 While most languages allow side effects to occur during evaluation, Lean does not.
-Instead, Lean has a type called {moduleName Examples.HelloWorld}`IO` that represents _descriptions_ of programs that use side effects.
+Instead, Lean has a type called {moduleName}`IO` that represents _descriptions_ of programs that use side effects.
 These descriptions are then executed by the language's run-time system, which invokes the Lean expression evaluator to carry out specific computations.
-Values of type {moduleTerm Examples.HelloWorld}`IO α` are called _`IO` actions_.
-The simplest is {moduleName Examples.HelloWorld}`pure`, which returns its argument and has no actual side effects.
+Values of type {moduleTerm}`IO α` are called _`IO` actions_.
+The simplest is {moduleName}`pure`, which returns its argument and has no actual side effects.
 
-{moduleName Examples.HelloWorld}`IO` actions can also be understood as functions that take the whole world as an argument and return a new world in which the side effect has occurred.
-Behind the scenes, the {moduleName Examples.HelloWorld}`IO` library ensures that the world is never duplicated, created, or destroyed.
+{moduleName}`IO` actions can also be understood as functions that take the whole world as an argument and return a new world in which the side effect has occurred.
+Behind the scenes, the {moduleName}`IO` library ensures that the world is never duplicated, created, or destroyed.
 While this model of side effects cannot actually be implemented, as the whole universe is too big to fit in memory, the real world can be represented by a token that is passed around through the program.
 
-An {moduleName Examples.HelloWorld}`IO` action `main` is executed when the program starts.
+An {moduleName}`IO` action `main` is executed when the program starts.
 `main` can have one of three types:
  * `main : IO Unit` is used for simple programs that cannot read their command-line arguments and always return exit code `0`,
  * `main : IO UInt32` is used for programs without arguments that may signal success or failure, and
@@ -33,14 +34,14 @@ An {moduleName Examples.HelloWorld}`IO` action `main` is executed when the progr
 
 # `do` Notation
 
-The Lean standard library provides a number of basic {moduleName Examples.HelloWorld}`IO` actions that represent effects such as reading from and writing to files and interacting with standard input and standard output.
-These base {moduleName Examples.HelloWorld}`IO` actions are composed into larger {moduleName Examples.HelloWorld}`IO` actions using `do` notation, which is a built-in domain-specific language for writing descriptions of programs with side effects.
+The Lean standard library provides a number of basic {moduleName}`IO` actions that represent effects such as reading from and writing to files and interacting with standard input and standard output.
+These base {moduleName}`IO` actions are composed into larger {moduleName}`IO` actions using `do` notation, which is a built-in domain-specific language for writing descriptions of programs with side effects.
 A `do` expression contains a sequence of _statements_, which may be:
- * expressions that represent {moduleName Examples.HelloWorld}`IO` actions,
+ * expressions that represent {moduleName}`IO` actions,
  * ordinary local definitions with `let` and `:=`, where the defined name refers to the value of the provided expression, or
  * local definitions with `let` and `←`, where the defined name refers to the result of executing the value of the provided expression.
 
-{moduleName Examples.HelloWorld}`IO` actions that are written with `do` are executed one statement at a time.
+{moduleName}`IO` actions that are written with `do` are executed one statement at a time.
 
 Furthermore, {kw}`if` and {kw}`match` expressions that occur immediately under a {kw}`do` are implicitly considered to have their own {kw}`do` in each branch.
 Inside of a {kw}`do` expression, _nested actions_ are expressions with a left arrow immediately under parentheses.
@@ -50,7 +51,7 @@ This unique name then replaces the origin site of the nested action.
 
 # Compiling and Running Programs
 
-A Lean program that consists of a single file with a {moduleName Examples.HelloWorld}`main` definition can be run using `lean --run FILE`.
+A Lean program that consists of a single file with a {moduleName}`main` definition can be run using `lean --run FILE`.
 While this can be a nice way to get started with a simple program, most programs will eventually graduate to a multiple-file project that should be compiled before running.
 
 Lean projects are organized into _packages_, which are collections of libraries and executables together with information about dependencies and a build configuration.

@@ -7,6 +7,10 @@ open FPLean
 
 example_module Examples.Intro
 
+set_option verso.exampleProject "../examples"
+
+set_option verso.exampleModule "Examples.Intro"
+
 #doc (Manual) "Evaluating Expressions" =>
 
 
@@ -30,15 +34,19 @@ This does not mean that Lean cannot be used to write `Hello, world!` to the cons
 Thus, this chapter focuses on how to evaluate expressions interactively with Lean, while the next chapter describes how to write, compile, and run the `Hello, world!` program.
 
 :::paragraph
-To ask Lean to evaluate an expression, write `#eval` before it in your editor, which will then report the result back.
-Typically, the result is found by putting the cursor or mouse pointer over `#eval`.
+To ask Lean to evaluate an expression, write {kw}`#eval` before it in your editor, which will then report the result back.
+Typically, the result is found by putting the cursor or mouse pointer over {kw}`#eval`.
 For instance,
 
-{exampleIn Examples.Intro threeEval}
+```anchor threeEval
+#eval 1 + 2
+```
 
 yields the value
 
-{exampleInfo threeEval}
+```anchorInfo threeEval
+3
+```
 
 :::
 
@@ -46,9 +54,11 @@ yields the value
 Lean obeys the ordinary rules of precedence and associativity for
 arithmetic operators. That is,
 
-{exampleIn orderOfOperations}
+```anchor orderOfOperations
+#eval 1 + 2 * 5
+```
 
-yields the value {exampleInfo}`orderOfOperations` rather than {exampleInfo}`orderOfOperationsWrong`.
+yields the value {anchorInfo orderOfOperations}`11` rather than {anchorInfo orderOfOperationsWrong}`15`.
 
 :::
 
@@ -56,12 +66,16 @@ yields the value {exampleInfo}`orderOfOperations` rather than {exampleInfo}`orde
 While both ordinary mathematical notation and the majority of programming languages use parentheses (e.g. `f(x)`) to apply a function to its arguments, Lean simply writes the function next to its arguments (e.g. `f x`).
 Function application is one of the most common operations, so it pays to keep it concise.
 Rather than writing
+
 ```
 #eval String.append("Hello, ", "Lean!")
 ```
-to compute {exampleInfo}`stringAppendHello`, one would instead write
 
-{exampleIn stringAppendHello}
+to compute {anchorInfo stringAppendHello}`"Hello, Lean!"`, one would instead write
+
+```anchor stringAppendHello
+#eval String.append "Hello, " "Lean!"
+```
 
 where the function's two arguments are simply written next to it with spaces.
 :::
@@ -71,10 +85,12 @@ where the function's two arguments are simply written next to it with spaces.
 Just as the order-of-operations rules for arithmetic demand parentheses in the expression `(1 + 2) * 5`, parentheses are also necessary when a function's argument is to be computed via another function call.
 For instance, parentheses are required in
 
-{exampleIn Examples.Intro stringAppendNested}
+```anchor stringAppendNested
+#eval String.append "great " (String.append "oak " "tree")
+```
 
-because otherwise the second {term}`String.append` would be interpreted as an argument to the first, rather than as a function being passed {term}`oak` and {term}`tree` as arguments.
-The value of the inner {term}`String.append` call must be found first, after which it can be appended to {term}`great`, yielding the final value {exampleInfo}`stringAppendNested`.
+because otherwise the second {moduleTerm (anchor := stringAppendNested)}`String.append` would be interpreted as an argument to the first, rather than as a function being passed {moduleTerm (anchor := stringAppendNested)}`"oak "` and {moduleTerm (anchor := stringAppendNested)}`"tree"` as arguments.
+The value of the inner {anchorTerm stringAppendNested}`String.append` call must be found first, after which it can be appended to {moduleTerm (anchor := stringAppendNested)}`"great "`, yielding the final value {anchorInfo stringAppendNested}`"great oak tree"`.
 :::
 
 :::paragraph
@@ -82,18 +98,24 @@ Imperative languages often have two kinds of conditional: a conditional _stateme
 For instance, in C and C++, the conditional statement is written using `if` and `else`, while the conditional expression is written with a ternary operator in which `?` and `:` separate the condition from the branches.
 In Python, the conditional statement begins with `if`, while the conditional expression puts `if` in the middle.
 Because Lean is an expression-oriented functional language, there are no conditional statements, only conditional expressions.
-They are written using `if`, `then`, and `else`.
+They are written using {kw}`if`, {kw}`then`, and {kw}`else`.
 For example,
 
-{exampleEval stringAppend 0}
+```exampleEval stringAppend 0
+String.append "it is " (if 1 > 2 then "yes" else "no")
+```
 
 evaluates to
 
-{exampleEval stringAppend 1}
+```exampleEval stringAppend 1
+String.append "it is " (if false then "yes" else "no")
+```
 
 which evaluates to
 
-{exampleEval stringAppend 2}
+```exampleEval stringAppend 2
+String.append "it is " "no"
+```
 
 which finally evaluates to {exampleEval 3}`stringAppend`.
 
@@ -104,8 +126,15 @@ which finally evaluates to {exampleEval 3}`stringAppend`.
 :::paragraph
 For the sake of brevity, a series of evaluation steps like this will sometimes be written with arrows between them:
 
-{exampleEval stringAppend}
-
+```exampleEval stringAppend
+String.append "it is " (if 1 > 2 then "yes" else "no")
+===>
+String.append "it is " (if false then "yes" else "no")
+===>
+String.append "it is " "no"
+===>
+"it is no"
+```
 :::
 
 
@@ -115,11 +144,16 @@ For the sake of brevity, a series of evaluation steps like this will sometimes b
 Asking Lean to evaluate a function application that is missing an argument will lead to an error message.
 In particular, the example
 
-{exampleIn stringAppendReprFunction}
+```anchor stringAppendReprFunction (warningsAsErrors := true)
+#eval String.append "it is "
+```
 
 yields a quite long error message:
 
-{exampleError stringAppendReprFunction}
+```anchorError stringAppendReprFunction (warningsAsErrors := true)
+could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type
+  String → String
+```
 
 :::
 
@@ -132,8 +166,8 @@ Lean cannot display functions to users, and thus returns an error when asked to 
 What are the values of the following expressions? Work them out by hand,
 then enter them into Lean to check your work.
 
- * {term}`ex1`
- * {term}`ex2`
- * {term}`ex3`
- * {term}`ex4`
- * {term}`ex5`
+ * {anchorTerm evalEx}`42 + 19`
+ * {anchorTerm evalEx}`String.append "A" (String.append "B" "C")`
+ * {anchorTerm evalEx}`String.append (String.append "A" "B") "C"`
+ * {anchorTerm evalEx}`if 3 == 3 then 5 else 7`
+ * {anchorTerm evalEx}`if 3 == 4 then "equal" else "not equal"`

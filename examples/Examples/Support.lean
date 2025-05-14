@@ -1,10 +1,11 @@
-import Lean
 import Lean.Message
 import Lean.Data.PersistentArray
 
 import SubVerso.Examples
 
 open SubVerso.Examples Messages
+
+open Lean Elab Command
 
 syntax withPosition("book" "declaration" "{{{" ws ident ws "}}}" command+ "stop" "book" "declaration") : command
 
@@ -221,8 +222,6 @@ syntax withPosition("expect" "warning" "{{{" ws ident ws "}}}" colGt command "me
 
 syntax withPosition("expect" "warning" "{{{" ws ident ws "}}}" colGt term "message" str "end" "expect") : command
 
-
-
 elab_rules : command
   | `(expect warning {{{ $name }}}%$tok $cmd:command message $msg:str end expect) =>
     open Lean.Elab Command in
@@ -263,6 +262,77 @@ elab_rules : command
         pure <| highlighted.getState afterState.env
       modifyEnv (highlighted.setState · hls)
 
+
+/--
+A version of `#guard_msgs` that leaves the messages in the log for extraction.
+
+The passthrough parts of the spec are ignored.
+-/
+syntax (name := checkMsgsCmd)
+  (docComment)? "#check_msgs" (ppSpace guardMsgsSpec)? " in" ppLine command : command
+
+/-- Gives a string representation of a message without source position information.
+Ensures the message ends with a '\n'. -/
+private def messageToStringWithoutPos (msg : Message) : BaseIO String := do
+  let mut str ← msg.data.toString
+  unless msg.caption == "" do
+    str := msg.caption ++ ":\n" ++ str
+  if !("\n".isPrefixOf str) then str := " " ++ str
+  match msg.severity with
+  | MessageSeverity.information => str := "info:" ++ str
+  | MessageSeverity.warning     => str := "warning:" ++ str
+  | MessageSeverity.error       => str := "error:" ++ str
+  if str.isEmpty || str.back != '\n' then
+    str := str ++ "\n"
+  return str
+
+
+open Tactic.GuardMsgs in
+@[command_elab checkMsgsCmd]
+def elabCheckMsgs : CommandElab
+  | `(command| $[$dc?:docComment]? #check_msgs%$tk $(spec?)? in $cmd) => do
+    let expected : String := (← dc?.mapM (getDocStringText ·)).getD ""
+        |>.trim |> removeTrailingWhitespaceMarker
+    let (whitespace, ordering, specFn) ← parseGuardMsgsSpec spec?
+    let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
+    -- do not forward snapshot as we don't want messages assigned to it to leak outside
+    withReader ({ · with snap? := none }) do
+      -- The `#guard_msgs` command is special-cased in `elabCommandTopLevel` to ensure linters only run once.
+      elabCommandTopLevel cmd
+    -- collect sync and async messages
+    let msgs := (← get).messages ++
+      (← get).snapshotTasks.foldl (· ++ ·.get.getAll.foldl (· ++ ·.diagnostics.msgLog) {}) {}
+    -- clear async messages as we don't want them to leak outside
+    modify ({ · with snapshotTasks := #[] })
+    let mut toCheck : MessageLog := .empty
+    let mut toPassthrough : MessageLog := .empty
+    for msg in msgs.toList do
+      match specFn msg with
+      | .check       => toCheck := toCheck.add msg
+      | .drop        => pure ()
+      | .passthrough => toPassthrough := toPassthrough.add msg
+    let strings ← toCheck.toList.mapM (messageToStringWithoutPos ·)
+    let strings := ordering.apply strings
+    let res := "---\n".intercalate strings |>.trim
+    if whitespace.apply expected == whitespace.apply res then
+      -- Passed. Put messages back on the log, downgrading errors to warnings.
+      modify fun st => { st with messages := initMsgs ++ msgs.errorsToWarnings }
+    else
+      -- Failed. Put all the messages back on the message log and add an error
+      modify fun st => { st with messages := initMsgs ++ msgs }
+      let feedback :=
+        let diff := Diff.diff (expected.split (· == '\n')).toArray (res.split (· == '\n')).toArray
+        Diff.linesToString diff
+
+      logErrorAt tk m!"❌️ Docstring on `#check_msgs` does not match generated message:\n\n{feedback}"
+      pushInfoLeaf (.ofCustomInfo { stx := ← getRef, value := Dynamic.mk (GuardMsgFailure.mk res) })
+  | _ => throwUnsupportedSyntax
+
+attribute [command_code_action checkMsgsCmd] Tactic.GuardMsgs.guardMsgsCodeAction
+
+/-- info: 5 -/
+#check_msgs in
+#eval 5
 
 syntax withPosition("expect" "eval" "info" "{{{" ws ident ws "}}}" colGt term "message" str "end" "expect") : command
 

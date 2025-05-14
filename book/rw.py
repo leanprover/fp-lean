@@ -18,7 +18,7 @@ def apply_transformations(content):
     """Apply all regex transformations to the content."""
     # Example 1: Transform example_decl blocks
     content = re.sub(
-        r'```lean\s*\{\{#example_decl\s+[^\s]+\s+([^}]+)\}\}\s*```',
+        r'```lean\(tac\)\s*\{\{#example_decl\s+[^\s]+\s+([^}]+)\}\}\s*```',
         r'\n{exampleDecl \1}\n',
         content,
         flags=re.DOTALL
@@ -151,6 +151,8 @@ def apply_transformations(content):
     content = content.replace(r' \\)', '`')
 
     content = re.sub(r'(?<!{kw})`def`', r'{kw}`def`', content)
+    content = re.sub(r'(?<!{kw})`theorem`', r'{kw}`theorem`', content)
+    content = re.sub(r'(?<!{kw})`by`', r'{kw}`by`', content)
     content = re.sub(r'(?<!{kw})`let`', r'{kw}`let`', content)
     content = re.sub(r'(?<!{kw})`fun`', r'{kw}`fun`', content)
     content = re.sub(r'(?<!{kw})`match`', r'{kw}`match`', content)
