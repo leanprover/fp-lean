@@ -4,7 +4,6 @@ import VersoManual
 import FPLean.Examples.Data
 import FPLean.Examples.Commands
 import FPLean.Examples.OtherLanguages
-import FPLean.Examples.Files
 
 open Lean (NameMap MessageSeverity)
 
@@ -448,6 +447,149 @@ def OutputInlineConfig.parse : ArgParse m OutputInlineConfig :=
 
 end
 
+private inductive SplitCtxF where
+  | tactics : Array (Highlighted.Goal Highlighted) → Nat → Nat → SplitCtxF
+  | span : Array (Highlighted.Span.Kind × String) → SplitCtxF
+
+private def SplitCtxF.wrap (hl : Highlighted) : SplitCtxF → Highlighted
+  | .tactics g s e => .tactics g s e hl
+  | .span xs => .span xs hl
+
+private structure SplitCtx where
+  contents : Array (Highlighted × SplitCtxF) := #[]
+deriving Inhabited
+
+private def SplitCtx.push (ctx : SplitCtx) (current : Highlighted) (info : SplitCtxF) : SplitCtx where
+  contents := ctx.contents.push (current, info)
+
+private def SplitCtx.pop (ctx : SplitCtx) : SplitCtx where
+  contents := ctx.contents.pop
+
+private def SplitCtx.close (ctx : SplitCtx) (current : Highlighted) : Highlighted × SplitCtx :=
+  match ctx.contents.back? with
+  | none => panic! s!"Popping empty context around '{current.toString}'"
+  | some (left, f) => (left ++ f.wrap current, ctx.pop)
+
+private def SplitCtx.split (ctx : SplitCtx) (current : Highlighted) : Highlighted × SplitCtx where
+  fst := ctx.contents.foldr (init := current) fun (left, f) curr => left ++ f.wrap curr
+  snd := { contents := ctx.contents.map (.empty, ·.2) }
+
+
+def splitHighlighted (p : String → Bool) (hl : Highlighted) : Array Highlighted := Id.run do
+  let mut todo := [some hl]
+  let mut out := #[]
+  let mut ctx : SplitCtx := {}
+  let mut current : Highlighted := .empty
+  repeat
+    match todo with
+    | [] =>
+      out := out.push current
+      break
+    | none :: hs =>
+      todo := hs
+      let (c, ctx') := ctx.split current
+      current := c
+      ctx := ctx'
+    | some (.seq xs) :: hs =>
+      todo := xs.toList.map some ++ hs
+    | some this@(.token ⟨_, t⟩) :: hs =>
+      todo := hs
+      if p t then
+        out := out.push current
+        current := .empty
+      else
+        current := current ++ this
+    | some this@(.text ..) :: hs | some this@(.point ..) :: hs =>
+      todo := hs
+      current := current ++ this
+    | some (.span msgs x) :: hs =>
+      todo := some x :: none :: hs
+      ctx := ctx.push current (.span msgs)
+      current := .empty
+    | some (.tactics gs b e x) :: hs =>
+      todo := some x :: none :: hs
+      ctx := ctx.push current (.tactics gs b e)
+      current := .empty
+
+  return out
+
+structure EvalStepContext extends CodeContext where
+  step : WithSyntax Nat
+
+instance [Monad m] [MonadOptions m] [MonadError m] [MonadLiftT CoreM m] : FromArgs EvalStepContext m where
+  fromArgs := (fun x y => EvalStepContext.mk y x) <$> .positional' `step <*> fromArgs
+
+private def quoteCode (str : String) : String := Id.run do
+  let str := if str.startsWith "`" || str.endsWith "`" then " " ++ str ++ " " else str
+  let mut n := 1
+  let mut run := none
+  let mut iter := str.iter
+  while h : iter.hasNext do
+    let c := iter.curr' h
+    iter := iter.next
+    if c == '`' then
+      run := some (run.getD 0 + 1)
+    else if let some k := run then
+      if k > n then n := k
+      run := none
+
+  let delim := String.mk (List.replicate n '`')
+  return delim ++ str ++ delim
+
+@[role_expander moduleEvalStep]
+def moduleEvalStep : RoleExpander
+  | args, inls => do
+    let {module := moduleName, anchor?, step} ← parseThe EvalStepContext args
+    let code? ← oneCodeStr? inls
+
+    let modStr := moduleName.getId.toString
+    let items ← loadModuleContent modStr
+    let highlighted := Highlighted.seq (items.map (·.code))
+
+    let fragment ←
+      if let some anchor := anchor? then
+        try
+          let {anchors, ..} ← anchored moduleName anchor
+          if let some hl := anchors[anchor.getId.toString]? then
+            pure hl
+          else
+            logErrorAt anchor "Anchor not found"
+            for x in anchors.keys do
+              Suggestion.saveSuggestion anchor x x
+            return #[← ``(sorryAx _ true)]
+        catch
+          | .error ref e =>
+            logErrorAt ref e
+            return #[← ``(sorryAx _ true)]
+          | e => throw e
+      else pure highlighted
+
+    let steps := splitHighlighted (· == "===>") fragment
+
+    if let some step := steps[step.val]? then
+      if let some code := code? then
+        _ ← ExpectString.expectString "step" code step.toString.trim
+        return #[← ``(Inline.other (Inline.lean $(quote step)) #[])]
+      else
+        let stepStr := step.toString
+        Lean.logError m!"No expected term provided for `{stepStr}`."
+        if let `(inline|role{$_ $_*} [%$tok1 $contents* ]%$tok2) := (← getRef) then
+          let stx :=
+            if tok1.getHeadInfo matches .original .. && tok2.getHeadInfo matches .original .. then
+              mkNullNode #[tok1, tok2]
+            else mkNullNode contents
+          Suggestion.saveSuggestion stx (ExpectString.abbreviateString (quoteCode stepStr)) (quoteCode stepStr)
+        return #[← ``(sorryAx _ true)]
+
+    else
+      let ok := steps.mapIdx fun i s => ({suggestion := toString i, postInfo? := some s.toString})
+      let h ← MessageData.hint "Use a step in the range 0–{steps.size}" (some {ref:=step.syntax, suggestions := ok})
+      logErrorAt step.syntax m!"Step not found - only {steps.size} are available{h}"
+      return #[← ``(sorryAx _ true)]
+
+macro_rules
+  | `(inline|role{anchorEvalStep $a:arg_val $n:arg_val $arg*}[$i*]) =>
+    `(inline|role{moduleEvalStep $n:arg_val $arg* anchor := $a }[$i*])
 
 
 @[role_expander exampleIn]
@@ -631,7 +773,7 @@ def plainFile : CodeBlockExpander
     let (file, show?) ← ArgParse.run ((·, ·) <$> .positional `file .strLit <*> (some <$> .positional `show .strLit <|> pure none)) args
     let show? := show?.map (·.getString)
 
-    let projectDir : System.FilePath← Examples.Files.getProjectDir
+    let projectDir : System.FilePath ← getProjectDir
     let fn :=  projectDir / file.getString
     let contents ← IO.FS.readFile fn
 

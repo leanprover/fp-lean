@@ -37,11 +37,11 @@ def snail := woodlandCritters[2]
 
 However, attempting to extract the fourth element results in a compile-time error, rather than a run-time error:
 
-```anchor outOfBounds (warningsAsErrors := true)
+```anchor outOfBounds
 def oops := woodlandCritters[3]
 ```
 
-```anchorError outOfBounds (warningsAsErrors := true)
+```anchorError outOfBounds
 failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
   - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
@@ -105,11 +105,11 @@ def onePlusOneIsTwo : 1 + 1 = 2 := rfl
 
 On the other hand, {moduleTerm}`rfl` does not prove the false proposition $`1 + 1 = 15`:
 
-```anchor onePlusOneIsFifteen (warningsAsErrors := true)
+```anchor onePlusOneIsFifteen
 def onePlusOneIsFifteen : 1 + 1 = 15 := rfl
 ```
 
-```anchorError onePlusOneIsFifteen (warningsAsErrors := true)
+```anchorError onePlusOneIsFifteen
 type mismatch
   rfl
 has type
@@ -268,11 +268,11 @@ For this lookup to be safe, there must be some evidence that the list is long en
 One of the easiest ways to make indexing safe is to have the function that performs a lookup into a data structure take the required evidence of safety as an argument.
 For instance, a function that returns the third entry in a list is not generally safe because lists might contain zero, one, or two entries:
 
-```anchor thirdErr (warningsAsErrors := true)
+```anchor thirdErr
 def third (xs : List α) : α := xs[2]
 ```
 
-```anchorError thirdErr (warningsAsErrors := true)
+```anchorError thirdErr
 failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
   - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
@@ -349,12 +349,12 @@ There is also a version that crashes the program when the index is out of bounds
 In addition to proving that a statement is true, the `decide` tactic can also prove that it is false.
 When asked to prove that a one-element list has more than two elements, it returns an error that indicates that the statement is indeed false:
 
-```anchor thirdRabbitErr  (warningsAsErrors := true)
+```anchor thirdRabbitErr
 #eval third ["rabbit"] (by decide)
 ```
 
 
-```anchorError thirdRabbitErr (warningsAsErrors := true)
+```anchorError thirdRabbitErr
 tactic 'decide' proved that the proposition
   ["rabbit"].length > 2
 is false
@@ -364,25 +364,25 @@ is false
 The {kw}`simp` and {kw}`decide` tactics do not automatically unfold definitions with {kw}`def`.
 Attempting to prove {anchorTerm onePlusOneIsStillTwo}`OnePlusOneIsTwo` using `simp` fails:
 
-```anchor onePlusOneIsStillTwo  (warningsAsErrors := true)
+```anchor onePlusOneIsStillTwo
 theorem onePlusOneIsStillTwo : OnePlusOneIsTwo := by simp
 ```
 
 The error messages simply states that it could do nothing, because without unfolding {anchorTerm onePlusOneIsStillTwo}`OnePlusOneIsTwo`, no progress can be made:
 
-```anchorError onePlusOneIsStillTwo (warningsAsErrors := true)
+```anchorError onePlusOneIsStillTwo
 simp made no progress
 ```
 
 Using {anchorTerm onePlusOneIsStillTwo2}`decide` also fails:
 
-```anchor onePlusOneIsStillTwo2  (warningsAsErrors := true)
+```anchor onePlusOneIsStillTwo2
 theorem onePlusOneIsStillTwo : OnePlusOneIsTwo := by decide
 ```
 
 This is also due to it not unfolding `OnePlusOneIsTwo`:
 
-```anchorError onePlusOneIsStillTwo2 (warningsAsErrors := true)
+```anchorError onePlusOneIsStillTwo2
 failed to synthesize
   Decidable OnePlusOneIsTwo
 
@@ -393,12 +393,12 @@ Defining `OnePlusOneIsTwo` with [`abbrev` fixes the problem](getting-to-know/fun
 
 In addition to the error that occurs when Lean is unable to find compile-time evidence that an indexing operation is safe, polymorphic functions that use unsafe indexing may produce the following message:
 
-```anchor unsafeThird  (warningsAsErrors := true)
+```anchor unsafeThird
 def unsafeThird (xs : List α) : α := xs[2]!
 ```
 
 
-```anchorError unsafeThird (warningsAsErrors := true)
+```anchorError unsafeThird
 failed to synthesize
   Inhabited α
 
@@ -417,12 +417,12 @@ The next chapter describes how to add to this table, and how to successfully wri
 
 Adding whitespace between a list and the brackets used for lookup can cause another message:
 
-```anchor extraSpace (warningsAsErrors := true)
+```anchor extraSpace
 #eval woodlandCritters [1]
 ```
 
 
-```anchorError extraSpace (warningsAsErrors := true)
+```anchorError extraSpace
 function expected at
   woodlandCritters
 term has type

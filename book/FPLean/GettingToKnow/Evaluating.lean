@@ -144,13 +144,13 @@ String.append "it is " "no"
 Asking Lean to evaluate a function application that is missing an argument will lead to an error message.
 In particular, the example
 
-```anchor stringAppendReprFunction (warningsAsErrors := true)
+```anchor stringAppendReprFunction
 #eval String.append "it is "
 ```
 
 yields a quite long error message:
 
-```anchorError stringAppendReprFunction (warningsAsErrors := true)
+```anchorError stringAppendReprFunction
 could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type
   String → String
 ```

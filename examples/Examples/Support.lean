@@ -314,9 +314,9 @@ def elabCheckMsgs : CommandElab
     let strings ← toCheck.toList.mapM (messageToStringWithoutPos ·)
     let strings := ordering.apply strings
     let res := "---\n".intercalate strings |>.trim
-    if whitespace.apply expected == whitespace.apply res then
-      -- Passed. Put messages back on the log, downgrading errors to warnings.
-      modify fun st => { st with messages := initMsgs ++ msgs.errorsToWarnings }
+    if messagesMatch (whitespace.apply expected) (whitespace.apply res) then
+      -- Passed. Put messages back on the log, downgrading errors to warnings while recording their original status
+      modify fun st => { st with messages := initMsgs ++ SubVerso.Highlighting.Messages.errorsToWarnings msgs }
     else
       -- Failed. Put all the messages back on the message log and add an error
       modify fun st => { st with messages := initMsgs ++ msgs }

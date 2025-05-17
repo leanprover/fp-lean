@@ -16,35 +16,34 @@ from pathlib import Path
 
 def apply_transformations(content):
     """Apply all regex transformations to the content."""
-    # Example 1: Transform example_decl blocks
+
     content = re.sub(
-        r'```lean\(tac\)\s*\{\{#example_decl\s+[^\s]+\s+([^}]+)\}\}\s*```',
-        r'\n{exampleDecl \1}\n',
+        r'```lean\s*\{\{#example_decl\s+[^\s]+\s+([^}]+)\}\}\s*```',
+        r'\n```anchor \1\n\n```',
         content,
         flags=re.DOTALL
     )
 
-    # Example 2: Transform example_in blocks
     content = re.sub(
         r'```lean\s*\{\{#example_in\s+[^\s]+\s+([^}]+)\}\}\s*```',
-        r'\n{exampleIn \1}\n',
+        r'```anchor \1\n\n```',
         content,
         flags=re.DOTALL
     )
 
-    content = re.sub(
-        r'```lean\s*\{\{#include\s+([^}:]+)/([^}:./]+)\.lean:([^}]+)\}\}\s*```',
-        r'```module \2 (anchor:=\3)\n```\n',
-        content,
-        flags=re.DOTALL
-    )
+    # content = re.sub(
+    #     r'```lean\s*\{\{#include\s+([^}:]+)/([^}:./]+)\.lean:([^}]+)\}\}\s*```',
+    #     r'```module \2 (anchor:=\3)\n```\n',
+    #     content,
+    #     flags=re.DOTALL
+    # )
 
-    content = re.sub(
-        r'```lean\s*\{\{#example_eval\s+[^\s]+\s+([^}]+)\}\}\s*```',
-        r'\n{exampleEval \1}\n',
-        content,
-        flags=re.DOTALL
-    )
+    # content = re.sub(
+    #     r'```lean\s*\{\{#example_eval\s+[^\s]+\s+([^}]+)\}\}\s*```',
+    #     r'\n{exampleEval \1}\n',
+    #     content,
+    #     flags=re.DOTALL
+    # )
 
     content = re.sub(
         r'`\{\{#command\s+\{([^}]+)\}\s+\{([^}]+)\}\s+\{([^}]+)\}\s*\}\}`',
@@ -53,17 +52,25 @@ def apply_transformations(content):
         flags=re.DOTALL
     )
 
-    content = re.sub(
-        r'`\{\{#command_out\s+\{([^}]+)\}\s+\{([^}]+)\}\s*\}\}`',
-        r'{command \1}`\2`',
-        content,
-        flags=re.DOTALL
-    )
+
+    # content = re.sub(
+    #     r'`\{\{#command_out\s+\{([^}]+)\}\s+\{([^}]+)\}\s*\}\}`',
+    #     r'{command \1}`\2`',
+    #     content,
+    #     flags=re.DOTALL
+    # )
 
 
     content = re.sub(
         r'```\s*\{\{#command\s+\{([^}]+)\}\s+\{([^}]+)\}\s+\{([^}]+)\}\s*\}\}\s*```',
         r'```command \2 "\1" "\3"\n```\n',
+        content,
+        flags=re.DOTALL
+    )
+
+    content = re.sub(
+        r'```\s*\{\{#command\s+\{([^}]+)\}\s+\{([^}]+)\}\s+\{([^}]+)\}\s*\{([^?]+)\}\}\}\s*```',
+        r'```command \2 "\1" "\3" "\4"\n\n```\n',
         content,
         flags=re.DOTALL
     )
@@ -83,85 +90,82 @@ def apply_transformations(content):
     )
 
 
-    content = re.sub(
-        r'```lean\s*\{\{#file_contents\s+\{([^}]+)\}\s+\{([^}]+)}\s*\{[^}]+\}\s*\}\}\s*```',
-        r'```file \1 "\2"\n\n```\n',
-        content,
-        flags=re.DOTALL
-    )
+    # content = re.sub(
+    #     r'```lean\s*\{\{#file_contents\s+\{([^}]+)\}\s+\{([^}]+)}\s*\{[^}]+\}\s*\}\}\s*```',
+    #     r'```file \1 "\2"\n\n```\n',
+    #     content,
+    #     flags=re.DOTALL
+    # )
 
-    content = re.sub(
-        r'```lean\s*\{\{#file_contents\s+\{([^}]+)\}\s+\{([^}]+)}\s*\}\}\s*```',
-        r'```file \1 "\2"\n\n```\n',
-        content,
-        flags=re.DOTALL
-    )
+    # content = re.sub(
+    #     r'```lean\s*\{\{#file_contents\s+\{([^}]+)\}\s+\{([^}]+)}\s*\}\}\s*```',
+    #     r'```file \1 "\2"\n\n```\n',
+    #     content,
+    #     flags=re.DOTALL
+    # )
 
-    content = re.sub(
-        r'```\s*\{\{#include\s+([^}]+)\}\}\s*```',
-        r'```plainFile "\1"\n```\n',
-        content,
-        flags=re.DOTALL
-    )
+    # content = re.sub(
+    #     r'```\s*\{\{#include\s+([^}]+)\}\}\s*```',
+    #     r'```plainFile "\1"\n```\n',
+    #     content,
+    #     flags=re.DOTALL
+    # )
 
 
     content = re.sub(
         r'```output\s+error\s*\{\{#example_out\s+[^\s]+\s+([^}]+)\}\}\s*```',
-        r'\n{exampleError \1}\n',
+        r'```anchorError \1\n\n```',
         content,
         flags=re.DOTALL
     )
 
-    # Example 5: Transform example_out info blocks
+
     content = re.sub(
         r'```output\s+info\s*\{\{#example_out\s+[^\s]+\s+([^}]+)\}\}\s*```',
-        r'\n{exampleInfo \1}\n',
+        r'```anchorInfo \1\n\n```',
         content,
         flags=re.DOTALL
     )
 
-    content = re.sub(
-        r'`\{\{#include\s+([^:}]+)/([^/.]+).lean:([^}]+)\}\}`',
-        r'{module (anchor:=\3)}`\2`',
-        content
-    )
+    # content = re.sub(
+    #     r'`\{\{#include\s+([^:}]+)/([^/.]+).lean:([^}]+)\}\}`',
+    #     r'{module (anchor:=\3)}`\2`',
+    #     content
+    # )
 
 
-    # Example 4: Transform example_eval in-line references (not necessarily at start of line)
+
     content = re.sub(
         r'`\{\{#example_eval\s+[^\s]+\s+([^\s]+)\s+(\d+)\}\}`',
-        r'{exampleEval \2}`\1`',
+        r'{anchorEvalStep \1 \2}` `',
         content
     )
 
     content = re.sub(
         r'`\{\{#example_in\s+[^\s]+\s+([^\s]+)\}\}`',
-        r'{exampleIn}`\1`',
+        r'{anchorTerm \1}`TODO`',
         content
     )
 
     content = re.sub(
         r'`\{\{#example_out\s+[^\s]+\s+([^\s]+)\}\}`',
-        r'{exampleOut}`\1`',
+        r'{anchorTerm \1}`TODO`',
         content
     )
+
+    # content = re.sub(
+    #     r'`\{\{#example_out\s+[^\s]+\s+([^\s]+)\}\}`',
+    #     r'{exampleOut}`\1`',
+    #     content
+    # )
 
 
     content = content.replace(r'\\( ', '$`')
     content = content.replace(r' \\)', '`')
 
-    content = re.sub(r'(?<!{kw})`def`', r'{kw}`def`', content)
-    content = re.sub(r'(?<!{kw})`theorem`', r'{kw}`theorem`', content)
-    content = re.sub(r'(?<!{kw})`by`', r'{kw}`by`', content)
-    content = re.sub(r'(?<!{kw})`let`', r'{kw}`let`', content)
-    content = re.sub(r'(?<!{kw})`fun`', r'{kw}`fun`', content)
-    content = re.sub(r'(?<!{kw})`match`', r'{kw}`match`', content)
-    content = re.sub(r'(?<!{kw})`if let`', r'{kw}`if let`', content)
-    content = re.sub(r'(?<!{kw})`if`', r'{kw}`if`', content)
-    content = re.sub(r'(?<!{kw})`then`', r'{kw}`then`', content)
-    content = re.sub(r'(?<!{kw})`else`', r'{kw}`else`', content)
-    content = re.sub(r'(?<!{kw})`structure`', r'{kw}`structure`', content)
-    content = re.sub(r'(?<!{kw})`inductive`', r'{kw}`inductive`', content)
+    for kw in ['def', 'theorem', 'by', 'let', 'fun', 'match', 'if', 'let', 'if let', 'then', 'else', 'match', 'structure', 'inductive', 'infixl', 'infixr', 'infix', '#eval', '#check', 'where', 'example', 'do']:
+        content = re.sub(r'(?<!{kw})`' + kw + '`', r'{kw}`' + kw + '`', content)
+
     return content
 
 

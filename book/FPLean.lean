@@ -5,6 +5,7 @@ import FPLean.GettingToKnow
 import FPLean.HelloWorld
 import FPLean.PropsProofsIndexing
 import FPLean.TypeClasses
+import FPLean.Monads
 
 open Verso.Genre Manual ExternalLean
 
@@ -41,3 +42,5 @@ This is a free book on using Lean as a programming language. All code samples ar
 {include 1 FPLean.PropsProofsIndexing}
 
 {include 1 FPLean.TypeClasses}
+
+{include 1 FPLean.Monads}

@@ -1,6 +1,14 @@
 import VersoManual
 import FPLean.Examples
 
+import FPLean.TypeClasses.Pos
+import FPLean.TypeClasses.Polymorphism
+import FPLean.TypeClasses.OutParams
+import FPLean.TypeClasses.Indexing
+import FPLean.TypeClasses.Coercions
+import FPLean.TypeClasses.Conveniences
+import FPLean.TypeClasses.Summary
+
 open Verso.Genre Manual ExternalLean
 
 open FPLean
@@ -43,3 +51,17 @@ Both type classes and interfaces describe a conceptually related set of operatio
 Similarly, an instance of a type class is akin to the code in a Java or C# class that is prescribed by the implemented interfaces, rather than an instance of a Java or C# class.
 Unlike Java or C#'s interfaces, types can be given instances for type classes that the author of the type does not have access to.
 In this way, they are very similar to Rust traits.
+
+{include 1 FPLean.TypeClasses.Pos}
+
+{include 1 FPLean.TypeClasses.Polymorphism}
+
+{include 1 FPLean.TypeClasses.OutParams}
+
+{include 1 FPLean.TypeClasses.Indexing}
+
+{include 1 FPLean.TypeClasses.Coercions}
+
+{include 1 FPLean.TypeClasses.Conveniences}
+
+{include 1 FPLean.TypeClasses.Summary}
