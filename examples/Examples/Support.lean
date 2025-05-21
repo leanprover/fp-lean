@@ -365,7 +365,8 @@ end expect
 
 
 
-syntax withPosition("evaluation" "steps" "{{{" ws ident ws "}}}" sepBy1(colGt term, "===>") "end" "evaluation" "steps"): command
+syntax withPosition("evaluation" "steps" "{{{" ws ident ws "}}}" sepBy1(colGe term, "===>") "end" "evaluation" "steps"): command
+
 elab_rules : command
   | `(evaluation steps {{{ $name }}}%$tok $[ $exprs ]===>* end evaluation steps) =>
     open Lean Elab Command Term in
@@ -373,7 +374,7 @@ elab_rules : command
       let mut current : Option Syntax := none
       for item in exprs do
         if let some v := current then
-          liftTermElabM <| withDeclName name.raw.getId do
+          runTermElabM fun _ => withDeclName name.raw.getId do
             let x <- elabTerm item.raw none
             let y <- elabTerm v none
             synthesizeSyntheticMVarsNoPostponing
@@ -394,19 +395,39 @@ evaluation steps {{{ fooSteps }}}
   4
 end evaluation steps
 
+syntax withPosition("evaluation" "steps" "-" noWs &"check" "{{{" ws ident ws "}}}" sepBy1(colGe term, "===>") "end" "evaluation" "steps"): command
 
-syntax withPosition("evaluation" "steps" ":" term "{{{" ws ident ws "}}}" sepBy1(colGt term, "===>") "end" "evaluation" "steps"): command
+elab_rules : command
+  | `(evaluation steps -check {{{ $name }}}%$tok $[ $exprs ]===>* end evaluation steps) =>
+    open Lean Elab Command Term in
+    open Lean.Meta in do
+      let mut current : Option Syntax := none
+      for item in exprs do
+        if let some v := current then
+          runTermElabM fun _ => withDeclName name.raw.getId do
+            let _ <- elabTerm item.raw none
+            let _ <- elabTerm v none
+            synthesizeSyntheticMVarsNoPostponing
+        current := some item.raw
+      let named : Array Term ← exprs.mapIdxM fun i e =>
+        `(%ex{$(mkIdent s!"step{i}".toName)}{$e})
+      let cmd ← liftMacroM <| wrapExampleStx `evalSteps name tok `(noncomputable example := [$named,*])
+      elabCommand cmd
+
+
+syntax withPosition("evaluation" "steps" ":" term "{{{" ws ident ws "}}}" sepBy1(colGe term, "===>") "end" "evaluation" "steps"): command
 elab_rules : command
   | `(evaluation steps : $ty {{{ $name }}}%$tok $[ $exprs ]===>* end evaluation steps) =>
     open Lean Elab Command Term in
     open Lean.Meta in do
-      let expected <- liftTermElabM <| withDeclName name.raw.getId <|
-        elabTerm ty none <* synthesizeSyntheticMVarsNoPostponing
+    let cmd ← runTermElabM fun _ => do
+      let expected <- withDeclName name.raw.getId <|
+        elabType ty <* synthesizeSyntheticMVarsNoPostponing
 
       let mut current : Option Syntax := none
       for item in exprs do
         if let some v := current then
-          liftTermElabM <| withDeclName name.raw.getId do
+          withDeclName name.raw.getId do
             let x <- elabTerm item.raw (some expected)
             let y <- elabTerm v (some expected)
             synthesizeSyntheticMVarsNoPostponing
@@ -415,8 +436,8 @@ elab_rules : command
         current := some item.raw
       let named : Array Term ← exprs.mapIdxM fun i e =>
         `((%ex{$(mkIdent s!"step{i}".toName)}{$e} : $ty))
-      let cmd ← liftMacroM <| wrapExampleStx `evalSteps name tok `(noncomputable example := [$named,*])
-      elabCommand cmd
+      liftMacroM <| wrapExampleStx `evalSteps name tok `(noncomputable example := [$named,*])
+    elabCommand cmd
 
 evaluation steps : IO Unit {{{ thingy }}}
   let x := 5; IO.println s!"{x}"
@@ -430,13 +451,14 @@ syntax term : eqSteps
 syntax term "={" docComment "}=" eqSteps : eqSteps
 syntax term "={" docComment term "}=" eqSteps : eqSteps
 
-syntax withPosition("equational" "steps" "{{{" ws ident ws "}}}" (colGt eqSteps) "stop" "equational" "steps") : command
-syntax withPosition("equational" "steps" ":" term "{{{" ws ident ws "}}}" (colGt eqSteps) "stop" "equational" "steps") : command
+syntax withPosition("equational" "steps" "{{{" ws ident ws "}}}" (colGe eqSteps) "stop" "equational" "steps") : command
+syntax withPosition("equational" "steps" ":" term "{{{" ws ident ws "}}}" (colGe eqSteps) "stop" "equational" "steps") : command
 
 open Lean Elab Parser Command in
 inductive Steps where
   | done : Term → Steps
   | cons : Term → TSyntax ``docComment → Option Term → Steps → Steps
+deriving Inhabited
 
 open Lean Elab Parser Command in
 def Steps.forM [Monad m] (todo : Steps) (forStep : Term × TSyntax ``docComment × Option Term × Term → m Unit) : m Unit :=
@@ -455,7 +477,7 @@ open Lean Elab Parser Command in
 instance : ForIn m Steps (Term × TSyntax ``docComment × Option Term × Term) where
   forIn := ForM.forIn
 
-partial def getSteps : Lean.Syntax → Lean.Elab.Command.CommandElabM Steps
+partial def getSteps [Monad m] [MonadError m] [MonadQuotation m] : Lean.Syntax → m Steps
   | `(eqSteps|$t:term) => pure (.done t)
   | `(eqSteps|$t:term ={ $c }= $more:eqSteps) => do
     return (.cons t c none (← getSteps more))
@@ -489,15 +511,16 @@ open Lean in
 def elabEquationalSteps (name : TSyntax `ident) (tok : Syntax) (stepStx : TSyntax `eqSteps) (ty : Option (TSyntax `term)) :=
   open Lean Elab Command Term in
   open Lean.Meta in do
+  let cmd ← runTermElabM fun _ => do
     let expected ← match ty with
       | none => pure none
-      | some t => liftTermElabM <| withDeclName name.raw.getId (elabType t)
+      | some t => some <$> withDeclName name.raw.getId (elabType t)
     let exprs ← getSteps stepStx
-    if let .done e := exprs then liftTermElabM <| withDeclName name.raw.getId do
+    if let .done e := exprs then withDeclName name.raw.getId do
       let _ ← elabTerm e none
 
     for (e1, txt, why, e2) in exprs do
-      liftTermElabM <| withDeclName name.raw.getId do
+      withDeclName name.raw.getId do
         let x ← elabTermEnsuringType e1 expected
         let y ← elabTermEnsuringType e2 expected
         synthesizeSyntheticMVarsNoPostponing
@@ -515,8 +538,8 @@ def elabEquationalSteps (name : TSyntax `ident) (tok : Syntax) (stepStx : TSynta
           let eq ← elabTermEnsuringType stepTypeSyntax (some (mkSort Level.zero))
           let _ ← elabTermEnsuringType p (some eq)
           synthesizeSyntheticMVarsNoPostponing
-    let cmd ← liftMacroM <| wrapExampleStx `eqSteps name tok (exprs.asCmd ty)
-    elabCommand cmd
+    liftMacroM <| wrapExampleStx `eqSteps name tok (exprs.asCmd ty)
+  elabCommand cmd
 
 
 elab_rules : command

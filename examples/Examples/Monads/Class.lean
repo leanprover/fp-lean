@@ -770,47 +770,55 @@ axiom f : α → Reader ρ β
 axiom g : β → Reader ρ γ
 
 evaluation steps {{{ ReaderMonad1 }}}
-  Reader.bind (Reader.pure v) f
-  ===>
-  fun env => f ((Reader.pure v) env) env
-  ===>
-  fun env => f ((fun _ => v) env) env
-  ===>
-  fun env => f v env
-  ===>
-  f v
+-- ANCHOR: ReaderMonad1
+Reader.bind (Reader.pure v) f
+===>
+fun env => f ((Reader.pure v) env) env
+===>
+fun env => f ((fun _ => v) env) env
+===>
+fun env => f v env
+===>
+f v
+-- ANCHOR_END: ReaderMonad1
 end evaluation steps
 
 evaluation steps {{{ ReaderMonad2 }}}
-  Reader.bind r Reader.pure
-  ===>
-  fun env => Reader.pure (r env) env
-  ===>
-  fun env => (fun _ => (r env)) env
-  ===>
-  fun env => r env
+-- ANCHOR: ReaderMonad2
+Reader.bind r Reader.pure
+===>
+fun env => Reader.pure (r env) env
+===>
+fun env => (fun _ => (r env)) env
+===>
+fun env => r env
+-- ANCHOR_END: ReaderMonad2
 end evaluation steps
 
 evaluation steps {{{ ReaderMonad3a }}}
-  Reader.bind (Reader.bind r f) g
-  ===>
-  fun env => g ((Reader.bind r f) env) env
-  ===>
-  fun env => g ((fun env' => f (r env') env') env) env
-  ===>
-  fun env => g (f (r env) env) env
+-- ANCHOR: ReaderMonad3a
+Reader.bind (Reader.bind r f) g
+===>
+fun env => g ((Reader.bind r f) env) env
+===>
+fun env => g ((fun env' => f (r env') env') env) env
+===>
+fun env => g (f (r env) env) env
+-- ANCHOR_END: ReaderMonad3a
 end evaluation steps
 
 evaluation steps {{{ ReaderMonad3b }}}
-  Reader.bind r (fun x => Reader.bind (f x) g)
-  ===>
-  Reader.bind r (fun x => fun env => g (f x env) env)
-  ===>
-  fun env => (fun x => fun env' => g (f x env') env') (r env) env
-  ===>
-  fun env => (fun env' => g (f (r env) env') env') env
-  ===>
-  fun env => g (f (r env) env) env
+-- ANCHOR: ReaderMonad3b
+Reader.bind r (fun x => Reader.bind (f x) g)
+===>
+Reader.bind r (fun x => fun env => g (f x env) env)
+===>
+fun env => (fun x => fun env' => g (f x env') env') (r env) env
+===>
+fun env => (fun env' => g (f (r env) env') env') env
+===>
+fun env => g (f (r env) env) env
+-- ANCHOR_END: ReaderMonad3b
 end evaluation steps
 
 

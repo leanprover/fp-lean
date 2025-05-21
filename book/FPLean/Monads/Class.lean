@@ -256,6 +256,7 @@ typeclass instance problem is stuck, it is often due to metavariables
 :::
 
 # The Monad Contract
+
 Just as every pair of instances of {anchorName MonadContract}`BEq` and {anchorName MonadContract}`Hashable` should ensure that any two equal values have the same hash, there is a contract that each instance of {anchorName MonadContract}`Monad` should obey.
 First, {anchorName MonadContract}`pure` should be a left identity of {anchorName MonadContract}`bind`.
 That is, `bind (pure v) f` should be the same as {anchorTerm MonadContract}`f v`.

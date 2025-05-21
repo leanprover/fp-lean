@@ -110,7 +110,7 @@ def apply_transformations(content):
 
 
     content = re.sub(
-        r'bookExample\s+type\s+\{\{\{\s*([^ }]+)\s*\}\}\}\s*(.*?)\s*===>\s*(.*?)\s*end\s+bookExample',
+        r'bookExample\s+type\s+\{\{\{\s*([^ }]+)\s*\}\}\}\s*(.*?)\s*<?===>?\s*(.*?)\s*end\s+bookExample',
         r'-- ANCHOR: \1\nexample : \3 := \2\n-- ANCHOR_END: \1',
         content,
         flags=re.DOTALL
@@ -118,7 +118,29 @@ def apply_transformations(content):
 
     content = re.sub(
         r'bookExample\s+\{\{\{\s*([^ }]+)\s*\}\}\}\s*(.*?)\s*===>\s*(.*?)\s*end\s+bookExample',
-        r'-- ANCHOR: \1\nexample : \2 = \3 := rfl\n-- ANCHOR_END: \1',
+        r'-- ANCHOR: \1\nexample : (\n\2\n) = (\n\3\n) := rfl\n-- ANCHOR_END: \1',
+        content,
+        flags=re.DOTALL
+    )
+
+    content = re.sub(
+        r'bookExample\s+:\s*([^{]+?)\s*\{\{\{\s*([^ }]+)\s*\}\}\}\s*(.*?)\s*===>\s*(.*?)\s*end\s+bookExample',
+        r'-- ANCHOR: \2\nexample : (\3 : (\1)) = (\4 : (\1)) := rfl\n-- ANCHOR_END: \2',
+        content,
+        flags=re.DOTALL
+    )
+
+    content = re.sub(
+        r'equational\s+steps\s*([^\{]*?)\s*\{\{\{\s*([^ }]+)\s*\}\}\} *\n(?!--\s*ANCHOR)(.*?)\n *?stop\s+equational\s+steps',
+        r'equational steps \1 {{{ \2 }}}\n-- ANCHOR: \2\n\3\n-- ANCHOR_END: \2\nstop equational steps',
+        content,
+        flags=re.DOTALL
+    )
+
+
+    content = re.sub(
+        r'evaluation\s+steps\s*([^\{]*?)\s*\{\{\{\s*([^ }]+)\s*\}\}\} *\n(?!--\s*ANCHOR)(.*?)\n *?end\s+evaluation\s+steps',
+        r'evaluation steps \1 {{{ \2 }}}\n-- ANCHOR: \2\n\3\n-- ANCHOR_END: \2\nend evaluation steps',
         content,
         flags=re.DOTALL
     )

@@ -72,6 +72,22 @@ def inlineTypescript : RoleExpander
       | throwErrorAt code "Exected code"
     return #[← ``(Inline.code $(quote code.getString))]
 
+@[code_block_expander python]
+def python : CodeBlockExpander
+  | _args, code => do
+    return #[← ``(Block.code $(quote code.getString))]
+
+
+@[role_expander python]
+def inlinePython : RoleExpander
+  | _args, code => do
+    let #[code] := code
+      | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
+    let `(inline|code($code)) := code
+      | throwErrorAt code "Exected code"
+    return #[← ``(Inline.code $(quote code.getString))]
+
+
 section
 
 variable [Monad m] [MonadError m]

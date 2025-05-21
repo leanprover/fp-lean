@@ -1,51 +1,51 @@
 import Examples.Support
 
-book declaration {{{ Many }}}
-  inductive Many (α : Type) where
-    | none : Many α
-    | more : α → (Unit → Many α) → Many α
-stop book declaration
+-- ANCHOR: Many
+inductive Many (α : Type) where
+  | none : Many α
+  | more : α → (Unit → Many α) → Many α
+-- ANCHOR_END: Many
 
 
-book declaration {{{ one }}}
-  def Many.one (x : α) : Many α := Many.more x (fun () => Many.none)
-stop book declaration
+-- ANCHOR: one
+def Many.one (x : α) : Many α := Many.more x (fun () => Many.none)
+-- ANCHOR_END: one
 
 
-book declaration {{{ union }}}
-  def Many.union : Many α → Many α → Many α
-    | Many.none, ys => ys
-    | Many.more x xs, ys => Many.more x (fun () => union (xs ()) ys)
-stop book declaration
+-- ANCHOR: union
+def Many.union : Many α → Many α → Many α
+  | Many.none, ys => ys
+  | Many.more x xs, ys => Many.more x (fun () => union (xs ()) ys)
+-- ANCHOR_END: union
 
 
 
-book declaration {{{ fromList }}}
-  def Many.fromList : List α → Many α
-    | [] => Many.none
-    | x :: xs => Many.more x (fun () => fromList xs)
-stop book declaration
+-- ANCHOR: fromList
+def Many.fromList : List α → Many α
+  | [] => Many.none
+  | x :: xs => Many.more x (fun () => fromList xs)
+-- ANCHOR_END: fromList
 
 
-book declaration {{{ take }}}
-  def Many.take : Nat → Many α → List α
-    | 0, _ => []
-    | _ + 1, Many.none => []
-    | n + 1, Many.more x xs => x :: (xs ()).take n
+-- ANCHOR: take
+def Many.take : Nat → Many α → List α
+  | 0, _ => []
+  | _ + 1, Many.none => []
+  | n + 1, Many.more x xs => x :: (xs ()).take n
 
-  def Many.takeAll : Many α → List α
-    | Many.none => []
-    | Many.more x xs => x :: (xs ()).takeAll
-stop book declaration
+def Many.takeAll : Many α → List α
+  | Many.none => []
+  | Many.more x xs => x :: (xs ()).takeAll
+-- ANCHOR_END: take
 
 
-book declaration {{{ bind }}}
-  def Many.bind : Many α → (α → Many β) → Many β
-    | Many.none, _ =>
-      Many.none
-    | Many.more x xs, f =>
-      (f x).union (bind (xs ()) f)
-stop book declaration
+-- ANCHOR: bind
+def Many.bind : Many α → (α → Many β) → Many β
+  | Many.none, _ =>
+    Many.none
+  | Many.more x xs, f =>
+    (f x).union (bind (xs ()) f)
+-- ANCHOR_END: bind
 
 namespace Agh
 
@@ -53,23 +53,81 @@ axiom v : Nat
 axiom f : Nat → Many String
 
 evaluation steps {{{ bindLeft }}}
-  Many.bind (Many.one v) f
-  ===>
-  Many.bind (Many.more v (fun () => Many.none)) f
-  ===>
-  (f v).union (Many.bind Many.none f)
-  ===>
-  (f v).union Many.none
+-- ANCHOR: bindLeft
+Many.bind (Many.one v) f
+===>
+Many.bind (Many.more v (fun () => Many.none)) f
+===>
+(f v).union (Many.bind Many.none f)
+===>
+(f v).union Many.none
+-- ANCHOR_END: bindLeft
 end evaluation steps
 
 end Agh
 
+section
 
-book declaration {{{ MonadMany }}}
-  instance : Monad Many where
-    pure := Many.one
-    bind := Many.bind
-stop book declaration
+local syntax "…" : term
+variable {α β γ : Type}
+variable {f : α → Many β} {v : Many α}
+variable {v₁ : α} {v₂ : α} {v₃ : α} {vₙ : α} {«…» : Many β}
+
+macro_rules
+  | `(term|…) => `(«…»)
+
+local instance : Union (Many α) where
+  union := .union
+
+evaluation steps -check {{{ bindUnion }}}
+-- ANCHOR: bindUnion
+Many.bind v f
+===>
+f v₁ ∪ f v₂ ∪ f v₃ ∪ … ∪ f vₙ
+-- ANCHOR_END: bindUnion
+end evaluation steps
+
+variable {g : β → Many γ} {«…» : Many γ}
+
+macro_rules
+  | `(term|…) => `(«…»)
+
+evaluation steps -check {{{ bindBindLeft }}}
+--- ANCHOR: bindBindLeft
+Many.bind (Many.bind v f) g
+===>
+Many.bind (f v₁) g ∪
+Many.bind (f v₂) g ∪
+Many.bind (f v₃) g ∪
+… ∪
+Many.bind (f vₙ) g
+--- ANCHOR_END: bindBindLeft
+end evaluation steps
+
+evaluation steps -check {{{ bindBindRight }}}
+-- ANCHOR: bindBindRight
+Many.bind v (fun x => Many.bind (f x) g)
+===>
+(fun x => Many.bind (f x) g) v₁ ∪
+(fun x => Many.bind (f x) g) v₂ ∪
+(fun x => Many.bind (f x) g) v₃ ∪
+… ∪
+(fun x => Many.bind (f x) g) vₙ
+===>
+Many.bind (f v₁) g ∪
+Many.bind (f v₂) g ∪
+Many.bind (f v₃) g ∪
+… ∪
+Many.bind (f vₙ) g
+-- ANCHOR_END: bindBindRight
+end evaluation steps
+end
+
+-- ANCHOR: MonadMany
+instance : Monad Many where
+  pure := Many.one
+  bind := Many.bind
+-- ANCHOR_END: MonadMany
 
 instance : Alternative Many where
   failure := .none
@@ -179,34 +237,32 @@ instance : LawfulMonad Many where
           rw [Many.union_assoc]
 
 
-book declaration {{{ addsTo }}}
-  def addsTo (goal : Nat) : List Nat → Many (List Nat)
-    | [] =>
-      if goal == 0 then
-        pure []
-      else
-        Many.none
-    | x :: xs =>
-      if x > goal then
-        addsTo goal xs
-      else
-        (addsTo goal xs).union
-          (addsTo (goal - x) xs >>= fun answer =>
-           pure (x :: answer))
-stop book declaration
+-- ANCHOR: addsTo
+def addsTo (goal : Nat) : List Nat → Many (List Nat)
+  | [] =>
+    if goal == 0 then
+      pure []
+    else
+      Many.none
+  | x :: xs =>
+    if x > goal then
+      addsTo goal xs
+    else
+      (addsTo goal xs).union
+        (addsTo (goal - x) xs >>= fun answer =>
+         pure (x :: answer))
+-- ANCHOR_END: addsTo
 
-book declaration {{{ printList }}}
-  def printList [ToString α] : List α → IO Unit
-    | [] => pure ()
-    | x :: xs => do
-      IO.println x
-      printList xs
-stop book declaration
+-- ANCHOR: printList
+def printList [ToString α] : List α → IO Unit
+  | [] => pure ()
+  | x :: xs => do
+    IO.println x
+    printList xs
+-- ANCHOR_END: printList
 
-expect info {{{ addsToFifteen }}}
-  #eval printList (addsTo 15 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).takeAll
-message
-"[7, 8]
+/-- info:
+[7, 8]
 [6, 9]
 [5, 10]
 [4, 5, 6]
@@ -225,5 +281,9 @@ message
 [1, 2, 5, 7]
 [1, 2, 4, 8]
 [1, 2, 3, 9]
-[1, 2, 3, 4, 5]"
-end expect
+[1, 2, 3, 4, 5]
+-/
+#check_msgs in
+-- ANCHOR: addsToFifteen
+#eval printList (addsTo 15 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).takeAll
+-- ANCHOR_END: addsToFifteen

@@ -17,6 +17,33 @@ from pathlib import Path
 def apply_transformations(content):
     """Apply all regex transformations to the content."""
 
+    # The overall structure needs to stop being Markdown
+    if content.startswith('# '):
+        module = "Examples.TODO"
+        maybe_mod = re.search(r'(Examples/.*?)\.lean', content)
+        if maybe_mod is not None:
+            module = maybe_mod.group(1).replace('/', '.')
+        content = re.sub(
+            r'^#\s+(.*?)\n',
+            r'import VersoManual\nimport FPLean.Examples\n\nopen Verso.Genre Manual ExternalLean\n\nopen FPLean\n\nset_option verso.exampleProject "../examples"\nset_option verso.exampleModule "' + module + r'"\n\n#doc (Manual) "\1" =>\n',
+            content,
+            count=1
+        )
+        content = re.sub(r'^#(#+[^#])', r'\1', content, flags=re.MULTILINE)
+
+    content = re.sub(
+        r'```leantac',
+        r'```lean',
+        content
+    )
+
+    content = re.sub(
+        r'```lean\s*(\{\{#[^\n]+)\n+\{',
+        r'```lean\n\1\n```\n```lean\n{',
+        content,
+        flags=re.DOTALL
+    )
+
     content = re.sub(
         r'```lean\s*\{\{#example_decl\s+[^\s]+\s+([^}]+)\}\}\s*```',
         r'\n```anchor \1\n\n```',
@@ -31,6 +58,13 @@ def apply_transformations(content):
         flags=re.DOTALL
     )
 
+    content = re.sub(
+        r'```lean\s*\{\{#example_out\s+[^\s]+\s+([^}]+)\}\}\s*```',
+        r'```anchor \1\n\n```',
+        content,
+        flags=re.DOTALL
+    )
+
     # content = re.sub(
     #     r'```lean\s*\{\{#include\s+([^}:]+)/([^}:./]+)\.lean:([^}]+)\}\}\s*```',
     #     r'```module \2 (anchor:=\3)\n```\n',
@@ -38,12 +72,12 @@ def apply_transformations(content):
     #     flags=re.DOTALL
     # )
 
-    # content = re.sub(
-    #     r'```lean\s*\{\{#example_eval\s+[^\s]+\s+([^}]+)\}\}\s*```',
-    #     r'\n{exampleEval \1}\n',
-    #     content,
-    #     flags=re.DOTALL
-    # )
+    content = re.sub(
+        r'```lean\s*\{\{#example_eval\s+[^\s]+\s+([^}]+)\}\}\s*```',
+        r'```anchorEvalSteps \1\n\n```',
+        content,
+        flags=re.DOTALL
+    )
 
     content = re.sub(
         r'`\{\{#command\s+\{([^}]+)\}\s+\{([^}]+)\}\s+\{([^}]+)\}\s*\}\}`',
@@ -163,7 +197,7 @@ def apply_transformations(content):
     content = content.replace(r'\\( ', '$`')
     content = content.replace(r' \\)', '`')
 
-    for kw in ['def', 'theorem', 'by', 'let', 'fun', 'match', 'if', 'let', 'if let', 'then', 'else', 'match', 'structure', 'inductive', 'infixl', 'infixr', 'infix', '#eval', '#check', 'where', 'example', 'do']:
+    for kw in ['def', 'theorem', 'by', 'let', 'fun', 'match', 'if', 'let', 'if let', 'then', 'else', 'match', 'structure', 'inductive', 'infixl', 'infixr', 'infix', '#print' '#eval', '#check', 'where', 'example', 'do']:
         content = re.sub(r'(?<!{kw})`' + kw + '`', r'{kw}`' + kw + '`', content)
 
     return content

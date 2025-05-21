@@ -2,6 +2,7 @@ import VersoManual
 import FPLean.Examples
 
 import FPLean.Monads.Class
+import FPLean.Monads.Arithmetic
 
 open Verso.Genre Manual ExternalLean
 
@@ -632,3 +633,5 @@ The key idea of monads is that each monad encodes a particular kind of side effe
 For example, {moduleName}`Option` represents programs that can fail by returning {moduleName}`none`, {moduleName}`Except` represents programs that can throw exceptions, {moduleName}`WithLog` represents programs that accumulate a log while running, and {anchorName State}`State` represents programs with a single mutable variable.
 
 {include 1 FPLean.Monads.Class}
+
+{include 1 FPLean.Monads.Arithmetic}

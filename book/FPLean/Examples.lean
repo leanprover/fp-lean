@@ -591,6 +591,48 @@ macro_rules
   | `(inline|role{anchorEvalStep $a:arg_val $n:arg_val $arg*}[$i*]) =>
     `(inline|role{moduleEvalStep $n:arg_val $arg* anchor := $a }[$i*])
 
+private def editCodeBlock [Monad m] [MonadFileMap m] (stx : Syntax) (newContents : String) : m (Option String) := do
+  let txt ← getFileMap
+  let some rng := stx.getRange?
+    | pure none
+  let { start := {line := l1, ..}, .. } := txt.utf8RangeToLspRange rng
+  let line1 := txt.source.extract (txt.lineStart (l1 + 1)) (txt.lineStart (l1 + 2))
+  if line1.startsWith "```" then
+    return some s!"{delims}{line1.dropWhile (· == '`') |>.trim}\n{withNl newContents}{delims}"
+  else
+    return none
+where
+  delims : String := Id.run do
+    let mut n := 3
+    let mut run := none
+    let mut iter := newContents.iter
+    while h : iter.hasNext do
+      let c := iter.curr' h
+      iter := iter.next
+      if c == '`' then
+        run := some (run.getD 0 + 1)
+      else if let some k := run then
+        if k > n then n := k
+        run := none
+    if let some k := run then
+      if k > n then n := k
+    n.fold (fun _ _ s => s.push '`') ""
+
+@[code_block_expander moduleEvalSteps]
+def moduleEvalSteps : CodeBlockExpander
+  | args, str => do
+    let {module := moduleName, anchor?} ← parseThe CodeContext args
+
+    withAnchored moduleName anchor? fun fragment => do
+      _ ← ExpectString.expectString "steps" str fragment.toString
+
+      let steps := splitHighlighted (· == "===>") fragment
+
+      return #[← ``(Block.other (Block.leanEvalSteps $(quote steps)) #[])]
+
+macro_rules
+  | `(block|```%$t1 anchorEvalSteps $a:arg_val $arg* | $s ```%$t2) =>
+    `(block|```%$t1 moduleEvalSteps $arg* anchor := $a | $s ```%$t2)
 
 @[role_expander exampleIn]
 def exampleInInline : RoleExpander
