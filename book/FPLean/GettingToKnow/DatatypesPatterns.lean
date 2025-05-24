@@ -1,13 +1,17 @@
 import VersoManual
 import FPLean.Examples
 
-open Verso.Genre Manual ExternalLean
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 
 example_module Examples.Intro
 
 #doc (Manual) "Datatypes and Patterns" =>
+%%%
+tag := "datatypes-and-patterns"
+%%%
 
 Structures enable multiple independent pieces of data to be combined into a coherent whole that is represented by a brand new type.
 Types such as structures that group together a collection of values are called _product types_.

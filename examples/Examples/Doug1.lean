@@ -1,3 +1,3 @@
-import Examples.MonadTransformers
+import DirTree
 
 def main := DirTree.Old.main

@@ -1,118 +1,126 @@
-import Examples.Support
+import ExampleSupport
 import Examples.Monads.Conveniences
 
 
-book declaration {{{ NonTailSum }}}
-  def NonTail.sum : List Nat → Nat
-    | [] => 0
-    | x :: xs => x + sum xs
-stop book declaration
+-- ANCHOR: NonTailSum
+def NonTail.sum : List Nat → Nat
+  | [] => 0
+  | x :: xs => x + sum xs
+-- ANCHOR_END: NonTailSum
 
 evaluation steps : Nat {{{ NonTailSumOneTwoThree }}}
-  NonTail.sum [1, 2, 3]
-  ===>
-  1 + (NonTail.sum [2, 3])
-  ===>
-  1 + (2 + (NonTail.sum [3]))
-  ===>
-  1 + (2 + (3 + (NonTail.sum [])))
-  ===>
-  1 + (2 + (3 + 0))
-  ===>
-  1 + (2 + 3)
-  ===>
-  1 + 5
-  ===>
-  6
+-- ANCHOR: NonTailSumOneTwoThree
+NonTail.sum [1, 2, 3]
+===>
+1 + (NonTail.sum [2, 3])
+===>
+1 + (2 + (NonTail.sum [3]))
+===>
+1 + (2 + (3 + (NonTail.sum [])))
+===>
+1 + (2 + (3 + 0))
+===>
+1 + (2 + 3)
+===>
+1 + 5
+===>
+6
+-- ANCHOR_END: NonTailSumOneTwoThree
 end evaluation steps
 
 namespace MoreClear
-book declaration {{{ MoreClearSumHelper }}}
-  def Tail.sumHelper (soFar : Nat) : List Nat → Nat
-    | [] => soFar + 0
-    | x :: xs => sumHelper (x + soFar) xs
-stop book declaration
+-- ANCHOR: MoreClearSumHelper
+def Tail.sumHelper (soFar : Nat) : List Nat → Nat
+  | [] => soFar + 0
+  | x :: xs => sumHelper (x + soFar) xs
+-- ANCHOR_END: MoreClearSumHelper
 end MoreClear
 
-book declaration {{{ TailSum }}}
-  def Tail.sumHelper (soFar : Nat) : List Nat → Nat
-    | [] => soFar
-    | x :: xs => sumHelper (x + soFar) xs
+-- ANCHOR: TailSum
+def Tail.sumHelper (soFar : Nat) : List Nat → Nat
+  | [] => soFar
+  | x :: xs => sumHelper (x + soFar) xs
 
-  def Tail.sum (xs : List Nat) : Nat :=
-    Tail.sumHelper 0 xs
-stop book declaration
+def Tail.sum (xs : List Nat) : Nat :=
+  Tail.sumHelper 0 xs
+-- ANCHOR_END: TailSum
 
 evaluation steps : Nat {{{ TailSumOneTwoThree }}}
-  Tail.sum [1, 2, 3]
-  ===>
-  Tail.sumHelper 0 [1, 2, 3]
-  ===>
-  Tail.sumHelper (0 + 1) [2, 3]
-  ===>
-  Tail.sumHelper 1 [2, 3]
-  ===>
-  Tail.sumHelper (1 + 2) [3]
-  ===>
-  Tail.sumHelper 3 [3]
-  ===>
-  Tail.sumHelper (3 + 3) []
-  ===>
-  Tail.sumHelper 6 []
-  ===>
-  6
+-- ANCHOR: TailSumOneTwoThree
+Tail.sum [1, 2, 3]
+===>
+Tail.sumHelper 0 [1, 2, 3]
+===>
+Tail.sumHelper (0 + 1) [2, 3]
+===>
+Tail.sumHelper 1 [2, 3]
+===>
+Tail.sumHelper (1 + 2) [3]
+===>
+Tail.sumHelper 3 [3]
+===>
+Tail.sumHelper (3 + 3) []
+===>
+Tail.sumHelper 6 []
+===>
+6
+-- ANCHOR_END: TailSumOneTwoThree
 end evaluation steps
 
 
 
 
-book declaration {{{ NonTailReverse }}}
-  def NonTail.reverse : List α → List α
-    | [] => []
-    | x :: xs => reverse xs ++ [x]
-stop book declaration
+-- ANCHOR: NonTailReverse
+def NonTail.reverse : List α → List α
+  | [] => []
+  | x :: xs => reverse xs ++ [x]
+-- ANCHOR_END: NonTailReverse
 
-evaluation steps {{{ NonTailReverseSteps }}}
-  NonTail.reverse [1, 2, 3]
-  ===>
-  (NonTail.reverse [2, 3]) ++ [1]
-  ===>
-  ((NonTail.reverse [3]) ++ [2]) ++ [1]
-  ===>
-  (((NonTail.reverse []) ++ [3]) ++ [2]) ++ [1]
-  ===>
-  (([] ++ [3]) ++ [2]) ++ [1]
-  ===>
-  ([3] ++ [2]) ++ [1]
-  ===>
-  [3, 2] ++ [1]
-  ===>
-  [3, 2, 1]
+evaluation steps  {{{ NonTailReverseSteps }}}
+-- ANCHOR: NonTailReverseSteps
+NonTail.reverse [1, 2, 3]
+===>
+(NonTail.reverse [2, 3]) ++ [1]
+===>
+((NonTail.reverse [3]) ++ [2]) ++ [1]
+===>
+(((NonTail.reverse []) ++ [3]) ++ [2]) ++ [1]
+===>
+(([] ++ [3]) ++ [2]) ++ [1]
+===>
+([3] ++ [2]) ++ [1]
+===>
+[3, 2] ++ [1]
+===>
+[3, 2, 1]
+-- ANCHOR_END: NonTailReverseSteps
 end evaluation steps
 
 
 
-book declaration {{{ TailReverse }}}
-  def Tail.reverseHelper (soFar : List α) : List α → List α
-    | [] => soFar
-    | x :: xs => reverseHelper (x :: soFar) xs
+-- ANCHOR: TailReverse
+def Tail.reverseHelper (soFar : List α) : List α → List α
+  | [] => soFar
+  | x :: xs => reverseHelper (x :: soFar) xs
 
-  def Tail.reverse (xs : List α) : List α :=
-    Tail.reverseHelper [] xs
-stop book declaration
+def Tail.reverse (xs : List α) : List α :=
+  Tail.reverseHelper [] xs
+-- ANCHOR_END: TailReverse
 
-evaluation steps {{{ TailReverseSteps }}}
-  Tail.reverse [1, 2, 3]
-  ===>
-  Tail.reverseHelper [] [1, 2, 3]
-  ===>
-  Tail.reverseHelper [1] [2, 3]
-  ===>
-  Tail.reverseHelper [2, 1] [3]
-  ===>
-  Tail.reverseHelper [3, 2, 1] []
-  ===>
-  [3, 2, 1]
+evaluation steps  {{{ TailReverseSteps }}}
+-- ANCHOR: TailReverseSteps
+Tail.reverse [1, 2, 3]
+===>
+Tail.reverseHelper [] [1, 2, 3]
+===>
+Tail.reverseHelper [1] [2, 3]
+===>
+Tail.reverseHelper [2, 1] [3]
+===>
+Tail.reverseHelper [3, 2, 1] []
+===>
+[3, 2, 1]
+-- ANCHOR_END: TailReverseSteps
 end evaluation steps
 
 
@@ -145,11 +153,11 @@ theorem mirror_cps_eq : @CPS.mirror α (BinTree α) id = @Slow.mirror α := by
 
 -- Exercises
 
-book declaration {{{ NonTailLength }}}
-  def NonTail.length : List α → Nat
-    | [] => 0
-    | _ :: xs => NonTail.length xs + 1
-stop book declaration
+-- ANCHOR: NonTailLength
+def NonTail.length : List α → Nat
+  | [] => 0
+  | _ :: xs => NonTail.length xs + 1
+-- ANCHOR_END: NonTailLength
 
 def Tail.lengthHelper (soFar : Nat) : List α → Nat
   | [] => soFar
@@ -159,11 +167,11 @@ def Tail.length (xs : List α) : Nat :=
   Tail.lengthHelper 0 xs
 
 
-book declaration {{{ NonTailFact }}}
-  def NonTail.factorial : Nat → Nat
-    | 0 => 1
-    | n + 1 => factorial n * (n + 1)
-stop book declaration
+-- ANCHOR: NonTailFact
+def NonTail.factorial : Nat → Nat
+  | 0 => 1
+  | n + 1 => factorial n * (n + 1)
+-- ANCHOR_END: NonTailFact
 
 def Tail.factHelper (soFar : Nat) : Nat → Nat
   | 0 => soFar
@@ -171,15 +179,15 @@ def Tail.factHelper (soFar : Nat) : Nat → Nat
 
 def Tail.factorial := factHelper 1
 
-book declaration {{{ NonTailFilter }}}
-  def NonTail.filter (p : α → Bool) : List α → List α
-    | [] => []
-    | x :: xs =>
-      if p x then
-        x :: filter p xs
-      else
-        filter p xs
-stop book declaration
+-- ANCHOR: NonTailFilter
+def NonTail.filter (p : α → Bool) : List α → List α
+  | [] => []
+  | x :: xs =>
+    if p x then
+      x :: filter p xs
+    else
+      filter p xs
+-- ANCHOR_END: NonTailFilter
 
 def Tail.filterHelper (accum : List α) (p : α → Bool) : List α → List α
   | [] => accum.reverse
@@ -191,66 +199,80 @@ def Tail.filterHelper (accum : List α) (p : α → Bool) : List α → List α
 
 def Tail.filter (p : α → Bool) := filterHelper [] p
 
-bookExample {{{ tailFilterTest }}}
-  Tail.filter (· > 3) [1,2,3,4,5,6]
-  ===>
-  [4,5,6]
-end bookExample
+-- ANCHOR: tailFilterTest
+example : (
+Tail.filter (· > 3) [1,2,3,4,5,6]
+) = (
+[4,5,6]
+) := rfl
+-- ANCHOR_END: tailFilterTest
 
-
-expect error {{{ sumEqHelper0 }}}
-  theorem helper_add_sum_accum (xs : List Nat) : (n : Nat) → n + Tail.sum xs = Tail.sumHelper n xs := by
-    skip
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 xs : List Nat
-⊢ ∀ (n : Nat), n + Tail.sum xs = Tail.sumHelper n xs"
-end expect
+⊢ ∀ (n : Nat), n + Tail.sum xs = Tail.sumHelper n xs
+-/
+#check_msgs in
+-- ANCHOR: sumEqHelper0
+theorem helper_add_sum_accum (xs : List Nat) : (n : Nat) → n + Tail.sum xs = Tail.sumHelper n xs := by
+  skip
+-- ANCHOR_END: sumEqHelper0
+stop discarding
 
-
-expect error {{{ sumEqHelperBad0 }}}
-  theorem helper_add_sum_accum (xs : List Nat) (n : Nat) :
-      n + Tail.sum xs = Tail.sumHelper n xs := by
-    skip
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 xs : List Nat
 n : Nat
-⊢ n + Tail.sum xs = Tail.sumHelper n xs"
-end expect
+⊢ n + Tail.sum xs = Tail.sumHelper n xs
+-/
+#check_msgs in
+-- ANCHOR: sumEqHelperBad0
+theorem helper_add_sum_accum (xs : List Nat) (n : Nat) :
+    n + Tail.sum xs = Tail.sumHelper n xs := by
+  skip
+-- ANCHOR_END: sumEqHelperBad0
+stop discarding
 
-
-expect error {{{ sumEqHelperBad1 }}}
-  theorem helper_add_sum_accum (xs : List Nat) (n : Nat) :
-      n + Tail.sum xs = Tail.sumHelper n xs := by
-    induction xs with
-    | nil => rfl
-    | cons y ys ih => skip
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 case cons
 n y : Nat
 ys : List Nat
 ih : n + Tail.sum ys = Tail.sumHelper n ys
-⊢ n + Tail.sum (y :: ys) = Tail.sumHelper n (y :: ys)"
-end expect
+⊢ n + Tail.sum (y :: ys) = Tail.sumHelper n (y :: ys)
+-/
+#check_msgs in
+-- ANCHOR: sumEqHelperBad1
+theorem helper_add_sum_accum (xs : List Nat) (n : Nat) :
+    n + Tail.sum xs = Tail.sumHelper n xs := by
+  induction xs with
+  | nil => rfl
+  | cons y ys ih => skip
+-- ANCHOR_END: sumEqHelperBad1
+stop discarding
 
-
-expect error {{{ sumEqHelperBad2 }}}
-  theorem helper_add_sum_accum (xs : List Nat) (n : Nat) :
-      n + Tail.sum xs = Tail.sumHelper n xs := by
-    induction xs with
-    | nil => rfl
-    | cons y ys ih =>
-      simp [Tail.sum, Tail.sumHelper]
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 case cons
 n y : Nat
 ys : List Nat
 ih : n + Tail.sum ys = Tail.sumHelper n ys
-⊢ n + Tail.sumHelper y ys = Tail.sumHelper (y + n) ys"
-end expect
+⊢ n + Tail.sumHelper y ys = Tail.sumHelper (y + n) ys
+-/
+#check_msgs in
+-- ANCHOR: sumEqHelperBad2
+theorem helper_add_sum_accum (xs : List Nat) (n : Nat) :
+    n + Tail.sum xs = Tail.sumHelper n xs := by
+  induction xs with
+  | nil => rfl
+  | cons y ys ih =>
+    simp [Tail.sum, Tail.sumHelper]
+-- ANCHOR_END: sumEqHelperBad2
+stop discarding
 
 theorem helper_add_sum_accum (xs : List Nat) :
     (n : Nat) → n + Tail.sumHelper 0 xs = Tail.sumHelper n xs := by
@@ -264,392 +286,474 @@ theorem helper_add_sum_accum (xs : List Nat) :
     rw [←Nat.add_comm y n]
     apply ih
 
+discarding
+/-- error:
+unsolved goals
+⊢ NonTail.sum = Tail.sum
+-/
+#check_msgs in
+-- ANCHOR: sumEq0
+theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
+  skip
+-- ANCHOR_END: sumEq0
+stop discarding
 
-expect error {{{ sumEq0 }}}
-  theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
-    skip
-message
-"unsolved goals
-⊢ NonTail.sum = Tail.sum"
-end expect
-
-
-
-expect error {{{ sumEq1 }}}
-  theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
-    funext xs
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 case h
 xs : List Nat
-⊢ NonTail.sum xs = Tail.sum xs"
-end expect
+⊢ NonTail.sum xs = Tail.sum xs
+-/
+#check_msgs in
+-- ANCHOR: sumEq1
+theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
+  funext xs
+-- ANCHOR_END: sumEq1
+stop discarding
 
-
-expect error {{{ sumEq2a }}}
-  theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
-    funext xs
-    induction xs with
-    | nil => skip
-    | cons y ys ih => skip
-message
-"unsolved goals
+discarding
+/--
+error: unsolved goals
 case h.nil
-⊢ NonTail.sum [] = Tail.sum []"
-end expect
-
-expect error {{{ sumEq2b }}}
-  theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
-    funext xs
-    induction xs with
-    | nil => skip
-    | cons y ys ih => skip
-message
-"unsolved goals
+⊢ NonTail.sum [] = Tail.sum []
+---
+error: unsolved goals
 case h.cons
 y : Nat
 ys : List Nat
 ih : NonTail.sum ys = Tail.sum ys
-⊢ NonTail.sum (y :: ys) = Tail.sum (y :: ys)"
-end expect
+⊢ NonTail.sum (y :: ys) = Tail.sum (y :: ys)
+-/
+#check_msgs in
+-- ANCHOR: sumEq2a
+theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
+  funext xs
+  induction xs with
+  | nil => skip
+  | cons y ys ih => skip
+-- ANCHOR_END: sumEq2a
+stop discarding
 
-
-expect error {{{ sumEq3 }}}
-  theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
-    funext xs
-    induction xs with
-    | nil => rfl
-    | cons y ys ih => skip
-message
-"unsolved goals
+discarding
+/--
+error: unsolved goals
+case h.nil
+⊢ NonTail.sum [] = Tail.sum []
+---
+error: unsolved goals
 case h.cons
 y : Nat
 ys : List Nat
 ih : NonTail.sum ys = Tail.sum ys
-⊢ NonTail.sum (y :: ys) = Tail.sum (y :: ys)"
-end expect
+⊢ NonTail.sum (y :: ys) = Tail.sum (y :: ys)
+-/
+#check_msgs in
+-- ANCHOR: sumEq2b
+theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
+  funext xs
+  induction xs with
+  | nil => skip
+  | cons y ys ih => skip
+-- ANCHOR_END: sumEq2b
+stop discarding
 
-
-expect error {{{ sumEq4 }}}
-  theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
-    funext xs
-    induction xs with
-    | nil => rfl
-    | cons y ys ih =>
-      simp [NonTail.sum, Tail.sum]
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 case h.cons
 y : Nat
 ys : List Nat
 ih : NonTail.sum ys = Tail.sum ys
-⊢ y + NonTail.sum ys = Tail.sumHelper 0 (y :: ys)"
-end expect
+⊢ NonTail.sum (y :: ys) = Tail.sum (y :: ys)
+-/
+#check_msgs in
+-- ANCHOR: sumEq3
+theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
+  funext xs
+  induction xs with
+  | nil => rfl
+  | cons y ys ih => skip
+-- ANCHOR_END: sumEq3
+stop discarding
 
-
-expect error {{{ sumEq5 }}}
-  theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
-    funext xs
-    induction xs with
-    | nil => rfl
-    | cons y ys ih =>
-      simp [NonTail.sum, Tail.sum, Tail.sumHelper]
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 case h.cons
 y : Nat
 ys : List Nat
 ih : NonTail.sum ys = Tail.sum ys
-⊢ y + NonTail.sum ys = Tail.sumHelper y ys"
-end expect
+⊢ y + NonTail.sum ys = Tail.sumHelper 0 (y :: ys)
+-/
+#check_msgs in
+-- ANCHOR: sumEq4
+theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
+  funext xs
+  induction xs with
+  | nil => rfl
+  | cons y ys ih =>
+    simp [NonTail.sum, Tail.sum]
+-- ANCHOR_END: sumEq4
+stop discarding
 
-
-expect error {{{ sumEq6 }}}
-  theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
-    funext xs
-    induction xs with
-    | nil => rfl
-    | cons y ys ih =>
-      simp [NonTail.sum, Tail.sum, Tail.sumHelper]
-      rw [ih]
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 case h.cons
 y : Nat
 ys : List Nat
 ih : NonTail.sum ys = Tail.sum ys
-⊢ y + Tail.sum ys = Tail.sumHelper y ys"
-end expect
+⊢ y + NonTail.sum ys = Tail.sumHelper y ys
+-/
+#check_msgs in
+-- ANCHOR: sumEq5
+theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
+  funext xs
+  induction xs with
+  | nil => rfl
+  | cons y ys ih =>
+    simp [NonTail.sum, Tail.sum, Tail.sumHelper]
+-- ANCHOR_END: sumEq5
+stop discarding
 
+discarding
+/-- error:
+unsolved goals
+case h.cons
+y : Nat
+ys : List Nat
+ih : NonTail.sum ys = Tail.sum ys
+⊢ y + Tail.sum ys = Tail.sumHelper y ys
+-/
+#check_msgs in
+-- ANCHOR: sumEq6
+theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
+  funext xs
+  induction xs with
+  | nil => rfl
+  | cons y ys ih =>
+    simp [NonTail.sum, Tail.sum, Tail.sumHelper]
+    rw [ih]
+-- ANCHOR_END: sumEq6
+stop discarding
 
-expect error {{{ nonTailEqHelper0 }}}
-  theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
-      (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
-    skip
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 xs : List Nat
-⊢ ∀ (n : Nat), n + NonTail.sum xs = Tail.sumHelper n xs"
-end expect
+⊢ ∀ (n : Nat), n + NonTail.sum xs = Tail.sumHelper n xs
+-/
+#check_msgs in
+-- ANCHOR: nonTailEqHelper0
+theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
+    (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
+  skip
+-- ANCHOR_END: nonTailEqHelper0
+stop discarding
 
-
-expect error {{{ nonTailEqHelper1a }}}
-  theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
-      (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
-    induction xs with
-    | nil => skip
-    | cons y ys ih => skip
-message
-"unsolved goals
+discarding
+/--
+error: unsolved goals
 case nil
-⊢ ∀ (n : Nat), n + NonTail.sum [] = Tail.sumHelper n []"
-end expect
-
-
-expect error {{{ nonTailEqHelper1b }}}
-  theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
-      (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
-    induction xs with
-    | nil => skip
-    | cons y ys ih => skip
-message
-"unsolved goals
+⊢ ∀ (n : Nat), n + NonTail.sum [] = Tail.sumHelper n []
+---
+error: unsolved goals
 case cons
 y : Nat
 ys : List Nat
 ih : ∀ (n : Nat), n + NonTail.sum ys = Tail.sumHelper n ys
-⊢ ∀ (n : Nat), n + NonTail.sum (y :: ys) = Tail.sumHelper n (y :: ys)"
-end expect
+⊢ ∀ (n : Nat), n + NonTail.sum (y :: ys) = Tail.sumHelper n (y :: ys)
+-/
+#check_msgs in
+-- ANCHOR: nonTailEqHelper1a
+theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
+    (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
+  induction xs with
+  | nil => skip
+  | cons y ys ih => skip
+-- ANCHOR_END: nonTailEqHelper1a
+stop discarding
 
+discarding
+/--
+error: unsolved goals
+case nil
+⊢ ∀ (n : Nat), n + NonTail.sum [] = Tail.sumHelper n []
+---
+error: unsolved goals
+case cons
+y : Nat
+ys : List Nat
+ih : ∀ (n : Nat), n + NonTail.sum ys = Tail.sumHelper n ys
+⊢ ∀ (n : Nat), n + NonTail.sum (y :: ys) = Tail.sumHelper n (y :: ys)
+-/
+#check_msgs in
+-- ANCHOR: nonTailEqHelper1b
+theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
+    (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
+  induction xs with
+  | nil => skip
+  | cons y ys ih => skip
+-- ANCHOR_END: nonTailEqHelper1b
+stop discarding
 
-expect error {{{ nonTailEqHelper2 }}}
-  theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
-      (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
-    induction xs with
-    | nil => intro n
-    | cons y ys ih => skip
-message
-"unsolved goals
+discarding
+/--
+error: unsolved goals
 case nil
 n : Nat
-⊢ n + NonTail.sum [] = Tail.sumHelper n []"
-end expect
-
-
-expect error {{{ nonTailEqHelper3 }}}
-  theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
-      (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
-    induction xs with
-    | nil =>
-      intro n
-      rfl
-    | cons y ys ih => skip
-message
-"unsolved goals
+⊢ n + NonTail.sum [] = Tail.sumHelper n []
+---
+error: unsolved goals
 case cons
 y : Nat
 ys : List Nat
 ih : ∀ (n : Nat), n + NonTail.sum ys = Tail.sumHelper n ys
-⊢ ∀ (n : Nat), n + NonTail.sum (y :: ys) = Tail.sumHelper n (y :: ys)"
-end expect
+⊢ ∀ (n : Nat), n + NonTail.sum (y :: ys) = Tail.sumHelper n (y :: ys)
+-/
+#check_msgs in
+-- ANCHOR: nonTailEqHelper2
+theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
+    (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
+  induction xs with
+  | nil => intro n
+  | cons y ys ih => skip
+-- ANCHOR_END: nonTailEqHelper2
+stop discarding
 
-
-expect error {{{ nonTailEqHelper4 }}}
-  theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
-      (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
-    induction xs with
-    | nil =>
-      intro n
-      rfl
-    | cons y ys ih =>
-      intro n
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 case cons
 y : Nat
 ys : List Nat
 ih : ∀ (n : Nat), n + NonTail.sum ys = Tail.sumHelper n ys
-n : Nat
-⊢ n + NonTail.sum (y :: ys) = Tail.sumHelper n (y :: ys)"
-end expect
+⊢ ∀ (n : Nat), n + NonTail.sum (y :: ys) = Tail.sumHelper n (y :: ys)
+-/
+#check_msgs in
+-- ANCHOR: nonTailEqHelper3
+theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
+    (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
+  induction xs with
+  | nil =>
+    intro n
+    rfl
+  | cons y ys ih => skip
+-- ANCHOR_END: nonTailEqHelper3
+stop discarding
 
-
-expect error {{{ nonTailEqHelper5 }}}
-  theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
-      (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
-    induction xs with
-    | nil =>
-      intro n
-      rfl
-    | cons y ys ih =>
-      intro n
-      simp [NonTail.sum, Tail.sumHelper]
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 case cons
 y : Nat
 ys : List Nat
 ih : ∀ (n : Nat), n + NonTail.sum ys = Tail.sumHelper n ys
 n : Nat
-⊢ n + (y + NonTail.sum ys) = Tail.sumHelper (y + n) ys"
-end expect
+⊢ n + NonTail.sum (y :: ys) = Tail.sumHelper n (y :: ys)
+-/
+#check_msgs in
+-- ANCHOR: nonTailEqHelper4
+theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
+    (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
+  induction xs with
+  | nil =>
+    intro n
+    rfl
+  | cons y ys ih =>
+    intro n
+-- ANCHOR_END: nonTailEqHelper4
+stop discarding
 
-
-expect error {{{ nonTailEqHelper6 }}}
-  theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
-      (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
-    induction xs with
-    | nil =>
-      intro n
-      rfl
-    | cons y ys ih =>
-      intro n
-      simp [NonTail.sum, Tail.sumHelper]
-      rw [←Nat.add_assoc]
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 case cons
 y : Nat
 ys : List Nat
 ih : ∀ (n : Nat), n + NonTail.sum ys = Tail.sumHelper n ys
 n : Nat
-⊢ n + y + NonTail.sum ys = Tail.sumHelper (y + n) ys"
-end expect
+⊢ n + (y + NonTail.sum ys) = Tail.sumHelper (y + n) ys
+-/
+#check_msgs in
+-- ANCHOR: nonTailEqHelper5
+theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
+    (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
+  induction xs with
+  | nil =>
+    intro n
+    rfl
+  | cons y ys ih =>
+    intro n
+    simp [NonTail.sum, Tail.sumHelper]
+-- ANCHOR_END: nonTailEqHelper5
+stop discarding
 
-
-expect error {{{ nonTailEqHelper7 }}}
-  theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
-      (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
-    induction xs with
-    | nil =>
-      intro n
-      rfl
-    | cons y ys ih =>
-      intro n
-      simp [NonTail.sum, Tail.sumHelper]
-      rw [←Nat.add_assoc]
-      rw [Nat.add_comm]
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 case cons
 y : Nat
 ys : List Nat
 ih : ∀ (n : Nat), n + NonTail.sum ys = Tail.sumHelper n ys
 n : Nat
-⊢ NonTail.sum ys + (n + y) = Tail.sumHelper (y + n) ys"
-end expect
+⊢ n + y + NonTail.sum ys = Tail.sumHelper (y + n) ys
+-/
+#check_msgs in
+-- ANCHOR: nonTailEqHelper6
+theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
+    (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
+  induction xs with
+  | nil =>
+    intro n
+    rfl
+  | cons y ys ih =>
+    intro n
+    simp [NonTail.sum, Tail.sumHelper]
+    rw [←Nat.add_assoc]
+-- ANCHOR_END: nonTailEqHelper6
+stop discarding
 
-
-expect error {{{ nonTailEqHelper8 }}}
-  theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
-      (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
-    induction xs with
-    | nil =>
-      intro n
-      rfl
-    | cons y ys ih =>
-      intro n
-      simp [NonTail.sum, Tail.sumHelper]
-      rw [←Nat.add_assoc]
-      rw [Nat.add_comm y n]
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 case cons
 y : Nat
 ys : List Nat
 ih : ∀ (n : Nat), n + NonTail.sum ys = Tail.sumHelper n ys
 n : Nat
-⊢ n + y + NonTail.sum ys = Tail.sumHelper (n + y) ys"
-end expect
+⊢ NonTail.sum ys + (n + y) = Tail.sumHelper (y + n) ys
+-/
+#check_msgs in
+-- ANCHOR: nonTailEqHelper7
+theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
+    (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
+  induction xs with
+  | nil =>
+    intro n
+    rfl
+  | cons y ys ih =>
+    intro n
+    simp [NonTail.sum, Tail.sumHelper]
+    rw [←Nat.add_assoc]
+    rw [Nat.add_comm]
+-- ANCHOR_END: nonTailEqHelper7
+stop discarding
+
+discarding
+/-- error:
+unsolved goals
+case cons
+y : Nat
+ys : List Nat
+ih : ∀ (n : Nat), n + NonTail.sum ys = Tail.sumHelper n ys
+n : Nat
+⊢ n + y + NonTail.sum ys = Tail.sumHelper (n + y) ys
+-/
+#check_msgs in
+-- ANCHOR: nonTailEqHelper8
+theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
+    (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
+  induction xs with
+  | nil =>
+    intro n
+    rfl
+  | cons y ys ih =>
+    intro n
+    simp [NonTail.sum, Tail.sumHelper]
+    rw [←Nat.add_assoc]
+    rw [Nat.add_comm y n]
+-- ANCHOR_END: nonTailEqHelper8
+stop discarding
+
+-- ANCHOR: nonTailEqHelperDone
+theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
+    (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
+  induction xs with
+  | nil => intro n; rfl
+  | cons y ys ih =>
+    intro n
+    simp [NonTail.sum, Tail.sumHelper]
+    rw [←Nat.add_assoc]
+    rw [Nat.add_comm y n]
+    exact ih (n + y)
+-- ANCHOR_END: nonTailEqHelperDone
 
 
+-- ANCHOR: NatAddAssoc
+example : (n m k : Nat) → (n + m) + k = n + (m + k) := Nat.add_assoc
+-- ANCHOR_END: NatAddAssoc
 
-book declaration {{{ nonTailEqHelperDone }}}
-  theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
-      (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
-    induction xs with
-    | nil => intro n; rfl
-    | cons y ys ih =>
-      intro n
-      simp [NonTail.sum, Tail.sumHelper]
-      rw [←Nat.add_assoc]
-      rw [Nat.add_comm y n]
-      exact ih (n + y)
-stop book declaration
+-- ANCHOR: NatAddComm
+example : (n m : Nat) → n + m = m + n := Nat.add_comm
+-- ANCHOR_END: NatAddComm
 
 
-bookExample type {{{ NatAddAssoc }}}
-  Nat.add_assoc
-  ===>
-  (n m k : Nat) → (n + m) + k = n + (m + k)
-end bookExample
-
-bookExample type {{{ NatAddComm }}}
-  Nat.add_comm
-  ===>
-  (n m : Nat) → n + m = m + n
-end bookExample
-
-
-
-expect error {{{ nonTailEqReal0 }}}
-  theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
-    funext xs
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 case h
 xs : List Nat
-⊢ NonTail.sum xs = Tail.sum xs"
-end expect
+⊢ NonTail.sum xs = Tail.sum xs
+-/
+#check_msgs in
+-- ANCHOR: nonTailEqReal0
+theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
+  funext xs
+-- ANCHOR_END: nonTailEqReal0
+stop discarding
 
-
-expect error {{{ nonTailEqReal1 }}}
-  theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
-    funext xs
-    simp [Tail.sum]
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 case h
 xs : List Nat
-⊢ NonTail.sum xs = Tail.sumHelper 0 xs"
-end expect
+⊢ NonTail.sum xs = Tail.sumHelper 0 xs
+-/
+#check_msgs in
+-- ANCHOR: nonTailEqReal1
+theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
+  funext xs
+  simp [Tail.sum]
+-- ANCHOR_END: nonTailEqReal1
+stop discarding
 
-bookExample type {{{ NatZeroAdd }}}
-  Nat.zero_add
-  ===>
-  (n : Nat) → 0 + n = n
-end bookExample
+-- ANCHOR: NatZeroAdd
+example : (n : Nat) → 0 + n = n := Nat.zero_add
+-- ANCHOR_END: NatZeroAdd
 
 namespace Wak
 axiom xs : List Nat
 
-bookExample type {{{ NatZeroAddApplied }}}
-  Nat.zero_add (NonTail.sum xs)
-  ===>
-  0 + NonTail.sum xs = NonTail.sum xs
-end bookExample
+-- ANCHOR: NatZeroAddApplied
+example : 0 + NonTail.sum xs = NonTail.sum xs := Nat.zero_add (NonTail.sum xs)
+-- ANCHOR_END: NatZeroAddApplied
 end Wak
 
-expect error {{{ nonTailEqReal2 }}}
-  theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
-    funext xs
-    simp [Tail.sum]
-    rw [←Nat.zero_add (NonTail.sum xs)]
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 case h
 xs : List Nat
-⊢ 0 + NonTail.sum xs = Tail.sumHelper 0 xs"
-end expect
+⊢ 0 + NonTail.sum xs = Tail.sumHelper 0 xs
+-/
+#check_msgs in
+-- ANCHOR: nonTailEqReal2
+theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
+  funext xs
+  simp [Tail.sum]
+  rw [←Nat.zero_add (NonTail.sum xs)]
+-- ANCHOR_END: nonTailEqReal2
+stop discarding
 
-
-book declaration {{{ nonTailEqRealDone }}}
-  theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
-    funext xs
-    simp [Tail.sum]
-    rw [←Nat.zero_add (NonTail.sum xs)]
-    exact non_tail_sum_eq_helper_accum xs 0
-stop book declaration
+-- ANCHOR: nonTailEqRealDone
+theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
+  funext xs
+  simp [Tail.sum]
+  rw [←Nat.zero_add (NonTail.sum xs)]
+  exact non_tail_sum_eq_helper_accum xs 0
+-- ANCHOR_END: nonTailEqRealDone
 
 
 theorem reverse_helper (xs : List α) : (ys : List α) → NonTail.reverse xs ++ ys = Tail.reverseHelper ys xs := by
@@ -659,16 +763,20 @@ theorem reverse_helper (xs : List α) : (ys : List α) → NonTail.reverse xs ++
     intro ys
     simp [NonTail.reverse, Tail.reverseHelper, ← ih]
 
-expect error {{{ reverseEqStart }}}
-  theorem non_tail_reverse_eq_tail_reverse : @NonTail.reverse = @Tail.reverse := by
-    funext α xs
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 case h.h
 α : Type u_1
 xs : List α
-⊢ NonTail.reverse xs = Tail.reverse xs"
-end expect
+⊢ NonTail.reverse xs = Tail.reverse xs
+-/
+#check_msgs in
+-- ANCHOR: reverseEqStart
+theorem non_tail_reverse_eq_tail_reverse : @NonTail.reverse = @Tail.reverse := by
+  funext α xs
+-- ANCHOR_END: reverseEqStart
+stop discarding
 
 theorem non_tail_reverse_eq_tail_reverse : @NonTail.reverse = @Tail.reverse := by
   funext α xs

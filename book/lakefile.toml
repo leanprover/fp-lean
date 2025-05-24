@@ -4,9 +4,8 @@ defaultTargets = ["fp-lean"]
 
 [[require]]
 name = "verso"
-path = "../../lean/leandoc"
-#git = "https://github.com/leanprover/verso.git"
-#rev = "parser-replacer"
+git = "https://github.com/leanprover/verso.git"
+rev = "nightly-testing"
 
 [[lean_lib]]
 name = "FPLean"

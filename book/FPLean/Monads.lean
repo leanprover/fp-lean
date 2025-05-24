@@ -4,7 +4,8 @@ import FPLean.Examples
 import FPLean.Monads.Class
 import FPLean.Monads.Arithmetic
 
-open Verso.Genre Manual ExternalLean
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 
@@ -132,7 +133,7 @@ Improving the syntax used to write {anchorName firstThirdandThenExpl}`andThen` c
 ### Infix Operators
 
 In Lean, infix operators can be declared using the {kw}`infix`, {kw}`infixl`, and {kw}`infixr` commands, which create (respectively) non-associative, left-associative, and right-associative operators.
-When used multiple times in a row, a {tech}_left associative_ operator stacks up the opening parentheses on the left side of the expression.
+When used multiple times in a row, a {deftech}_left associative_ operator stacks up the opening parentheses on the left side of the expression.
 The addition operator `+` is left associative, so {anchorTerm plusFixity}`w + x + y + z` is equivalent to {anchorTerm plusFixity}`(((w + x) + y) + z)`.
 The exponentiation operator `^` is right associative, so {anchorTerm powFixity}`w ^ x ^ y ^ z` is equivalent to {anchorTerm powFixity}`w ^ (x ^ (y ^ z))`.
 Comparison operators such as `<` are non-associative, so `x < y < z` is a syntax error and requires manual parentheses.
@@ -143,7 +144,7 @@ The following declaration makes {anchorName andThenOptArr}`andThen` into an infi
 ```anchor andThenOptArr
 infixl:55 " ~~> " => andThen
 ```
-The number following the colon declares the {tech}_precedence_ of the new infix operator.
+The number following the colon declares the {deftech}_precedence_ of the new infix operator.
 In ordinary mathematical notation, {anchorTerm plusTimesPrec}`x + y * z` is equivalent to {anchorTerm plusTimesPrec}`x + (y * z)` even though both `+` and `*` are left associative.
 In Lean, `+` has precedence 65 and `*` has precedence 70.
 Higher-precedence operators are applied before lower-precedence operators.
@@ -466,7 +467,7 @@ def inorderSum : BinTree Int → WithLog Int Int
 
 ## Numbering Tree Nodes
 
-An {tech}_inorder numbering_ of a tree associates each data point in the tree with the step it would be visited at in an inorder traversal of the tree.
+An {deftech}_inorder numbering_ of a tree associates each data point in the tree with the step it would be visited at in an inorder traversal of the tree.
 For example, consider {anchorName aTree}`aTree`:
 
 ```anchor aTree
@@ -627,7 +628,7 @@ Each of these examples has consisted of:
  * An operator `ok` that is (in some sense) the most boring way to use the type
  * A collection of other operations, such as {moduleName}`none`, {anchorName failExcept}`fail`, {anchorName save}`save`, and {anchorName get}`get`, that name ways of using the type
 
-This style of API is called a {tech}_monad_.
+This style of API is called a {deftech}_monad_.
 While the idea of monads is derived from a branch of mathematics called category theory, no understanding of category theory is needed in order to use them for programming.
 The key idea of monads is that each monad encodes a particular kind of side effect using the tools provided by the pure functional language Lean.
 For example, {moduleName}`Option` represents programs that can fail by returning {moduleName}`none`, {moduleName}`Except` represents programs that can throw exceptions, {moduleName}`WithLog` represents programs that accumulate a log while running, and {anchorName State}`State` represents programs with a single mutable variable.

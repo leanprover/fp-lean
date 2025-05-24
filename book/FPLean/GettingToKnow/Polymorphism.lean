@@ -1,13 +1,17 @@
 import VersoManual
 import FPLean.Examples
 
-open Verso.Genre Manual ExternalLean
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 
 example_module Examples.Intro
 
 #doc (Manual) "Polymorphism" =>
+%%%
+tag := "polymorphism"
+%%%
 
 Just as in most languages, types in Lean can take arguments.
 For instance, the type {term}`List Nat` describes lists of natural numbers, {term}`List String` describes lists of strings, and {term}`List (List Point)` describes lists of lists of points.

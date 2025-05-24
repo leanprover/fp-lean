@@ -1,7 +1,8 @@
 import VersoManual
 import FPLean.Examples
 
-open Verso.Genre Manual ExternalLean
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 
@@ -188,7 +189,7 @@ leads to a message about the {kw}`match` expression:
 {exampleError unzipNoTypesAtAll}
 
 This is because {kw}`match` needs to know the type of the value being inspected, but that type was not available.
-A “metavariable” is an unknown part of a program, written `?m.XYZ` in error messages—they are described in the [section on Polymorphism](polymorphism.md).
+A “metavariable” is an unknown part of a program, written `?m.XYZ` in error messages—they are described in the {ref "polymorphism"}[section on Polymorphism].
 In this program, the type annotation on the argument is required.
 :::
 
@@ -248,7 +249,7 @@ Simultaneously matching both lists is accepted:
 
 :::paragraph
 
-In the section on [datatypes and patterns](datatypes-and-patterns.md), {term}`even.name` was defined like this:
+In the section on {ref "datatypes-and-patterns"}[datatypes and patterns], {term}`even.name` was defined like this:
 
 {exampleDecl even}
 
@@ -460,7 +461,7 @@ In some contexts, using {kw}`if let` instead of {kw}`match` can make code easier
 
 # Positional Structure Arguments
 
-The [section on structures](structures.md) presents two ways of constructing structures:
+The {ref "structures"}[section on structures] presents two ways of constructing structures:
  1. The constructor can be called directly, as in {exampleIn}`pointCtor`.
  2. Brace notation can be used, as in {exampleIn}`pointBraces`.
 
@@ -512,5 +513,5 @@ yields the error
 
 This is because there is no standard way to convert functions into strings.
 The Lean compiler maintains a table that describes how to convert values of various types into strings, and the message `failed to synthesize instance` means that the Lean compiler didn't find an entry in this table for the given type.
-This uses the same language feature as the `deriving Repr` syntax that was described in the [section on structures](structures.md).
+This uses the same language feature as the `deriving Repr` syntax that was described in the {ref "structures"}[section on structures].
 :::

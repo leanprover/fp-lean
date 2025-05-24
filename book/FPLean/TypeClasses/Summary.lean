@@ -1,7 +1,8 @@
 import VersoManual
 import FPLean.Examples
 
-open Verso.Genre Manual ExternalLean
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 
@@ -25,13 +26,13 @@ This means that the behavior can vary based on which type is provided.
 
 A _type class_ has a name, parameters, and a body that consists of a number of names with types.
 The name is a way to refer to the overloaded operations, the parameters determine which aspects of the definitions can be overloaded, and the body provides the names and type signatures of the overloadable operations.
-Each overloadable operation is called a {tech}_method_ of the type class.
+Each overloadable operation is called a {deftech}_method_ of the type class.
 Type classes may provide default implementations of some methods in terms of the others, freeing implementors from defining each overload by hand when it is not needed.
 
-An {tech}_instance_ of a type class provides implementations of the methods for given parameters.
+An {deftech}_instance_ of a type class provides implementations of the methods for given parameters.
 Instances may be polymorphic, in which case they can work for a variety of parameters, and they may optionally provide more specific implementations of default methods in cases where a more efficient version exists for some particular type.
 
-Type class parameters are either {tech}_input parameters_ (the default), or {tech}_output parameters_ (indicated by an {moduleName}`outParam` modifier).
+Type class parameters are either {deftech}_input parameters_ (the default), or {deftech}_output parameters_ (indicated by an {moduleName}`outParam` modifier).
 Lean will not begin searching for an instance until all input parameters are no longer metavariables, while output parameters may be solved while searching for instances.
 Parameters to a type class need not be types—they may also be ordinary values.
 The {moduleName}`OfNat` type class, used to overload natural number literals, takes the overloaded {moduleName}`Nat` itself as a parameter, which allows instances to restrict the allowed numbers.

@@ -1,7 +1,8 @@
 import VersoManual
 import FPLean.Examples
 
-open Verso.Genre Manual ExternalLean
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 
@@ -11,6 +12,9 @@ set_option verso.exampleModule "Examples.Classes"
 set_option pp.rawOnError true
 
 #doc (Manual) "Type Classes and Polymorphism" =>
+%%%
+tag := "tc-polymorphism"
+%%%
 
 It can be useful to write functions that work for _any_ overloading of a given function.
 For example, {anchorTerm printlnType}`IO.println` works for any type that has an instance of {anchorTerm printlnType}`ToString`.
@@ -97,7 +101,7 @@ This process relies only on the specific types involved in the function's defini
 For instance implicits, Lean instead consults a built-in table of instance values.
 
 Just as the {anchorTerm OfNatPos}`OfNat` instance for {anchorName OfNatPos}`Pos` took a natural number {anchorName OfNatPos}`n` as an automatic implicit argument, instances may also take instance implicit arguments themselves.
-The [section on polymorphism](../getting-to-know/polymorphism.md) presented a polymorphic point type:
+The {ref "polymorphism"}[section on polymorphism] presented a polymorphic point type:
 
 ```anchor PPoint
 structure PPoint (α : Type) where

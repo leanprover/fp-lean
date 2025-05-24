@@ -1,4 +1,4 @@
-import Examples.Support
+import ExampleSupport
 
 set_option guard_msgs.diff true
 

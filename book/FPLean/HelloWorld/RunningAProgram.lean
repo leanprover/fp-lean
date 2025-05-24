@@ -2,7 +2,8 @@ import VersoManual
 import FPLean.Examples
 
 
-open Verso.Genre Manual ExternalLean
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 
@@ -13,7 +14,9 @@ set_option verso.exampleModule "HelloName"
 example_module Hello
 
 #doc (Manual) "Running a Program" =>
-
+%%%
+tag := "running-a-program"
+%%%
 
 :::paragraph
 The simplest way to run a Lean program is to use the `--run` option to the Lean executable.
@@ -41,7 +44,7 @@ In programs that do not take command-line arguments, {moduleName module:=Hello}`
 This means that {moduleName module:=Hello}`main` is not a function, because there are no arrows (`→`) in its type.
 Instead of being a function that has side effects, {moduleTerm}`main` consists of a description of effects to be carried out.
 
-As discussed in [the preceding chapter](../getting-to-know/polymorphism.md), {moduleTerm}`Unit` is the simplest inductive type.
+As discussed in {ref "polymorphism"}[the preceding chapter], {moduleTerm}`Unit` is the simplest inductive type.
 It has a single constructor called {moduleTerm}`unit` that takes no arguments.
 Languages in the C tradition have a notion of a {CSharp}`void` function that does not return any value at all.
 In Lean, all functions take an argument and return a value, and the lack of interesting arguments or return values can be signaled by using the {moduleTerm}`Unit` type instead.

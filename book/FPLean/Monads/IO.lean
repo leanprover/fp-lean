@@ -1,7 +1,8 @@
 import VersoManual
 import FPLean.Examples
 
-open Verso.Genre Manual ExternalLean
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 
@@ -10,7 +11,7 @@ set_option verso.exampleModule "Examples.Monads.IO"
 
 #doc (Manual) "The IO Monad" =>
 
-`IO` as a monad can be understood from two perspectives, which were described in the section on [running programs](../hello-world/running-a-program.md).
+`IO` as a monad can be understood from two perspectives, which were described in the section on {ref "running-a-program"}[running programs].
 Each can help to understand the meanings of `pure` and `bind` for `IO`.
 
 From the first perspective, an `IO` action is an instruction to Lean's run-time system.

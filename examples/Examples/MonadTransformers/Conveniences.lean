@@ -1,4 +1,4 @@
-import Examples.Support
+import ExampleSupport
 
 #eval [3] |> List.reverse
 
@@ -14,97 +14,115 @@ axiom E2 : α → β
 axiom E3 : β → γ
 axiom E4 : γ → δ
 
-bookExample {{{ pipelineShort }}}
-  E1 |> E2
-  ===>
-  E2 E1
-end bookExample
+-- ANCHOR: pipelineShort
+example : (
+E1 |> E2
+) = (
+E2 E1
+) := rfl
+-- ANCHOR_END: pipelineShort
 
 
-bookExample {{{ pipeline }}}
-  E1 |> E2 |> E3 |> E4
-  ===>
-  E4 (E3 (E2 E1))
-end bookExample
+-- ANCHOR: pipeline
+example : (
+E1 |> E2 |> E3 |> E4
+) = (
+E4 (E3 (E2 E1))
+) := rfl
+-- ANCHOR_END: pipeline
 
 
-expect info {{{ some5 }}}
-  #eval some 5 |> toString
-message
-"\"(some 5)\""
-end expect
+/-- info:
+"(some 5)"
+-/
+#check_msgs in
+-- ANCHOR: some5
+#eval some 5 |> toString
+-- ANCHOR_END: some5
 
 
-book declaration {{{ times3 }}}
-  def times3 (n : Nat) : Nat := n * 3
-stop book declaration
+-- ANCHOR: times3
+def times3 (n : Nat) : Nat := n * 3
+-- ANCHOR_END: times3
 
-expect info {{{ itIsFive }}}
-  #eval 5 |> times3 |> toString |> ("It is " ++ ·)
-message
-"\"It is 15\""
-end expect
+/-- info:
+"It is 15"
+-/
+#check_msgs in
+-- ANCHOR: itIsFive
+#eval 5 |> times3 |> toString |> ("It is " ++ ·)
+-- ANCHOR_END: itIsFive
 
 
-expect info {{{ itIsAlsoFive }}}
-  #eval ("It is " ++ ·) <| toString <| times3 <| 5
-message
-"\"It is 15\""
-end expect
+/-- info:
+"It is 15"
+-/
+#check_msgs in
+-- ANCHOR: itIsAlsoFive
+#eval ("It is " ++ ·) <| toString <| times3 <| 5
+-- ANCHOR_END: itIsAlsoFive
 
-expect info {{{ itIsAlsoFiveParens }}}
-  #eval ("It is " ++ ·) (toString (times3 5))
-message
-"\"It is 15\""
-end expect
+/-- info:
+"It is 15"
+-/
+#check_msgs in
+-- ANCHOR: itIsAlsoFiveParens
+#eval ("It is " ++ ·) (toString (times3 5))
+-- ANCHOR_END: itIsAlsoFiveParens
 
 
 end PipelineEx
 
-bookExample {{{ listReverse }}}
-  [1, 2, 3].reverse
-  ===>
-  List.reverse [1, 2, 3]
-end bookExample
+-- ANCHOR: listReverse
+example : (
+[1, 2, 3].reverse
+) = (
+List.reverse [1, 2, 3]
+) := rfl
+-- ANCHOR_END: listReverse
 
-bookExample {{{ listReverseDropReverse }}}
-  ([1, 2, 3].reverse.drop 1).reverse
-  ===>
-  [1, 2, 3] |> List.reverse |> List.drop 1 |> List.reverse
-end bookExample
+-- ANCHOR: listReverseDropReverse
+example : (
+([1, 2, 3].reverse.drop 1).reverse
+) = (
+[1, 2, 3] |> List.reverse |> List.drop 1 |> List.reverse
+) := rfl
+-- ANCHOR_END: listReverseDropReverse
 
-bookExample {{{ listReverseDropReversePipe }}}
-  [1, 2, 3] |> List.reverse |> List.drop 1 |> List.reverse
-  ===>
-  [1, 2, 3] |>.reverse |>.drop 1 |>.reverse
-end bookExample
+-- ANCHOR: listReverseDropReversePipe
+example : (
+[1, 2, 3] |> List.reverse |> List.drop 1 |> List.reverse
+) = (
+[1, 2, 3] |>.reverse |>.drop 1 |>.reverse
+) := rfl
+-- ANCHOR_END: listReverseDropReversePipe
 
 
-book declaration {{{ spam }}}
-  def spam : IO Unit := do
-    repeat IO.println "Spam!"
-stop book declaration
+-- ANCHOR: spam
+def spam : IO Unit := do
+  repeat IO.println "Spam!"
+-- ANCHOR_END: spam
 
 
 def bufsize : USize := 20 * 1024
 
 
-book declaration {{{ dump }}}
-  def dump (stream : IO.FS.Stream) : IO Unit := do
-    let stdout ← IO.getStdout
-    repeat do
-      let buf ← stream.read bufsize
-      if buf.isEmpty then break
-      stdout.write buf
-stop book declaration
+-- ANCHOR: dump
+def dump (stream : IO.FS.Stream) : IO Unit := do
+  let stdout ← IO.getStdout
+  repeat do
+    let buf ← stream.read bufsize
+    if buf.isEmpty then break
+    stdout.write buf
+-- ANCHOR_END: dump
 
 namespace More
-book declaration {{{ dumpWhile }}}
-  def dump (stream : IO.FS.Stream) : IO Unit := do
-    let stdout ← IO.getStdout
-    let mut buf ← stream.read bufsize
-    while not buf.isEmpty do
-      stdout.write buf
-      buf ← stream.read bufsize
-stop book declaration
+-- ANCHOR: dumpWhile
+def dump (stream : IO.FS.Stream) : IO Unit := do
+  let stdout ← IO.getStdout
+  let mut buf ← stream.read bufsize
+  while not buf.isEmpty do
+    stdout.write buf
+    buf ← stream.read bufsize
+-- ANCHOR_END: dumpWhile
 end More

@@ -1,173 +1,197 @@
-import Examples.Support
+import ExampleSupport
 
 namespace Orders
-book declaration {{{ less }}}
-  class LE (α : Type u) where
-    le : α → α → Prop
+-- ANCHOR: less
+class LE (α : Type u) where
+  le : α → α → Prop
 
-  class LT (α : Type u) where
-    lt : α → α → Prop
-stop book declaration
-
-
-book declaration {{{ NatLe }}}
-  inductive Nat.le (n : Nat) : Nat → Prop
-    | refl : Nat.le n n
-    | step : Nat.le n m → Nat.le n (m + 1)
-stop book declaration
-
-book declaration {{{ LENat }}}
-  instance : LE Nat where
-    le := Nat.le
-stop book declaration
+class LT (α : Type u) where
+  lt : α → α → Prop
+-- ANCHOR_END: less
 
 
-book declaration {{{ NatLt }}}
-  def Nat.lt (n m : Nat) : Prop :=
-    Nat.le (n + 1) m
+-- ANCHOR: NatLe
+inductive Nat.le (n : Nat) : Nat → Prop
+  | refl : Nat.le n n
+  | step : Nat.le n m → Nat.le n (m + 1)
+-- ANCHOR_END: NatLe
 
-  instance : LT Nat where
-    lt := Nat.lt
-stop book declaration
+-- ANCHOR: LENat
+instance : LE Nat where
+  le := Nat.le
+-- ANCHOR_END: LENat
+
+
+-- ANCHOR: NatLt
+def Nat.lt (n m : Nat) : Prop :=
+  Nat.le (n + 1) m
+
+instance : LT Nat where
+  lt := Nat.lt
+-- ANCHOR_END: NatLt
 
 end Orders
 example := Nat.le
 
-book declaration {{{ EasyToProve }}}
-  inductive EasyToProve : Prop where
-    | heresTheProof : EasyToProve
-stop book declaration
+-- ANCHOR: EasyToProve
+inductive EasyToProve : Prop where
+  | heresTheProof : EasyToProve
+-- ANCHOR_END: EasyToProve
 
 
-book declaration {{{ fairlyEasy }}}
-  theorem fairlyEasy : EasyToProve := by
-    constructor
-stop book declaration
+-- ANCHOR: fairlyEasy
+theorem fairlyEasy : EasyToProve := by
+  constructor
+-- ANCHOR_END: fairlyEasy
 
 namespace Argh
-book declaration {{{ True }}}
-  inductive True : Prop where
-    | intro : True
-stop book declaration
+-- ANCHOR: True
+inductive True : Prop where
+  | intro : True
+-- ANCHOR_END: True
 end Argh
 
 
-book declaration {{{ IsThree }}}
-  inductive IsThree : Nat → Prop where
-    | isThree : IsThree 3
-stop book declaration
+-- ANCHOR: IsThree
+inductive IsThree : Nat → Prop where
+  | isThree : IsThree 3
+-- ANCHOR_END: IsThree
 
 
-book declaration {{{ IsFive }}}
-  inductive IsFive : Nat → Prop where
-    | isFive : IsFive 5
-stop book declaration
+-- ANCHOR: IsFive
+inductive IsFive : Nat → Prop where
+  | isFive : IsFive 5
+-- ANCHOR_END: IsFive
 
 
-book declaration {{{ threeIsThree }}}
-  theorem three_is_three : IsThree 3 := by
-    constructor
-stop book declaration
+-- ANCHOR: threeIsThree
+theorem three_is_three : IsThree 3 := by
+  constructor
+-- ANCHOR_END: threeIsThree
 
-
-expect error {{{ threePlusTwoFive0 }}}
-  theorem three_plus_two_five : IsThree n → IsFive (n + 2) := by
-    skip
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 n : Nat
-⊢ IsThree n → IsFive (n + 2)"
-end expect
+⊢ IsThree n → IsFive (n + 2)
+-/
+#check_msgs in
+-- ANCHOR: threePlusTwoFive0
+theorem three_plus_two_five : IsThree n → IsFive (n + 2) := by
+  skip
+-- ANCHOR_END: threePlusTwoFive0
+stop discarding
 
-expect error {{{ threePlusTwoFive1 }}}
-  theorem three_plus_two_five : IsThree n → IsFive (n + 2) := by
-    intro three
-message
-"unsolved goals
-n : Nat
-three : IsThree n
-⊢ IsFive (n + 2)"
-end expect
-
-
-expect error {{{ threePlusTwoFive1a }}}
-  theorem three_plus_two_five : IsThree n → IsFive (n + 2) := by
-    intro three
-    constructor
-message
-"tactic 'constructor' failed, no applicable constructor found
+discarding
+/-- error:
+unsolved goals
 n : Nat
 three : IsThree n
-⊢ IsFive (n + 2)"
-end expect
+⊢ IsFive (n + 2)
+-/
+#check_msgs in
+-- ANCHOR: threePlusTwoFive1
+theorem three_plus_two_five : IsThree n → IsFive (n + 2) := by
+  intro three
+-- ANCHOR_END: threePlusTwoFive1
+stop discarding
 
-expect error {{{ threePlusTwoFive2 }}}
-  theorem three_plus_two_five : IsThree n → IsFive (n + 2) := by
-    intro three
-    cases three with
-    | isThree => skip
-message
-"unsolved goals
+discarding
+/-- error:
+tactic 'constructor' failed, no applicable constructor found
+n : Nat
+three : IsThree n
+⊢ IsFive (n + 2)
+-/
+#check_msgs in
+-- ANCHOR: threePlusTwoFive1a
+theorem three_plus_two_five : IsThree n → IsFive (n + 2) := by
+  intro three
+  constructor
+-- ANCHOR_END: threePlusTwoFive1a
+stop discarding
+
+discarding
+/-- error:
+unsolved goals
 case isThree
-⊢ IsFive (3 + 2)"
-end expect
+⊢ IsFive (3 + 2)
+-/
+#check_msgs in
+-- ANCHOR: threePlusTwoFive2
+theorem three_plus_two_five : IsThree n → IsFive (n + 2) := by
+  intro three
+  cases three with
+  | isThree => skip
+-- ANCHOR_END: threePlusTwoFive2
+stop discarding
 
-
-book declaration {{{ threePlusTwoFive3 }}}
+discarding
+-- ANCHOR: threePlusTwoFive3
 theorem three_plus_two_five : IsThree n → IsFive (n + 2) := by
   intro three
   cases three with
   | isThree => constructor
-stop book declaration
+-- ANCHOR_END: threePlusTwoFive3
+stop discarding
 
+discarding
+/-- error:
+unsolved goals
+⊢ ¬IsThree 4
+-/
+#check_msgs in
+-- ANCHOR: fourNotThree0
+theorem four_is_not_three : ¬ IsThree 4 := by
+  skip
+-- ANCHOR_END: fourNotThree0
+stop discarding
 
-expect error {{{ fourNotThree0 }}}
-  theorem four_is_not_three : ¬ IsThree 4 := by
-    skip
-message
-"unsolved goals
-⊢ ¬IsThree 4"
-end expect
+discarding
+/-- error:
+unsolved goals
+⊢ IsThree 4 → False
+-/
+#check_msgs in
+-- ANCHOR: fourNotThree1
+theorem four_is_not_three : ¬ IsThree 4 := by
+  unfold Not
+-- ANCHOR_END: fourNotThree1
+stop discarding
 
-
-expect error {{{ fourNotThree1 }}}
-  theorem four_is_not_three : ¬ IsThree 4 := by
-    unfold Not
-message
-"unsolved goals
-⊢ IsThree 4 → False"
-end expect
-
-
-expect error {{{ fourNotThree2 }}}
-  theorem four_is_not_three : ¬ IsThree 4 := by
-    intro h
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 h : IsThree 4
-⊢ False"
-end expect
+⊢ False
+-/
+#check_msgs in
+-- ANCHOR: fourNotThree2
+theorem four_is_not_three : ¬ IsThree 4 := by
+  intro h
+-- ANCHOR_END: fourNotThree2
+stop discarding
 
-
-book declaration {{{ fourNotThreeDone }}}
+discarding
+-- ANCHOR: fourNotThreeDone
 theorem four_is_not_three : ¬ IsThree 4 := by
   intro h
   cases h
-stop book declaration
+-- ANCHOR_END: fourNotThreeDone
+stop discarding
 
 
+-- ANCHOR: four_le_seven
+theorem four_le_seven : 4 ≤ 7 :=
+  open Nat.le in
+  step (step (step refl))
+-- ANCHOR_END: four_le_seven
 
-book declaration {{{ four_le_seven }}}
-  theorem four_le_seven : 4 ≤ 7 :=
-    open Nat.le in
-    step (step (step refl))
-stop book declaration
-
-book declaration {{{ four_lt_seven }}}
-  theorem four_lt_seven : 4 < 7 :=
-    open Nat.le in
-    step (step refl)
-stop book declaration
+-- ANCHOR: four_lt_seven
+theorem four_lt_seven : 4 < 7 :=
+  open Nat.le in
+  step (step refl)
+-- ANCHOR_END: four_lt_seven
 
 
 namespace WithFor
@@ -182,14 +206,9 @@ end WithFor
 
 
 
-
-expect error {{{ mapHelperIndexIssue }}}
-  def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
-    if i < arr.size then
-      arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
-    else soFar
-message
-"failed to prove index is valid, possible solutions:
+discarding
+/-- error:
+failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
   - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
@@ -200,62 +219,72 @@ f : α → β
 arr : Array α
 soFar : Array β
 i : Nat
-⊢ i < arr.size"
-end expect
-
-discarding
-book declaration {{{ arrayMapHelperTermIssue }}}
-  def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
-    if inBounds : i < arr.size then
-      arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
-    else soFar
-stop book declaration
+⊢ i < arr.size
+-/
+#check_msgs in
+-- ANCHOR: mapHelperIndexIssue
+def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
+  if i < arr.size then
+    arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
+  else soFar
+-- ANCHOR_END: mapHelperIndexIssue
 stop discarding
 
-book declaration {{{ ArrayMapHelperOk }}}
-  def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
-    if inBounds : i < arr.size then
-      arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
-    else soFar
-  termination_by arr.size - i
-stop book declaration
+discarding
+-- ANCHOR: arrayMapHelperTermIssue
+def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
+  if inBounds : i < arr.size then
+    arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
+  else soFar
+-- ANCHOR_END: arrayMapHelperTermIssue
+stop discarding
+
+-- ANCHOR: ArrayMapHelperOk
+def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
+  if inBounds : i < arr.size then
+    arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
+  else soFar
+termination_by arr.size - i
+-- ANCHOR_END: ArrayMapHelperOk
 
 namespace TailRec
 
-book declaration {{{ ArrayMap }}}
-  def Array.map (f : α → β) (arr : Array α) : Array β :=
-    arrayMapHelper f arr Array.empty 0
-stop book declaration
+-- ANCHOR: ArrayMap
+def Array.map (f : α → β) (arr : Array α) : Array β :=
+  arrayMapHelper f arr Array.empty 0
+-- ANCHOR_END: ArrayMap
 
 end TailRec
 
 
-book declaration {{{ ArrayFindHelper }}}
-  def findHelper (arr : Array α) (p : α → Bool) (i : Nat) : Option (Nat × α) :=
-    if h : i < arr.size then
-      let x := arr[i]
-      if p x then
-        some (i, x)
-      else findHelper arr p (i + 1)
-    else none
-stop book declaration
+-- ANCHOR: ArrayFindHelper
+def findHelper (arr : Array α) (p : α → Bool) (i : Nat) : Option (Nat × α) :=
+  if h : i < arr.size then
+    let x := arr[i]
+    if p x then
+      some (i, x)
+    else findHelper arr p (i + 1)
+  else none
+-- ANCHOR_END: ArrayFindHelper
 
-book declaration {{{ ArrayFind }}}
-  def Array.find (arr : Array α) (p : α → Bool) : Option (Nat × α) :=
-    findHelper arr p 0
-stop book declaration
+-- ANCHOR: ArrayFind
+def Array.find (arr : Array α) (p : α → Bool) : Option (Nat × α) :=
+  findHelper arr p 0
+-- ANCHOR_END: ArrayFind
 
 namespace Huh
-expect info {{{ ArrayFindHelperSugg }}}
-  def findHelper (arr : Array α) (p : α → Bool) (i : Nat) : Option (Nat × α) :=
-    if h : i < arr.size then
-      let x := arr[i]
-      if p x then
-        some (i, x)
-      else findHelper arr p (i + 1)
-    else none
-  termination_by?
-message
-"Try this: termination_by arr.size - i"
-end expect
+/-- info:
+Try this: termination_by arr.size - i
+-/
+#check_msgs in
+-- ANCHOR: ArrayFindHelperSugg
+def findHelper (arr : Array α) (p : α → Bool) (i : Nat) : Option (Nat × α) :=
+  if h : i < arr.size then
+    let x := arr[i]
+    if p x then
+      some (i, x)
+    else findHelper arr p (i + 1)
+  else none
+termination_by?
+-- ANCHOR_END: ArrayFindHelperSugg
 end Huh

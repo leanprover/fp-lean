@@ -77,7 +77,6 @@ def python : CodeBlockExpander
   | _args, code => do
     return #[← ``(Block.code $(quote code.getString))]
 
-
 @[role_expander python]
 def inlinePython : RoleExpander
   | _args, code => do
@@ -86,6 +85,16 @@ def inlinePython : RoleExpander
     let `(inline|code($code)) := code
       | throwErrorAt code "Exected code"
     return #[← ``(Inline.code $(quote code.getString))]
+
+@[code_block_expander fsharp]
+def fsharp : CodeBlockExpander
+  | _args, code => do
+    return #[← ``(Block.code $(quote code.getString))]
+
+@[code_block_expander fsharpError]
+def fsharpError : CodeBlockExpander
+  | _args, code => do
+    return #[← ``(Block.code $(quote code.getString))]
 
 
 section

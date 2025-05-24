@@ -1,7 +1,8 @@
 import VersoManual
 import FPLean.Examples
 
-open Verso.Genre Manual ExternalLean
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 
@@ -167,6 +168,10 @@ Representing these as a datatype will require a new feature, called _subtypes_.
 With this tool in hand, a validation framework can be written that uses an applicative functor to track errors, and these rules can be implemented in the framework.
 
 ## Subtypes
+%%%
+tag := "subtypes"
+%%%
+
 Representing these conditions is easiest with one additional Lean type, called `Subtype`:
 
 ```anchor Subtype
@@ -181,7 +186,7 @@ The structure's two fields are, respectively, a value from `α` and evidence tha
 Lean has special syntax for `Subtype`.
 If `p` has type `α → Prop`, then the type `Subtype p` can also be written {anchorTerm subtypeSugar}`{x : α // p x}`, or even {anchorTerm subtypeSugar2}`{x // p x}` when the type can be inferred automatically.
 
-[Representing positive numbers as inductive types](../type-classes/pos.md) is clear and easy to program with.
+{ref "positive-numbers"}[Representing positive numbers as inductive types] is clear and easy to program with.
 However, it has a key disadvantage.
 While `Nat` and `Int` have the structure of ordinary inductive types from the perspective of Lean programs, the compiler treats them specially and uses fast arbitrary-precision number libraries to implement them.
 This is not the case for additional user-defined types.
@@ -227,6 +232,9 @@ In the {kw}`then` branch, `h` is bound to evidence that `n > 0`, and this eviden
 
 
 ## Validated Input
+%%%
+tag := "validated-input"
+%%%
 
 The validated user input is a structure that expresses the business logic using multiple techniques:
  * The structure type itself encodes the year in which it was checked for validity, so that `CheckedInput 2019` is not the same type as `CheckedInput 2020`

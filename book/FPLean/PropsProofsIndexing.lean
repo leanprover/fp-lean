@@ -1,7 +1,8 @@
 import VersoManual
 import FPLean.Examples
 
-open Verso.Genre Manual ExternalLean
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 
@@ -15,6 +16,7 @@ set_option pp.rawOnError true
 
 #doc (Manual) "Interlude: Propositions, Proofs, and Indexing" =>
 %%%
+tag := "props-proofs-indexing"
 number := false
 htmlSplit := .never
 %%%

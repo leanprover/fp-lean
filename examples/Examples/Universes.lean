@@ -1,4 +1,4 @@
-import Examples.Support
+import ExampleSupport
 
 
 /-- info:

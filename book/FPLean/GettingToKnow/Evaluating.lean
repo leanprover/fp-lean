@@ -1,7 +1,8 @@
 import VersoManual
 import FPLean.Examples
 
-open Verso.Genre Manual ExternalLean
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 
@@ -12,6 +13,9 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.Intro"
 
 #doc (Manual) "Evaluating Expressions" =>
+%%%
+tag := "evaluating"
+%%%
 
 
 The most important thing to understand as a programmer learning Lean is how evaluation works.

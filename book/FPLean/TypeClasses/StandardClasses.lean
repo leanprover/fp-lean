@@ -1,7 +1,8 @@
 import VersoManual
 import FPLean.Examples
 
-open Verso.Genre Manual ExternalLean
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 
@@ -109,8 +110,8 @@ Because the names {moduleName}`And` and {moduleName}`Or` are already taken as th
 
 Testing equality of two values typically uses the {moduleName}`BEq` class, which is short for “Boolean equality”.
 Due to Lean's use as a theorem prover, there are really two kinds of equality operators in Lean:
- * {tech}_Boolean equality_ is the same kind of equality that is found in other programming languages. It is a function that takes two values and returns a `Bool`. Boolean equality is written with two equals signs, just as in Python and C#. Because Lean is a pure functional language, there's no separate notions of reference vs value equality—pointers cannot be observed directly.
- * {tech}_Propositional equality_ is the mathematical statement that two things are equal. Propositional equality is not a function; rather, it is a mathematical statement that admits proof. It is written with a single equals sign. A statement of propositional equality is like a type that classifies evidence of this equality.
+ * {deftech}_Boolean equality_ is the same kind of equality that is found in other programming languages. It is a function that takes two values and returns a `Bool`. Boolean equality is written with two equals signs, just as in Python and C#. Because Lean is a pure functional language, there's no separate notions of reference vs value equality—pointers cannot be observed directly.
+ * {deftech}_Propositional equality_ is the mathematical statement that two things are equal. Propositional equality is not a function; rather, it is a mathematical statement that admits proof. It is written with a single equals sign. A statement of propositional equality is like a type that classifies evidence of this equality.
 
 Both notions of equality are important, and used for different purposes.
 Boolean equality is useful in programs, when a decision needs to be made about whether two values are equal.
@@ -320,7 +321,7 @@ instance [Hashable α] : Hashable (BinTree α) where
 
 Instance of classes like {moduleName}`BEq` and {moduleName}`Hashable` are often quite tedious to implement by hand.
 Lean includes a feature called _instance deriving_ that allows the compiler to automatically construct well-behaved instances of many type classes.
-In fact, the `deriving Repr` phrase in the definition of `Point` in the [section on structures](../getting-to-know/structures.md) is an example of instance deriving.
+In fact, the `deriving Repr` phrase in the definition of `Point` in the {ref "structures"}[section on structures] is an example of instance deriving.
 
 Instances can be derived in two ways.
 The first can be used when defining a structure or inductive type.
@@ -405,7 +406,7 @@ results in
 
 # Functors
 
-A polymorphic type is a {tech}_functor_ if it has an overload for a function named `map` that transforms every element contained in it by a function.
+A polymorphic type is a {deftech}_functor_ if it has an overload for a function named `map` that transforms every element contained in it by a function.
 While most languages use this terminology, C#'s equivalent of `map` is called `System.Linq.Enumerable.Select`.
 For example, mapping a function over a list constructs a new list in which each entry from the starting list has been replaced by the result of the function on that entry.
 Mapping a function {anchorName optionFMeta}`f` over an {anchorName optionFMeta}`Option` leaves {anchorName optionFMeta}`none` untouched, and replaces {anchorTerm optionFMeta}`some x` with {anchorTerm optionFMeta}`some (f x)`.

@@ -10,7 +10,7 @@ open Lean (NameMap MessageSeverity)
 namespace FPLean
 
 
-open Verso Doc Elab Genre.Manual ArgParse Code Highlighted WebAssets Output Html Log
+open Verso Doc Elab Genre.Manual ArgParse Code Highlighted WebAssets Output Html Log Code External
 open SubVerso.Highlighting
 open SubVerso.Examples.Messages
 open Lean
@@ -126,6 +126,60 @@ block_extension Block.leanEvalSteps (steps : Array Highlighted) where
         let i := steps.map (·.indentation) |>.toList |>.min? |>.getD 0
         return {{<div class="eval-steps">{{← steps.mapM (·.deIndent i |>.blockHtml "examples")}}</div>}}
 
+block_extension Block.leanEqReason where
+  traverse _ _ _ := pure none
+  toTeX := none
+  toHtml :=
+    open Verso.Output.Html in
+    some <| fun _ goB _ _ contents => do
+      return {{
+        <div class="reason">
+          {{ ← contents.mapM goB }}
+        </div>
+      }}
+  extraCss := [
+  r#"
+.eq-steps .reason {
+  font-style: italic;
+  margin-left: 1.5em;
+  display: flex;
+}
+.eq-steps .reason::before {
+  content: "={";
+  font-family: var(--verso-code-font-family);
+  font-style: normal;
+  font-weight: 600;
+  margin-right: 0.5em;
+  align-self: center;
+}
+.eq-steps .reason > p {
+  margin: 0;
+  max-width: 25em;
+  align-self: center;
+}
+.eq-steps .reason::after {
+  content: "}=";
+  font-family: var(--verso-code-font-family);
+  font-style: normal;
+  font-weight: 600;
+  margin-left: 1em;
+  align-self: center;
+}
+"#
+  ]
+
+block_extension Block.leanEqSteps where
+  traverse _ _ _ := pure none
+  toTeX := none
+  toHtml :=
+    open Verso.Output.Html in
+    some <| fun _ goB _ _ contents => do
+      return {{
+        <div class="eq-steps">
+          {{ ← contents.mapM goB }}
+        </div>
+      }}
+
 
 private def getClass : MessageSeverity → String
   | .error => "error"
@@ -156,8 +210,6 @@ block_extension Block.leanOutput (severity : MessageSeverity) (message : String)
           if summarize then {{<details><summary>"Expand..."</summary>{{html}}</details>}}
           else html
         pure <| wrap {{<div class={{getClass sev}}><pre>{{txt}}</pre></div>}}
-
-open ExternalLean
 
 @[block_role_expander exampleDecl]
 def exampleDecl : BlockRoleExpander
@@ -618,6 +670,28 @@ where
       if k > n then n := k
     n.fold (fun _ _ s => s.push '`') ""
 
+@[code_block_expander moduleEvalStep]
+def moduleEvalStepBlock : CodeBlockExpander
+  | args, code => do
+    let {module := moduleName, anchor?, step} ← parseThe EvalStepContext args
+
+    withAnchored moduleName anchor? fun fragment => do
+      let steps := splitHighlighted (· == "===>") fragment
+
+      if let some step := steps[step.val]? then
+        _ ← ExpectString.expectString "step" code (withNl step.toString.trim)
+        return #[← ``(Block.other (Block.lean $(quote step)) #[])]
+      else
+        let ok := steps.mapIdx fun i s => ({suggestion := toString i, postInfo? := some s.toString})
+        let h ← MessageData.hint "Use a step in the range 0–{steps.size}" (some {ref:=step.syntax, suggestions := ok})
+        logErrorAt step.syntax m!"Step not found - only {steps.size} are available{h}"
+        return #[← ``(sorryAx _ true)]
+
+macro_rules
+  | `(block|```%$t1 anchorEvalStep $a:arg_val $n:arg_val $arg* | $s ```%$t2) =>
+    `(block|```%$t1 moduleEvalStep $n:arg_val $arg* anchor := $a | $s ```%$t2)
+
+
 @[code_block_expander moduleEvalSteps]
 def moduleEvalSteps : CodeBlockExpander
   | args, str => do
@@ -633,6 +707,45 @@ def moduleEvalSteps : CodeBlockExpander
 macro_rules
   | `(block|```%$t1 anchorEvalSteps $a:arg_val $arg* | $s ```%$t2) =>
     `(block|```%$t1 moduleEvalSteps $arg* anchor := $a | $s ```%$t2)
+
+
+@[code_block_expander moduleEqSteps]
+def moduleEqSteps : CodeBlockExpander
+  | args, str => do
+    let {module := moduleName, anchor?} ← parseThe CodeContext args
+
+    withAnchored moduleName anchor? fun fragment => do
+      _ ← ExpectString.expectString "steps" str fragment.toString
+
+      let steps := splitHighlighted (· ∈ ["={", "}="]) fragment
+      let steps ← steps.mapM fun hl => do
+        if let some ((.token ⟨.docComment, txt⟩), _) := hl.firstToken then
+          let txt := txt.trim |>.stripPrefix "/--" |>.stripSuffix "-/" |>.trim
+          if let some ⟨#[.p txts]⟩ := MD4Lean.parse txt then
+            let mut out : Array Term := #[]
+            for txt in txts do
+              match txt with
+              | .normal s => out := out.push (← ``(Inline.text $(quote s)))
+              | .code c =>
+                let code := String.join c.toList
+                if let some hl := hl.matchingExpr? code <|> fragment.matchingExpr? code then
+                   out := out.push (← ``(Inline.other (Inline.lean $(quote hl)) #[]))
+                else
+                  logWarning m!"Failed to match `{code}` in `{hl.toString}`"
+                  out := out.push  (← ``(Inline.code $(quote code)))
+              | o => logWarning m!"Unsupported Markdown: {repr o}"
+            ``(Block.other Block.leanEqReason #[Block.para #[$(out),*] ])
+          else
+            ``(Block.other Block.leanEqReason #[Block.para #[Inline.text $(quote txt) ] ])
+        else ``(ExternalCode.leanBlock $(quote hl))
+      let steps : Array Term := steps.map quote
+      return #[← ``(Block.other Block.leanEqSteps #[$steps,*])]
+
+macro_rules
+  | `(block|```%$t1 anchorEqSteps $a:arg_val $arg* | $s ```%$t2) =>
+    `(block|```%$t1 moduleEqSteps $arg* anchor := $a | $s ```%$t2)
+
+
 
 @[role_expander exampleIn]
 def exampleInInline : RoleExpander
@@ -719,24 +832,57 @@ def term : RoleExpander
     return #[← ``(Inline.other (Inline.lean $(quote (Highlighted.seq ex.highlighted))) #[Inline.code $(quote ex.original)])]
 
 
-deriving instance Repr for SubVerso.Module.ModuleItem
+
+@[role_expander anchorInfoText]
+def anchorInfoText : RoleExpander
+  | args, inls => do
+    let module? ← ArgParse.run ((some <$> .positional `module .ident) <|> pure none) args
+    let name ← oneCodeName inls
+
+    let module ← if let some m := module? then pure m else mkIdentFrom (← getRef) <$> currentExampleModule
+
+    let some mod := exampleCode.code.find? module.getId
+      | logErrorAt module m!"Module not found: '{module.getId}'"
+        return #[]
+    let some ex := mod.find? name.getId
+      | logErrorAt name m!"Example not found: '{name.getId}'"
+        return #[]
+
+    return #[← ``(Inline.other (Inline.lean $(quote (Highlighted.seq ex.highlighted))) #[Inline.code $(quote ex.original)])]
+
 
 def withNl (s : String) : String := if s.endsWith "\n" then s else s ++ "\n"
 
-
-structure CommandConfig where
+structure ContainerConfig where
   container : Ident
   dir : StrLit
+
+structure CommandsConfig extends ContainerConfig where
+  «show» : Bool
+
+structure CommandConfig extends ContainerConfig where
   «show» : Option StrLit := none
   viaShell : Bool := false
 
-def CommandConfig.parse [Monad m] [MonadError m] [MonadLiftT CoreM m] : ArgParse m CommandConfig :=
-  CommandConfig.mk <$> .positional `container .ident <*> .positional `dir .strLit <*> .named `show .strLit true <*> .namedD `shell .bool false
+section
+
+variable [Monad m] [MonadError m] [MonadLiftT CoreM m]
+
+instance : FromArgs ContainerConfig m where
+  fromArgs := ContainerConfig.mk <$> .positional `container .ident <*> .positional `dir .strLit
+
+instance : FromArgs CommandConfig m where
+  fromArgs := CommandConfig.mk <$> fromArgs <*> .named `show .strLit true <*> .namedD `shell .bool false
+
+instance : FromArgs CommandsConfig m where
+  fromArgs := CommandsConfig.mk <$> fromArgs <*> .namedD `show .bool true
+
+end
 
 @[role_expander command]
 def command : RoleExpander
   | args, inls => do
-    let { container, dir, «show», viaShell } ← CommandConfig.parse.run args
+    let { container, dir, «show», viaShell } ← parseThe CommandConfig args
     let cmd ← oneCodeStr inls
     let output ← Commands.command container dir.getString cmd (viaShell := viaShell)
     unless output.stdout.isEmpty do
@@ -797,6 +943,96 @@ def commandOutCodeBlock : CodeBlockExpander
     logSilentInfo output
     return #[← ``(Block.code $(quote output))]
 
+block_extension Block.shellCommands (segments : Array (String × Bool)) where
+  traverse _ _ _ := pure none
+  data := toJson segments
+  toTeX := none
+  toHtml := some fun _ _ _ data _ => do
+    let .ok (segments : Array (String × Bool)) := fromJson? data
+      | HtmlT.logError s!"Failed to deserialize commands:\n{data}"
+        return .empty
+    let pieces := segments.map fun (s, cmd) =>
+      {{ <code class={{if cmd then "command" else "output"}}>{{s}}</code> }}
+    pure {{
+      <div class="shell-commands">{{pieces}}</div>
+    }}
+  extraCss := [
+    r#"
+.shell-commands {
+
+}
+.shell-commands > * {
+  display: block;
+  white-space: pre;
+}
+.shell-commands .command::before {
+  content: "$ ";
+  font-weight: 600;
+}
+
+"#
+  ]
+
+
+private inductive CommandSpec where
+  | run (cmd : String) (show? : Option String)
+  | quote (cmd : String)
+  | out (text : String)
+
+@[code_block_expander commands]
+def commands : CodeBlockExpander
+  | args, str => do
+    let {container, dir, «show»} ← parseThe CommandsConfig args
+    let specStr := str.getString
+    let mut commands : Array CommandSpec := #[]
+    let mut quoted := false
+    for line in specStr.splitOn "\n" do
+      if line.startsWith "$$" then
+        commands := commands.push (.quote (line.drop 2 |>.trim))
+        quoted := true
+      else if line.startsWith "$" then
+        let line := line.drop 1 |>.trim
+        quoted := false
+        if line.contains '#' then
+          let cmd := line.takeWhile (· ≠ '#')
+          let rest := (line.drop (cmd.length + 1)).trim
+          commands := commands.push (.run cmd.trim (some rest))
+        else
+          commands := commands.push (.run line none)
+
+      else if quoted then
+        commands := commands.push (.out line.trimRight)
+    let mut out := #[]
+    let mut outStr := ""
+    for cmdSpec in commands do
+      match cmdSpec with
+      | .quote command =>
+        out := out.push (command, true)
+        outStr := outStr ++ s!"$$ {command}\n"
+      | .run command show? =>
+        if let some toShow := show? then
+          out := out.push (toShow, true)
+          outStr := outStr ++ s!"$ {command} # {toShow}\n"
+        else
+          out := out.push (command, true)
+          outStr := outStr ++ s!"$ {command}\n"
+        let output ← Commands.command container dir.getString (Syntax.mkStrLit command (info := str.raw.getHeadInfo)) (viaShell := true)
+        unless output.stdout.isEmpty do
+          out := out.push (output.stdout, false)
+          outStr := outStr ++ withNl output.stdout
+        unless output.stderr.isEmpty do
+          out := out.push (output.stderr, false)
+          outStr := outStr ++ withNl output.stderr
+      | .out txt =>
+        out := out.push (txt, false)
+        outStr := outStr ++ withNl txt
+    unless str.getString.trim == "" && outStr.trim == "" do
+      _ ← ExpectString.expectString "commands" str outStr (preEq := String.trim)
+    if «show» then
+      pure #[← ``(Block.other (Block.shellCommands $(quote out)) #[])]
+    else pure #[]
+
+
 @[code_block_expander file]
 def file : CodeBlockExpander
   | args, expectedContentsStr => do
@@ -823,3 +1059,94 @@ def plainFile : CodeBlockExpander
     logSilentInfo contents
 
     return #[← ``(Block.other (InlineLean.Block.exampleFile (FileType.other $(quote (show?.getD (fn.fileName.getD fn.toString))))) #[Block.code $(quote contents)])]
+
+
+private def severityName {m} [Monad m] [MonadEnv m] [MonadResolveName m] : MessageSeverity → m String
+  | .error => unresolveNameGlobal ``MessageSeverity.error <&> (·.toString)
+  | .warning => unresolveNameGlobal ``MessageSeverity.warning <&> (·.toString)
+  | .information => unresolveNameGlobal ``MessageSeverity.information <&> (·.toString)
+
+deriving instance Repr for MessageSeverity
+
+private def severityHint (wanted : String) (stx : Syntax) : DocElabM MessageData := do
+  if stx.getHeadInfo matches .original .. then
+    MessageData.hint m!"Use '{wanted}'" (some {ref := stx, suggestions := #[wanted]})
+  else pure m!""
+
+open Lean.Meta.Hint in
+@[role_expander moduleOutText]
+def moduleOutText : RoleExpander
+  | args, inls => withTraceNode `Elab.Verso (fun _ => pure m!"moduleOutText") <| do
+    let str? ← oneCodeStr? inls
+
+    let {module := moduleName, anchor?, severity} ← parseThe MessageContext args
+
+    withAnchored moduleName anchor? fun hl => do
+      let infos := allInfo hl
+      if let some str := str? then
+        for (sev, msg, _) in infos do
+          if messagesMatch msg str.getString then
+            if sev == severity.1 then
+              return #[← ``(Inline.text $(quote msg))]
+            else
+              let wanted ← severityName sev
+              throwError "Mismatched severity. Expected '{repr severity.1}', got '{wanted}'.{← severityHint wanted severity.2}"
+
+        let ref :=
+          if let `(inline|role{ $_ $_* }[ $x ]) := (← getRef) then x.raw else str
+
+        let suggs : Array Suggestion := infos.map fun (sev, msg, _) => {
+          suggestion := quoteCode msg.trim
+        }
+        let h ←
+          if suggs.isEmpty then pure m!""
+          else MessageData.hint "Use one of these." (some {ref := ref, suggestions := suggs})
+
+        let err :=
+          m!"Expected one of:{indentD (m!"\n".joinSep <| infos.toList.map (·.2.1))}" ++
+          m!"\nbut got:{indentD str.getString}\n" ++ h
+        logErrorAt str err
+      else
+        let err := m!"Expected one of:{indentD (m!"\n".joinSep <| infos.toList.map (·.2.1))}"
+        Lean.logError m!"No expected term provided. {err}"
+        if let `(inline|role{$_ $_*} [%$tok1 $contents* ]%$tok2) := (← getRef) then
+          let stx :=
+            if tok1.getHeadInfo matches .original .. && tok2.getHeadInfo matches .original .. then
+              mkNullNode #[tok1, tok2]
+            else mkNullNode contents
+          for (_, msg, _) in infos do
+            Suggestion.saveSuggestion stx (quoteCode <| ExpectString.abbreviateString msg.trim) (quoteCode msg.trim)
+
+      return #[← ``(sorryAx _ true)]
+
+where
+  quoteCode (str : String) : String := Id.run do
+    let str := if str.startsWith "`" || str.endsWith "`" then " " ++ str ++ " " else str
+    let mut n := 1
+    let mut run := none
+    let mut iter := str.iter
+    while h : iter.hasNext do
+      let c := iter.curr' h
+      iter := iter.next
+      if c == '`' then
+        run := some (run.getD 0 + 1)
+      else if let some k := run then
+        if k > n then n := k
+        run := none
+
+    let delim := String.mk (List.replicate n '`')
+    return delim ++ str ++ delim
+
+macro_rules
+  | `(inline|role{%$rs moduleInfoText $arg*}%$re [%$s $str* ]%$e) =>
+    `(inline|role{%$rs moduleOutText MessageSeverity.information $arg*}%$re [%$s $str* ]%$e)
+  | `(inline|role{%$rs moduleErrorText $arg*}%$re [%$s $str* ]%$e) =>
+    `(inline|role{%$rs moduleOutText MessageSeverity.error $arg*}%$re [%$s $str* ]%$e)
+  | `(inline|role{%$rs moduleWarningText $arg*}%$re [%$s $str* ]%$e) =>
+    `(inline|role{%$rs moduleOutText MessageSeverity.warning $arg*}%$re [%$s $str* ]%$e)
+  | `(inline|role{%$rs anchorInfoText $a:arg_val $arg*}%$re [%$s $str* ]%$e) =>
+    `(inline|role{%$rs moduleOutText MessageSeverity.information anchor:=$a $arg*}%$re [%$s $str* ]%$e)
+  | `(inline|role{%$rs anchorErrorText $a:arg_val $arg*}%$re [%$s $str* ]%$e) =>
+    `(inline|role{%$rs moduleOutText MessageSeverity.error anchor:=$a $arg*}%$re [%$s $str* ]%$e)
+  | `(inline|role{%$rs anchorWarningText $a:arg_val $arg*}%$re [%$s $str* ]%$e) =>
+    `(inline|role{%$rs moduleOutText MessageSeverity.warning anchor:=$a $arg*}%$re [%$s $str* ]%$e)

@@ -1,4 +1,4 @@
-import Examples.Support
+import ExampleSupport
 
 -- ANCHOR: Many
 inductive Many (α : Type) where

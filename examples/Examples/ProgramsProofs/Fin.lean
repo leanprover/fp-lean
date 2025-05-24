@@ -1,29 +1,33 @@
-import Examples.Support
+import ExampleSupport
 
 namespace FinDef
 
-book declaration {{{ Fin }}}
-  structure Fin (n : Nat) where
-    val  : Nat
-    isLt : LT.lt val n
-stop book declaration
+-- ANCHOR: Fin
+structure Fin (n : Nat) where
+  val  : Nat
+  isLt : LT.lt val n
+-- ANCHOR_END: Fin
 
 
 
 end FinDef
 
-expect info {{{ fiveFinEight }}}
-  #eval (5 : Fin 8)
-message
-"5"
-end expect
+/-- info:
+5
+-/
+#check_msgs in
+-- ANCHOR: fiveFinEight
+#eval (5 : Fin 8)
+-- ANCHOR_END: fiveFinEight
 
 
-expect info {{{ finOverflow }}}
-  #eval (45 : Fin 10)
-message
-"5"
-end expect
+/-- info:
+5
+-/
+#check_msgs in
+-- ANCHOR: finOverflow
+#eval (45 : Fin 10)
+-- ANCHOR_END: finOverflow
 
 def Fin.next? (i : Fin n) : Option (Fin n) :=
   if h : i.val + 1 < n then
@@ -32,37 +36,41 @@ def Fin.next? (i : Fin n) : Option (Fin n) :=
     none
 
 
-expect info {{{ nextThreeFin }}}
-  #eval (3 : Fin 8).next?
-message
-"some 4"
-end expect
+/-- info:
+some 4
+-/
+#check_msgs in
+-- ANCHOR: nextThreeFin
+#eval (3 : Fin 8).next?
+-- ANCHOR_END: nextThreeFin
 
 
-expect info {{{ nextSevenFin }}}
-  #eval (7 : Fin 8).next?
-message
-"none"
-end expect
+/-- info:
+none
+-/
+#check_msgs in
+-- ANCHOR: nextSevenFin
+#eval (7 : Fin 8).next?
+-- ANCHOR_END: nextSevenFin
 
 
 
 namespace Finny
 
-book declaration {{{ ArrayFindHelper }}}
-  def findHelper (arr : Array α) (p : α → Bool) (i : Nat) : Option (Fin arr.size × α) :=
-    if h : i < arr.size then
-      let x := arr[i]
-      if p x then
-        some (⟨i, h⟩, x)
-      else findHelper arr p (i + 1)
-    else none
-stop book declaration
+-- ANCHOR: ArrayFindHelper
+def findHelper (arr : Array α) (p : α → Bool) (i : Nat) : Option (Fin arr.size × α) :=
+  if h : i < arr.size then
+    let x := arr[i]
+    if p x then
+      some (⟨i, h⟩, x)
+    else findHelper arr p (i + 1)
+  else none
+-- ANCHOR_END: ArrayFindHelper
 
-book declaration {{{ ArrayFind }}}
-  def Array.find (arr : Array α) (p : α → Bool) : Option (Fin arr.size × α) :=
-    findHelper arr p 0
-stop book declaration
+-- ANCHOR: ArrayFind
+def Array.find (arr : Array α) (p : α → Bool) : Option (Fin arr.size × α) :=
+  findHelper arr p 0
+-- ANCHOR_END: ArrayFind
 
 
   def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Fin arr.size) : Array β :=

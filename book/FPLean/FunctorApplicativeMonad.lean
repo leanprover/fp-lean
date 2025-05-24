@@ -9,7 +9,8 @@ import FPLean.FunctorApplicativeMonad.Complete
 import FPLean.FunctorApplicativeMonad.Summary
 
 
-open Verso.Genre Manual ExternalLean
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 

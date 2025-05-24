@@ -1,7 +1,8 @@
 import VersoManual
 import FPLean.Examples
 
-open Verso.Genre Manual ExternalLean
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 
@@ -13,7 +14,7 @@ set_option pp.rawOnError true
 #doc (Manual) "Arrays and Indexing" =>
 
 
-The [Interlude](../props-proofs-indexing.md) describes how to use indexing notation in order to look up entries in a list by their position.
+The {ref "props-proofs-indexing"}[Interlude] describes how to use indexing notation in order to look up entries in a list by their position.
 This syntax is also governed by a type class, and it can be used for a variety of different types.
 
 # Arrays

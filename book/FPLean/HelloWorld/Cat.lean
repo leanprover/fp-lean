@@ -2,7 +2,8 @@ import VersoManual
 import FPLean.Examples
 
 
-open Verso.Genre Manual ExternalLean
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 
@@ -112,7 +113,7 @@ In other words, the sequence of steps following the {kw}`else` are treated as a 
 Names introduced with {kw}`let` in the branches of the {kw}`if` are visible only in their own branches, and are not in scope outside of the {kw}`if`.
 
 There is no danger of running out of stack space while calling `dump` because the recursive call happens as the very last step in the function, and its result is returned directly rather than being manipulated or computed with.
-This kind of recursion is called _tail recursion_, and it is described in more detail [later in this book](../programs-proofs/tail-recursion.md).
+This kind of recursion is called _tail recursion_, and it is described in more detail {ref "tail-recursion"}[later in this book].
 Because the compiled code does not need to retain any state, the Lean compiler can compile the recursive call to a jump.
 
 If `feline` only redirected standard input to standard output, then `dump` would be sufficient.

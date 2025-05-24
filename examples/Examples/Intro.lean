@@ -1,4 +1,4 @@
-import Examples.Support
+import ExampleSupport
 import SubVerso.Examples
 
 set_option linter.unusedVariables false

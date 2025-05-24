@@ -1,7 +1,8 @@
 import VersoManual
 import FPLean.Examples
 
-open Verso.Genre Manual ExternalLean
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 
@@ -91,7 +92,7 @@ class SeqLeft (f : Type u → Type v) : Type (max (u+1) v) where
   seqLeft : {α β : Type u} → f α → (Unit → f β) → f α
 ```
 
-The `seqRight` function, which was introduced in the [section about alternatives and validation](alternative.md), is easiest to understand from the perspective of effects.
+The `seqRight` function, which was introduced in the {ref "alternative"}[section about alternatives and validation], is easiest to understand from the perspective of effects.
 {anchorTerm seqRightSugar (module := Examples.FunctorApplicativeMonad)}`E1 *> E2`, which desugars to {anchorTerm seqRightSugar (module := Examples.FunctorApplicativeMonad)}`SeqRight.seqRight E1 (fun () => E2)`, can be understood as first executing `E1`, and then `E2`, resulting only in `E2`'s result.
 Effects from `E1` may result in `E2` not being run, or being run multiple times.
 Indeed, if `f` has a `Monad` instance, then `E1 *> E2` is equivalent to `do let _ ← E1; E2`, but `seqRight` can be used with types like `Validate` that are not monads.

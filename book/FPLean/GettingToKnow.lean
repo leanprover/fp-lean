@@ -9,12 +9,16 @@ import FPLean.GettingToKnow.Polymorphism
 import FPLean.GettingToKnow.Conveniences
 import FPLean.GettingToKnow.Summary
 
-open Verso.Genre Manual ExternalLean
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 
 
 #doc (Manual) "Getting to Know Lean" =>
+%%%
+tag := "getting-to-know"
+%%%
 
 According to tradition, a programming language should be introduced by compiling and running a program that displays `"Hello, world!"` on the console.
 This simple program ensures that the language tooling is installed correctly and that the programmer is able to run the compiled code.

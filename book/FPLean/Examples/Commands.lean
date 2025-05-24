@@ -34,10 +34,14 @@ def command (container : Ident) (dir : System.FilePath) (command : StrLit) (viaS
   let dir := c.workingDirectory / "examples" / dir
   IO.FS.createDirAll dir
   let (cmd, args) ← if viaShell then pure ("bash", #["-c", command.getString]) else cmdAndArgs
+  let extraPath := (← IO.currentDir) / ".." / "examples" / ".lake" / "build" / "bin" |>.toString
+  let extraPath := if extraPath.contains ' ' || extraPath.contains '"' || extraPath.contains '\'' then extraPath.quote else extraPath
+  let path := (← IO.getEnv "PATH").map (System.SearchPath.separator.toString ++ ·) |>.getD ""
   let out ← IO.Process.output {
     cmd := cmd,
     args := args,
-    cwd := dir
+    cwd := dir,
+    env := #[("PATH", some (extraPath ++ path))]
   }
   if out.exitCode != 0 then
     let stdout := m!"Stdout: {indentD out.stdout}"

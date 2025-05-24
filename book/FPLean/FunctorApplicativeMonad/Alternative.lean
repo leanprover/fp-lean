@@ -1,7 +1,8 @@
 import VersoManual
 import FPLean.Examples
 
-open Verso.Genre Manual ExternalLean
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 
@@ -9,6 +10,9 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.FunctorApplicativeMonad"
 
 #doc (Manual) "Alternatives" =>
+%%%
+tag := "alternative"
+%%%
 
 
 # Recovery from Failure

@@ -1,7 +1,8 @@
 import VersoManual
 import FPLean.Examples
 
-open Verso.Genre Manual ExternalLean
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 
@@ -11,6 +12,9 @@ set_option verso.exampleModule "Examples.Classes"
 set_option pp.rawOnError true
 
 #doc (Manual) "Positive Numbers" =>
+%%%
+tag := "positive-numbers"
+%%%
 
 In some applications, only positive numbers make sense.
 For example, compilers and interpreters typically use one-indexed line and column numbers for source positions, and a datatype that represents only non-empty lists will never report a length of zero.
@@ -68,7 +72,7 @@ This indicates that the error is due to an overloaded operation that has not bee
 
 # Classes and Instances
 
-A type class consists of a name, some parameters, and a collection of {tech}_methods_.
+A type class consists of a name, some parameters, and a collection of {deftech}_methods_.
 The parameters describe the types for which overloadable operations are being defined, and the methods are the names and type signatures of the overloadable operations.
 Once again, there is a terminology clash with object-oriented languages.
 In object-oriented programming, a method is essentially a function that is connected to a particular object in memory, with special access to the object's private state.
@@ -155,7 +159,7 @@ Lean's built-in addition operator is syntactic sugar for a type class called `HA
 For example, an `HAdd` instance can be written to allow a {moduleName}`Nat` to be added to a `Float`, resulting in a new `Float`.
 When a programmer writes {anchorTerm plusDesugar}`x + y`, it is interpreted as meaning {anchorTerm plusDesugar}`HAdd.hAdd x y`.
 
-While an understanding of the full generality of `HAdd` relies on features that are discussed in [another section in this chapter](out-params.md), there is a simpler type class called `Add` that does not allow the types of the arguments to be mixed.
+While an understanding of the full generality of `HAdd` relies on features that are discussed in {ref "out-params"}[another section in this chapter], there is a simpler type class called `Add` that does not allow the types of the arguments to be mixed.
 The Lean libraries are set up so that an instance of `Add` will be found when searching for an instance of `HAdd` in which both arguments have the same type.
 
 Defining an instance of {anchorTerm AddPos}`Add Pos` allows {anchorTerm AddPos}`Pos` values to use ordinary addition syntax:
@@ -246,6 +250,9 @@ With this instance, multiplication works as expected:
 ```
 
 # Literal Numbers
+%%%
+tag := "literal-numbers"
+%%%
 
 It is quite inconvenient to write out a sequence of constructors for positive numbers.
 One way to work around the problem would be to provide a function to convert a {moduleTerm}`Nat` into a `Pos`.
@@ -381,7 +388,7 @@ Define instances of {moduleName}`Add`, {moduleName}`Mul`, {anchorName UglyToStri
 ## Even Numbers
 
 Define a datatype that represents only even numbers. Define instances of {moduleName}`Add`, {moduleName}`Mul`, and {anchorName UglyToStringPos}`ToString` that allow it to be used conveniently.
-{moduleName}`OfNat` requires a feature that is introduced in [the next section](polymorphism.md).
+{moduleName}`OfNat` requires a feature that is introduced in {ref "tc-polymorphism"}[the next section].
 
 ## HTTP Requests
 

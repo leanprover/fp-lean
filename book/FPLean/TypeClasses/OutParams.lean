@@ -1,7 +1,8 @@
 import VersoManual
 import FPLean.Examples
 
-open Verso.Genre Manual ExternalLean
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 
@@ -11,7 +12,9 @@ set_option verso.exampleModule "Examples.Classes"
 set_option pp.rawOnError true
 
 #doc (Manual) "Controlling Instance Search" =>
-
+%%%
+tag := "out-params"
+%%%
 
 An instance of the {moduleName}`Add` class is sufficient to allow two expressions with type {moduleName}`Pos` to be conveniently added, producing another {moduleName}`Pos`.
 However, in many cases, it can be useful to be more flexible and allow _heterogeneous_ operator overloading, where the arguments may have different types.
@@ -82,7 +85,7 @@ typeclass instance problem is stuck, it is often due to metavariables
 This happens because there is a metavariable in the type, and Lean has no way to solve it.
 :::
 
-As discussed in [the initial description of polymorphism](../getting-to-know/polymorphism.md), metavariables represent unknown parts of a program that could not be inferred.
+As discussed in {ref "polymorphism"}[the initial description of polymorphism], metavariables represent unknown parts of a program that could not be inferred.
 When an expression is written following {kw}`#eval`, Lean attempts to determine its type automatically.
 In this case, it could not.
 Because the third type parameter for {moduleName}`HPlus` was unknown, Lean couldn't carry out type class instance search, but instance search is the only way that Lean could determine the expression's type.

@@ -1,7 +1,8 @@
 import VersoManual
 import FPLean.Examples
 
-open Verso.Genre Manual ExternalLean
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 
@@ -210,7 +211,7 @@ Using this function with {anchorName mapMsaveIfEven}`mapM` results in a log cont
 
 Monads encode programs with effects, such as failure, exceptions, or logging, into explicit representations as data and functions.
 Sometimes, however, an API will be written to use a monad for flexibility, but the API's client may not require any encoded effects.
-The {tech}_identity monad_ is a monad that has no effects.
+The {deftech}_identity monad_ is a monad that has no effects.
 It allows pure code to be used with monadic APIs:
 
 ```anchor IdMonad

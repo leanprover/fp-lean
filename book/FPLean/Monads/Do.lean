@@ -1,7 +1,8 @@
 import VersoManual
 import FPLean.Examples
 
-open Verso.Genre Manual ExternalLean
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 
@@ -14,7 +15,7 @@ While APIs based on monads are very powerful, the explicit use of `>>=` with ano
 Just as infix operators are used instead of explicit calls to `HAdd.hAdd`, Lean provides a syntax for monads called _{kw}`do`-notation_ that can make programs that use monads easier to read and write.
 This is the very same {kw}`do`-notation that is used to write programs in `IO`, and `IO` is also a monad.
 
-In [Hello, World!](../hello-world.md), the {kw}`do` syntax is used to combine `IO` actions, but the meaning of these programs is explained directly.
+In {ref "hello-world"}[Hello, World!], the {kw}`do` syntax is used to combine `IO` actions, but the meaning of these programs is explained directly.
 Understanding how to program with monads means that {kw}`do` can now be explained in terms of how it translates into uses of the underlying monad operators.
 
 The first translation of {kw}`do` is used when the only statement in the {kw}`do` is a single expression `E`.

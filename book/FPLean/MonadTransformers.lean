@@ -1,7 +1,16 @@
 import VersoManual
+
 import FPLean.Examples
 
-open Verso.Genre Manual ExternalLean
+import FPLean.MonadTransformers.ReaderIO
+import FPLean.MonadTransformers.Transformers
+import FPLean.MonadTransformers.Order
+import FPLean.MonadTransformers.Do
+import FPLean.MonadTransformers.Conveniences
+import FPLean.MonadTransformers.Summary
+
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 
@@ -22,3 +31,15 @@ Writing each monad by hand is tedious, however, involving boilerplate definition
 Each of these components can also be extracted to a definition that modifies some other monad to add an additional effect.
 Such a definition is called a _monad transformer_.
 A concrete monad can be build from a collection of monad transformers, which enables much more code re-use.
+
+{include 1 FPLean.MonadTransformers.ReaderIO}
+
+{include 1 FPLean.MonadTransformers.Transformers}
+
+{include 1 FPLean.MonadTransformers.Order}
+
+{include 1 FPLean.MonadTransformers.Do}
+
+{include 1 FPLean.MonadTransformers.Conveniences}
+
+{include 1 FPLean.MonadTransformers.Summary}

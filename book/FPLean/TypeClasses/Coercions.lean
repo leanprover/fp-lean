@@ -1,7 +1,8 @@
 import VersoManual
 import FPLean.Examples
 
-open Verso.Genre Manual ExternalLean
+open Verso.Genre Manual
+open Verso Code External
 
 open FPLean
 
@@ -18,7 +19,7 @@ For example, if a ring is referred to in a context where a set is expected, then
 In programming languages, it is common to have rules to automatically translate values of one type into values of another type.
 Java allows a `byte` to be automatically promoted to an `int`, and Kotlin allows a non-nullable type to be used in a context that expects a nullable version of the type.
 
-In Lean, both purposes are served by a mechanism called {tech}_coercions_.
+In Lean, both purposes are served by a mechanism called {deftech}_coercions_.
 When Lean encounters an expression of one type in a context that expects a different type, it will attempt to coerce the expression before reporting a type error.
 Unlike Java, C, and Kotlin, the coercions are extensible by defining instances of type classes.
 
