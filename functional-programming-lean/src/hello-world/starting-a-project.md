@@ -46,7 +46,7 @@ Running `{{#command {first-lake/greeting} {lake} {lake exe greeting} }}` also re
 
 ## Lakefiles
 
-A `lakefile.lean` describes a _package_, which is a coherent collection of Lean code for distribution, analogous to an `npm` or `nuget` package or a Rust crate.
+A `lakefile.toml` describes a _package_, which is a coherent collection of Lean code for distribution, analogous to an `npm` or `nuget` package or a Rust crate.
 A package may contain any number of libraries or executables.
 The [documentation for Lake](https://lean-lang.org/doc/reference/latest/find/?domain=Verso.Genre.Manual.section&name=lake-config-toml) describes the available options in a Lake configuration.
 The generated `lakefile.toml` contains the following:
