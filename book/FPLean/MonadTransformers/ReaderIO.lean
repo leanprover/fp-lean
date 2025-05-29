@@ -31,14 +31,14 @@ Running {lit}`doug` results in the following:
 $ doug
 ├── doug-demo/
 │   ├── a/
+│   │   ├── b/
+│   │   │   ├── c/
+│   │   │   ├── hello
 │   │   ├── d/
 │   │   │   ├── another-file
 │   │   ├── e/
-│   │   │   ├── still-another-file-again
 │   │   │   ├── f/
-│   │   ├── b/
-│   │   │   ├── hello
-│   │   │   ├── c/
+│   │   │   ├── still-another-file-again
 ```
 
 # Implementation
@@ -133,13 +133,18 @@ partial def dirTree (cfg : Config) (path : System.FilePath) : IO Unit := do
     showDirName cfg name
     let contents ← path.readDir
     let newConfig := cfg.inDirectory
-    doList contents.toList fun d =>
+    doList (contents.qsort dirLT).toList fun d =>
       dirTree newConfig d.path
 ```
 The call to {anchorName OldDirTree}`toEntry` is a {ref "nested-actions"}[nested action]—the parentheses are optional in positions where the arrow couldn't have any other meaning, such as {kw}`match`.
 When the filename doesn't correspond to an entry in the tree (e.g. because it is {lit}`..`), {anchorName OldDirTree}`dirTree` does nothing.
 When the filename points to an ordinary file, {anchorName OldDirTree}`dirTree` calls a helper to show it with the current configuration.
 When the filename points to a directory, it is shown with a helper, and then its contents are recursively shown in a new configuration in which the prefix has been extended to account for being in a new directory.
+The contents of the directory are sorted in order to make the output deterministic, compared according to {anchorName compareEntries}`dirLT`
+```anchor compareEntries
+def dirLT (e1 : IO.FS.DirEntry) (e2 :IO.FS.DirEntry) : Bool :=
+  e1.fileName < e2.fileName
+```
 
 Showing the names of files and directories is achieved with {anchorName OldShowFile}`showFileName` and {anchorName OldShowFile}`showDirName`:
 
@@ -202,7 +207,7 @@ instance : Monad ConfigIO where
     let v ← result cfg
     next v cfg
 ```
-The difference between this {anchorName ConfigIO}`Monad` instance and the one for {anchorName Reader (module := Examples.Monads.class)}`Reader` is that this one uses {kw}`do`-notation in the {anchorName ConfigIO}`IO` monad as the body of the function that {anchorName ConfigIO}`bind` returns, rather than applying {anchorName ConfigIO}`next` directly to the value returned from {anchorName ConfigIO}`result`.
+The difference between this {anchorName ConfigIO}`Monad` instance and the one for {anchorName Reader (module := Examples.Monads.Class)}`Reader` is that this one uses {kw}`do`-notation in the {anchorName ConfigIO}`IO` monad as the body of the function that {anchorName ConfigIO}`bind` returns, rather than applying {anchorName ConfigIO}`next` directly to the value returned from {anchorName ConfigIO}`result`.
 Any {anchorName ConfigIO}`IO` effects performed by {anchorName ConfigIO}`result` must occur before {anchorName ConfigIO}`next` is invoked, which is ensured by the {anchorName ConfigIO}`IO` monad's {anchorName ConfigIO}`bind` operator.
 {anchorName ConfigIO}`ConfigIO` is not universe polymorphic because the underlying {anchorName ConfigIO}`IO` type is also not universe polymorphic.
 
@@ -221,7 +226,7 @@ The next step is to define a means of accessing the current configuration as par
 def currentConfig : ConfigIO Config :=
   fun cfg => pure cfg
 ```
-This is just like {anchorName Reader (module := Examples.Monads.class)}`read` from {ref "custom-environments"}[the evaluator example], except it uses {anchorName ConfigIO}`IO`'s {anchorName ConfigIO}`pure` to return its value rather than doing so directly.
+This is just like {anchorName Reader (module := Examples.Monads.Class)}`read` from {ref "custom-environments"}[the evaluator example], except it uses {anchorName ConfigIO}`IO`'s {anchorName ConfigIO}`pure` to return its value rather than doing so directly.
 Because entering a directory modifies the current configuration for the scope of a recursive call, it will be necessary to have a way to override a configuration:
 
 ```anchor locally
@@ -260,7 +265,7 @@ partial def dirTree (path : System.FilePath) : ConfigIO Unit := do
       showDirName name
       let contents ← runIO path.readDir
       locally (·.inDirectory)
-        (doList contents.toList fun d =>
+        (doList (contents.qsort dirLT).toList fun d =>
           dirTree d.path)
 ```
 
@@ -419,7 +424,7 @@ partial def dirTree (path : System.FilePath) : ConfigIO Unit := do
       showDirName name
       let contents ← path.readDir
       withReader (·.inDirectory)
-        (doList contents.toList fun d =>
+        (doList (contents.qsort dirLT).toList fun d =>
           dirTree d.path)
 ```
 Aside from replacing {anchorName locally}`locally` with {anchorName readerTDirTree}`withReader`, it is the same as before.

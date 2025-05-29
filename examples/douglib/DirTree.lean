@@ -87,6 +87,11 @@ def showDirName (cfg : Config) (dir : String) : IO Unit := do
   IO.println (cfg.dirName dir)
 -- ANCHOR_END: OldShowFile
 
+-- ANCHOR: compareEntries'
+def dirLT (e1 : IO.FS.DirEntry) (e2 :IO.FS.DirEntry) : Bool :=
+  e1.fileName < e2.fileName
+-- ANCHOR_END: compareEntries'
+
 -- ANCHOR: OldDirTree
 partial def dirTree (cfg : Config) (path : System.FilePath) : IO Unit := do
   match ← toEntry path with
@@ -96,7 +101,7 @@ partial def dirTree (cfg : Config) (path : System.FilePath) : IO Unit := do
     showDirName cfg name
     let contents ← path.readDir
     let newConfig := cfg.inDirectory
-    doList contents.toList fun d =>
+    doList (contents.qsort dirLT).toList fun d =>
       dirTree newConfig d.path
 -- ANCHOR_END: OldDirTree
 
@@ -164,6 +169,10 @@ def showDirName (dir : String) : ConfigIO Unit := do
 -- ANCHOR_END: MedShowFileDir
 
 
+-- ANCHOR: compareEntries
+def dirLT (e1 : IO.FS.DirEntry) (e2 :IO.FS.DirEntry) : Bool :=
+  e1.fileName < e2.fileName
+-- ANCHOR_END: compareEntries
 
 -- ANCHOR: MedDirTree
 partial def dirTree (path : System.FilePath) : ConfigIO Unit := do
@@ -174,7 +183,7 @@ partial def dirTree (path : System.FilePath) : ConfigIO Unit := do
       showDirName name
       let contents ← runIO path.readDir
       locally (·.inDirectory)
-        (doList contents.toList fun d =>
+        (doList (contents.qsort dirLT).toList fun d =>
           dirTree d.path)
 -- ANCHOR_END: MedDirTree
 
@@ -279,6 +288,10 @@ instance : MonadWithReader ρ (ReaderT ρ m) where
     fun cfg => action (change cfg)
 -- ANCHOR_END: ReaderTWithReader
 
+-- ANCHOR: compareEntries''
+def dirLT (e1 : IO.FS.DirEntry) (e2 :IO.FS.DirEntry) : Bool :=
+  e1.fileName < e2.fileName
+-- ANCHOR_END: compareEntries''
 
 -- ANCHOR: readerTDirTree
 partial def dirTree (path : System.FilePath) : ConfigIO Unit := do
@@ -289,7 +302,7 @@ partial def dirTree (path : System.FilePath) : ConfigIO Unit := do
       showDirName name
       let contents ← path.readDir
       withReader (·.inDirectory)
-        (doList contents.toList fun d =>
+        (doList (contents.qsort dirLT).toList fun d =>
           dirTree d.path)
 -- ANCHOR_END: readerTDirTree
 
