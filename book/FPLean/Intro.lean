@@ -6,6 +6,8 @@ open Verso Code External
 
 open FPLean
 
+set_option verso.exampleProject "../examples"
+set_option verso.exampleModule "Examples.Intro"
 
 #doc (Manual) "Introduction" =>
 %%%
@@ -48,11 +50,11 @@ It is also useful to explore Lean as you read the book, finding creative new way
 Before writing and running programs written in Lean, you'll need to set up Lean on your own computer.
 The Lean tooling consists of the following:
 
- * `elan` manages the Lean compiler toolchains, similarly to `rustup` or `ghcup`.
- * `lake` builds Lean packages and their dependencies, similarly to `cargo`, `make`, or Gradle.
- * `lean` type checks and compiles individual Lean files as well as providing information to programmer tools about files that are currently being written.
-   Normally, `lean` is invoked by other tools rather than directly by users.
- * Plugins for editors, such as Visual Studio Code or Emacs, that communicate with `lean` and present its information conveniently.
+ * {lit}`elan` manages the Lean compiler toolchains, similarly to {lit}`rustup` or {lit}`ghcup`.
+ * {lit}`lake` builds Lean packages and their dependencies, similarly to {lit}`cargo`, {lit}`make`, or Gradle.
+ * {lit}`lean` type checks and compiles individual Lean files as well as providing information to programmer tools about files that are currently being written.
+   Normally, {lit}`lean` is invoked by other tools rather than directly by users.
+ * Plugins for editors, such as Visual Studio Code or Emacs, that communicate with {lit}`lean` and present its information conveniently.
 
 Please refer to the [Lean manual](https://lean-lang.org/lean4/doc/quickstart.html) for up-to-date instructions for installing Lean.
 
@@ -60,34 +62,51 @@ Please refer to the [Lean manual](https://lean-lang.org/lean4/doc/quickstart.htm
 
 Code examples that are provided to Lean as _input_ are formatted like this:
 
-{exampleDecl Examples.Intro add1}
+```anchor add1
+def add1 (n : Nat) : Nat := n + 1
+```
 
-{exampleIn Examples.Intro add1_7}
+```anchorTerm add1_7
+#eval add1 7
+```
 
-The last line above (beginning with `#eval`) is a command that instructs Lean to calculate an answer.
+The last line above (beginning with {kw}`#eval`) is a command that instructs Lean to calculate an answer.
 Lean's replies are formatted like this:
 
-{exampleInfo Examples.Intro add1_7}
+```anchorInfo add1_7
+8
+```
 
 Error messages returned by Lean are formatted like this:
 
-{exampleError Examples.Intro add1_string}
+```anchorError add1_string
+application type mismatch
+  add1 "seven"
+argument
+  "seven"
+has type
+  String : Type
+but is expected to have type
+  Nat : Type
+```
 
 Warnings are formatted like this:
 
-{exampleWarning Examples.Intro add1_warn}
+```anchorWarning add1_warn
+declaration uses 'sorry'
+```
 
 # Unicode
 
 
 Idiomatic Lean code makes use of a variety of Unicode characters that are not part of ASCII.
-For instance, Greek letters like `α` and `β` and the arrow `→` both occur in the first chapter of this book.
+For instance, Greek letters like {lit}`α` and {lit}`β` and the arrow {lit}`→` both occur in the first chapter of this book.
 This allows Lean code to more closely resemble ordinary mathematical notation.
 
-With the default Lean settings, both Visual Studio Code and Emacs allow these characters to be typed with a backslash (`\`) followed by a name.
-For example, to enter `α`, type `\alpha`.
+With the default Lean settings, both Visual Studio Code and Emacs allow these characters to be typed with a backslash ({lit}`\`) followed by a name.
+For example, to enter {lit}`α`, type {lit}`\alpha`.
 To find out how to type a character in Visual Studio Code, point the mouse at it and look at the tooltip.
-In Emacs, use `C-c C-k` with point on the character in question.
+In Emacs, use {lit}`C-c C-k` with point on the character in question.
 
 
 
@@ -124,7 +143,7 @@ This release adds a chapter on programming with dependent types and indexed fami
 
 ## January, 2023
 
-This release adds a chapter on monad transformers that includes a description of the imperative features that are available in `do`-notation.
+This release adds a chapter on monad transformers that includes a description of the imperative features that are available in {kw}`do`-notation.
 
 ## December, 2022
 
@@ -155,6 +174,7 @@ The second public release completes the first chapter.
 
 This was the first public release, consisting of an introduction and part of the first chapter.
 
+
 # About the Author
 
 David Thrane Christiansen has been using functional languages for twenty years, and dependent types for ten.
@@ -166,7 +186,7 @@ At the time of writing, he is employed at the [Lean Focused Research Organizatio
 
 # License
 
-<a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+{creativeCommons}
 
 The original version of the book was written by David Thrane Christiansen on contract to Microsoft Corporation, who generously released it under a Creative Commons Attribution 4.0 International License.
 The current version has been modified by the author from the original version to account for changes in newer versions of Lean.

@@ -19,25 +19,25 @@ Experimenting with error messages is a good way to illustrate these rules, as we
 
 Generally speaking, the definition of an inductive type takes its parameters before a colon and its indices after the colon.
 Parameters are given names like function arguments, whereas indices only have their types described.
-This can be seen in the definition of `Vect`:
+This can be seen in the definition of {anchorName Vect (module := Examples.DependentTypes)}`Vect`:
 
 ```anchor Vect (module := Examples.DependentTypes)
 inductive Vect (α : Type u) : Nat → Type u where
    | nil : Vect α 0
    | cons : α → Vect α n → Vect α (n + 1)
 ```
-In this definition, `α` is a parameter and the `Nat` is an index.
-Parameters may be referred to throughout the definition (for example, `Vect.cons` uses `α` for the type of its first argument), but they must always be used consistently.
+In this definition, {anchorName Vect (module:=Examples.DependentTypes)}`α` is a parameter and the {anchorName Vect (module:=Examples.DependentTypes)}`Nat` is an index.
+Parameters may be referred to throughout the definition (for example, {anchorName consNotLengthN (module:=Examples.DependentTypes)}`Vect.cons` uses {anchorName Vect (module:=Examples.DependentTypes)}`α` for the type of its first argument), but they must always be used consistently.
 Because indices are expected to change, they are assigned individual values at each constructor, rather than being provided as arguments at the top of the datatype definition.
 
 
-A very simple datatype with a parameter is `WithParameter`:
+A very simple datatype with a parameter is {anchorName WithParameter}`WithParameter`:
 
 ```anchor WithParameter
 inductive WithParameter (α : Type u) : Type u where
   | test : α → WithParameter α
 ```
-The universe level `u` can be used for both the parameter and for the inductive type itself, illustrating that parameters do not increase the universe level of a datatype.
+The universe level {anchorTerm WithParameter}`u` can be used for both the parameter and for the inductive type itself, illustrating that parameters do not increase the universe level of a datatype.
 Similarly, when there are multiple parameters, the inductive type receives whichever universe level is greater:
 
 ```anchor WithTwoParameters
@@ -118,7 +118,7 @@ which is not less than or equal to the inductive type's resulting universe level
 ```
 
 Parameters need not be types.
-This example shows that ordinary datatypes such as `Nat` may be used as parameters:
+This example shows that ordinary datatypes such as {anchorName NatParamFour}`Nat` may be used as parameters:
 ```anchor NatParamFour
 inductive NatParam (n : Nat) : Nat → Type u where
   | five : NatParam 4 5
@@ -129,7 +129,7 @@ inductive datatype parameter mismatch
 expected
   n
 ```
-Using the `n` as suggested causes the declaration to be accepted:
+Using the {anchorName NatParam}`n` as suggested causes the declaration to be accepted:
 
 ```anchor NatParam
 inductive NatParam (n : Nat) : Nat → Type u where
@@ -146,8 +146,8 @@ The rules of parameters and indices are as follows:
  3. The universe level of the datatype being defined must be at least as large as the largest parameter, and strictly larger than the largest index.
  4. Named arguments written before the colon are always parameters, while arguments after the colon are typically indices. Lean may determine that the usage of arguments after the colon makes them into parameters if they are used consistently in all constructors and don't come after any indices.
 
-When in doubt, the Lean command `#print` can be used to check how many of a datatype's arguments are parameters.
-For example, for `Vect`, it points out that the number of parameters is 1:
+When in doubt, the Lean command {kw}`#print` can be used to check how many of a datatype's arguments are parameters.
+For example, for {anchorTerm printVect}`Vect`, it points out that the number of parameters is 1:
 ```anchor printVect
 #print Vect
 ```

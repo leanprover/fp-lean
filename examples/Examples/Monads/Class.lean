@@ -6,6 +6,7 @@ set_option linter.unusedVariables false
 
 -- ANCHOR: Names
 example := Option
+example := IO
 section
 variable (ε : Type)
 example := Except ε
@@ -18,6 +19,7 @@ end
 -- ANCHOR_END: Names
 
 namespace Class
+variable {α β : Type} {m : Type → Type}
 -- ANCHOR: FakeMonad
 class Monad (m : Type → Type) where
   pure : α → m α
@@ -41,16 +43,18 @@ instance : Monad (Except ε) where
     | Except.error e => Except.error e
     | Except.ok x => next x
 -- ANCHOR_END: MonadOptionExcept
-
+section
+variable {α : Type} {m : Type → Type}
 -- ANCHOR: firstThirdFifthSeventhMonad
-def firstThirdFifthSeventh [Monad m] (lookup : List α → Nat → m α) (xs : List α) : m (α × α × α × α) :=
+def firstThirdFifthSeventh [Monad m] (lookup : List α → Nat → m α)
+    (xs : List α) : m (α × α × α × α) :=
   lookup xs 0 >>= fun first =>
   lookup xs 2 >>= fun third =>
   lookup xs 4 >>= fun fifth =>
   lookup xs 6 >>= fun seventh =>
   pure (first, third, fifth, seventh)
 -- ANCHOR_END: firstThirdFifthSeventhMonad
-
+end
 
 -- ANCHOR: animals
 def slowMammals : List String :=
@@ -88,8 +92,10 @@ namespace Errs
 -- ANCHOR: getOrExcept
 def getOrExcept (xs : List α) (i : Nat) : Except String α :=
   match xs[i]? with
-  | none => Except.error s!"Index {i} not found (maximum is {xs.length - 1})"
-  | some x => Except.ok x
+  | none =>
+    Except.error s!"Index {i} not found (maximum is {xs.length - 1})"
+  | some x =>
+    Except.ok x
 -- ANCHOR_END: getOrExcept
 
 
@@ -135,7 +141,7 @@ example : (α → (α → Id β) → Id β) = (α → (α → β) → β) := rfl
 
 
 namespace MyListStuff
-
+variable {α β : Type} {m : Type → Type}
 
 
 -- ANCHOR: mapM
@@ -323,7 +329,10 @@ def twoPlusThree : Expr Arith :=
 open Expr in
 open Arith in
 def fourteenDivided : Expr Arith :=
-  prim div (const 14) (prim minus (const 45) (prim times (const 5) (const 9)))
+  prim div (const 14)
+    (prim minus (const 45)
+      (prim times (const 5)
+        (const 9)))
 -- ANCHOR_END: exampleArithExpr
 
 namespace One
@@ -382,7 +391,6 @@ def applyPrim : Arith → Int → Int → Except String Int
       Except.error s!"Tried to divide {x} by zero"
     else pure (x / y)
 
-
 def evaluateExcept : Expr Arith → Except String Int
   | Expr.const i => pure i
   | Expr.prim p e1 e2 =>
@@ -415,7 +423,9 @@ def applyPrimExcept : Arith → Int → Int → Except String Int
       Except.error s!"Tried to divide {x} by zero"
     else pure (x / y)
 
-def evaluateM [Monad m] (applyPrim : Arith → Int → Int → m Int): Expr Arith → m Int
+def evaluateM [Monad m]
+    (applyPrim : Arith → Int → Int → m Int) :
+    Expr Arith → m Int
   | Expr.const i => pure i
   | Expr.prim p e1 e2 =>
     evaluateM applyPrim e1 >>= fun v1 =>
@@ -455,13 +465,17 @@ def applyDivExcept (x : Int) (y : Int) : Except String Int :=
       Except.error s!"Tried to divide {x} by zero"
     else pure (x / y)
 
-def applyPrim [Monad m] (applyDiv : Int → Int → m Int) : Arith → Int → Int → m Int
+def applyPrim [Monad m]
+    (applyDiv : Int → Int → m Int) :
+    Arith → Int → Int → m Int
   | Arith.plus, x, y => pure (x + y)
   | Arith.minus, x, y => pure (x - y)
   | Arith.times, x, y => pure (x * y)
   | Arith.div, x, y => applyDiv x y
 
-def evaluateM [Monad m] (applyDiv : Int → Int → m Int): Expr Arith → m Int
+def evaluateM [Monad m]
+    (applyDiv : Int → Int → m Int) :
+    Expr Arith → m Int
   | Expr.const i => pure i
   | Expr.prim p e1 e2 =>
     evaluateM applyDiv e1 >>= fun v1 =>
@@ -511,13 +525,17 @@ def divExcept : CanFail → Int → Int → Except String Int
       Except.error s!"Tried to divide {x} by zero"
     else pure (x / y)
 
-def applyPrim [Monad m] (applySpecial : special → Int → Int → m Int) : Prim special → Int → Int → m Int
+def applyPrim [Monad m]
+    (applySpecial : special → Int → Int → m Int) :
+    Prim special → Int → Int → m Int
   | Prim.plus, x, y => pure (x + y)
   | Prim.minus, x, y => pure (x - y)
   | Prim.times, x, y => pure (x * y)
   | Prim.other op, x, y => applySpecial op x y
 
-def evaluateM [Monad m] (applySpecial : special → Int → Int → m Int): Expr (Prim special) → m Int
+def evaluateM [Monad m]
+    (applySpecial : special → Int → Int → m Int) :
+    Expr (Prim special) → m Int
   | Expr.const i => pure i
   | Expr.prim p e1 e2 =>
     evaluateM applySpecial e1 >>= fun v1 =>
@@ -531,6 +549,18 @@ def applyEmpty [Monad m] (op : Empty) (_ : Int) (_ : Int) : m Int :=
   nomatch op
 -- ANCHOR_END: applyEmpty
 
+
+-- ANCHOR: nomatch
+section
+variable {E : Empty}
+example : α := nomatch E
+end
+-- ANCHOR_END: nomatch
+
+-- ANCHOR: etc
+example := @List.cons
+example := @List.lookup
+-- ANCHOR_END: etc
 
 /-- info:
 -9
@@ -567,7 +597,11 @@ open Expr Prim NeedsSearch
 -/
 #check_msgs in
 -- ANCHOR: searchA
-#eval (evaluateM applySearch (prim plus (const 1) (prim (other choose) (const 2) (const 5)))).takeAll
+#eval
+  (evaluateM applySearch
+    (prim plus (const 1)
+      (prim (other choose) (const 2)
+        (const 5)))).takeAll
 -- ANCHOR_END: searchA
 
 
@@ -576,7 +610,11 @@ open Expr Prim NeedsSearch
 -/
 #check_msgs in
 -- ANCHOR: searchB
-#eval (evaluateM applySearch (prim plus (const 1) (prim (other div) (const 2) (const 0)))).takeAll
+#eval
+  (evaluateM applySearch
+    (prim plus (const 1)
+      (prim (other div) (const 2)
+        (const 0)))).takeAll
 -- ANCHOR_END: searchB
 
 
@@ -585,7 +623,11 @@ open Expr Prim NeedsSearch
 -/
 #check_msgs in
 -- ANCHOR: searchC
-#eval (evaluateM applySearch (prim (other div) (const 90) (prim plus (prim (other choose) (const (-5)) (const 5)) (const 5)))).takeAll
+#eval
+  (evaluateM applySearch
+    (prim (other div) (const 90)
+      (prim plus (prim (other choose) (const (-5)) (const 5))
+        (const 5)))).takeAll
 -- ANCHOR_END: searchC
 
 end
@@ -736,14 +778,16 @@ end Temp
 
 
 -- ANCHOR: Readerbind
-def Reader.bind (result : Reader ρ α) (next : α → Reader ρ β) : Reader ρ β :=
+def Reader.bind
+    (result : Reader ρ α)
+    (next : α → Reader ρ β) : Reader ρ β :=
   fun env => next (result env) env
 -- ANCHOR_END: Readerbind
 
 namespace TTT
-axiom α : Type
-axiom β : Type
-axiom ρ : Type
+variable (α : Type)
+variable (β : Type)
+variable (ρ : Type)
 -- ANCHOR: readerBindType
 example : Reader ρ α → (α → Reader ρ β) → Reader ρ β := Reader.bind
 -- ANCHOR_END: readerBindType
@@ -759,15 +803,22 @@ def Reader.pure (x : α) : Reader ρ α := fun _ => x
 -- ANCHOR_END: ReaderPure
 
 
+-- ANCHOR: eta
+section
+variable (f : α → β)
+example : (fun x => f x) = f := rfl
+end
+-- ANCHOR_END: eta
+
 namespace MonadLaws
-axiom α : Type
-axiom ρ : Type
-axiom β : Type
-axiom γ : Type
-axiom v : α
-axiom r : Reader ρ α
-axiom f : α → Reader ρ β
-axiom g : β → Reader ρ γ
+variable (α : Type)
+variable (ρ : Type)
+variable (β : Type)
+variable (γ : Type)
+variable (v : α)
+variable (r : Reader ρ α)
+variable (f : α → Reader ρ β)
+variable (g : β → Reader ρ γ)
 
 evaluation steps {{{ ReaderMonad1 }}}
 -- ANCHOR: ReaderMonad1
@@ -876,7 +927,12 @@ def exampleEnv : Env := [("max", max), ("mod", (· % ·))]
 #check_msgs in
 -- ANCHOR: readerEval
 open Expr Prim in
-#eval evaluateM applyPrimReader (prim (other "max") (prim plus (const 5) (const 4)) (prim times (const 3) (const 2))) exampleEnv
+#eval
+  evaluateM applyPrimReader
+    (prim (other "max") (prim plus (const 5) (const 4))
+      (prim times (const 3)
+        (const 2)))
+    exampleEnv
 -- ANCHOR_END: readerEval
 
 namespace Exercises
@@ -931,7 +987,9 @@ def applyTraced : ToTrace (Prim Empty) → Int → Int → WithLog (Prim Empty �
 -- ANCHOR: applyTracedType
 example : ToTrace (Prim Empty) → Int → Int → WithLog (Prim Empty × Int × Int) Int := applyTraced
 -- ANCHOR_END: applyTracedType
-
+--ANCHOR: ToTraceExpr
+example := Expr (Prim (ToTrace (Prim Empty)))
+--ANCHOR_END: ToTraceExpr
 
 
 /-- info:
@@ -940,7 +998,13 @@ example : ToTrace (Prim Empty) → Int → Int → WithLog (Prim Empty × Int ×
 #check_msgs in
 -- ANCHOR: evalTraced
 open Expr Prim ToTrace in
-#eval evaluateM applyTraced (prim (other (trace times)) (prim (other (trace plus)) (const 1) (const 2)) (prim (other (trace minus)) (const 3) (const 4)))
+#eval
+  evaluateM applyTraced
+    (prim (other (trace times))
+      (prim (other (trace plus)) (const 1)
+        (const 2))
+      (prim (other (trace minus)) (const 3)
+        (const 4)))
 -- ANCHOR_END: evalTraced
 
 -- ANCHOR: ReaderFail

@@ -1,5 +1,19 @@
 import ExampleSupport
 
+-- ANCHOR: SomeTypes
+example : List Type := [Nat, String, Int → String × Char, IO Unit]
+example : List Prop := ["nisse" = "elf", 3 > 2]
+example := (Type 1 : Sort _)
+-- ANCHOR_END: SomeTypes
+
+/-- info:
+Nat : Type
+-/
+#check_msgs in
+-- ANCHOR: NatType
+#check Nat
+-- ANCHOR_END: NatType
+
 
 /-- info:
 Prop : Type
@@ -133,6 +147,10 @@ inductive MyList (α : Type 1) : Type where
   | cons : α → MyList α → MyList α
 -- ANCHOR_END: MyList2
 
+-- ANCHOR: MyList2Type
+example := Type 1 → Type 1
+-- ANCHOR_END: MyList2Type
+
 
 namespace MyList3
 
@@ -159,13 +177,13 @@ def myListOfList : MyList (Type → Type) :=
 namespace Explicit
 
 -- ANCHOR: MyListDotZero
-example : Type → Type := MyList.{0}
+example := (MyList.{0} : Type → Type)
 -- ANCHOR_END: MyListDotZero
 -- ANCHOR: MyListDotOne
-example : Type 1 → Type 1 := MyList.{1}
+example := (MyList.{1} : Type 1 → Type 1)
 -- ANCHOR_END: MyListDotOne
 -- ANCHOR: MyListDotTwo
-example : Type 2 → Type 2 := MyList.{2}
+example := (MyList.{2} : Type 2 → Type 2)
 -- ANCHOR_END: MyListDotTwo
 
 
@@ -260,5 +278,18 @@ end Explicit
 example : Prop := (n : Nat) → n + 0 = n
 -- ANCHOR_END: ArrProp
 
+-- ANCHOR: sorts
+example := (Sort 0 : (Sort 1 : (Sort 2 : Sort 3)))
+section
+universe u v
+example : Type u = Sort (u+1) := rfl
+example := Sort (imax u v)
+example := CoeSort
+end
+-- ANCHOR_END: sorts
 
 end PropStuff
+
+-- ANCHOR: next
+example := [Functor, Applicative, Monad]
+-- ANCHOR_END: next

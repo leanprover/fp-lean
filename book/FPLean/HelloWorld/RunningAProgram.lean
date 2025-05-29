@@ -19,8 +19,8 @@ tag := "running-a-program"
 %%%
 
 :::paragraph
-The simplest way to run a Lean program is to use the `--run` option to the Lean executable.
-Create a file called `Hello.lean` and enter the following contents:
+The simplest way to run a Lean program is to use the {lit}`--run` option to the Lean executable.
+Create a file called {lit}`Hello.lean` and enter the following contents:
 
 ````module (module:=Hello)
 def main : IO Unit := IO.println "Hello, world!"
@@ -39,9 +39,9 @@ The program displays {commandOut hello}`lean --run Hello.lean` and exits.
 
 # Anatomy of a Greeting
 
-When Lean is invoked with the `--run` option, it invokes the program's `main` definition.
+When Lean is invoked with the {lit}`--run` option, it invokes the program's {lit}`main` definition.
 In programs that do not take command-line arguments, {moduleName module:=Hello}`main` should have type {moduleTerm}`IO Unit`.
-This means that {moduleName module:=Hello}`main` is not a function, because there are no arrows (`→`) in its type.
+This means that {moduleName module:=Hello}`main` is not a function, because there are no arrows ({lit}`→`) in its type.
 Instead of being a function that has side effects, {moduleTerm}`main` consists of a description of effects to be carried out.
 
 As discussed in {ref "polymorphism"}[the preceding chapter], {moduleTerm}`Unit` is the simplest inductive type.
@@ -53,7 +53,7 @@ If {moduleTerm}`Bool` represents a single bit of information, {moduleTerm}`Unit`
 {moduleTerm}`IO α` is the type of a program that, when executed, will either throw an exception or return a value of type {moduleTerm}`α`.
 During execution, this program may have side effects.
 These programs are referred to as {moduleTerm}`IO` _actions_.
-Lean distinguishes between _evaluation_ of expressions, which strictly adheres to the mathematical model of substitution of values for variables and reduction of sub-expressions without side effects, and _execution_ of `IO` actions, which rely on an external system to interact with the world.
+Lean distinguishes between _evaluation_ of expressions, which strictly adheres to the mathematical model of substitution of values for variables and reduction of sub-expressions without side effects, and _execution_ of {anchorTerm sig}`IO` actions, which rely on an external system to interact with the world.
 {moduleTerm}`IO.println` is a function from strings to {moduleTerm}`IO` actions that, when executed, write the given string to standard output.
 Because this action doesn't read any interesting information from the environment in the process of emitting the string, {moduleTerm}`IO.println` has type {moduleTerm}`String → IO Unit`.
 If it did return something interesting, then that would be indicated by the {moduleTerm}`IO` action having a type other than {moduleTerm}`Unit`.
@@ -114,13 +114,13 @@ At the end of the program, the token is returned to the operating system.
 This model of side effects is a good description of how {moduleTerm}`IO` actions as descriptions of tasks to be carried out by the RTS are represented internally in Lean.
 The actual functions that transform the real world are behind an abstraction barrier.
 But real programs typically consist of a sequence of effects, rather than just one.
-To enable programs to use multiple effects, there is a sub-language of Lean called `do` notation that allows these primitive {moduleTerm}`IO` actions to be safely composed into a larger, useful program.
+To enable programs to use multiple effects, there is a sub-language of Lean called {kw}`do` notation that allows these primitive {moduleTerm}`IO` actions to be safely composed into a larger, useful program.
 
-# Combining `IO` Actions
+# Combining {anchorName all}`IO` Actions
 
 Most useful programs accept input in addition to producing output.
 Furthermore, they may take decisions based on input, using the input data as part of a computation.
-The following program, called `HelloName.lean`, asks the user for their name and then greets them:
+The following program, called {lit}`HelloName.lean`, asks the user for their name and then greets them:
 
 ```module (anchor:=all)
 def main : IO Unit := do
@@ -136,16 +136,16 @@ def main : IO Unit := do
 
 
 
-In this program, the `main` action consists of a `do` block.
-This block contains a sequence of _statements_, which can be both local variables (introduced using `let`) and actions that are to be executed.
-Just as SQL can be thought of as a special-purpose language for interacting with databases, the `do` syntax can be thought of as a special-purpose sub-language within Lean that is dedicated to modeling imperative programs.
-`IO` actions that are built with a `do` block are executed by executing the statements in order.
+In this program, the {anchorName all}`main` action consists of a {kw}`do` block.
+This block contains a sequence of _statements_, which can be both local variables (introduced using {kw}`let`) and actions that are to be executed.
+Just as SQL can be thought of as a special-purpose language for interacting with databases, the {kw}`do` syntax can be thought of as a special-purpose sub-language within Lean that is dedicated to modeling imperative programs.
+{anchorName all}`IO` actions that are built with a {kw}`do` block are executed by executing the statements in order.
 
 This program can be run in the same manner as the prior program:
 
 {command helloName "hello-name" "expect -f ./run" (show := "lean --run HelloName.lean")}
 
-If the user responds with `David`, a session of interaction with the program reads:
+If the user responds with {lit}`David`, a session of interaction with the program reads:
 
 ```commandOut helloName "expect -f ./run"
 How would you like to be addressed?
@@ -153,12 +153,12 @@ David
 Hello, David!
 ```
 
-The type signature line is just like the one for `Hello.lean`:
+The type signature line is just like the one for {lit}`Hello.lean`:
 ```module (anchor:=sig)
 def main : IO Unit := do
 ```
 The only difference is that it ends with the keyword {moduleTerm}`do`, which initiates a sequence of commands.
-Each indented line following the keyword `do` is part of the same sequence of commands.
+Each indented line following the keyword {kw}`do` is part of the same sequence of commands.
 
 The first two lines, which read:
 ```module (anchor:=setup)
@@ -170,7 +170,7 @@ retrieve the {moduleTerm (anchor := setup)}`stdin` and {moduleTerm (anchor := se
 In a {moduleTerm}`do` block, {moduleTerm}`let` has a slightly different meaning than in an ordinary expression.
 Ordinarily, the local definition in a {moduleTerm}`let` can be used in just one expression, which immediately follows the local definition.
 In a {moduleTerm}`do` block, local bindings introduced by {moduleTerm}`let` are available in all statements in the remainder of the {moduleTerm}`do` block, rather than just the next one.
-Additionally, {moduleTerm}`let` typically connects the name being defined to its definition using `:=`, while some {moduleTerm}`let` bindings in {moduleTerm}`do` use a left arrow (`←` or `<-`) instead.
+Additionally, {moduleTerm}`let` typically connects the name being defined to its definition using {lit}`:=`, while some {moduleTerm}`let` bindings in {moduleTerm}`do` use a left arrow ({lit}`←` or {lit}`<-`) instead.
 Using an arrow means that the value of the expression is an {moduleTerm}`IO` action that should be executed, with the result of the action saved in the local variable.
 In other words, if the expression to the right of the arrow has type {moduleTerm}`IO α`, then the variable has type {moduleTerm}`α` in the remainder of the {moduleTerm}`do` block.
 {moduleTerm (anchor := setup)}`IO.getStdin` and {moduleTerm (anchor := setup)}`IO.getStdout` are {moduleTerm (anchor := sig)}`IO` actions in order to allow {moduleTerm (anchor := setup)}`stdin` and {moduleTerm (anchor := setup)}`stdout` to be locally overridden in a program, which can be convenient.
@@ -185,11 +185,11 @@ The next part of the {moduleTerm}`do` block is responsible for asking the user f
 ```
 
 The first line writes the question to {moduleTerm (anchor := setup)}`stdout`, the second line requests input from {moduleTerm (anchor := setup)}`stdin`, and the third line removes the trailing newline (plus any other trailing whitespace) from the input line.
-The definition of {moduleTerm (anchor := question)}`name` uses `:=`, rather than `←`, because {moduleTerm}`String.dropRightWhile` is an ordinary function on strings, rather than an {moduleTerm (anchor := sig)}`IO` action.
+The definition of {moduleTerm (anchor := question)}`name` uses {lit}`:=`, rather than {lit}`←`, because {moduleTerm}`String.dropRightWhile` is an ordinary function on strings, rather than an {moduleTerm (anchor := sig)}`IO` action.
 
 Finally, the last line in the program is:
 ```module (anchor:=answer)
   stdout.putStrLn s!"Hello, {name}!"
 ```
 
-It uses [string interpolation](../getting-to-know/conveniences.md#string-interpolation) to insert the provided name into a greeting string, writing the result to {moduleTerm (anchor := setup)}`stdout`.
+It uses {ref "string-interpolation"}[string interpolation] to insert the provided name into a greeting string, writing the result to {moduleTerm (anchor := setup)}`stdout`.

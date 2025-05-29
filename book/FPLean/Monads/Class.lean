@@ -13,8 +13,8 @@ set_option verso.externalExamples.suppressedNamespaces "Class Errs IdentMonad My
 #doc (Manual) "The Monad Type Class" =>
 
 :::paragraph
-Rather than having to import an operator like `ok` or `andThen` for each type that is a monad, the Lean standard library contains a type class that allow them to be overloaded, so that the same operators can be used for _any_ monad.
-Monads have two operations, which are the equivalent of `ok` and `andThen`:
+Rather than having to import an operator like {lit}`ok` or {lit}`andThen` for each type that is a monad, the Lean standard library contains a type class that allow them to be overloaded, so that the same operators can be used for _any_ monad.
+Monads have two operations, which are the equivalent of {lit}`ok` and {lit}`andThen`:
 
 ```anchor FakeMonad
 class Monad (m : Type → Type) where
@@ -26,7 +26,7 @@ The actual definition in the Lean library is somewhat more involved, and will be
 :::
 
 :::paragraph
-The {anchorName MonadOptionExcept}`Monad` instances for {anchorName MonadOptionExcept}`Option` and {anchorTerm MonadOptionExcept}`Except ε` can be created by adapting the definitions of their respective `andThen` operations:
+The {anchorName MonadOptionExcept}`Monad` instances for {anchorName MonadOptionExcept}`Option` and {anchorTerm MonadOptionExcept}`Except ε` can be created by adapting the definitions of their respective {lit}`andThen` operations:
 
 ```anchor MonadOptionExcept
 instance : Monad Option where
@@ -46,13 +46,14 @@ instance : Monad (Except ε) where
 :::
 
 :::paragraph
-As an example, `firstThirdFifthSeventh` was defined separately for {anchorTerm Names}`Option α` and {anchorTerm Names}`Except String α` return types.
+As an example, {lit}`firstThirdFifthSeventh` was defined separately for {anchorTerm Names}`Option α` and {anchorTerm Names}`Except String α` return types.
 Now, it can be defined polymorphically for _any_ monad.
 It does, however, require a lookup function as an argument, because different monads might fail to find a result in different ways.
-The infix version of {anchorName FakeMonad}`bind` is `>>=`, which plays the same role as `~~>` in the examples.
+The infix version of {anchorName FakeMonad}`bind` is {lit}`>>=`, which plays the same role as {lit}`~~>` in the examples.
 
 ```anchor firstThirdFifthSeventhMonad
-def firstThirdFifthSeventh [Monad m] (lookup : List α → Nat → m α) (xs : List α) : m (α × α × α × α) :=
+def firstThirdFifthSeventh [Monad m] (lookup : List α → Nat → m α)
+    (xs : List α) : m (α × α × α × α) :=
   lookup xs 0 >>= fun first =>
   lookup xs 2 >>= fun third =>
   lookup xs 4 >>= fun fifth =>
@@ -93,13 +94,15 @@ some ("Peregrine falcon", "Golden eagle", "Spur-winged goose", "Anna's hummingbi
 :::
 
 :::paragraph
-After renaming {anchorName getOrExcept}`Except`'s lookup function `get` to something more specific, the very same implementation of {anchorName firstThirdFifthSeventhMonad}`firstThirdFifthSeventh` can be used with {anchorName getOrExcept}`Except` as well:
+After renaming {anchorName getOrExcept}`Except`'s lookup function {lit}`get` to something more specific, the very same implementation of {anchorName firstThirdFifthSeventhMonad}`firstThirdFifthSeventh` can be used with {anchorName getOrExcept}`Except` as well:
 
 ```anchor getOrExcept
 def getOrExcept (xs : List α) (i : Nat) : Except String α :=
   match xs[i]? with
-  | none => Except.error s!"Index {i} not found (maximum is {xs.length - 1})"
-  | some x => Except.ok x
+  | none =>
+    Except.error s!"Index {i} not found (maximum is {xs.length - 1})"
+  | some x =>
+    Except.ok x
 ```
 ```anchor errorSlow
 #eval firstThirdFifthSeventh getOrExcept slowMammals
@@ -113,7 +116,7 @@ Except.error "Index 2 not found (maximum is 1)"
 ```anchorInfo okFast
 Except.ok ("Peregrine falcon", "Golden eagle", "Spur-winged goose", "Anna's hummingbird")
 ```
-The fact that {anchorName firstThirdFifthSeventhMonad}`m` must have a {anchorName firstThirdFifthSeventhMonad}`Monad` instance means that the `>>=` and {anchorName firstThirdFifthSeventhMonad}`pure` operations are available.
+The fact that {anchorName firstThirdFifthSeventhMonad}`m` must have a {anchorName firstThirdFifthSeventhMonad}`Monad` instance means that the {lit}`>>=` and {anchorName firstThirdFifthSeventhMonad}`pure` operations are available.
 :::
 
 # General Monad Operations
@@ -136,7 +139,7 @@ Because {anchorName mapM}`f`'s type determines the available effects, they can b
 :::
 
 :::paragraph
-As described in [this chapter's introduction](../monads.md#numbering-tree-nodes), {anchorTerm StateEx}`State σ α` represents programs that make use of a mutable variable of type {anchorName StateEx}`σ` and return a value of type {anchorName StateEx}`α`.
+As described in {ref "numbering-tree-nodes"}[this chapter's introduction], {anchorTerm StateEx}`State σ α` represents programs that make use of a mutable variable of type {anchorName StateEx}`σ` and return a value of type {anchorName StateEx}`α`.
 These programs are actually functions from a starting state to a pair of a value and a final state.
 The {anchorName StateMonad}`Monad` class requires that its parameter expect a single type argument—that is, it should be a {anchorTerm StateEx}`Type → Type`.
 This means that the instance for {anchorName StateMonad}`State` should mention the state type {anchorName StateMonad}`σ`, which becomes a parameter to the instance:
@@ -163,7 +166,7 @@ def increment (howMuch : Int) : State Int Int :=
 :::paragraph
 Using {anchorName mapMincrementOut}`mapM` with {anchorName mapMincrementOut}`increment` results in a program that computes the sum of the entries in a list.
 More specifically, the mutable variable contains the sum so far, while the resulting list contains a running sum.
-In other words, {anchorTerm mapMincrement}`mapM increment` has type {anchorTerm mapMincrement}`List Int → State Int (List Int)`, and expanding the definition of `State` yields {anchorTerm mapMincrement2}`List Int → Int → (Int × List Int)`.
+In other words, {anchorTerm mapMincrement}`mapM increment` has type {anchorTerm mapMincrement}`List Int → State Int (List Int)`, and expanding the definition of {anchorName StateMonad}`State` yields {anchorTerm mapMincrement2}`List Int → Int → (Int × List Int)`.
 It takes an initial sum as an argument, which should be {anchorTerm mapMincrementOut}`0`:
 ```anchor mapMincrementOut
 #eval mapM increment [1, 2, 3, 4, 5] 0
@@ -174,7 +177,7 @@ It takes an initial sum as an argument, which should be {anchorTerm mapMincremen
 :::
 
 :::paragraph
-A [logging effect](../monads.md#logging) can be represented using `WithLog`.
+A {ref "logging"}[logging effect] can be represented using {anchorName MonadWriter}`WithLog`.
 Just like {anchorName StateEx}`State`, its {anchorName MonadWriter}`Monad` instance is polymorphic with respect to the type of the logged data:
 
 ```anchor MonadWriter
@@ -246,7 +249,7 @@ Additional diagnostic information may be available using the `set_option diagnos
 ```
 In this error, the application of one metavariable to another indicates that Lean doesn't run the type-level computation backwards.
 The return type of the function is expected to be the monad applied to some other type.
-Similarly, using `mapM` with a function whose type doesn't provide any specific hints about which monad is to be used results in an “instance problem is stuck” message:
+Similarly, using {anchorName mapMIdId}`mapM` with a function whose type doesn't provide any specific hints about which monad is to be used results in an “instance problem is stuck” message:
 ```anchor mapMIdId
 #eval mapM (fun (x : Nat) => x) [1, 2, 3, 4, 5]
 ```
@@ -260,7 +263,7 @@ typeclass instance problem is stuck, it is often due to metavariables
 
 Just as every pair of instances of {anchorName MonadContract}`BEq` and {anchorName MonadContract}`Hashable` should ensure that any two equal values have the same hash, there is a contract that each instance of {anchorName MonadContract}`Monad` should obey.
 First, {anchorName MonadContract}`pure` should be a left identity of {anchorName MonadContract}`bind`.
-That is, `bind (pure v) f` should be the same as {anchorTerm MonadContract}`f v`.
+That is, {anchorTerm MonadContract}`bind (pure v) f` should be the same as {anchorTerm MonadContract}`f v`.
 Secondly, {anchorName MonadContract}`pure` should be a right identity of {anchorName MonadContract}`bind`, so {anchorTerm MonadContract}`bind v pure` is the same as {anchorName MonadContract2}`v`.
 Finally, {anchorName MonadContract}`bind` should be associative, so {anchorTerm MonadContract}`bind (bind v f) g` is the same as {anchorTerm MonadContract}`bind v (fun x => bind (f x) g)`.
 

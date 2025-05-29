@@ -21,7 +21,7 @@ Unlike C++, infix operators in Lean are defined as abbreviations for named funct
 # Arithmetic
 
 Most arithmetic operators are available in a heterogeneous form, where the arguments may have different type and an output parameter decides the type of the resulting expression.
-For each heterogeneous operator, there is a corresponding homogeneous version that can found by removing the letter `h`, so that {moduleName}`HAdd.hAdd` becomes {moduleName}`Add.add`.
+For each heterogeneous operator, there is a corresponding homogeneous version that can found by removing the letter {lit}`h`, so that {moduleName}`HAdd.hAdd` becomes {moduleName}`Add.add`.
 The following arithmetic operators are overloaded:
 
 :::table (header := true)
@@ -61,8 +61,6 @@ The following arithmetic operators are overloaded:
 
 
 :::
-
-
 
 # Bitwise Operators
 
@@ -104,13 +102,16 @@ The following bitwise operators are overloaded:
 
 :::
 
-Because the names {moduleName}`And` and {moduleName}`Or` are already taken as the names of logical connectives, the homogeneous versions of {moduleName}`HAnd` and {moduleName}`HOr` are called {moduleName}`AndOp` and {moduleName}`OrOp` rather than {moduleName}`And` and {moduleName}`Or`.
+Because the names {moduleName}`And` and {moduleName}`Or` are already taken as the names of logical connectives, the homogeneous versions of {moduleName}`HAnd` and {moduleName}`HOr` are called {anchorName moreOps}`AndOp` and {moduleTerm}`OrOp` rather than {moduleName}`And` and {moduleName}`Or`.
 
 # Equality and Ordering
+%%%
+tag := "equality-and-ordering"
+%%%
 
 Testing equality of two values typically uses the {moduleName}`BEq` class, which is short for “Boolean equality”.
 Due to Lean's use as a theorem prover, there are really two kinds of equality operators in Lean:
- * {deftech}_Boolean equality_ is the same kind of equality that is found in other programming languages. It is a function that takes two values and returns a `Bool`. Boolean equality is written with two equals signs, just as in Python and C#. Because Lean is a pure functional language, there's no separate notions of reference vs value equality—pointers cannot be observed directly.
+ * {deftech}_Boolean equality_ is the same kind of equality that is found in other programming languages. It is a function that takes two values and returns a {anchorName CoeBoolProp}`Bool`. Boolean equality is written with two equals signs, just as in Python and C#. Because Lean is a pure functional language, there's no separate notions of reference vs value equality—pointers cannot be observed directly.
  * {deftech}_Propositional equality_ is the mathematical statement that two things are equal. Propositional equality is not a function; rather, it is a mathematical statement that admits proof. It is written with a single equals sign. A statement of propositional equality is like a type that classifies evidence of this equality.
 
 Both notions of equality are important, and used for different purposes.
@@ -124,7 +125,7 @@ failed to synthesize
 
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
-As this message indicates, `==` is overloaded using a type class.
+As this message indicates, {lit}`==` is overloaded using a type class.
 The expression {anchorTerm beqDesugar}`x == y` is actually shorthand for {anchorTerm beqDesugar}`BEq.beq x y`.
 
 Propositional equality is a mathematical statement rather than an invocation of a program.
@@ -142,12 +143,12 @@ Some examples of decidable propositions include equality and inequality of natur
 
 :::paragraph
 In Lean, {kw}`if` works with decidable propositions.
-For example, `2 < 4` is a proposition:
+For example, {anchorTerm twoLessFour}`2 < 4` is a proposition:
 ```anchor twoLessFour
-
+#check 2 < 4
 ```
 ```anchorInfo twoLessFour
-
+2 < 4 : Prop
 ```
 Nonetheless, it is perfectly acceptable to write it as the condition in an {kw}`if`.
 For example, {anchorTerm ifProp}`if 2 < 4 then 1 else 2` has type {moduleName}`Nat` and evaluates to {anchorTerm ifProp}`1`.
@@ -155,11 +156,14 @@ For example, {anchorTerm ifProp}`if 2 < 4 then 1 else 2` has type {moduleName}`N
 
 Not all propositions are decidable.
 If they were, then computers would be able to prove any true proposition just by running the decision procedure, and mathematicians would be out of a job.
-More specifically, decidable propositions have an instance of the `Decidable` type class, which contains the decision procedure.
-Trying to use a proposition that isn't decidable as if it were a `Bool` results in a failure to find the `Decidable` instance.
+More specifically, decidable propositions have an instance of the {anchorName DecLTLEPos}`Decidable` type class, which contains the decision procedure.
+Trying to use a proposition that isn't decidable as if it were a {anchorName CoeBoolProp}`Bool` results in a failure to find the {anchorName DecLTLEPos}`Decidable` instance.
 For example, {anchorTerm funEqDec}`if (fun (x : Nat) => 1 + x) = (Nat.succ ·) then "yes" else "no"` results in:
 ```anchorError funEqDec
+failed to synthesize
+  Decidable ((fun x => 1 + x) = fun x => x.succ)
 
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 
 The following propositions, that are usually decidable, are overloaded with type classes:
@@ -189,7 +193,7 @@ The following propositions, that are usually decidable, are overloaded with type
 
 Because defining new propositions hasn't yet been demonstrated, it may be difficult to define completely new instances of {moduleName}`LT` and {moduleName}`LE`.
 However, they can be defined in terms of existing instances.
-{moduleName}`LT` and {moduleName}`LE` instances for `Pos` can use the existing instances for {moduleName}`Nat`:
+{moduleName}`LT` and {moduleName}`LE` instances for {anchorName LTPos}`Pos` can use the existing instances for {moduleName}`Nat`:
 
 ```anchor LTPos
 instance : LT Pos where
@@ -226,9 +230,9 @@ but is expected to have type
 ```
 
 :::paragraph
-Comparing values using `<`, `==`, and `>` can be inefficient.
+Comparing values using {lit}`<`, {lit}`==`, and {lit}`>` can be inefficient.
 Checking first whether one value is less than another, and then whether they are equal, can require two traversals over large data structures.
-To solve this problem, Java and C# have standard `compareTo` and `CompareTo` methods (respectively) that can be overridden by a class in order to implement all three operations at the same time.
+To solve this problem, Java and C# have standard {java}`compareTo` and {CSharp}`CompareTo` methods (respectively) that can be overridden by a class in order to implement all three operations at the same time.
 These methods return a negative integer if the receiver is less than the argument, zero if they are equal, and a positive integer if the receiver is greater than the argument.
 Rather than overloading the meaning of integers, Lean has a built-in inductive type that describes these three possibilities:
 ```anchor Ordering
@@ -237,8 +241,8 @@ inductive Ordering where
   | eq
   | gt
 ```
-The `Ord` type class can be overloaded to produce these comparisons.
-For `Pos`, an implementation can be:
+The {anchorName OrdPos}`Ord` type class can be overloaded to produce these comparisons.
+For {anchorName OrdPos}`Pos`, an implementation can be:
 ```anchor OrdPos
 def Pos.comp : Pos → Pos → Ordering
   | Pos.one, Pos.one => Ordering.eq
@@ -249,13 +253,13 @@ def Pos.comp : Pos → Pos → Ordering
 instance : Ord Pos where
   compare := Pos.comp
 ```
-In situations where `compareTo` would be the right approach in Java, use {moduleName}`Ord.compare` in Lean.
+In situations where {java}`compareTo` would be the right approach in Java, use {moduleName}`Ord.compare` in Lean.
 :::
 
 # Hashing
 
-Java and C# have `hashCode` and `GetHashCode` methods, respectively, that compute a hash of a value for use in data structures such as hash tables.
-The Lean equivalent is a type class called `Hashable`:
+Java and C# have {java}`hashCode` and {CSharp}`GetHashCode` methods, respectively, that compute a hash of a value for use in data structures such as hash tables.
+The Lean equivalent is a type class called {anchorName Hashable}`Hashable`:
 
 ```anchor Hashable
 class Hashable (α : Type) where
@@ -268,7 +272,7 @@ This is the same expectation as in Java and C#.
 
 The standard library contains a function {anchorTerm mixHash}`mixHash` with type {anchorTerm mixHash}`UInt64 → UInt64 → UInt64` that can be used to combine hashes for different fields for a constructor.
 A reasonable hash function for an inductive datatype can be written by assigning a unique number to each constructor, and then mixing that number with the hashes of each field.
-For example, a `Hashable` instance for `Pos` can be written:
+For example, a {anchorName HashablePos}`Hashable` instance for {anchorName HashablePos}`Pos` can be written:
 
 ```anchor HashablePos
 def hashPos : Pos → UInt64
@@ -310,7 +314,10 @@ def hashBinTree [Hashable α] : BinTree α → UInt64
   | BinTree.leaf =>
     0
   | BinTree.branch left x right =>
-    mixHash 1 (mixHash (hashBinTree left) (mixHash (hash x) (hashBinTree right)))
+    mixHash 1
+      (mixHash (hashBinTree left)
+        (mixHash (hash x)
+          (hashBinTree right)))
 
 instance [Hashable α] : Hashable (BinTree α) where
   hash := hashBinTree
@@ -321,13 +328,13 @@ instance [Hashable α] : Hashable (BinTree α) where
 
 Instance of classes like {moduleName}`BEq` and {moduleName}`Hashable` are often quite tedious to implement by hand.
 Lean includes a feature called _instance deriving_ that allows the compiler to automatically construct well-behaved instances of many type classes.
-In fact, the `deriving Repr` phrase in the definition of `Point` in the {ref "structures"}[section on structures] is an example of instance deriving.
+In fact, the {anchorTerm Point (module := Examples.Intro)}`deriving Repr` phrase in the definition of {anchorName Point (module:=Examples.Intro)}`Point` in the {ref "structures"}[section on structures] is an example of instance deriving.
 
 Instances can be derived in two ways.
 The first can be used when defining a structure or inductive type.
 In this case, add {kw}`deriving` to the end of the type declaration followed by the names of the classes for which instances should be derived.
 For a type that is already defined, a standalone {kw}`deriving` command can be used.
-Write `deriving instance C1, C2, ... for T` to derive instances of `C1, C2, ...` for the type `T` after the fact.
+Write {kw}`deriving instance`{lit}` C1, C2, ... `{kw}`for`{lit}` T` to derive instances of {lit}`C1, C2, ...` for the type {lit}`T` after the fact.
 
 {moduleName}`BEq` and {moduleName}`Hashable` instances can be derived for {anchorName BEqHashableDerive}`Pos` and {anchorName BEqHashableDerive}`NonEmptyList` using a very small amount of code:
 
@@ -354,7 +361,7 @@ When reviewing changes to code, modifications that involve updates to datatypes 
 # Appending
 
 Many datatypes have some sort of append operator.
-In Lean, appending two values is overloaded with the type class `HAppend`, which is a heterogeneous operation like that used for arithmetic operations:
+In Lean, appending two values is overloaded with the type class {anchorName HAppend}`HAppend`, which is a heterogeneous operation like that used for arithmetic operations:
 
 ```anchor HAppend
 class HAppend (α : Type) (β : Type) (γ : outParam Type) where
@@ -406,17 +413,17 @@ results in
 
 # Functors
 
-A polymorphic type is a {deftech}_functor_ if it has an overload for a function named `map` that transforms every element contained in it by a function.
-While most languages use this terminology, C#'s equivalent of `map` is called `System.Linq.Enumerable.Select`.
+A polymorphic type is a {deftech}_functor_ if it has an overload for a function named {anchorName FunctorDef}`map` that transforms every element contained in it by a function.
+While most languages use this terminology, C#'s equivalent of {anchorName FunctorDef}`map` is called {CSharp}`System.Linq.Enumerable.Select`.
 For example, mapping a function over a list constructs a new list in which each entry from the starting list has been replaced by the result of the function on that entry.
 Mapping a function {anchorName optionFMeta}`f` over an {anchorName optionFMeta}`Option` leaves {anchorName optionFMeta}`none` untouched, and replaces {anchorTerm optionFMeta}`some x` with {anchorTerm optionFMeta}`some (f x)`.
 
-Here are some examples of functors and how their `Functor` instances overload `map`:
+Here are some examples of functors and how their {anchorName FunctorDef}`Functor` instances overload {anchorName FunctorDef}`map`:
  * {anchorTerm mapList}`Functor.map (· + 5) [1, 2, 3]` evaluates to {anchorTerm mapList}`[6, 7, 8]`
  * {anchorTerm mapOption}`Functor.map toString (some (List.cons 5 List.nil))` evaluates to {anchorTerm mapOption}`some "[5]"`
  * {anchorTerm mapListList}`Functor.map List.reverse [[1, 2, 3], [4, 5, 6]]` evaluates to {anchorTerm mapListList}`[[3, 2, 1], [6, 5, 4]]`
 
-Because {anchorName mapList}`Functor.map` is a bit of a long name for this common operation, Lean also provides an infix operator for mapping a function, namely `<$>`.
+Because {anchorName mapList}`Functor.map` is a bit of a long name for this common operation, Lean also provides an infix operator for mapping a function, namely {lit}`<$>`.
 The prior examples can be rewritten as follows:
  * {anchorTerm mapInfixList}`(· + 5) <$> [1, 2, 3]` evaluates to {anchorTerm mapInfixList}`[6, 7, 8]`
  * {anchorTerm mapInfixOption}`toString <$> (some (List.cons 5 List.nil))` evaluates to {anchorTerm mapInfixOption}`some "[5]"`
@@ -448,17 +455,21 @@ That is, when using  {anchorName FunctorPPoint}`map` on a {moduleTerm}`NonEmptyL
 
 The definition of the {moduleName}`Functor` class uses one more language feature that has not yet been discussed: default method definitions.
 Normally, a class will specify some minimal set of overloadable operations that make sense together, and then use polymorphic functions with instance implicit arguments that build on the overloaded operations to provide a larger library of features.
-For example, the function `concat` can concatenate any non-empty list whose entries are appendable:
+For example, the function {anchorName concat}`concat` can concatenate any non-empty list whose entries are appendable:
 
 ```anchor concat
-
+def concat [Append α] (xs : NonEmptyList α) : α :=
+  let rec catList (start : α) : List α → α
+    | [] => start
+    | (z :: zs) => catList (start ++ z) zs
+  catList xs.head xs.tail
 ```
 However, for some classes, there are operations that can be more efficiently implemented with knowledge of the internals of a datatype.
 
 In these cases, a default method definition can be provided.
 A default method definition provides a default implementation of a method in terms of the other methods.
 However, instance implementors may choose to override this default with something more efficient.
-Default method definitions contain `:=` in a {kw}`class` definition.
+Default method definitions contain {lit}`:=` in a {kw}`class` definition.
 
 In the case of {anchorName FunctorDef}`Functor`, some types have a more efficient way of implementing {anchorName FunctorDef}`map` when the function being mapped ignores its argument.
 Functions that ignore their arguments are called _constant functions_ because they always return the same value.
@@ -474,8 +485,8 @@ class Functor (f : Type → Type) where
 
 Just as a {moduleName}`Hashable` instance that doesn't respect {moduleName}`BEq` is buggy, a {moduleName}`Functor` instance that moves around the data as it maps the function is also buggy.
 For example, a buggy {moduleName}`Functor` instance for {moduleName}`List` might throw away its argument and always return the empty list, or it might reverse the list.
-A bad {moduleName}`Functor` instance for {moduleName}`PPoint` might place `f x` in both the `x` and the `y` fields, or swap them.
-Specifically, `Functor` instances should follow two rules:
+A bad {moduleName}`Functor` instance for {moduleName}`PPoint` might place {anchorTerm FunctorPPointBad}`f x` in both the {anchorName FunctorPPointBad}`x` and the {anchorName FunctorPPointBad}`y` fields, or swap them.
+Specifically, {anchorName FunctorDef}`Functor` instances should follow two rules:
  1. Mapping the identity function should result in the original argument.
  2. Mapping two composed functions should have the same effect as composing their mapping.
 

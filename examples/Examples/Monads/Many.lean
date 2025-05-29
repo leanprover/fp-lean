@@ -71,13 +71,48 @@ section
 local syntax "…" : term
 variable {α β γ : Type}
 variable {f : α → Many β} {v : Many α}
-variable {v₁ : α} {v₂ : α} {v₃ : α} {vₙ : α} {«…» : Many β}
-
+variable {v₁ : α} {v₂ : α} {v₃ : α} {vₙ : α}  {«…» : α}
 macro_rules
   | `(term|…) => `(«…»)
 
 local instance : Union (Many α) where
   union := .union
+
+local instance : Insert α (Many α) where
+  insert x xs := .more x (fun () => xs)
+
+local instance : Singleton α (Many α) where
+  singleton x := .one x
+
+-- ANCHOR: vSet
+example : Many α := {v₁, v₂, v₃, …, vₙ}
+-- ANCHOR_END: vSet
+
+variable {«…» : Many α}
+macro_rules
+  | `(term|…) => `(«…»)
+
+-- ANCHOR: bindOne
+example : Many.bind v Many.one = v := by
+  induction v
+  . simp [Many.bind, Many.one]
+  . simp [Many.bind, Many.one, *, Many.union]
+-- ANCHOR_END: bindOne
+
+-- ANCHOR: bindAssoc
+example {g : β → Many γ} := Many.bind (Many.bind v f) g = Many.bind v (fun x => Many.bind (f x) g)
+-- ANCHOR_END: bindAssoc
+
+-- ANCHOR: vSets
+example : Many α := {v₁} ∪ {v₂} ∪ {v₃} ∪ … ∪ {vₙ}
+-- ANCHOR_END: vSets
+
+
+variable {«…» : Many β}
+macro_rules
+  | `(term|…) => `(«…»)
+
+
 
 evaluation steps -check {{{ bindUnion }}}
 -- ANCHOR: bindUnion

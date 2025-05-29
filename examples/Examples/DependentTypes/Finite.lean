@@ -1,6 +1,17 @@
 import ExampleSupport
 import Examples.Classes
 
+-- ANCHOR: sundries
+example := Type
+example := Type 3
+example := Prop
+example := Empty
+example := Option
+example := Nat → Bool
+example := @List.all
+example := [true, false]
+example {α} := Bool → α
+-- ANCHOR_END: sundries
 
 -- ANCHOR: NatOrBool
 inductive NatOrBool where
@@ -11,6 +22,11 @@ abbrev NatOrBool.asType (code : NatOrBool) : Type :=
   | .nat => Nat
   | .bool => Bool
 -- ANCHOR_END: NatOrBool
+
+-- ANCHOR: natOrBoolExamples
+example := NatOrBool.nat.asType
+example := NatOrBool.bool.asType
+-- ANCHOR_END: natOrBoolExamples
 
 -- ANCHOR: decode
 def decode (t : NatOrBool) (input : String) : Option t.asType :=
@@ -73,14 +89,14 @@ abbrev Finite.asType : Finite → Type
   | .unit => Unit
   | .bool => Bool
   | .pair t1 t2 => asType t1 × asType t2
-  | .arr t1 t2 => asType t1 → asType t2
+  | .arr dom cod => asType dom → asType cod
 -- ANCHOR_END: Finite
 
 def Finite.count : Finite → Nat
   | .unit => 1
   | .bool => 2
   | .pair t1 t2 => count t1 * count t2
-  | .arr t1 t2 => count t2 ^ count t1
+  | .arr dom cod => count cod ^ count dom
 
 
 -- ANCHOR: ListProduct
@@ -127,12 +143,14 @@ mutual
     | .unit => [()]
     | .bool => [true, false]
     | .pair t1 t2 => t1.enumerate.product t2.enumerate
-    | .arr t1 t2 => t1.functions t2.enumerate
+    | .arr dom cod => dom.functions cod.enumerate
   -- ANCHOR_END: FiniteAll
 
   -- ANCHOR: FiniteFunctions
 -- ANCHOR: FiniteFunctionSigStart
-def Finite.functions (t : Finite) (results : List α) : List (t.asType → α) :=
+def Finite.functions
+    (t : Finite)
+    (results : List α) : List (t.asType → α) :=
   match t with
   -- ANCHOR_END: FiniteFunctionSigStart
   -- ANCHOR: FiniteFunctionUnit
@@ -178,8 +196,8 @@ def Finite.beq (t : Finite) (x y : t.asType) : Bool :=
   | .unit => true
   | .bool => x == y
   | .pair t1 t2 => beq t1 x.fst y.fst && beq t2 x.snd y.snd
-  | .arr t1 t2 =>
-    t1.enumerate.all fun arg => beq t2 (x arg) (y arg)
+  | .arr dom cod =>
+    dom.enumerate.all fun arg => beq cod (x arg) (y arg)
 -- ANCHOR_END: FiniteBeq
 
 theorem list_all_true : List.all xs (fun _ => true) = true := by
@@ -198,15 +216,15 @@ def Finite.isSingleton : Finite → Bool
   | .unit => true
   | .bool => false
   | .pair t1 t2 => not (isSingleton t1) || not (isSingleton t2)
-  | .arr _ t2 => not (isSingleton t2)
+  | .arr _ cod => not (isSingleton cod)
 
 
 def Finite.print : (t : Finite) → (x : t.asType) → String
   | .unit, _ => "()"
   | .bool, b => toString b
   | .pair t1 t2, (x, y) => s!"({print t1 x}, {print t2 y})"
-  | .arr t1 t2, f =>
-    let table := t1.enumerate |>.map fun x => s!"({print t1 x} ↦ {print t2 (f x)})"
+  | .arr dom cod, f =>
+    let table := dom.enumerate |>.map fun x => s!"({print dom x} ↦ {print cod (f x)})"
     "{" ++ ", ".separate table ++ "}"
 
 
@@ -218,7 +236,9 @@ def prop (t : Finite) : (Nat × Nat × Bool) := (t.enumerate.length, t.count, t.
 #eval prop (.arr (.arr (.pair .bool .bool) .bool) .bool)
 
 
-
+-- ANCHOR: lots
+example : (.arr (.arr (.pair .bool .bool) .bool) .bool : Finite).asType = (((Bool × Bool) → Bool) → Bool) := rfl
+-- ANCHOR_END: lots
 /-- info:
 65536
 -/

@@ -69,3 +69,11 @@ def evaluate : Expr → Eval Int
     bind x v1 (evaluate e2)
 
 end Evaluator
+
+-- ANCHOR: Summary
+example := Monad
+example := MonadLift
+example := StateT
+example := ExceptT
+example := Unit
+-- ANCHOR_END: Summary

@@ -35,20 +35,21 @@ yields a type with metavariables:
 IO.println : ?m.2620 → IO Unit
 ```
 This is because Lean does its best to discover implicit arguments, and the presence of metavariables indicates that it did not yet discover enough type information to do so.
-To understand the signature of a function, this feature can be suppressed with an at-sign (`@`) before the function's name:
+To understand the signature of a function, this feature can be suppressed with an at-sign ({anchorTerm printlnNoMetas}`@`) before the function's name:
 ```anchor printlnNoMetas
 #check @IO.println
 ```
 ```anchorInfo printlnNoMetas
 @IO.println : {α : Type u_1} → [inst : ToString α] → α → IO Unit
 ```
-In this output, the instance itself has been given the name `inst`.
-Additionally, there is a `u_1` after `Type`, which uses a feature of Lean that has not yet been introduced.
+In this output, the instance itself has been given the name {lit}`inst`.
+Additionally, there is a {lit}`u_1` after {moduleTerm}`Type`, which uses a feature of Lean that has not yet been introduced.
 For now, ignore these parameters to {moduleTerm}`Type`.
 
 # Defining Polymorphic Functions with Instance Implicits
 
-A function that sums all entries in a list needs two instances: {moduleName}`Add` allows the entries to be added, and an {moduleName}`OfNat` instance for `0` provides a sensible value to return for the empty list:
+:::paragraph
+A function that sums all entries in a list needs two instances: {moduleName}`Add` allows the entries to be added, and an {moduleName}`OfNat` instance for {anchorTerm ListSum}`0` provides a sensible value to return for the empty list:
 
 ```anchor ListSum
 def List.sumOfContents [Add α] [OfNat α 0] : List α → α
@@ -63,6 +64,9 @@ def List.sumOfContents [Add α] [Zero α] : List α → α
   | [] => 0
   | x :: xs => x + xs.sumOfContents
 ```
+:::
+
+:::paragraph
 
 This function can be used for a list of {anchorTerm fourNats}`Nat`s:
 
@@ -90,6 +94,8 @@ failed to synthesize
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 The Lean standard library includes this function, where it is called {moduleName}`List.sum`.
+
+:::
 
 Specifications of required instances in square brackets are called _instance implicits_.
 Behind the scenes, every type class defines a structure that has a field for each overloaded operation.
@@ -163,7 +169,7 @@ Thus, in these cases, Lean uses an explicit parameter for the class's method.
 
 ## Even Number Literals
 
-Write an instance of {anchorName ofNatType}`OfNat` for the even number datatype from the [previous section's exercises](pos.md#even-numbers) that uses recursive instance search.
+Write an instance of {anchorName ofNatType}`OfNat` for the even number datatype from the {ref "even-numbers-ex"}[previous section's exercises] that uses recursive instance search.
 
 ## Recursive Instance Search Depth
 

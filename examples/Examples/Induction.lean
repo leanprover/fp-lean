@@ -302,6 +302,12 @@ theorem List.append_assoc (xs ys zs : List α) : xs ++ (ys ++ zs) = (xs ++ ys) +
 
 end Tactical
 
+-- ANCHOR: TreeCtors
+example := @BinTree.leaf
+example := @BinTree.branch
+example {l : BinTree α} {x r} := BinTree.branch l x r
+-- ANCHOR_END: TreeCtors
+
 
 -- ANCHOR: BinTree_count
 def BinTree.count : BinTree α → Nat
@@ -329,7 +335,8 @@ ihr : r.mirror.count = r.count
 -/
 #check_msgs in
 -- ANCHOR: mirror_count_0a
-theorem BinTree.mirror_count (t : BinTree α) : t.mirror.count = t.count := by
+theorem BinTree.mirror_count (t : BinTree α) :
+    t.mirror.count = t.count := by
   induction t with
   | leaf => skip
   | branch l x r ihl ihr => skip
@@ -355,7 +362,8 @@ ihr : r.mirror.count = r.count
 -/
 #check_msgs in
 -- ANCHOR: mirror_count_0b
-theorem BinTree.mirror_count (t : BinTree α) : t.mirror.count = t.count := by
+theorem BinTree.mirror_count (t : BinTree α) :
+    t.mirror.count = t.count := by
   induction t with
   | leaf => skip
   | branch l x r ihl ihr => skip
@@ -376,7 +384,8 @@ ihr : r.mirror.count = r.count
 -/
 #check_msgs in
 -- ANCHOR: mirror_count_1
-theorem BinTree.mirror_count (t : BinTree α) : t.mirror.count = t.count := by
+theorem BinTree.mirror_count (t : BinTree α) :
+    t.mirror.count = t.count := by
   induction t with
   | leaf => simp [BinTree.mirror]
   | branch l x r ihl ihr => skip
@@ -397,7 +406,8 @@ ihr : r.mirror.count = r.count
 -/
 #check_msgs in
 -- ANCHOR: mirror_count_2
-theorem BinTree.mirror_count (t : BinTree α) : t.mirror.count = t.count := by
+theorem BinTree.mirror_count (t : BinTree α) :
+    t.mirror.count = t.count := by
   induction t with
   | leaf => simp [BinTree.mirror]
   | branch l x r ihl ihr =>
@@ -419,7 +429,8 @@ ihr : r.mirror.count = r.count
 -/
 #check_msgs in
 -- ANCHOR: mirror_count_3
-theorem BinTree.mirror_count (t : BinTree α) : t.mirror.count = t.count := by
+theorem BinTree.mirror_count (t : BinTree α) :
+    t.mirror.count = t.count := by
   induction t with
   | leaf => simp [BinTree.mirror]
   | branch l x r ihl ihr =>
@@ -429,7 +440,8 @@ theorem BinTree.mirror_count (t : BinTree α) : t.mirror.count = t.count := by
 stop discarding
 
 -- ANCHOR: mirror_count_4
-theorem BinTree.mirror_count (t : BinTree α) : t.mirror.count = t.count := by
+theorem BinTree.mirror_count (t : BinTree α) :
+    t.mirror.count = t.count := by
   induction t with
   | leaf => simp [BinTree.mirror]
   | branch l x r ihl ihr =>
@@ -442,7 +454,8 @@ namespace Golf
 
 
 -- ANCHOR: mirror_count_5
-theorem BinTree.mirror_count (t : BinTree α) : t.mirror.count = t.count := by
+theorem BinTree.mirror_count (t : BinTree α) :
+    t.mirror.count = t.count := by
   induction t with
   | leaf => simp [BinTree.mirror]
   | branch l x r ihl ihr =>
@@ -451,7 +464,8 @@ theorem BinTree.mirror_count (t : BinTree α) : t.mirror.count = t.count := by
 
 namespace B
 -- ANCHOR: mirror_count_6
-theorem BinTree.mirror_count (t : BinTree α) : t.mirror.count = t.count := by
+theorem BinTree.mirror_count (t : BinTree α) :
+    t.mirror.count = t.count := by
   induction t with
   | leaf => simp [BinTree.mirror]
   | branch l x r ihl ihr =>
@@ -462,9 +476,26 @@ end B
 
 namespace A
 -- ANCHOR: mirror_count_7
-theorem BinTree.mirror_count (t : BinTree α) : t.mirror.count = t.count := by
+theorem BinTree.mirror_count (t : BinTree α) :
+    t.mirror.count = t.count := by
   induction t <;> simp +arith [BinTree.mirror, BinTree.count, *]
 -- ANCHOR_END: mirror_count_7
 end A
 
 end Golf
+
+-- ANCHOR: others
+example := Nat.zero = Nat.plusR 0 Nat.zero
+example {A B : Nat} : Nat.succ A = Nat.succ B → A = B := by simp
+example [Monad m] : m Unit := pure ()
+example {n} := Nat.plusR 0 n
+example {n} := Nat.plusR 0 n + 1
+example {n} := Nat.plusR 0 (Nat.succ n)
+-- ANCHOR_END: others
+
+namespace Ex
+-- ANCHOR: ex
+theorem List.append_assoc (xs ys zs : List α) :
+    xs ++ (ys ++ zs) = (xs ++ ys) ++ zs := by simp
+-- ANCHOR_END: ex
+end Ex

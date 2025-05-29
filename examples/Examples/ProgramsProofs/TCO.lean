@@ -773,12 +773,14 @@ xs : List α
 -/
 #check_msgs in
 -- ANCHOR: reverseEqStart
-theorem non_tail_reverse_eq_tail_reverse : @NonTail.reverse = @Tail.reverse := by
+theorem non_tail_reverse_eq_tail_reverse :
+    @NonTail.reverse = @Tail.reverse := by
   funext α xs
 -- ANCHOR_END: reverseEqStart
 stop discarding
 
-theorem non_tail_reverse_eq_tail_reverse : @NonTail.reverse = @Tail.reverse := by
+theorem non_tail_reverse_eq_tail_reverse :
+    @NonTail.reverse = @Tail.reverse := by
   funext α xs
   simp [Tail.reverse]
   rw [← List.append_nil (NonTail.reverse xs)]
@@ -805,3 +807,22 @@ def bigList (n : Nat) (soFar : List Nat) : List Nat :=
 -- #eval timeit "a" (IO.println <| Tail.sum theBigList)
 
 -- #eval timeit "b" (IO.println <| NonTail.sum theBigList)
+
+-- ANCHOR: names
+section
+example := @List.cons
+end
+-- ANCHOR_END: names
+
+
+-- ANCHOR: accum_stmt
+section
+variable {n}
+example := Tail.sumHelper n
+end
+section
+variable {ys : List α}
+example := Tail.reverseHelper ys
+example := Tail.reverseHelper [] ys
+end
+-- ANCHOR_END: accum_stmt

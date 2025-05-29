@@ -35,6 +35,9 @@ def equal? [BEq α] (x y : α) : Option α :=
 This is especially useful when the type signature is large.
 
 # Leading Dot Notation
+%%%
+tag := "leading-dot-notation"
+%%%
 
 The constructors of an inductive type are in a namespace.
 This allows multiple related inductive types to use the same constructor names, but it can lead to programs becoming verbose.
@@ -55,7 +58,7 @@ def BinTree.mirror : BinTree α → BinTree α
 ```
 
 Using the expected type of an expression to disambiguate a namespace is also applicable to names other than constructors.
-If `BinTree.empty` is defined as an alternative way of creating `BinTree`s, then it can also be used with dot notation:
+If {anchorName BinTreeEmpty}`BinTree.empty` is defined as an alternative way of creating {anchorName BinTreeEmpty}`BinTree`s, then it can also be used with dot notation:
 
 ```anchor BinTreeEmpty
 def BinTree.empty : BinTree α := .leaf
@@ -70,7 +73,7 @@ BinTree.empty : BinTree Nat
 # Or-Patterns
 
 In contexts that allow multiple patterns, such as {kw}`match`-expressions, multiple patterns may share their result expressions.
-The datatype `Weekday` that represents days of the week:
+The datatype {anchorName Weekday}`Weekday` that represents days of the week:
 
 ```anchor Weekday
 inductive Weekday where
@@ -81,7 +84,7 @@ inductive Weekday where
   | friday
   | saturday
   | sunday
-  deriving Repr
+deriving Repr
 ```
 
 Pattern matching can be used to check whether a day is a weekend:
@@ -102,7 +105,7 @@ def Weekday.isWeekend (day : Weekday) : Bool :=
   | .sunday => true
   | _ => false
 ```
-Because both weekend patterns have the same result expression (`true`), they can be condensed into one:
+Because both weekend patterns have the same result expression ({anchorName isWeekendC}`true`), they can be condensed into one:
 
 ```anchor isWeekendC
 def Weekday.isWeekend (day : Weekday) : Bool :=
@@ -119,7 +122,7 @@ def Weekday.isWeekend : Weekday → Bool
 ```
 
 Behind the scenes, the result expression is simply duplicated across each pattern.
-This means that patterns can bind variables, as in this example that removes the `inl` and `inr` constructors from a sum type in which both contain the same type of value:
+This means that patterns can bind variables, as in this example that removes the {anchorName SumNames}`inl` and {anchorName SumNames}`inr` constructors from a sum type in which both contain the same type of value:
 
 ```anchor condense
 def condense : α ⊕ α → α
@@ -133,13 +136,13 @@ def stringy : Nat ⊕ Weekday → String
   | .inl x | .inr x => s!"It is {repr x}"
 ```
 In practice, only variables shared in all patterns can be referred to in the result expression, because the result must make sense for each pattern.
-In `getTheNat`, only `n` can be accessed, and attempts to use either `x` or `y` lead to errors.
+In {anchorName getTheNat}`getTheNat`, only {anchorName getTheNat}`n` can be accessed, and attempts to use either {anchorName getTheNat}`x` or {anchorName getTheNat}`y` lead to errors.
 
 ```anchor getTheNat
 def getTheNat : (Nat × α) ⊕ (Nat × β) → Nat
   | .inl (n, x) | .inr (n, y) => n
 ```
-Attempting to access `x` in a similar definition causes an error because there is no `x` available in the second pattern:
+Attempting to access {anchorName getTheAlpha}`x` in a similar definition causes an error because there is no {anchorName getTheAlpha}`x` available in the second pattern:
 ```anchor getTheAlpha
 def getTheAlpha : (Nat × α) ⊕ (Nat × α) → α
   | .inl (n, x) | .inr (n, y) => x
@@ -149,7 +152,7 @@ unknown identifier 'x'
 ```
 
 The fact that the result expression is essentially copy-pasted to each branch of the pattern match can lead to some surprising behavior.
-For example, the following definitions are acceptable because the `inr` version of the result expression refers to the global definition of `str`:
+For example, the following definitions are acceptable because the {anchorName SumNames}`inr` version of the result expression refers to the global definition of {anchorName getTheString}`str`:
 
 ```anchor getTheString
 def str := "Some string"
@@ -158,7 +161,7 @@ def getTheString : (Nat × String) ⊕ (Nat × β) → String
   | .inl (n, str) | .inr (n, y) => str
 ```
 Calling this function on both constructors reveals the confusing behavior.
-In the first case, a type annotation is needed to tell Lean which type `β` should be:
+In the first case, a type annotation is needed to tell Lean which type {anchorName getTheString}`β` should be:
 ```anchor getOne
 #eval getTheString (.inl (20, "twenty") : (Nat × String) ⊕ (Nat × String))
 ```
@@ -173,5 +176,5 @@ In the second case, the global definition is used:
 "Some string"
 ```
 
-Using or-patterns can vastly simplify some definitions and increase their clarity, as in `Weekday.isWeekend`.
+Using or-patterns can vastly simplify some definitions and increase their clarity, as in {anchorName isWeekendD}`Weekday.isWeekend`.
 Because there is a potential for confusing behavior, it's a good idea to be careful when using them, especially when variables of multiple types or disjoint sets of variables are involved.

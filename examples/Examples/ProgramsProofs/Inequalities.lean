@@ -1,5 +1,14 @@
 import ExampleSupport
 
+-- ANCHOR: various
+example := Nat.succ
+example := @List.length
+section
+variable {A B : Prop}
+example : Prop := A ∧ B
+example := And A B
+end
+-- ANCHOR_END: various
 
 
 -- ANCHOR: merge
@@ -113,6 +122,11 @@ splitList ["basalt", "granite"]
 -- ANCHOR_END: splitListTwo
 
 
+
+--ANCHOR: splitList_shorter_bad_ty
+example : ∀(lst : List α), (splitList lst).fst.length < lst.length ∧ (splitList lst).snd.length < lst.length := sorry
+--ANCHOR_END: splitList_shorter_bad_ty
+
 discarding
 /-- error:
 unsolved goals
@@ -127,6 +141,7 @@ theorem splitList_shorter_le (lst : List α) :
       (splitList lst).snd.length ≤ lst.length := by
   skip
 -- ANCHOR_END: splitList_shorter_le0
+
 stop discarding
 
 discarding
@@ -212,6 +227,10 @@ structure And (a b : Prop) : Prop where
   right : b
 -- ANCHOR_END: And
 
+-- ANCHOR: AndUse
+variable {A B : Prop}
+example : A → B → And A B := And.intro
+-- ANCHOR_END: AndUse
 end AndDef
 
 discarding
@@ -310,7 +329,22 @@ n m : Nat
 theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
   skip
 -- ANCHOR_END: le_succ_of_le0
+-- ANCHOR: le_succ_of_le_statement
+example : ∀(n m : Nat), n ≤ m → n ≤ m + 1 := @Nat.le_succ_of_le
+-- ANCHOR_END: le_succ_of_le_statement
 stop discarding
+
+-- ANCHOR: Nat.le_ctors
+section
+open Nat.le
+example := @step
+example := @refl
+end
+-- ANCHOR_END: Nat.le_ctors
+
+-- ANCHOR: Nat.lt_imp
+example {n m : Nat} : n + 1 < m + 1 → n < m := by simp
+-- ANCHOR_END: Nat.lt_imp
 
 discarding
 /-- error:
@@ -480,7 +514,8 @@ end Extras
 
 -- ANCHOR: splitList_shorter_le
 theorem splitList_shorter_le (lst : List α) :
-    (splitList lst).fst.length ≤ lst.length ∧ (splitList lst).snd.length ≤ lst.length := by
+    (splitList lst).fst.length ≤ lst.length ∧
+    (splitList lst).snd.length ≤ lst.length := by
   induction lst with
   | nil => simp [splitList]
   | cons x xs ih =>

@@ -14,6 +14,10 @@ open Verso Code External
 
 open FPLean
 
+
+set_option verso.exampleProject "../examples"
+set_option verso.exampleModule "Examples.Monads"
+
 #doc (Manual) "Monad Transformers" =>
 
 A monad is a way to encode some collection of side effects in a pure language.
@@ -24,7 +28,7 @@ A typical application has a core set of easily testable functions written withou
 These monads are constructed from well-known components.
 For example:
  * Mutable state is encoded with a function parameter and a return value that have the same type
- * Error handling is encoded by having a return type that is similar to `Except`, with constructors for success and failure
+ * Error handling is encoded by having a return type that is similar to {moduleName}`Except`, with constructors for success and failure
  * Logging is encoded by pairing the return value with the log
 
 Writing each monad by hand is tedious, however, involving boilerplate definitions of the various type classes.

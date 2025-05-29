@@ -6,7 +6,9 @@ open Verso Code External
 
 open FPLean
 
-example_module Examples.Intro
+
+set_option verso.exampleProject "../examples"
+set_option verso.exampleModule "Examples.Intro"
 
 #doc (Manual) "Summary" =>
 
@@ -25,31 +27,31 @@ Variables' values may come from global definitions with {kw}`def`, local definit
 Functions in Lean are first-class values, meaning that they can be passed as arguments to other functions, saved in variables, and used like any other value.
 Every Lean function takes exactly one argument.
 To encode a function that takes more than one argument, Lean uses a technique called currying, where providing the first argument returns a function that expects the remaining arguments.
-To encode a function that takes no arguments, Lean uses the {term}`Unit.name` type, which is the least informative possible argument.
+To encode a function that takes no arguments, Lean uses the {moduleName}`Unit` type, which is the least informative possible argument.
 
 There are three primary ways of creating functions:
 1. Anonymous functions are written using {kw}`fun`.
-   For instance, a function that swaps the fields of a `Point` can be written {exampleIn}`swapLambda`
-2. Very simple anonymous functions are written by placing one or more centered dots `·` inside of parentheses.
+   For instance, a function that swaps the fields of a {anchorName fragments}`Point` can be written {anchorTerm swapLambda}`fun (point : Point) => { x := point.y, y := point.x : Point }`
+2. Very simple anonymous functions are written by placing one or more centered dots {anchorTerm subOneDots}`·` inside of parentheses.
    Each centered dot becomes an argument to the function, and the parentheses delimit its body.
-   For instance, a function that subtracts one from its argument can be written as {exampleIn}`subOneDots` instead of as {exampleOut}`subOneDots`.
+   For instance, a function that subtracts one from its argument can be written as {anchorTerm subOneDots}`(· - 1)` instead of as {anchorTerm subOneDots}`fun x => x - 1`.
 3. Functions can be defined using {kw}`def` or {kw}`let` by adding an argument list or by using pattern-matching notation.
 
 # Types
 
 Lean checks that every expression has a type.
-Types, such as {term}`Int.name`, {term}`Point.name`, `{α : Type} → Nat → α → List α`, and `Option (String ⊕ (Nat × String))`, describe the values that may eventually be found for an expression.
+Types, such as {anchorName fragments}`Int`, {anchorName fragments}`Point`, {anchorTerm fragments}`{α : Type} → Nat → α → List α`, and {anchorTerm fragments}`Option (String ⊕ (Nat × String))`, describe the values that may eventually be found for an expression.
 Like other languages, types in Lean can express lightweight specifications for programs that are checked by the Lean compiler, obviating the need for certain classes of unit test.
 Unlike most languages, Lean's types can also express arbitrary mathematics, unifying the worlds of programming and theorem proving.
 While using Lean for proving theorems is mostly out of scope for this book, _[Theorem Proving in Lean 4](https://leanprover.github.io/theorem_proving_in_lean4/)_ contains more information on this topic.
 
 Some expressions can be given multiple types.
-For instance, `3` can be an {term}`Int.name` or a {term}`Nat.name`.
-In Lean, this should be understood as two separate expressions, one with type {term}`Nat.name` and one with type {term}`Int.name`, that happen to be written in the same way, rather than as two different types for the same thing.
+For instance, {lit}`3` can be an {anchorName fragments}`Int` or a {anchorName fragments}`Nat`.
+In Lean, this should be understood as two separate expressions, one with type {anchorName fragments}`Nat` and one with type {anchorName fragments}`Int`, that happen to be written in the same way, rather than as two different types for the same thing.
 
 Lean is sometimes able to determine types automatically, but types must often be provided by the user.
 This is because Lean's type system is so expressive.
-Even when Lean can find a type, it may not find the desired type—`3` could be intended to be used as an {term}`Int.name`, but Lean will give it the type {term}`Nat.name` if there are no further constraints.
+Even when Lean can find a type, it may not find the desired type—{lit}`3` could be intended to be used as an {anchorName fragments}`Int`, but Lean will give it the type {anchorName fragments}`Nat` if there are no further constraints.
 In general, it is a good idea to write most types explicitly, only letting Lean fill out the very obvious types.
 This improves Lean's error messages and helps make programmer intent more clear.
 

@@ -92,6 +92,19 @@ def second (xs : List α) (ok : xs.length ≥ 3) : α :=
 
 example : String := second ["a", "b", "c", "d"] (by simp)
 
+-- ANCHOR: connectiveTable
+section
+variable {A B : Prop}
+example : True := (True.intro : True)
+example : Prop := False
+example := A ∧ B
+example : A → B → A ∧ B := (And.intro : A → B → A ∧ B)
+example := (Or.inl : A → A ∨ B)
+example := (Or.inr : B → A ∨ B)
+example := ¬A
+end
+-- ANCHOR_END: connectiveTable
+
 -- ANCHOR: connectives
 theorem onePlusOneAndLessThan : 1 + 1 = 2 ∨ 3 < 5 := by simp
 theorem notTwoEqualFive : ¬(1 + 1 = 5) := by simp
@@ -110,11 +123,15 @@ theorem falseImpliesTrue : False → True := by decide
 -- ANCHOR_END: connectivesD
 end Decide
 
-def foo : True ∧ True := And.intro True.intro True.intro
+def fooo : True ∧ True := And.intro True.intro True.intro
 def bar : True ∨ False := Or.inl True.intro
 
 namespace Connectives
 variable {A B : Prop}
+
+-- ANCHOR: SomeNats
+example : List Nat := [0, 1, 2, 3, 4, 5]
+-- ANCHOR_END: SomeNats
 
 bookExample type {{{ TrueProp }}}
   True
@@ -255,6 +272,14 @@ is false
 -- ANCHOR: thirdOption
 def thirdOption (xs : List α) : Option α := xs[2]?
 -- ANCHOR_END: thirdOption
+
+---ANCHOR: OptionNames
+section
+variable (α : Type) (x : α)
+example : Option α := none
+example : Option α := some x
+end
+---ANCHOR_END: OptionNames
 
 /-- info: some "snail" -/
 #check_msgs in

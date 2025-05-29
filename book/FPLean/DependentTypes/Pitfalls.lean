@@ -15,20 +15,20 @@ The flexibility of dependent types allows more useful programs to be accepted by
 At the same time, the ability of dependent types to express very fine-grained specifications allows more buggy programs to be rejected by a type checker.
 This power comes at a cost.
 
-The close coupling between the internals of type-returning functions such as `Row` and the types that they produce is an instance of a bigger difficulty: the distinction between the interface and the implementation of functions begins to break down when functions are used in types.
+The close coupling between the internals of type-returning functions such as {anchorName Row (module:=Examples.DependentTypes.DB)}`Row` and the types that they produce is an instance of a bigger difficulty: the distinction between the interface and the implementation of functions begins to break down when functions are used in types.
 Normally, all refactorings are valid as long as they don't change the type signature or input-output behavior of a function.
 Functions can be rewritten to use more efficient algorithms and data structures, bugs can be fixed, and code clarity can be improved without breaking client code.
 When the function is used in a type, however, the internals of the function's implementation become part of the type, and thus part of the _interface_ to another program.
 
-As an example, take the following two implementations of addition on `Nat`.
-`Nat.plusL` is recursive on its first argument:
+As an example, take the following two implementations of addition on {anchorName plusL}`Nat`.
+{anchorName plusL}`Nat.plusL` is recursive on its first argument:
 
 ```anchor plusL
 def Nat.plusL : Nat → Nat → Nat
   | 0, k => k
   | n + 1, k => plusL n k + 1
 ```
-`Nat.plusR`, on the other hand, is recursive on its second argument:
+{anchorName plusR}`Nat.plusR`, on the other hand, is recursive on its second argument:
 
 ```anchor plusR
 def Nat.plusR : Nat → Nat → Nat
@@ -38,16 +38,16 @@ def Nat.plusR : Nat → Nat → Nat
 Both implementations of addition are faithful to the underlying mathematical concept, and they thus return the same result when given the same arguments.
 
 However, these two implementations present quite different interfaces when they are used in types.
-As an example, take a function that appends two `Vect`s.
-This function should return a `Vect` whose length is the sum of the length of the arguments.
-Because `Vect` is essentially a `List` with a more informative type, it makes sense to write the function just as one would for `List.append`, with pattern matching and recursion on the first argument.
+As an example, take a function that appends two {anchorName appendL}`Vect`s.
+This function should return a {anchorName appendL}`Vect` whose length is the sum of the length of the arguments.
+Because {anchorName appendL}`Vect` is essentially a {anchorName moreNames}`List` with a more informative type, it makes sense to write the function just as one would for {anchorName moreNames}`List.append`, with pattern matching and recursion on the first argument.
 Starting with a type signature and initial pattern match pointing at placeholders yields two messages:
 ```anchor appendL1
 def appendL : Vect α n → Vect α k → Vect α (n.plusL k)
   | .nil, ys => _
   | .cons x xs, ys => _
 ```
-The first message, in the `nil` case, states that the placeholder should be replaced by a `Vect` with length `plusL 0 k`:
+The first message, in the {anchorName moreNames}`nil` case, states that the placeholder should be replaced by a {anchorName appendL}`Vect` with length {lit}`plusL 0 k`:
 ```anchorError appendL1
 don't know how to synthesize placeholder
 context:
@@ -56,7 +56,7 @@ n k : Nat
 ys : Vect α k
 ⊢ Vect α (Nat.plusL 0 k)
 ```
-The second message, in the `cons` case, states that the placeholder should be replaced by a `Vect` with length `plusL (n✝ + 1) k`:
+The second message, in the {anchorName moreNames}`cons` case, states that the placeholder should be replaced by a {anchorName appendL}`Vect` with length {lit}`plusL (n✝ + 1) k`:
 ```anchorError appendL2
 don't know how to synthesize placeholder
 context:
@@ -67,18 +67,18 @@ xs : Vect α n✝
 ys : Vect α k
 ⊢ Vect α ((n✝ + 1).plusL k)
 ```
-The symbol after `n`, called a _dagger_, is used to indicate names that Lean has internally invented.
-Behind the scenes, pattern matching on the first `Vect` implicitly caused the value of the first `Nat` to be refined as well, because the index on the constructor `cons` is `n + 1`, with the tail of the `Vect` having length `n`.
-Here, `n✝` represents the `Nat` that is one less than the argument `n`.
+The symbol after {lit}`n`, called a _dagger_, is used to indicate names that Lean has internally invented.
+Behind the scenes, pattern matching on the first {anchorName appendL1}`Vect` implicitly caused the value of the first {anchorName plusL}`Nat` to be refined as well, because the index on the constructor {anchorName moreNames}`cons` is {anchorTerm Vect (module:=Examples.DependentTypes)}`n + 1`, with the tail of the {anchorName appendL}`Vect` having length {anchorTerm Vect (module:=Examples.DependentTypes)}`n`.
+Here, {lit}`n✝` represents the {anchorName moreNames}`Nat` that is one less than the argument {anchorName appendL1}`n`.
 
 # Definitional Equality
 
-In the definition of `plusL`, there is a pattern case `0, k => k`.
-This applies in the length used in the first placeholder, so another way to write the underscore's type `Vect α (Nat.plusL 0 k)` is `Vect α k`.
-Similarly, `plusL` contains a pattern case `n + 1, k => plusN n k + 1`.
-This means that the type of the second underscore can be equivalently written `Vect α (plusL n✝ k + 1)`.
+In the definition of {anchorName appendL3}`plusL`, there is a pattern case {anchorTerm plusL}`0, k => k`.
+This applies in the length used in the first placeholder, so another way to write the underscore's type {anchorTerm moreNames}`Vect α (Nat.plusL 0 k)` is {anchorTerm moreNames}`Vect α k`.
+Similarly, {anchorName plusL}`plusL` contains a pattern case {anchorTerm plusL}`n + 1, k => plusL n k + 1`.
+This means that the type of the second underscore can be equivalently written {lit}`Vect α (plusL n✝ k + 1)`.
 
-To expose what is going on behind the scenes, the first step is to write the `Nat` arguments explicitly, which also results in daggerless error messages because the names are now written explicitly in the program:
+To expose what is going on behind the scenes, the first step is to write the {anchorName plusL}`Nat` arguments explicitly, which also results in daggerless error messages because the names are now written explicitly in the program:
 ```anchor appendL3
 def appendL : (n k : Nat) → Vect α n → Vect α k → Vect α (n.plusL k)
   | 0, k, .nil, ys => _
@@ -127,9 +127,9 @@ ys : Vect α k
 ⊢ Vect α (n.plusL k + 1)
 ```
 
-The first case demands a `Vect α k`, and `ys` has that type.
+The first case demands a {anchorTerm appendL5}`Vect α k`, and {anchorName appendL5}`ys` has that type.
 This is parallel to the way that appending the empty list to any other list returns that other list.
-Refining the definition with `ys` instead of the first underscore yields a program with only one remaining underscore to be filled out:
+Refining the definition with {anchorName appendL7}`ys` instead of the first underscore yields a program with only one remaining underscore to be filled out:
 ```anchor appendL7
 def appendL : (n k : Nat) → Vect α n → Vect α k → Vect α (n.plusL k)
   | 0, k, .nil, ys => ys
@@ -147,23 +147,23 @@ ys : Vect α k
 ```
 
 Something very important has happened here.
-In a context where Lean expected a `Vect α (Nat.plusL 0 k)`, it received a `Vect α k`.
-However, `Nat.plusL` is not an `abbrev`, so it may seem like it shouldn't be running during type checking.
+In a context where Lean expected a {anchorTerm moreNames}`Vect α (Nat.plusL 0 k)`, it received a {anchorTerm moreNames}`Vect α k`.
+However, {anchorName plusL}`Nat.plusL` is not an {kw}`abbrev`, so it may seem like it shouldn't be running during type checking.
 Something else is happening.
 
-The key to understanding what's going on is that Lean doesn't just expand `abbrev`s while type checking.
+The key to understanding what's going on is that Lean doesn't just expand {kw}`abbrev`s while type checking.
 It can also perform computation while checking whether two types are equivalent to one another, such that any expression of one type can be used in a context that expects the other type.
 This property is called _definitional equality_, and it is subtle.
 
-Certainly, two types that are written identically are considered to be definitionally equal—`Nat` and `Nat` or `List String` and `List String` should be considered equal.
-Any two concrete types built from different datatypes are not equal, so `List Nat` is not equal to `Int`.
-Additionally, types that differ only by renaming internal names are equal, so `(n : Nat) → Vect String n` is the same as `(k : Nat) → Vect String k`.
+Certainly, two types that are written identically are considered to be definitionally equal—{anchorName moreNames}`Nat` and {anchorName moreNames}`Nat` or {anchorTerm moreNames}`List String` and {anchorTerm moreNames}`List String` should be considered equal.
+Any two concrete types built from different datatypes are not equal, so {anchorTerm moreNames}`List Nat` is not equal to {anchorName moreNames}`Int`.
+Additionally, types that differ only by renaming internal names are equal, so {anchorTerm moreNames}`(n : Nat) → Vect String n` is the same as {anchorTerm moreNames}`(k : Nat) → Vect String k`.
 Because types can contain ordinary data, definitional equality must also describe when data are equal.
-Uses of the same constructors are equal, so `0` equals `0` and `[5, 3, 1]` equals `[5, 3, 1]`.
+Uses of the same constructors are equal, so {anchorTerm moreNames}`0` equals {anchorTerm moreNames}`0` and {anchorTerm moreNames}`[5, 3, 1]` equals {anchorTerm moreNames}`[5, 3, 1]`.
 
 Types contain more than just function arrows, datatypes, and constructors, however.
 They also contain _variables_ and _functions_.
-Definitional equality of variables is relatively simple: each variable is equal only to itself, so `(n k : Nat) → Vect Int n` is not definitionally equal to `(n k : Nat) → Vect Int k`.
+Definitional equality of variables is relatively simple: each variable is equal only to itself, so {anchorTerm moreNames}`(n k : Nat) → Vect Int n` is not definitionally equal to {anchorTerm moreNames}`(n k : Nat) → Vect Int k`.
 Functions, on the other hand, are more complicated.
 While mathematics considers two functions to be equal if they have identical input-output behavior, there is no efficient algorithm to check that, and the whole point of definitional equality is for Lean to check whether two types are interchangeable.
 Instead, Lean considers functions to be definitionally equal either when they are both {kw}`fun`-expressions with definitionally equal bodies.
@@ -171,30 +171,30 @@ In other words, two functions must use _the same algorithm_ that calls _the same
 This is not typically very helpful, so definitional equality of functions is mostly used when the exact same defined function occurs in two types.
 
 When functions are _called_ in a type, checking definitional equality may involve reducing the function call.
-The type `Vect String (1 + 4)` is definitionally equal to the type `Vect String (3 + 2)` because `1 + 4` is definitionally equal to `3 + 2`.
-To check their equality, both are reduced to `5`, and then the constructor rule can be used five times.
-Definitional equality of functions applied to data can be checked first by seeing if they're already the same—there's no need to reduce `["a", "b"] ++ ["c"]` to check that it's equal to `["a", "b"] ++ ["c"]`, after all.
+The type {anchorTerm moreNames}`Vect String (1 + 4)` is definitionally equal to the type {anchorTerm moreNames}`Vect String (3 + 2)` because {anchorTerm moreNames}`1 + 4` is definitionally equal to {anchorTerm moreNames}`3 + 2`.
+To check their equality, both are reduced to {anchorTerm moreNames}`5`, and then the constructor rule can be used five times.
+Definitional equality of functions applied to data can be checked first by seeing if they're already the same—there's no need to reduce {anchorTerm moreNames}`["a", "b"] ++ ["c"]` to check that it's equal to {anchorTerm moreNames}`["a", "b"] ++ ["c"]`, after all.
 If not, the function is called and replaced with its value, and the value can then be checked.
 
 Not all function arguments are concrete data.
-For example, types may contain `Nat`s that are not built from the `zero` and `succ` constructors.
-In the type `(n : Nat) → Vect String n`, the variable `n` is a `Nat`, but it is impossible to know _which_ `Nat` it is before the function is called.
-Indeed, the function may be called first with `0`, and then later with `17`, and then again with `33`.
-As seen in the definition of `appendL`, variables with type `Nat` may also be passed to functions such as `plusL`.
-Indeed, the type `(n : Nat) → Vect String n` is definitionally equal to the type `(n : Nat) → Vect String (Nat.plusL 0 n)`.
+For example, types may contain {anchorName moreNames}`Nat`s that are not built from the {anchorName moreNames}`zero` and {anchorName moreNames}`succ` constructors.
+In the type {anchorTerm moreFun}`(n : Nat) → Vect String n`, the variable {anchorName moreFun}`n` is a {anchorName moreFun}`Nat`, but it is impossible to know _which_ {anchorName moreFun}`Nat` it is before the function is called.
+Indeed, the function may be called first with {anchorTerm moreNames}`0`, and then later with {anchorTerm moreNames}`17`, and then again with {anchorTerm moreNames}`33`.
+As seen in the definition of {anchorName appendL}`appendL`, variables with type {anchorName moreFun}`Nat` may also be passed to functions such as {anchorName appendL}`plusL`.
+Indeed, the type {anchorTerm moreFun}`(n : Nat) → Vect String n` is definitionally equal to the type {anchorTerm moreNames}`(n : Nat) → Vect String (Nat.plusL 0 n)`.
 
-The reason that `n` and `Nat.plusL 0 n` are definitionally equal is that `plusL`'s pattern match examines its _first_ argument.
-This is problematic: `(n : Nat) → Vect String n` is _not_ definitionally equal to `(n : Nat) → Vect String (Nat.plusL n 0)`, even though zero should be both a left and a right identity of addition.
+The reason that {anchorName againFun}`n` and {anchorTerm againFun}`Nat.plusL 0 n` are definitionally equal is that {anchorName plusL}`plusL`'s pattern match examines its _first_ argument.
+This is problematic: {anchorTerm moreFun}`(n : Nat) → Vect String n` is _not_ definitionally equal to {anchorTerm stuckFun}`(n : Nat) → Vect String (Nat.plusL n 0)`, even though zero should be both a left and a right identity of addition.
 This happens because pattern matching gets stuck when it encounters variables.
-Until the actual value of `n` becomes known, there is no way to know which case of `Nat.plusL n 0` should be selected.
+Until the actual value of {anchorName stuckFun}`n` becomes known, there is no way to know which case of {anchorTerm stuckFun}`Nat.plusL n 0` should be selected.
 
-The same issue appears with the `Row` function in the query example.
-The type `Row (c :: cs)` does not reduce to any datatype because the definition of `Row` has separate cases for singleton lists and lists with at least two entries.
-In other words, it gets stuck when trying to match the variable `cs` against concrete `List` constructors.
-This is why almost every function that takes apart or constructs a `Row` needs to match the same three cases as `Row` itself: getting it unstuck reveals concrete types that can be used for either pattern matching or constructors.
+The same issue appears with the {anchorName Row (module:=Examples.DependentTypes.DB)}`Row` function in the query example.
+The type {anchorTerm RowStuck (module:=Examples.DependentTypes.DB)}`Row (c :: cs)` does not reduce to any datatype because the definition of {anchorName RowStuck (module:=Examples.DependentTypes.DB)}`Row` has separate cases for singleton lists and lists with at least two entries.
+In other words, it gets stuck when trying to match the variable {anchorName RowStuck (module:=Examples.DependentTypes.DB)}`cs` against concrete {anchorName moreNames}`List` constructors.
+This is why almost every function that takes apart or constructs a {anchorName RowStuck (module:=Examples.DependentTypes.DB)}`Row` needs to match the same three cases as {anchorName RowStuck (module:=Examples.DependentTypes.DB)}`Row` itself: getting it unstuck reveals concrete types that can be used for either pattern matching or constructors.
 
-The missing case in `appendL` requires a `Vect α (Nat.plusL n k + 1)`.
-The `+ 1` in the index suggests that the next step is to use `Vect.cons`:
+The missing case in {anchorName appendL8}`appendL` requires a {lit}`Vect α (Nat.plusL n k + 1)`.
+The {lit}`+ 1` in the index suggests that the next step is to use {anchorName consNotLengthN (module:=Examples.DependentTypes)}`Vect.cons`:
 ```anchor appendL8
 def appendL : (n k : Nat) → Vect α n → Vect α k → Vect α (n.plusL k)
   | 0, k, .nil, ys => ys
@@ -210,14 +210,14 @@ xs : Vect α n
 ys : Vect α k
 ⊢ Vect α (n.plusL k)
 ```
-A recursive call to `appendL` can construct a `Vect` with the desired length:
+A recursive call to {anchorName appendL9}`appendL` can construct a {anchorName appendL9}`Vect` with the desired length:
 
 ```anchor appendL9
 def appendL : (n k : Nat) → Vect α n → Vect α k → Vect α (n.plusL k)
   | 0, k, .nil, ys => ys
   | n + 1, k, .cons x xs, ys => .cons x (appendL n k xs ys)
 ```
-Now that the program is finished, removing the explicit matching on `n` and `k` makes it easier to read and easier to call the function:
+Now that the program is finished, removing the explicit matching on {anchorName appendL9}`n` and {anchorName appendL9}`k` makes it easier to read and easier to call the function:
 
 ```anchor appendL
 def appendL : Vect α n → Vect α k → Vect α (n.plusL k)
@@ -227,11 +227,11 @@ def appendL : Vect α n → Vect α k → Vect α (n.plusL k)
 
 Comparing types using definitional equality means that everything involved in definitional equality, including the internals of function definitions, becomes part of the _interface_ of programs that use dependent types and indexed families.
 Exposing the internals of a function in a type means that refactoring the exposed program may cause programs that use it to no longer type check.
-In particular, the fact that `plusL` is used in the type of `appendL` means that the definition of `plusL` cannot be replaced by the otherwise-equivalent `plusR`.
+In particular, the fact that {anchorName appendL}`plusL` is used in the type of {anchorName appendL}`appendL` means that the definition of {anchorName appendL}`plusL` cannot be replaced by the otherwise-equivalent {anchorName plusR}`plusR`.
 
 # Getting Stuck on Addition
 
-What happens if append is defined with `plusR` instead?
+What happens if append is defined with {anchorName appendR}`plusR` instead?
 Beginning in the same way, with explicit lengths and placeholder underscores in each case, reveals the following useful error messages:
 ```anchor appendR1
 def appendR : (n k : Nat) → Vect α n → Vect α k → Vect α (n.plusR k)
@@ -256,7 +256,7 @@ xs : Vect α n
 ys : Vect α k
 ⊢ Vect α ((n + 1).plusR k)
 ```
-However, attempting to place a `Vect α k` type annotation around the first placeholder results in an type mismatch error:
+However, attempting to place a {anchorTerm appendR3}`Vect α k` type annotation around the first placeholder results in an type mismatch error:
 ```anchor appendR3
 def appendR : (n k : Nat) → Vect α n → Vect α k → Vect α (n.plusR k)
   | 0, k, .nil, ys => (_ : Vect α k)
@@ -270,17 +270,18 @@ has type
 but is expected to have type
   Vect α (Nat.plusR 0 k) : Type ?u.7765
 ```
-This error is pointing out that `plusR 0 k` and `k` are _not_ definitionally equal.
+This error is pointing out that {anchorTerm plusRinfo}`Nat.plusR 0 k` and {anchorName plusRinfo}`k` are _not_ definitionally equal.
 
-This is because `plusR` has the following definition:
+:::paragraph
+This is because {anchorName plusR}`plusR` has the following definition:
 
 ```anchor plusR
 def Nat.plusR : Nat → Nat → Nat
   | n, 0 => n
   | n, k + 1 => plusR n k + 1
 ```
-Its pattern matching occurs on the _second_ argument, not the first argument, which means that the presence of the variable `k` in that position prevents it from reducing.
-`Nat.add` in Lean's standard library is equivalent to `plusR`, not `plusL`, so attempting to use it in this definition results in precisely the same difficulties:
+Its pattern matching occurs on the _second_ argument, not the first argument, which means that the presence of the variable {anchorName plusRinfo}`k` in that position prevents it from reducing.
+{anchorName plusRinfo}`Nat.add` in Lean's standard library is equivalent to {anchorName plusRinfo}`plusR`, not {anchorName plusRinfo}`plusL`, so attempting to use it in this definition results in precisely the same difficulties:
 ```anchor appendR4
 def appendR : (n k : Nat) → Vect α n → Vect α k → Vect α (n + k)
   | 0, k, .nil, ys => (_ : Vect α k)
@@ -296,7 +297,8 @@ but is expected to have type
 ```
 
 Addition is getting _stuck_ on the variables.
-Getting it unstuck requires [propositional equality](../type-classes/standard-classes.md#equality-and-ordering).
+Getting it unstuck requires {ref "equality-and-ordering"}[propositional equality].
+:::
 
 # Propositional Equality
 
@@ -310,19 +312,20 @@ The split between definitional and propositional equality represents a division 
 Similarly, definitional equality is invoked automatically by the type checker, while propositional equality must be specifically appealed to.
 
 
-In {ref "props-proofs-indexing"}[Propositions, Proofs, and Indexing], some equality statements are proved using `decide`.
+In {ref "props-proofs-indexing"}[Propositions, Proofs, and Indexing], some equality statements are proved using {kw}`decide`.
 All of these equality statements are ones in which the propositional equality is in fact already a definitional equality.
-Typically, statements of propositional equality are proved by first getting them into a form where they are either definitional or close enough to existing proved equalities, and then using tools like `decide` or `simp` to take care of the simplified cases.
-The `simp` tactic is quite powerful: behind the scenes, it uses a number of fast, automated tools to construct a proof.
-A simpler tactic called `rfl` specifically uses definitional equality to prove propositional equality.
-The name `rfl` is short for _reflexivity_, which is the property of equality that states that everything equals itself.
+Typically, statements of propositional equality are proved by first getting them into a form where they are either definitional or close enough to existing proved equalities, and then using tools like {kw}`decide` or {kw}`simp` to take care of the simplified cases.
+The {kw}`simp` tactic is quite powerful: behind the scenes, it uses a number of fast, automated tools to construct a proof.
+A simpler tactic called {kw}`rfl` specifically uses definitional equality to prove propositional equality.
+The name {kw}`rfl` is short for _reflexivity_, which is the property of equality that states that everything equals itself.
 
-Unsticking `appendR` requires a proof that `k = Nat.plusR 0 k`, which is not a definitional equality because `plusR` is stuck on the variable in its second argument.
-To get it to compute, the `k` must become a concrete constructor.
+Unsticking {anchorName appendR}`appendR` requires a proof that {anchorTerm plusR_zero_left1}`k = Nat.plusR 0 k`, which is not a definitional equality because {anchorName plusR}`plusR` is stuck on the variable in its second argument.
+To get it to compute, the {anchorName plusR_zero_left1}`k` must become a concrete constructor.
 This is a job for pattern matching.
 
-In particular, because `k` could be _any_ `Nat`, this task requires a function that can return evidence that `k = Nat.plusR 0 k` for _any_ `k` whatsoever.
-This should be a function that returns a proof of equality, with type `(k : Nat) → k = Nat.plusR 0 k`.
+:::paragraph
+In particular, because {anchorName plusR_zero_left1}`k` could be _any_ {anchorName plusR_zero_left1}`Nat`, this task requires a function that can return evidence that {anchorTerm plusR_zero_left1}`k = Nat.plusR 0 k` for _any_ {anchorName plusR_zero_left1}`k` whatsoever.
+This should be a function that returns a proof of equality, with type {anchorTerm plusR_zero_left1}`(k : Nat) → k = Nat.plusR 0 k`.
 Getting it started with initial patterns and placeholders yields the following messages:
 ```anchor plusR_zero_left1
 def plusR_zero_left : (k : Nat) → k = Nat.plusR 0 k
@@ -340,17 +343,18 @@ context:
 k : Nat
 ⊢ k + 1 = Nat.plusR 0 (k + 1)
 ```
-Having refined `k` to `0` via pattern matching, the first placeholder stands for evidence of a statement that does hold definitionally.
-The `rfl` tactic takes care of it, leaving only the second placeholder:
+Having refined {anchorName plusR_zero_left1}`k` to {anchorTerm plusR_zero_left1}`0` via pattern matching, the first placeholder stands for evidence of a statement that does hold definitionally.
+The {kw}`rfl` tactic takes care of it, leaving only the second placeholder:
 ```anchor plusR_zero_left3
 def plusR_zero_left : (k : Nat) → k = Nat.plusR 0 k
   | 0 => by rfl
   | k + 1 => _
 ```
+:::
 
 The second placeholder is a bit trickier.
 The expression {anchorTerm plusRStep}`Nat.plusR 0 k + 1` is definitionally equal to {anchorTerm plusRStep}`Nat.plusR 0 (k + 1)`.
-This means that the goal could also be written `k + 1 = Nat.plusR 0 k + 1`:
+This means that the goal could also be written {anchorTerm plusR_zero_left4}`k + 1 = Nat.plusR 0 k + 1`:
 ```anchor plusR_zero_left4
 def plusR_zero_left : (k : Nat) → k = Nat.plusR 0 k
   | 0 => by rfl
@@ -363,12 +367,13 @@ k : Nat
 ⊢ k + 1 = Nat.plusR 0 k + 1
 ```
 
-Underneath the `+ 1` on each side of the equality statement is another instance of what the function itself returns.
-In other words, a recursive call on `k` would return evidence that `k = Nat.plusR 0 k`.
+:::paragraph
+Underneath the {anchorTerm plusR_zero_left4}`+ 1` on each side of the equality statement is another instance of what the function itself returns.
+In other words, a recursive call on {anchorName plusR_zero_left4}`k` would return evidence that {anchorTerm plusR_zero_left4}`k = Nat.plusR 0 k`.
 Equality wouldn't be equality if it didn't apply to function arguments.
-In other words, if `x = y`, then `f x = f y`.
-The standard library contains a function `congrArg` that takes a function and an equality proof and returns a new proof where the function has been applied to both sides of the equality.
-In this case, the function is `(· + 1)`:
+In other words, if {anchorTerm congr}`x = y`, then {anchorTerm congr}`f x = f y`.
+The standard library contains a function {anchorName congr}`congrArg` that takes a function and an equality proof and returns a new proof where the function has been applied to both sides of the equality.
+In this case, the function is {anchorTerm plusR_zero_left_done}`(· + 1)`:
 
 ```anchor plusR_zero_left_done
 def plusR_zero_left : (k : Nat) → k = Nat.plusR 0 k
@@ -376,7 +381,9 @@ def plusR_zero_left : (k : Nat) → k = Nat.plusR 0 k
   | k + 1 =>
     congrArg (· + 1) (plusR_zero_left k)
 ```
+:::
 
+:::paragraph
 Because this is really a proof of a proposition, it should be declared as a {kw}`theorem`:
 
 ```anchor plusR_zero_left_thm
@@ -385,9 +392,9 @@ theorem plusR_zero_left : (k : Nat) → k = Nat.plusR 0 k
   | k + 1 =>
     congrArg (· + 1) (plusR_zero_left k)
 ```
+:::
 
-
-Propositional equalities can be deployed in a program using the rightward triangle operator `▸`.
+Propositional equalities can be deployed in a program using the rightward triangle operator {anchorTerm appendRsubst}`▸`.
 Given an equality proof as its first argument and some other expression as its second, this operator replaces instances of one side of the equality with the other side of the equality in the second argument's type.
 In other words, the following definition contains no type errors:
 ```anchor appendRsubst
@@ -404,7 +411,7 @@ k : Nat
 ys : Vect α k
 ⊢ Vect α k
 ```
-It can now be filled in with `ys`:
+It can now be filled in with {anchorName appendR5}`ys`:
 ```anchor appendR5
 def appendR : (n k : Nat) → Vect α n → Vect α k → Vect α (n.plusR k)
   | 0, k, .nil, ys => plusR_zero_left k ▸ ys
@@ -422,18 +429,19 @@ xs : Vect α n
 ys : Vect α k
 ⊢ Vect α ((n + 1).plusR k)
 ```
-Here, the statement to be proved is that `Nat.plusR (n + 1) k = Nat.plusR n k + 1`, which can be used with `▸` to draw the `+ 1` out to the top of the expression so that it matches the index of `cons`.
+Here, the statement to be proved is that {anchorTerm plusR_succ_left}`Nat.plusR (n + 1) k = Nat.plusR n k + 1`, which can be used with {anchorTerm appendRsubst}`▸` to draw the {anchorTerm appendRsubst}`+ 1` out to the top of the expression so that it matches the index of {anchorName Vect}`cons`.
 
-The proof is a recursive function that pattern matches on the second argument to `plusR`, namely `k`.
-This is because `plusR` itself pattern matches on its second argument, so the proof can "unstick" it through pattern matching, exposing the computational behavior.
-The skeleton of the proof is very similar to that of `plusR_zero_left`:
+The proof is a recursive function that pattern matches on the second argument to {anchorName appendR}`plusR`, namely {anchorName appendR5}`k`.
+This is because {anchorName appendR5}`plusR` itself pattern matches on its second argument, so the proof can “unstick” it through pattern matching, exposing the computational behavior.
+The skeleton of the proof is very similar to that of {anchorName appendR}`plusR_zero_left`:
 ```anchor plusR_succ_left_0
-theorem plusR_succ_left (n : Nat) : (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
+theorem plusR_succ_left (n : Nat) :
+    (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
   | 0 => by rfl
   | k + 1 => _
 ```
 
-The remaining case's type is definitionally equal to `Nat.plusR (n + 1) k + 1 = Nat.plusR n (k + 1) + 1`, so it can be solved with `congrArg`, just as in `plusR_zero_left`:
+The remaining case's type is definitionally equal to {anchorTerm congr}`Nat.plusR (n + 1) k + 1 = Nat.plusR n (k + 1) + 1`, so it can be solved with {anchorName congr}`congrArg`, just as in {anchorName plusR_zero_left_thm}`plusR_zero_left`:
 ```anchorError plusR_succ_left_2
 don't know how to synthesize placeholder
 context:
@@ -443,19 +451,22 @@ n k : Nat
 This results in a finished proof:
 
 ```anchor plusR_succ_left
-theorem plusR_succ_left (n : Nat) : (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
+theorem plusR_succ_left (n : Nat) :
+    (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
   | 0 => by rfl
   | k + 1 => congrArg (· + 1) (plusR_succ_left n k)
 ```
 
-The finished proof can be used to unstick the second case in `appendR`:
+The finished proof can be used to unstick the second case in {anchorName appendR}`appendR`:
 
 ```anchor appendR
 def appendR : (n k : Nat) → Vect α n → Vect α k → Vect α (n.plusR k)
-  | 0, k, .nil, ys => plusR_zero_left k ▸ ys
-  | n + 1, k, .cons x xs, ys => plusR_succ_left n k ▸ .cons x (appendR n k xs ys)
+  | 0, k, .nil, ys =>
+    plusR_zero_left k ▸ ys
+  | n + 1, k, .cons x xs, ys =>
+    plusR_succ_left n k ▸ .cons x (appendR n k xs ys)
 ```
-When making the length arguments to `appendR` implicit again, they are no longer explicitly named to be appealed to in the proofs.
+When making the length arguments to {anchorName appendR}`appendR` implicit again, they are no longer explicitly named to be appealed to in the proofs.
 However, Lean's type checker has enough information to fill them in automatically behind the scenes, because no other values would allow the types to match:
 
 ```anchor appendRImpl
@@ -467,7 +478,7 @@ def appendR : Vect α n → Vect α k → Vect α (n.plusR k)
 # Pros and Cons
 
 Indexed families have an important property: pattern matching on them affects definitional equality.
-For example, in the `nil` case in a {kw}`match` expression on a `Vect`, the length simply _becomes_ `0`.
+For example, in the {anchorName Vect}`nil` case in a {kw}`match` expression on a {anchorTerm Vect}`Vect`, the length simply _becomes_ {anchorTerm moreNames}`0`.
 Definitional equality can be very convenient, because it is always active and does not need to be invoked explicitly.
 
 However, the use of definitional equality with dependent types and pattern matching has serious software engineering drawbacks.
@@ -488,7 +499,7 @@ As befits an interactive theorem prover, Lean has been designed to make explicit
 Generally speaking, this approach should be preferred in most cases.
 
 However, understanding indexed families of datatypes is important.
-Recursive functions such as `plusR_zero_left` and `plusR_succ_left` are in fact _proofs by mathematical induction_.
+Recursive functions such as {anchorName plusR_zero_left_thm}`plusR_zero_left` and {anchorName plusR_succ_left}`plusR_succ_left` are in fact _proofs by mathematical induction_.
 The base case of the recursion corresponds to the base case in induction, and the recursive call represents an appeal to the induction hypothesis.
 More generally, new propositions in Lean are often defined as inductive types of evidence, and these inductive types usually have indices.
 The process of proving theorems is in fact constructing expressions with these types behind the scenes, in a process not unlike the proofs in this section.
@@ -499,5 +510,5 @@ Fluency in their use is an important part of knowing when to use them.
 
 # Exercises
 
- * Using a recursive function in the style of `plusR_succ_left`, prove that for all `Nat`s `n` and `k`, `n.plusR k = n + k`.
- * Write a function on `Vect` for which `plusR` is more natural than `plusL`, where `plusL` would require proofs to be used in the definition.
+ * Using a recursive function in the style of {anchorName plusR_succ_left}`plusR_succ_left`, prove that for all {anchorName moreNames}`Nat`s {anchorName exercises}`n` and {anchorName exercises}`k`, {anchorTerm exercises}`n.plusR k = n + k`.
+ * Write a function on {anchorName moreNames}`Vect` for which {anchorName plusR}`plusR` is more natural than {anchorName plusL}`plusL`, where {anchorName plusL}`plusL` would require proofs to be used in the definition.

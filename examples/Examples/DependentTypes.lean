@@ -276,6 +276,21 @@ def Vect.zip : Vect α n → Vect β n → Vect (α × β) n
   | .cons x xs, .cons y ys => .cons (x, y) (zip xs ys)
 -- ANCHOR_END: VectZip
 
+--ANCHOR: otherEx
+example := Vect String 2
+example := @Vect.nil
+example := Except
+example := Option
+example := IO
+example := Prop
+example := Type 3
+example := @List.zip
+example := [1, 2, 3]
+example := List String
+example := 5
+example := Nat.succ Nat.zero
+--ANCHOR_END: otherEx
+
 namespace Other
 
 
@@ -318,7 +333,7 @@ def Vect.zip : (n : Nat) → Vect α n → Vect β n → Vect (α × β) n
 
 end Details
 
-
+-- ANCHOR: exerciseDefs
 def oregonianPeaks : Vect String 3 :=
   .cons "Mount Hood" <|
   .cons "Mount Jefferson" <|
@@ -328,6 +343,41 @@ def danishPeaks : Vect String 3 :=
   .cons "Møllehøj" <|
   .cons "Yding Skovhøj" <|
   .cons "Ejer Bavnehøj" <| .nil
+
+def Vect.map : (α → β) → Vect α n → Vect β n
+  | f, .nil => .nil
+  | f, .cons x xs => .cons (f x) (xs.map f)
+
+def Vect.zipWith : (α → β → γ) → Vect α n → Vect β n → Vect γ n
+  | f, .nil, .nil => .nil
+  | f, .cons x xs, .cons y ys => .cons (f x y) (xs.zipWith f ys)
+
+def Vect.unzip : Vect (α × β) n → Vect α n × Vect β n
+  | .nil => (.nil, .nil)
+  | .cons (x, y) xys =>
+    let (xs, ys) := xys.unzip
+    (.cons x xs, .cons y ys)
+
+
+def Vect.push : Vect α n → α → Vect α (n + 1)
+  | .nil, x => .cons x .nil
+  | .cons y ys, x => .cons y (push ys x)
+
+def Vect.drop : (n : Nat) → Vect α (k + n) → Vect α k
+  | 0, xs => xs
+  | n + 1, .cons x xs => xs.drop n
+
+def Vect.reverse : Vect α n → Vect α n
+  | .nil => .nil
+  | .cons x xs => xs.reverse.push x
+
+-- ANCHOR: take
+def Vect.take : (n : Nat) → Vect α (k + n) → Vect α n
+  | 0, xs => .nil
+  | n + 1, .cons x xs => .cons x (xs.take n)
+-- ANCHOR_END: take
+
+-- ANCHOR_END: exerciseDefs
 
 
 /-- info:
@@ -340,23 +390,7 @@ Vect.cons
 #eval oregonianPeaks.zip danishPeaks
 -- ANCHOR_END: peaksVectZip
 
-def Vect.map (f : α → β) : Vect α n → Vect β n
-  | .nil => .nil
-  | .cons x xs => .cons (f x) (map f xs)
 
-def Vect.zipWith : (α → β → γ) → Vect α n → Vect β n → Vect γ n
-  | f, .nil, .nil => .nil
-  | f, .cons x xs, .cons y ys => .cons (f x y) (zipWith f xs ys)
-
-def Vect.unzip : Vect (α × β) n → Vect α n × Vect β n
-  | .nil => (.nil, .nil)
-  | .cons (x, y) xys =>
-    let (xs, ys) := unzip xys
-    (.cons x xs, .cons y ys)
-
-def Vect.push : Vect α n → α → Vect α (n + 1)
-  | .nil, x => .cons x .nil
-  | .cons y ys, x => .cons y (push ys x)
 
 
 /-- info:
@@ -367,14 +401,6 @@ Vect.cons "snowy" (Vect.cons "peaks" (Vect.nil))
 #eval Vect.push (.cons "snowy" .nil) "peaks"
 -- ANCHOR_END: snocSnowy
 
-def Vect.reverse : Vect α n → Vect α n
-  | .nil => .nil
-  | .cons x xs => Vect.push (reverse xs) x
-
-def Vect.drop : (n : Nat) → Vect α (k + n) → Vect α k
-  | 0, xs => xs
-  | j + 1, .cons _ xs => drop j xs
-
 
 /-- info:
 Vect.cons "Ejer Bavnehøj" (Vect.nil)
@@ -383,7 +409,3 @@ Vect.cons "Ejer Bavnehøj" (Vect.nil)
 -- ANCHOR: ejerBavnehoej
 #eval danishPeaks.drop 2
 -- ANCHOR_END: ejerBavnehoej
-
-def Vect.take : (n : Nat) → Vect α (k + n) → Vect α n
-  | 0, _ => .nil
-  | j + 1, .cons x xs => .cons x (take j xs)

@@ -1,5 +1,6 @@
 import VersoManual
 import FPLean.Examples
+import FPLean.Linters
 
 open Verso.Genre Manual
 open Verso Code External
@@ -20,8 +21,8 @@ tag := "evaluating"
 
 The most important thing to understand as a programmer learning Lean is how evaluation works.
 Evaluation is the process of finding the value of an expression, just as one does in arithmetic.
-For instance, the value of 15 - 6 is 9 and the value of 2 × (3 + 1) is 8.
-To find the value of the latter expression, 3 + 1 is first replaced by 4, yielding 2 × 4, which itself can be reduced to 8.
+For instance, the value of $`15 - 6` is $`9` and the value of $`2 × (3 + 1)` is $`8`.
+To find the value of the latter expression, $`3 + 1` is first replaced by $`4`, yielding $`2 × 4`, which itself can be reduced to $`8`.
 Sometimes, mathematical expressions contain variables: the value of $`x + 1` cannot be computed until we know what the value of $`x` is.
 In Lean, programs are first and foremost expressions, and the primary way to think about computation is as evaluating expressions to find their values.
 
@@ -34,8 +35,8 @@ throwing or catching exceptions, and reading data from a database.
 In Lean, however, programs work the same way as mathematical expressions.
 Once given a value, variables cannot be reassigned. Evaluating an expression cannot have side effects.
 If two expressions have the same value, then replacing one with the other will not cause the program to compute a different result.
-This does not mean that Lean cannot be used to write `Hello, world!` to the console, but performing I/O is not a core part of the experience of using Lean in the same way.
-Thus, this chapter focuses on how to evaluate expressions interactively with Lean, while the next chapter describes how to write, compile, and run the `Hello, world!` program.
+This does not mean that Lean cannot be used to write {lit}`Hello, world!` to the console, but performing I/O is not a core part of the experience of using Lean in the same way.
+Thus, this chapter focuses on how to evaluate expressions interactively with Lean, while the next chapter describes how to write, compile, and run the {lit}`Hello, world!` program.
 
 :::paragraph
 To ask Lean to evaluate an expression, write {kw}`#eval` before it in your editor, which will then report the result back.
@@ -67,7 +68,7 @@ yields the value {anchorInfo orderOfOperations}`11` rather than {anchorInfo orde
 :::
 
 :::paragraph
-While both ordinary mathematical notation and the majority of programming languages use parentheses (e.g. `f(x)`) to apply a function to its arguments, Lean simply writes the function next to its arguments (e.g. `f x`).
+While both ordinary mathematical notation and the majority of programming languages use parentheses (e.g. {lit}`f(x)`) to apply a function to its arguments, Lean simply writes the function next to its arguments (e.g. {lit}`f x`).
 Function application is one of the most common operations, so it pays to keep it concise.
 Rather than writing
 
@@ -86,7 +87,7 @@ where the function's two arguments are simply written next to it with spaces.
 
 
 :::paragraph
-Just as the order-of-operations rules for arithmetic demand parentheses in the expression `(1 + 2) * 5`, parentheses are also necessary when a function's argument is to be computed via another function call.
+Just as the order-of-operations rules for arithmetic demand parentheses in the expression {anchorTerm orderOfOperationsWrong}`(1 + 2) * 5`, parentheses are also necessary when a function's argument is to be computed via another function call.
 For instance, parentheses are required in
 
 ```anchor stringAppendNested
@@ -99,29 +100,29 @@ The value of the inner {anchorTerm stringAppendNested}`String.append` call must 
 
 :::paragraph
 Imperative languages often have two kinds of conditional: a conditional _statement_ that determines which instructions to carry out based on a Boolean value, and a conditional _expression_ that determines which of two expressions to evaluate based on a Boolean value.
-For instance, in C and C++, the conditional statement is written using `if` and `else`, while the conditional expression is written with a ternary operator in which `?` and `:` separate the condition from the branches.
-In Python, the conditional statement begins with `if`, while the conditional expression puts `if` in the middle.
+For instance, in C and C++, the conditional statement is written using {c}`if` and {c}`else`, while the conditional expression is written with a ternary operator in which {c}`?` and {c}`:` separate the condition from the branches.
+In Python, the conditional statement begins with {python}`if`, while the conditional expression puts {python}`if` in the middle.
 Because Lean is an expression-oriented functional language, there are no conditional statements, only conditional expressions.
 They are written using {kw}`if`, {kw}`then`, and {kw}`else`.
 For example,
 
-```exampleEval stringAppend 0
+```anchorEvalStep stringAppend 0
 String.append "it is " (if 1 > 2 then "yes" else "no")
 ```
 
 evaluates to
 
-```exampleEval stringAppend 1
+```anchorEvalStep stringAppend 1
 String.append "it is " (if false then "yes" else "no")
 ```
 
 which evaluates to
 
-```exampleEval stringAppend 2
+```anchorEvalStep stringAppend 2
 String.append "it is " "no"
 ```
 
-which finally evaluates to {exampleEval 3}`stringAppend`.
+which finally evaluates to {anchorEvalStep stringAppend 3}`"it is no"`.
 
 
 :::
@@ -130,7 +131,7 @@ which finally evaluates to {exampleEval 3}`stringAppend`.
 :::paragraph
 For the sake of brevity, a series of evaluation steps like this will sometimes be written with arrows between them:
 
-```exampleEval stringAppend
+```anchorEvalSteps stringAppend
 String.append "it is " (if 1 > 2 then "yes" else "no")
 ===>
 String.append "it is " (if false then "yes" else "no")

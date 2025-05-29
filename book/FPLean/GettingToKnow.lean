@@ -14,13 +14,16 @@ open Verso Code External
 
 open FPLean
 
+set_option verso.exampleProject "../examples"
+set_option verso.exampleModule "Hello"
+
 
 #doc (Manual) "Getting to Know Lean" =>
 %%%
 tag := "getting-to-know"
 %%%
 
-According to tradition, a programming language should be introduced by compiling and running a program that displays `"Hello, world!"` on the console.
+According to tradition, a programming language should be introduced by compiling and running a program that displays {moduleTerm}`"Hello, world!"` on the console.
 This simple program ensures that the language tooling is installed correctly and that the programmer is able to run the compiled code.
 
 Since the 1970s, however, programming has changed.
@@ -30,7 +33,7 @@ Lean is no exception: it implements an extended version of the Language Server P
 Languages as varied as Python, Haskell, and JavaScript offer a read-eval-print-loop (REPL), also known as an interactive toplevel or a browser console, in which expressions or statements can be entered.
 The language then computes and displays the result of the user's input.
 Lean, on the other hand, integrates these features into the interaction with the editor, providing commands that cause the text editor to display feedback integrated into the program text itself.
-This chapter provides a short introduction to interacting with Lean in an editor, while [Hello, World!](TODO) describes how to use Lean traditionally from the command line in batch mode.
+This chapter provides a short introduction to interacting with Lean in an editor, while {ref "hello-world"}[Hello, World!] describes how to use Lean traditionally from the command line in batch mode.
 
 It is best if you read this book with Lean open in your editor, following along and typing in each example. Please play with the
 examples, and see what happens!

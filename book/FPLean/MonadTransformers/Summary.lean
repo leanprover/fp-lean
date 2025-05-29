@@ -7,7 +7,7 @@ open Verso.Code.External
 open FPLean
 
 set_option verso.exampleProject "../examples"
-set_option verso.exampleModule "Examples.TODO"
+set_option verso.exampleModule "Examples.MonadTransformers"
 
 #doc (Manual) "Summary" =>
 
@@ -20,8 +20,8 @@ Existing monads can be made part of the return type as well, allowing their effe
 These design patterns are made into a library of reusable software components by defining _monad transformers_, which add an effect to some base monad.
 Monad transformers take the simpler monad types as arguments, returning the enhanced monad types.
 At a minimum, a monad transformer should provide the following instances:
- 1. A `Monad` instance that assumes the inner type is already a monad
- 2. A `MonadLift` instance to translate an action from the inner monad to the transformed monad
+ 1. A {anchorName Summary}`Monad` instance that assumes the inner type is already a monad
+ 2. A {anchorName Summary}`MonadLift` instance to translate an action from the inner monad to the transformed monad
 
 Monad transformers may be implemented as polymorphic structures or inductive datatypes, but they are most often implemented as functions from the underlying monad type to the enhanced monad type.
 
@@ -32,16 +32,16 @@ This allows programs to be written that merely specify which effects they need, 
 
 Sometimes, auxiliary type information (e.g. the state's type in a monad that provides state, or the exception's type in a monad that provides exceptions) is an output parameter, and sometimes it is not.
 The output parameter is most useful for simple programs that use each kind of effect only once, but it risks having the type checker commit to a the wrong type too early when multiple instances of the same effect are used in a given program.
-Thus, both versions are typically provided, with the ordinary-parameter version of the type class having a name that ends in `-Of`.
+Thus, both versions are typically provided, with the ordinary-parameter version of the type class having a name that ends in {lit}`-Of`.
 
 # Monad Transformers Don't Commute
 
 It is important to note that changing the order of transformers in a monad can change the meaning of programs that use the monad.
-For instance, re-ordering `StateT` and `ExceptT` can result either in programs that lose state modifications when exceptions are thrown or programs that keep changes.
+For instance, re-ordering {anchorName Summary}`StateT` and {anchorTerm Summary}`ExceptT` can result either in programs that lose state modifications when exceptions are thrown or programs that keep changes.
 While most imperative languages provide only the latter, the increased flexibility provided by monad transformers demands thought and attention to choose the correct variety for the task at hand.
 
 # {kw}`do`-Notation for Monad Transformers
 
-Lean's {kw}`do`-blocks support early return, in which the block is terminated with some value, locally mutable variables, `for`-loops with `break` and `continue`, and single-branched {kw}`if`-statements.
+Lean's {kw}`do`-blocks support early return, in which the block is terminated with some value, locally mutable variables, {kw}`for`-loops with {kw}`break` and {kw}`continue`, and single-branched {kw}`if`-statements.
 While this may seem to be introducing imperative features that would get in the way of using Lean to write proofs, it is in fact nothing more than a more convenient syntax for certain common uses of monad transformers.
-Behind the scenes, whatever monad the {kw}`do`-block is written in is transformed by appropriate uses of `ExceptT` and `StateT` to support these additional effects.
+Behind the scenes, whatever monad the {kw}`do`-block is written in is transformed by appropriate uses of {anchorName Summary}`ExceptT` and {anchorName Summary}`StateT` to support these additional effects.

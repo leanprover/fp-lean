@@ -19,7 +19,7 @@ This syntax is also governed by a type class, and it can be used for a variety o
 
 # Arrays
 For instance, Lean arrays are much more efficient than linked lists for most purposes.
-In Lean, the type {anchorTerm arrVsList}`Array α` is a dynamically-sized array holding values of type {anchorName arrVsList}`α`, much like a Java `ArrayList`, a C++ `std::vector`, or a Rust `Vec`.
+In Lean, the type {anchorTerm arrVsList}`Array α` is a dynamically-sized array holding values of type {anchorName arrVsList}`α`, much like a Java {java}`ArrayList`, a C++ {cpp}`std::vector`, or a Rust {rust}`Vec`.
 Unlike {anchorTerm arrVsList}`List`, which has a pointer indirection on each use of the {anchorName arrVsList}`cons` constructor, arrays occupy a contiguous region of memory, which is much better for processor caches.
 Also, looking up a value in an array takes constant time, while lookup in a linked list takes time proportional to the index being accessed.
 
@@ -27,7 +27,7 @@ In pure functional languages like Lean, it is not possible to mutate a given pos
 Instead, a copy is made that has the desired modifications.
 However, copying is not always necessary: the Lean compiler and runtime contain an optimization that can allow modifications to be implemented as mutations behind the scenes when there is only a single unique reference to an array.
 
-Arrays are written similarly to lists, but with a leading `#`:
+Arrays are written similarly to lists, but with a leading {lit}`#`:
 
 ```anchor northernTrees
 def northernTrees : Array String :=
@@ -94,9 +94,9 @@ def NonEmptyList.get? : NonEmptyList α → Nat → Option α
   | xs, n + 1 => xs.tail[n]?
 ```
 
-If the list contains one entry, then only `0` is a valid index.
-If it contains two entries, then both `0` and `1` are valid indices.
-If it contains three entries, then `0`, `1`, and `2` are valid indices.
+If the list contains one entry, then only {anchorTerm nats}`0` is a valid index.
+If it contains two entries, then both {anchorTerm nats}`0` and {anchorTerm nats}`1` are valid indices.
+If it contains three entries, then {anchorTerm nats}`0`, {anchorTerm nats}`1`, and {anchorTerm nats}`2` are valid indices.
 In other words, the valid indices into a non-empty list are natural numbers that are strictly less than the length of the list, which are less than or equal to the length of the tail.
 
 The definition of what it means for an index to be in bounds should be written as an {kw}`abbrev` because the tactics used to find evidence that indices are acceptable are able to solve inequalities of numbers, but they don't know anything about the name {moduleName}`NonEmptyList.inBounds`:
@@ -106,7 +106,7 @@ abbrev NonEmptyList.inBounds (xs : NonEmptyList α) (i : Nat) : Prop :=
   i ≤ xs.tail.length
 ```
 This function returns a proposition that might be true or false.
-For instance, `2` is in bounds for {moduleName}`idahoSpiders`, while `5` is not:
+For instance, {anchorTerm spiderBoundsChecks}`2` is in bounds for {moduleName}`idahoSpiders`, while {anchorTerm spiderBoundsChecks}`5` is not:
 
 ```anchor spiderBoundsChecks
 theorem atLeastThreeSpiders : idahoSpiders.inBounds 2 := by decide
@@ -119,7 +119,8 @@ The logical negation operator has a very low precedence, which means that {ancho
 This fact can be used to write a lookup function that requires evidence that the index is valid, and thus need not return {moduleName}`Option`, by delegating to the version for lists that checks the evidence at compile time:
 
 ```anchor NEListGet
-def NonEmptyList.get (xs : NonEmptyList α) (i : Nat) (ok : xs.inBounds i) : α :=
+def NonEmptyList.get (xs : NonEmptyList α)
+    (i : Nat) (ok : xs.inBounds i) : α :=
   match i with
   | 0 => xs.head
   | n + 1 => xs.tail[n]
@@ -129,6 +130,9 @@ This requires techniques for working with proofs and propositions that are descr
 
 
 # Overloading Indexing
+%%%
+tag := "overloading-indexing"
+%%%
 
 Indexing notation for a collection type can be overloaded by defining an instance of the {anchorName GetElem}`GetElem` type class.
 For the sake of flexiblity, {anchorName GetElem}`GetElem` has four parameters:
@@ -141,7 +145,11 @@ The element type and the evidence function are both output parameters.
 {anchorName GetElem}`GetElem` has a single method, {anchorName GetElem}`getElem`, which takes a collection value, an index value, and evidence that the index is in bounds as arguments, and returns an element:
 
 ```anchor GetElem
-class GetElem (coll : Type) (idx : Type) (item : outParam Type) (inBounds : outParam (coll → idx → Prop)) where
+class GetElem
+    (coll : Type)
+    (idx : Type)
+    (item : outParam Type)
+    (inBounds : outParam (coll → idx → Prop)) where
   getElem : (c : coll) → (i : idx) → inBounds c i → item
 ```
 
@@ -173,7 +181,8 @@ The positive number type {anchorTerm ListPosElem}`Pos` is a perfectly reasonable
 The follow instance of {anchorTerm ListPosElem}`GetElem` allows {anchorTerm ListPosElem}`Pos` to be used just as conveniently as {moduleName}`Nat` to find a list entry:
 
 ```anchor ListPosElem
-instance : GetElem (List α) Pos α (fun list n => list.length > n.toNat) where
+instance : GetElem (List α) Pos α
+    (fun list n => list.length > n.toNat) where
   getElem (xs : List α) (i : Pos) ok := xs[i.toNat]
 ```
 

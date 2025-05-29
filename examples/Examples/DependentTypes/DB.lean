@@ -87,8 +87,18 @@ abbrev Row : Schema → Type
   | col1 :: col2 :: cols => col1.contains.asType × Row (col2::cols)
 -- ANCHOR_END: Row
 
+-- ANCHOR: RowStuck
+example (c cs) := Row (c :: cs)
+-- ANCHOR_END: RowStuck
 
-
+-- ANCHOR: Naturals
+section
+example := Nat
+open Nat
+example := succ
+example := zero
+end
+-- ANCHOR_END: Naturals
 
 -- ANCHOR: Table
 abbrev Table (s : Schema) := List (Row s)
@@ -197,6 +207,15 @@ inductive Subschema : Schema → Schema → Type where
       Subschema smaller bigger →
       Subschema (⟨n, t⟩ :: smaller) bigger
 -- ANCHOR_END: Subschema
+
+-- ANCHOR: SubschemaNames
+example := @Subschema.nil
+example := @Subschema.cons
+example := @HasCol.there
+example := @HasCol.here
+example := HasCol peak "location" DBType.string
+example := Subschema peak []
+-- ANCHOR_END: SubschemaNames
 
 -- ANCHOR: travelDiary
 abbrev travelDiary : Schema :=
@@ -359,6 +378,10 @@ def DBExpr.evaluate (row : Row s) : DBExpr s t → t.asType
   | .const v => v
 -- ANCHOR_END: DBExprEval
 
+-- ANCHOR: DBExprEvalType
+example : Row s → DBExpr s t → t.asType := DBExpr.evaluate
+-- ANCHOR_END: DBExprEvalType
+
 /-- info:
 false
 -/
@@ -436,13 +459,15 @@ def List.flatMap (f : α → List β) : (xs : List α) → List β
 end Mine
 
 -- ANCHOR: TableCartProd
-def Table.cartesianProduct (table1 : Table s1) (table2 : Table s2) : Table (s1 ++ s2) :=
+def Table.cartesianProduct (table1 : Table s1) (table2 : Table s2) :
+    Table (s1 ++ s2) :=
   table1.flatMap fun r1 => table2.map r1.append
 -- ANCHOR_END: TableCartProd
 
 namespace OrElse
 -- ANCHOR: TableCartProdOther
-def Table.cartesianProduct (table1 : Table s1) (table2 : Table s2) : Table (s1 ++ s2) := Id.run do
+def Table.cartesianProduct (table1 : Table s1) (table2 : Table s2) :
+    Table (s1 ++ s2) := Id.run do
   let mut out : Table (s1 ++ s2) := []
   for r1 in table1 do
     for r2 in table2 do
@@ -468,7 +493,8 @@ def List.without [BEq α] (source banned : List α) : List α :=
 
 
 -- ANCHOR: renameRow
-def Row.rename (c : HasCol s n t) (row : Row s) : Row (s.renameColumn c n') :=
+def Row.rename (c : HasCol s n t) (row : Row s) :
+    Row (s.renameColumn c n') :=
   match s, row, c with
   | [_], v, .here => v
   | _::_::_, (v, r), .here => (v, r)
@@ -477,7 +503,8 @@ def Row.rename (c : HasCol s n t) (row : Row s) : Row (s.renameColumn c n') :=
 
 
 -- ANCHOR: prefixRow
-def prefixRow (row : Row s) : Row (s.map fun c => {c with name := n ++ "." ++ c.name}) :=
+def prefixRow (row : Row s) :
+    Row (s.map fun c => {c with name := n ++ "." ++ c.name}) :=
   match s, row with
   | [], _ => ()
   | [_], v => v
@@ -491,7 +518,9 @@ def Query.exec : Query s → Table s
   | .table t => t
   | .union q1 q2 => exec q1 ++ exec q2
   | .diff q1 q2 => exec q1 |>.without (exec q2)
+-- ANCHOR: selectCase
   | .select q e => exec q |>.filter e.evaluate
+-- ANCHOR_END: selectCase
   | .project q _ sub => exec q |>.map (·.project _ sub)
   | .product q1 q2 _ => exec q1 |>.cartesianProduct (exec q2)
   | .renameColumn q c _ _ => exec q |>.map (·.rename c)
@@ -630,3 +659,26 @@ abbrev NDBType.asType (t : NDBType) : Type :=
   else
     t.underlying.asType
 -- ANCHOR_END: nullable
+
+-- ANCHOR: misc
+example := List Bool
+example := false
+example := true
+example := Prop
+example := @List.filter
+example := @List.map
+section
+variable {smaller bigger : Schema}
+example := Subschema smaller bigger
+example := (smaller, bigger)
+end
+example := [List Nat, Vect Nat 4, Row [], Row [⟨"price", .int⟩], Row peak, HasCol [⟨"price", .int⟩, ⟨"price", .int⟩] "price" .int]
+-- ANCHOR_END: misc
+
+discarding
+-- ANCHOR: ListMonad
+instance : Monad List where
+  pure x := [x]
+  bind xs f := List.flatMap f xs
+-- ANCHOR_END: ListMonad
+stop discarding

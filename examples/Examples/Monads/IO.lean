@@ -1,5 +1,24 @@
 import ExampleSupport
 
+-- ANCHOR: names
+example := IO
+section
+local instance : Monad IO where
+  pure := pure
+  bind := bind
+universe u
+example {ε} {α}:= EIO ε α
+-- ANCHOR: EStateMNames
+example {ε} {α} {σ} := EStateM ε σ α → EStateM.Result ε σ α
+-- ANCHOR_END: EStateMNames
+example := @EStateM.Result.ok
+example := @EStateM.Result.error
+example {α}:= BaseIO α
+example {ε} := Except ε
+example := Type u
+end
+-- ANCHOR_END: names
+
 /-- info:
 inductive Nat : Type
 number of parameters: 0

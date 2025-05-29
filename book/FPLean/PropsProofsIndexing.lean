@@ -62,10 +62,10 @@ Understanding how this works requires an understanding of three key ideas: propo
 A _proposition_ is a statement that can be true or false.
 All of the following English sentences are propositions:
 
- * 1 + 1 = 2
+ * $`1 + 1 = 2`
  * Addition is commutative.
  * There are infinitely many prime numbers.
- * 1 + 1 = 15
+ * $`1 + 1 = 15`
  * Paris is the capital of France.
  * Buenos Aires is the capital of South Korea.
  * All birds can fly.
@@ -128,7 +128,7 @@ When a proposition has been proven, it is called a _theorem_.
 In Lean, it is conventional to declare theorems with the {kw}`theorem` keyword instead of {kw}`def`.
 This helps readers see which declarations are intended to be read as mathematical proofs, and which are definitions.
 Generally speaking, with a proof, what matters is that there is evidence that a proposition is true, but it's not particularly important _which_ evidence was provided.
-With definitions, on the other hand, it matters very much which particular value is selected—after all, a definition of addition that always returns `0` is clearly wrong.
+With definitions, on the other hand, it matters very much which particular value is selected—after all, a definition of addition that always returns {anchorTerm SomeNats}`0` is clearly wrong.
 Because the details of a proof don't matter for later proofs, using the {kw}`theorem` keyword enables greater parallelism in the Lean compiler.
 
 The prior example could be rewritten as follows:
@@ -159,7 +159,7 @@ theorem onePlusOneIsTwo : 1 + 1 = 2 := by
 ```
 
 The {kw}`decide` tactic invokes a _decision procedure_, which is a program that can check whether a statement is true or false, returning a suitable proof in either case.
-It is primarily used when working with concrete values like `1` and `2`.
+It is primarily used when working with concrete values like {anchorTerm SomeNats}`1` and {anchorTerm SomeNats}`2`.
 The other important tactic in this book is {kw}`simp`, short for “simplify,” which is the workhorse of Lean proofs.
 It rewrites the goal to as simple a form as possible.
 In many cases, this rewriting simplifies the statement so much that it can be automatically proved.
@@ -176,15 +176,18 @@ This tactic takes many facts about arithmetic into account, combining them with 
 
 
 # Connectives
+%%%
+tag := "connectives"
+%%%
 
-The basic building blocks of logic, such as "and", "or", "true", "false", and "not", are called _logical connectives_.
+The basic building blocks of logic, such as “and”, “or”, “true”, “false”, and “not”, are called {deftech}_logical connectives_.
 Each connective defines what counts as evidence of its truth.
-For example, to prove a statement "_A_ and _B_", one must prove both _A_ and _B_.
-This means that evidence for "_A_ and _B_" is a pair that contains both evidence for _A_ and evidence for _B_.
-Similarly, evidence for "_A_ or _B_" consists of either evidence for _A_ or evidence for _B_.
+For example, to prove a statement “_A_ and _B_”, one must prove both _A_ and _B_.
+This means that evidence for “_A_ and _B_” is a pair that contains both evidence for _A_ and evidence for _B_.
+Similarly, evidence for “_A_ or _B_” consists of either evidence for _A_ or evidence for _B_.
 
 In particular, most of these connectives are defined like datatypes, and they have constructors.
-If {anchorTerm AndProp}`A` and {anchorTerm AndProp}`B` are propositions, then "{anchorTerm AndProp}`A` and {anchorTerm AndProp}`B`" (written {anchorTerm AndProp}`A ∧ B`) is a proposition.
+If {anchorTerm AndProp}`A` and {anchorTerm AndProp}`B` are propositions, then “{anchorTerm AndProp}`A` and {anchorTerm AndProp}`B`” (written {anchorTerm AndProp}`A ∧ B`) is a proposition.
 Evidence for {anchorTerm AndProp}`A ∧ B` consists of the constructor {anchorTerm AndIntro}`And.intro`, which has the type {anchorTerm AndIntro}`A → B → A ∧ B`.
 Replacing {anchorTerm AndIntro}`A` and {anchorTerm AndIntro}`B` with concrete propositions, it is possible to prove {anchorTerm AndIntroEx}`1 + 1 = 2 ∧ "Str".append "ing" = "String"` with {anchorTerm AndIntroEx}`And.intro rfl rfl`.
 Of course, {kw}`decide` is also powerful enough to find this proof:
@@ -220,33 +223,33 @@ theorem andImpliesOr : A ∧ B → A ∨ B :=
   - Evidence
 *
  -  True
- -  `True`
- -  `True.intro : True`
+ -  {anchorName connectiveTable}`True`
+ -  {anchorTerm connectiveTable}`True.intro : True`
 
 *
  -  False
- -  `False`
+ -  {anchorName connectiveTable}`False`
  -  No evidence
 
 *
- -  _A_ and _B_
- -  `A ∧ B`
- -  `And.intro : A → B → A ∧ B`
+ -  {anchorName connectiveTable}`A` and {anchorName connectiveTable}`B`
+ -  {anchorTerm connectiveTable}`A ∧ B`
+ -  {anchorTerm connectiveTable}`And.intro : A → B → A ∧ B`
 
 *
- -  _A_ or _B_
- -  `A ∨ B`
- -  Either `Or.inl : A → A ∨ B` or `Or.inr : B → A ∨ B`
+ -  {anchorName connectiveTable}`A` or {anchorName connectiveTable}`B`
+ -  {anchorTerm connectiveTable}`A ∨ B`
+ -  Either {anchorTerm connectiveTable}`Or.inl : A → A ∨ B` or {anchorTerm connectiveTable}`Or.inr : B → A ∨ B`
 
 *
- -  _A_ implies _B_
- -  `A → B`
- -  A function that transforms evidence of _A_ into evidence of _B_
+ -  {anchorName connectiveTable}`A` implies {anchorName connectiveTable}`B`
+ -  {anchorTerm connectiveTable}`A → B`
+ -  A function that transforms evidence of {anchorName connectiveTable}`A` into evidence of {anchorName connectiveTable}`B`
 
 *
- -  not _A_
- -  `¬A`
- -  A function that would transform evidence of _A_ into evidence of `False`
+ -  not {anchorName connectiveTable}`A`
+ -  {anchorTerm connectiveTable}`¬A`
+ -  A function that would transform evidence of {anchorName connectiveTable}`A` into evidence of {anchorName connectiveTable}`False`
 
 
 :::
@@ -280,7 +283,7 @@ failed to prove index is valid, possible solutions:
   - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
-α : Type ?u.4573
+α : Type ?u.5379
 xs : List α
 ⊢ 2 < xs.length
 ```
@@ -295,7 +298,7 @@ In this example, {anchorTerm third}`xs.length > 2` is not a program that checks 
 It is a proposition that could be true or false, and the argument {anchorTerm third}`ok` must be evidence that it is true.
 
 When the function is called on a concrete list, its length is known.
-In these cases, `by decide` can construct the evidence automatically:
+In these cases, {anchorTerm thirdCritters}`by decide` can construct the evidence automatically:
 
 ```anchor thirdCritters
 #eval third woodlandCritters (by decide)
@@ -309,7 +312,7 @@ In these cases, `by decide` can construct the evidence automatically:
 # Indexing Without Evidence
 
 In cases where it's not practical to prove that an indexing operation is in bounds, there are other alternatives.
-Adding a question mark results in an `Option`, where the result is `some` if the index is in bounds, and `none` otherwise.
+Adding a question mark results in an {anchorName thirdOption}`Option`, where the result is {anchorName OptionNames}`some` if the index is in bounds, and {anchorName OptionNames}`none` otherwise.
 For example:
 
 
@@ -333,22 +336,21 @@ some "snail"
 none
 ```
 
-
+:::paragraph
 There is also a version that crashes the program when the index is out of bounds, rather than returning an {moduleTerm}`Option`:
 
 ```anchor crittersBang
 #eval woodlandCritters[1]!
 ```
 
-
 ```anchorInfo crittersBang
 "deer"
 ```
-
+:::
 
 
 # Messages You May Meet
-In addition to proving that a statement is true, the `decide` tactic can also prove that it is false.
+In addition to proving that a statement is true, the {anchorTerm thirdRabbitErr}`decide` tactic can also prove that it is false.
 When asked to prove that a one-element list has more than two elements, it returns an error that indicates that the statement is indeed false:
 
 ```anchor thirdRabbitErr
@@ -364,7 +366,7 @@ is false
 
 
 The {kw}`simp` and {kw}`decide` tactics do not automatically unfold definitions with {kw}`def`.
-Attempting to prove {anchorTerm onePlusOneIsStillTwo}`OnePlusOneIsTwo` using `simp` fails:
+Attempting to prove {anchorTerm onePlusOneIsStillTwo}`OnePlusOneIsTwo` using {anchorTerm onePlusOneIsStillTwo}`simp` fails:
 
 ```anchor onePlusOneIsStillTwo
 theorem onePlusOneIsStillTwo : OnePlusOneIsTwo := by simp
@@ -382,7 +384,7 @@ Using {anchorTerm onePlusOneIsStillTwo2}`decide` also fails:
 theorem onePlusOneIsStillTwo : OnePlusOneIsTwo := by decide
 ```
 
-This is also due to it not unfolding `OnePlusOneIsTwo`:
+This is also due to it not unfolding {anchorName onePlusOneIsStillTwo2}`OnePlusOneIsTwo`:
 
 ```anchorError onePlusOneIsStillTwo2
 failed to synthesize
@@ -391,7 +393,7 @@ failed to synthesize
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 
-Defining `OnePlusOneIsTwo` with [`abbrev` fixes the problem](getting-to-know/functions-and-definitions.md#messages-you-may-meet) by marking the definition for unfolding.
+Defining {anchorName onePlusOneIsStillTwo}`OnePlusOneIsTwo` with {ref "abbrev-vs-def"}[{kw}`abbrev` fixes the problem] by marking the definition for unfolding.
 
 In addition to the error that occurs when Lean is unable to find compile-time evidence that an indexing operation is safe, polymorphic functions that use unsafe indexing may produce the following message:
 
@@ -437,5 +439,5 @@ This error message results from having Lean attempt to treat {anchorTerm woodlan
 ## Exercises
 
 * Prove the following theorems using {anchorTerm exercises}`rfl`: {anchorTerm exercises}`2 + 3 = 5`, {anchorTerm exercises}`15 - 8 = 7`, {anchorTerm exercises}`"Hello, ".append "world" = "Hello, world"`. What happens if {anchorTerm exercises}`rfl` is used to prove {anchorTerm exercises}`5 < 18`? Why?
-* Prove the following theorems using {anchorTerm exercises}`by decide`: {anchorTerm exercises}`2 + 3 = 5`, {anchorTerm exercises}`15 - 8 = 7`, {anchorTerm exercises}`"Hello, ".append "world" = "Hello, world"`, `5 < 18`.
+* Prove the following theorems using {anchorTerm exercises}`by decide`: {anchorTerm exercises}`2 + 3 = 5`, {anchorTerm exercises}`15 - 8 = 7`, {anchorTerm exercises}`"Hello, ".append "world" = "Hello, world"`, {anchorTerm exercises}`5 < 18`.
 * Write a function that looks up the fifth entry in a list. Pass the evidence that this lookup is safe as an argument to the function.

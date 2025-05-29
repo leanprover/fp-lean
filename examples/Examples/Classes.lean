@@ -15,6 +15,11 @@ example := @Ord.compare
 example := String.intercalate
 example := String.trim
 example := "Hello!"
+example := [HAdd]
+example := Unit.unit
+example := Float.toString
+example := @List.map
+example {α β : _} := Coe α β
 section
 open System
 example := FilePath
@@ -538,6 +543,7 @@ example : {α : Type} → [Add α] → α → α → α := @Add.add
 
 namespace Foo
 
+section
 variable {α β : Type} (x : α) (y : β)
 variable [HSub α β γ] [HDiv α β γ] [HMod α β γ] [HPow α β γ]
 
@@ -545,43 +551,81 @@ variable [HSub α β γ] [HDiv α β γ] [HMod α β γ] [HPow α β γ]
 -- ANCHOR: minusDesugar
 example : x - y = HSub.hSub x y := rfl
 -- ANCHOR_END: minusDesugar
+end
 
+section
+variable {α β : Type} (x : α) (y : β)
+variable [HSub α β γ] [HDiv α β γ] [HMod α β γ] [HPow α β γ]
 
 -- ANCHOR: divDesugar
 example : x / y = HDiv.hDiv x y := rfl
 -- ANCHOR_END: divDesugar
+end
 
+section
+variable {α β : Type} (x : α) (y : β)
+variable [HSub α β γ] [HDiv α β γ] [HMod α β γ] [HPow α β γ]
 
 -- ANCHOR: modDesugar
 example : x % y = HMod.hMod x y := rfl
 -- ANCHOR_END: modDesugar
+end
 
-
+section
+variable {α β : Type} (x : α) (y : β)
+variable [HSub α β γ] [HDiv α β γ] [HMod α β γ] [HPow α β γ]
 
 -- ANCHOR: powDesugar
 example : x ^ y = HPow.hPow x y := rfl
 -- ANCHOR_END: powDesugar
-
+end
+section
+variable {α β : Type} (x : α) (y : β)
+variable [HSub α β γ] [HDiv α β γ] [HMod α β γ] [HPow α β γ]
 variable (y : α) [LT α] [LE α]
 
 -- ANCHOR: ltDesugar
 example : (x < y) = LT.lt x y := rfl
 -- ANCHOR_END: ltDesugar
-
+end
+section
+variable {α β : Type} (x : α) (y : β)
+variable [HSub α β γ] [HDiv α β γ] [HMod α β γ] [HPow α β γ]
+variable (y : α) [LT α] [LE α]
 -- ANCHOR: leDesugar
 example : (x ≤ y) = LE.le x y := rfl
 -- ANCHOR_END: leDesugar
+end
+
+section
+variable {α β : Type} (x : α) (y : β)
+variable [HSub α β γ] [HDiv α β γ] [HMod α β γ] [HPow α β γ]
+variable (y : α) [LT α] [LE α]
 
 -- ANCHOR: gtDesugar
 example : (x > y) = LT.lt y x := by rfl
 -- ANCHOR_END: gtDesugar
 
+end
+
+section
+variable {α β : Type} (x : α) (y : β)
+variable [HSub α β γ] [HDiv α β γ] [HMod α β γ] [HPow α β γ]
+variable (y : α) [LT α] [LE α]
+
 -- ANCHOR: geDesugar
 example : (x ≥ y) = LE.le y x := by rfl
 -- ANCHOR_END: geDesugar
+end
+section
+variable {α β : Type} (x : α) (y : β)
+variable [HSub α β γ] [HDiv α β γ] [HMod α β γ] [HPow α β γ]
+variable (y : α) [LT α] [LE α]
 
-
-
+--ANCHOR: ordSugarClasses
+example := [LE, LT]
+--ANCHOR_END: ordSugarClasses
+end
 end Foo
 
 namespace OverloadedInt
@@ -598,8 +642,7 @@ end OverloadedInt
 
 namespace OverloadedBits
 
-axiom x : UInt8
-axiom y : UInt8
+
 
 -- ANCHOR: UInt8
 example : Type := UInt8
@@ -622,40 +665,60 @@ example : Type := USize
 -- ANCHOR_END: USize
 
 
+section
+variable {x: α} {y : β} [HAnd α β γ]
 -- ANCHOR: bAndDesugar
 example : x &&& y = HAnd.hAnd x y := rfl
 -- ANCHOR_END: bAndDesugar
+end
 
-
+section
+variable {x: α} {y : β} [HOr α β γ]
 -- ANCHOR: bOrDesugar
 example : x ||| y = HOr.hOr x y := rfl
 -- ANCHOR_END: bOrDesugar
+end
 
-
+section
+variable {x: α} {y : β} [HXor α β γ]
 -- ANCHOR: bXorDesugar
 example : x ^^^ y = HXor.hXor x y := rfl
 -- ANCHOR_END: bXorDesugar
+end
 
+section
+variable {x: α} [Complement α]
 
 -- ANCHOR: complementDesugar
 example : ~~~ x = Complement.complement x := rfl
 -- ANCHOR_END: complementDesugar
+end
 
+section
+variable {x: α} {y : β} [HShiftRight α β γ]
 
 -- ANCHOR: shrDesugar
 example : x >>> y = HShiftRight.hShiftRight x y := rfl
 -- ANCHOR_END: shrDesugar
+end
 
+section
+variable {x: α} {y : β} [HShiftLeft α β γ]
 
 -- ANCHOR: shlDesugar
 example : x <<< y = HShiftLeft.hShiftLeft x y := rfl
 -- ANCHOR_END: shlDesugar
 
+end
+
+section
+variable {x y : α} [BEq α]
 
 -- ANCHOR: beqDesugar
 example : (x == y) = BEq.beq x y := rfl
 -- ANCHOR_END: beqDesugar
 
+end
 
 end OverloadedBits
 
@@ -863,6 +926,10 @@ structure NonEmptyList (α : Type) : Type where
 
 def NonEmptyList.toList (xs : NonEmptyList α) := xs.head :: xs.tail
 
+-- ANCHOR: coeNope
+example {α : _} := Coe (List α) (NonEmptyList α)
+-- ANCHOR_END: coeNope
+
 -- ANCHOR: idahoSpiders
 def idahoSpiders : NonEmptyList String := {
   head := "Banded Garden Spider",
@@ -906,7 +973,8 @@ abbrev NonEmptyList.inBounds (xs : NonEmptyList α) (i : Nat) : Prop :=
 
 
 -- ANCHOR: NEListGet
-def NonEmptyList.get (xs : NonEmptyList α) (i : Nat) (ok : xs.inBounds i) : α :=
+def NonEmptyList.get (xs : NonEmptyList α)
+    (i : Nat) (ok : xs.inBounds i) : α :=
   match i with
   | 0 => xs.head
   | n + 1 => xs.tail[n]
@@ -930,7 +998,11 @@ end Foo
 
 namespace Demo
 -- ANCHOR: GetElem
-class GetElem (coll : Type) (idx : Type) (item : outParam Type) (inBounds : outParam (coll → idx → Prop)) where
+class GetElem
+    (coll : Type)
+    (idx : Type)
+    (item : outParam Type)
+    (inBounds : outParam (coll → idx → Prop)) where
   getElem : (c : coll) → (i : idx) → inBounds c i → item
 -- ANCHOR_END: GetElem
 end Demo
@@ -966,7 +1038,8 @@ example := idahoSpiders[9]
 
 
 -- ANCHOR: ListPosElem
-instance : GetElem (List α) Pos α (fun list n => list.length > n.toNat) where
+instance : GetElem (List α) Pos α
+    (fun list n => list.length > n.toNat) where
   getElem (xs : List α) (i : Pos) ok := xs[i.toNat]
 -- ANCHOR_END: ListPosElem
 
@@ -1079,11 +1152,13 @@ Additional diagnostic information may be available using the `set_option diagnos
 example := if (fun (x : Nat) => 1 + x) = (Nat.succ ·) then "yes" else "no"
 -- ANCHOR_END: funEqDec
 
-bookExample : Nat {{{ ifProp }}}
-  if 2 < 4 then 1 else 2
-  ===>
-  1
-end bookExample
+--- ANCHOR: ifProp
+example : (
+if 2 < 4 then 1 else 2
+) = (
+1
+) := rfl
+--- ANCHOR_END: ifProp
 
 namespace Cmp
 -- ANCHOR: Ordering
@@ -1162,7 +1237,10 @@ def hashBinTree [Hashable α] : BinTree α → UInt64
   | BinTree.leaf =>
     0
   | BinTree.branch left x right =>
-    mixHash 1 (mixHash (hashBinTree left) (mixHash (hash x) (hashBinTree right)))
+    mixHash 1
+      (mixHash (hashBinTree left)
+        (mixHash (hash x)
+          (hashBinTree right)))
 
 instance [Hashable α] : Hashable (BinTree α) where
   hash := hashBinTree
@@ -1250,6 +1328,7 @@ instance : HAppend (NonEmptyList α) (List α) (NonEmptyList α) where
 section
 -- ANCHOR: optionFMeta
 variable {α β : Type} (f : α → β)
+example := Option
 example : Functor.map f none = none := rfl
 example : Functor.map f (some x) = some (f x) := rfl
 -- ANCHOR_END: optionFMeta
@@ -1260,7 +1339,7 @@ section
 variable {α β γ : Type} (g : α → β) (f : β → γ) {F : Type → Type} [Functor F] (x : F α)
 example := id <$> x
 open Functor
-example := map (fun y => (f (g y))) x
+example := map (fun y => f (g y)) x
 example := map f (map g x)
 -- ANCHOR_END: FunctorLaws
 end
@@ -1305,10 +1384,19 @@ end
 
 namespace PointStuff
 
+-- ANCHOR: FunctorPPointBad
+instance : Functor PPoint where
+  map f p := let x := p.x; have := f x; { x := f p.x, y := f p.x }
+
+-- ANCHOR_END: FunctorPPointBad
+
 -- ANCHOR: FunctorPPoint
 instance : Functor PPoint where
   map f p := { x := f p.x, y := f p.y }
 -- ANCHOR_END: FunctorPPoint
+
+
+
 
 example := NonEmptyList (PPoint Nat)
 end PointStuff
@@ -1717,7 +1805,8 @@ instance : CoeFun Serializer (fun s => s.Contents → JSON) where
 
 
 -- ANCHOR: buildResponse
-def buildResponse (title : String) (R : Serializer) (record : R.Contents) : JSON :=
+def buildResponse (title : String) (R : Serializer)
+    (record : R.Contents) : JSON :=
   JSON.object [
     ("title", JSON.string title),
     ("status", JSON.number 200),
@@ -1894,3 +1983,15 @@ example : NonEmptyList String :=
 example (n : Nat) (k : Nat) : Bool :=
   n + k == k + n
 -- ANCHOR_END: commAdd
+
+-- ANCHOR: nats
+example := [0,1,2,3,4,5,6,7,8,9,10]
+-- ANCHOR_END: nats
+
+-- ANCHOR: moreOps
+section
+example := [AndOp, OrOp, Inhabited]
+example := Nat → List Int
+example {α} := HAppend (List α) (NonEmptyList α) (NonEmptyList α)
+end
+-- ANCHOR_END: moreOps

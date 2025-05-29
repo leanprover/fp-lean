@@ -4,6 +4,8 @@ import Examples.MonadTransformers.Defs
 import Examples.Monads.Many
 import Examples.FunctorApplicativeMonad
 
+set_option linter.unusedVariables false
+
 namespace StEx
 namespace FancyDo
 
@@ -142,7 +144,8 @@ namespace Fake
 
 
 -- ANCHOR: ForM
-class ForM (m : Type u → Type v) (γ : Type w₁) (α : outParam (Type w₂)) where
+class ForM (m : Type u → Type v) (γ : Type w₁)
+    (α : outParam (Type w₂)) where
   forM [Monad m] : γ → (α → m PUnit) → m PUnit
 -- ANCHOR_END: ForM
 
@@ -185,7 +188,9 @@ structure AllLessThan where
 
 
 -- ANCHOR: AllLessThanForM
-def AllLessThan.forM [Monad m] (coll : AllLessThan) (action : Nat → m Unit) : m Unit :=
+def AllLessThan.forM [Monad m]
+    (coll : AllLessThan) (action : Nat → m Unit) :
+    m Unit :=
   let rec countdown : Nat → m Unit
     | 0 => pure ()
     | n + 1 => do
@@ -439,6 +444,18 @@ def rangeToList (r : Std.Range) : List Nat := Id.run do
 -- ANCHOR: rangeStopStep
 #eval [:10:3]
 -- ANCHOR_END: rangeStopStep
+
+
+-- ANCHOR: ranges
+
+example : Std.Range := [:10]
+example : Std.Range := [2:10]
+example : Std.Range := [:10:3]
+example : Std.Range := [2:10:3]
+example := [0, 10, 1, 2, 3]
+example := IO.FS.Stream.getLine
+-- ANCHOR_END: ranges
+
 
 /-- info:
 [0, 3, 6, 9]

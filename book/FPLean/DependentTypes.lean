@@ -22,7 +22,7 @@ In most statically-typed programming languages, there is a hermetic seal between
 Types and programs have different grammars and they are used at different times.
 Types are typically used at compile time, to check that a program obeys certain invariants.
 Programs are used at run time, to actually perform computations.
-When the two interact, it is usually in the form of a type-case operator like an "instance-of" check or a casting operator that provides the type checker with information that was otherwise unavailable, to be verified at run time.
+When the two interact, it is usually in the form of a type-case operator like an “instance-of” check or a casting operator that provides the type checker with information that was otherwise unavailable, to be verified at run time.
 In other words, the interaction consists of types being inserted into the world of programs, where they gain some limited run-time meaning.
 
 Lean does not impose this strict separation.
@@ -31,7 +31,7 @@ Placing programs in types allows their full computational power to be used at co
 
 _Dependent types_ are types that contain non-type expressions.
 A common source of dependent types is a named argument to a function.
-For example, the function `natOrStringThree` returns either a natural number or a string, depending on which `Bool` it is passed:
+For example, the function {anchorName natOrStringThree}`natOrStringThree` returns either a natural number or a string, depending on which {anchorName natOrStringThree}`Bool` it is passed:
 
 ```anchor natOrStringThree
 def natOrStringThree (b : Bool) : if b then Nat else String :=
@@ -41,9 +41,9 @@ def natOrStringThree (b : Bool) : if b then Nat else String :=
 ```
 
 Further examples of dependent types include:
- * {ref "polymorphism"}[The introductory section on polymorphism] contains `posOrNegThree`, in which the function's return type depends on the value of the argument.
- * {ref "literal-numbers"}[The `OfNat` type class] depends on the specific natural number literal being used.
- * {ref "validated-input"}[The `CheckedInput` structure] used in the example of validators depends on the year in which validation occurred.
+ * {ref "polymorphism"}[The introductory section on polymorphism] contains {anchorName posOrNegThree (module:= Examples.Intro)}`posOrNegThree`, in which the function's return type depends on the value of the argument.
+ * {ref "literal-numbers"}[The {anchorName OfNat (module := Examples.Classes)}`OfNat` type class] depends on the specific natural number literal being used.
+ * {ref "validated-input"}[The {anchorName CheckedInput (module := Examples.FunctorApplicativeMonad)}`CheckedInput` structure] used in the example of validators depends on the year in which validation occurred.
  * {ref "subtypes"}[Subtypes] contain propositions that refer to particular values.
  * Essentially all interesting propositions, including those that determine the validity of {ref "props-proofs-indexing"}[array indexing notation], are types that contain values and are thus dependent types.
 

@@ -9,12 +9,31 @@ class LT (α : Type u) where
   lt : α → α → Prop
 -- ANCHOR_END: less
 
+attribute [inherit_doc _root_.LE] LE
+attribute [inherit_doc _root_.LE.le] LE.le
+
+attribute [inherit_doc _root_.LT] LT
+attribute [inherit_doc _root_.LT.lt] LT.lt
 
 -- ANCHOR: NatLe
 inductive Nat.le (n : Nat) : Nat → Prop
   | refl : Nat.le n n
   | step : Nat.le n m → Nat.le n (m + 1)
 -- ANCHOR_END: NatLe
+
+attribute [inherit_doc _root_.Nat.le] Nat.le
+attribute [inherit_doc _root_.Nat.le.refl] Nat.le.refl
+attribute [inherit_doc _root_.Nat.le.step] Nat.le.step
+
+
+-- ANCHOR: leNames
+example := @Nat.le.refl
+example := @Nat.le.step
+-- ANCHOR_END: leNames
+
+--ANCHOR: ForMArr
+example {α m} := ForM m (Array α)
+--ANCHOR_END: ForMArr
 
 -- ANCHOR: LENat
 instance : LE Nat where
@@ -81,6 +100,12 @@ theorem three_plus_two_five : IsThree n → IsFive (n + 2) := by
   skip
 -- ANCHOR_END: threePlusTwoFive0
 stop discarding
+
+-- ANCHOR: various
+example := 3 + 2
+example := False
+example {A} := [(Not A), (A → False), ¬ A]
+-- ANCHOR_END: various
 
 discarding
 /-- error:
@@ -193,6 +218,9 @@ theorem four_lt_seven : 4 < 7 :=
   step (step refl)
 -- ANCHOR_END: four_lt_seven
 
+-- ANCHOR: four_lt_seven_alt
+example : (4 < 7) = (5 ≤ 7) := rfl
+-- ANCHOR_END: four_lt_seven_alt
 
 namespace WithFor
 
@@ -223,7 +251,8 @@ i : Nat
 -/
 #check_msgs in
 -- ANCHOR: mapHelperIndexIssue
-def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
+def arrayMapHelper (f : α → β) (arr : Array α)
+    (soFar : Array β) (i : Nat) : Array β :=
   if i < arr.size then
     arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
   else soFar
@@ -232,7 +261,8 @@ stop discarding
 
 discarding
 -- ANCHOR: arrayMapHelperTermIssue
-def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
+def arrayMapHelper (f : α → β) (arr : Array α)
+    (soFar : Array β) (i : Nat) : Array β :=
   if inBounds : i < arr.size then
     arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
   else soFar
@@ -240,7 +270,8 @@ def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat)
 stop discarding
 
 -- ANCHOR: ArrayMapHelperOk
-def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
+def arrayMapHelper (f : α → β) (arr : Array α)
+    (soFar : Array β) (i : Nat) : Array β :=
   if inBounds : i < arr.size then
     arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
   else soFar
@@ -258,7 +289,8 @@ end TailRec
 
 
 -- ANCHOR: ArrayFindHelper
-def findHelper (arr : Array α) (p : α → Bool) (i : Nat) : Option (Nat × α) :=
+def findHelper (arr : Array α) (p : α → Bool)
+    (i : Nat) : Option (Nat × α) :=
   if h : i < arr.size then
     let x := arr[i]
     if p x then
@@ -268,7 +300,8 @@ def findHelper (arr : Array α) (p : α → Bool) (i : Nat) : Option (Nat × α)
 -- ANCHOR_END: ArrayFindHelper
 
 -- ANCHOR: ArrayFind
-def Array.find (arr : Array α) (p : α → Bool) : Option (Nat × α) :=
+def Array.find (arr : Array α) (p : α → Bool) :
+    Option (Nat × α) :=
   findHelper arr p 0
 -- ANCHOR_END: ArrayFind
 
@@ -278,7 +311,8 @@ Try this: termination_by arr.size - i
 -/
 #check_msgs in
 -- ANCHOR: ArrayFindHelperSugg
-def findHelper (arr : Array α) (p : α → Bool) (i : Nat) : Option (Nat × α) :=
+def findHelper (arr : Array α) (p : α → Bool)
+    (i : Nat) : Option (Nat × α) :=
   if h : i < arr.size then
     let x := arr[i]
     if p x then

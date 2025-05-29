@@ -1,4 +1,6 @@
-
+-- ANCHOR: various
+example := IO.FS.Stream.getLine
+-- ANCHOR_END: various
 
 -- ANCHOR: InstrumentedInsertionSort
 def insertSorted [Ord α] (arr : Array α) (i : Fin arr.size) : Array α :=

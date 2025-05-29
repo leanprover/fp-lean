@@ -16,7 +16,7 @@ Linked lists have their place: in some applications, the ability to share the ta
 However, most use cases for a variable-length sequential collection of data are better served by arrays, which have both less memory overhead and better locality.
 
 Arrays, however, have two drawbacks relative to lists:
- 1. Arrays are accessed through indexing, rather than by pattern matching, which imposes {ref "props-proofs-indexing"[proof obligations] in order to maintain safety.
+ 1. Arrays are accessed through indexing, rather than by pattern matching, which imposes {ref "props-proofs-indexing"}[proof obligations] in order to maintain safety.
  2. A loop that processes an entire array from left to right is a tail-recursive function, but it does not have an argument that decreases on each call.
 
 Making effective use of arrays requires knowing how to prove to Lean that an array index is in bounds, and how to prove that an array index that approaches the size of the array also causes the program to terminate.
@@ -24,8 +24,8 @@ Both of these are expressed using an inequality proposition, rather than proposi
 
 # Inequality
 
-Because different types have different notions of ordering, inequality is governed by two type classes, called `LE` and `LT`.
-The table in the section on [standard type classes](../type-classes/standard-classes.md#equality-and-ordering) describes how these classes relate to the syntax:
+Because different types have different notions of ordering, inequality is governed by two type classes, called {anchorName ordSugarClasses (module := Examples.Classes)}`LE` and {anchorName ordSugarClasses (module := Examples.Classes)}`LT`.
+The table in the section on {ref "equality-and-ordering"}[standard type classes] describes how these classes relate to the syntax:
 
 :::table (header := true)
 *
@@ -36,27 +36,27 @@ The table in the section on [standard type classes](../type-classes/standard-cla
 *
   * {anchorTerm ltDesugar (module := Examples.Classes)}`x < y`
   * {anchorTerm ltDesugar (module := Examples.Classes)}`LT.lt x y`
-  * `LT`
+  * {anchorName ordSugarClasses (module := Examples.Classes)}`LT`
 
 *
   * {anchorTerm leDesugar (module := Examples.Classes)}`x ≤ y`
   * {anchorTerm leDesugar (module := Examples.Classes)}`LE.le x y`
-  * `LE`
+  * {anchorName ordSugarClasses (module := Examples.Classes)}`LE`
 
 *
   * {anchorTerm gtDesugar (module := Examples.Classes)}`x > y`
   * {anchorTerm gtDesugar (module := Examples.Classes)}`LT.lt y x`
-  * `LT`
+  * {anchorName ordSugarClasses (module := Examples.Classes)}`LT`
 
 *
   * {anchorTerm geDesugar (module := Examples.Classes)}`x ≥ y`
   * {anchorTerm geDesugar (module := Examples.Classes)}`LE.le y x`
-  * `LE`
+  * {anchorName ordSugarClasses (module := Examples.Classes)}`LE`
 
 :::
 
-In other words, a type may customize the meaning of the `<` and `≤` operators, while `>` and `≥` derive their meanings from `<` and `≤`.
-The classes `LT` and `LE` have methods that return propositions rather than `Bool`s:
+In other words, a type may customize the meaning of the {anchorTerm ltDesugar (module:=Examples.Classes)}`<` and {anchorTerm leDesugar (module:=Examples.Classes)}`≤` operators, while {anchorTerm gtDesugar (module:=Examples.Classes)}`>` and {anchorTerm geDesugar (module:=Examples.Classes)}`≥` derive their meanings from {anchorTerm ltDesugar (module:=Examples.Classes)}`<` and {anchorTerm leDesugar (module:=Examples.Classes)}`≤`.
+The classes {anchorName ordSugarClasses (module := Examples.Classes)}`LT` and {anchorName ordSugarClasses (module := Examples.Classes)}`LE` have methods that return propositions rather than {anchorName CoeBoolProp (module:=Examples.Classes)}`Bool`s:
 
 ```anchor less
 class LE (α : Type u) where
@@ -66,17 +66,17 @@ class LT (α : Type u) where
   lt : α → α → Prop
 ```
 
-The instance of `LE` for `Nat` delegates to `Nat.le`:
+The instance of {anchorName LENat}`LE` for {anchorName LENat}`Nat` delegates to {anchorName LENat}`Nat.le`:
 
 ```anchor LENat
 instance : LE Nat where
   le := Nat.le
 ```
-Defining `Nat.le` requires a feature of Lean that has not yet been presented: it is an inductively-defined relation.
+Defining {anchorName LENat}`Nat.le` requires a feature of Lean that has not yet been presented: it is an inductively-defined relation.
 
 ## Inductively-Defined Propositions, Predicates, and Relations
 
-`Nat.le` is an _inductively-defined relation_.
+{anchorName LENat}`Nat.le` is an _inductively-defined relation_.
 Just as {kw}`inductive` can be used to create new datatypes, it can be used to create new propositions.
 When a proposition takes an argument, it is referred to as a _predicate_ that may be true for some, but not all, potential arguments.
 Propositions that take multiple arguments are called _relations_.
@@ -95,7 +95,7 @@ The proof consists of using its constructor:
 theorem fairlyEasy : EasyToProve := by
   constructor
 ```
-In fact, the proposition `True`, which should always be easy to prove, is defined just like `EasyToProve`:
+In fact, the proposition {anchorName True}`True`, which should always be easy to prove, is defined just like {anchorName EasyToProve}`EasyToProve`:
 
 ```anchor True
 inductive True : Prop where
@@ -103,17 +103,19 @@ inductive True : Prop where
 ```
 
 Inductively-defined propositions that don't take arguments are not nearly as interesting as inductively-defined datatypes.
-This is because data is interesting in its own right—the natural number `3` is different from the number `35`, and someone who has ordered 3 pizzas will be upset if 35 arrive at their door 30 minutes later.
+This is because data is interesting in its own right—the natural number {anchorTerm IsThree}`3` is different from the number {lit}`35`, and someone who has ordered 3 pizzas will be upset if 35 arrive at their door 30 minutes later.
 The constructors of a proposition describe ways in which the proposition can be true, but once a proposition has been proved, there is no need to know _which_ underlying constructors were used.
-This is why most interesting inductively-defined types in the `Prop` universe take arguments.
+This is why most interesting inductively-defined types in the {anchorTerm IsThree}`Prop` universe take arguments.
 
-The inductively-defined predicate `IsThree` states that its argument is three:
+:::paragraph
+The inductively-defined predicate {anchorName IsThree}`IsThree` states that its argument is three:
 
 ```anchor IsThree
 inductive IsThree : Nat → Prop where
   | isThree : IsThree 3
 ```
-The mechanism used here is just like [indexed families such as `HasCol`](../dependent-types/typed-queries.md#column-pointers), except the resulting type is a proposition that can be proved rather than data that can be used.
+The mechanism used here is just like {ref "column-pointers"}[indexed families such as {moduleName module := Examples.DependentTypes.DB}`HasCol`], except the resulting type is a proposition that can be proved rather than data that can be used.
+:::
 
 Using this predicate, it is possible to prove that three is indeed three:
 
@@ -121,7 +123,7 @@ Using this predicate, it is possible to prove that three is indeed three:
 theorem three_is_three : IsThree 3 := by
   constructor
 ```
-Similarly, `IsFive` is a predicate that states that its argument is `5`:
+Similarly, {anchorName IsFive}`IsFive` is a predicate that states that its argument is {anchorTerm IsFive}`5`:
 
 ```anchor IsFive
 inductive IsFive : Nat → Prop where
@@ -140,7 +142,7 @@ unsolved goals
 n : Nat
 ⊢ IsThree n → IsFive (n + 2)
 ```
-Thus, the `intro` tactic can be used to convert the argument into an assumption:
+Thus, the {anchorTerm threePlusTwoFive1}`intro` tactic can be used to convert the argument into an assumption:
 ```anchor threePlusTwoFive1
 theorem three_plus_two_five : IsThree n → IsFive (n + 2) := by
   intro three
@@ -151,7 +153,7 @@ n : Nat
 three : IsThree n
 ⊢ IsFive (n + 2)
 ```
-Given the assumption that `n` is three, it should be possible to use the constructor of `IsFive` to complete the proof:
+Given the assumption that {anchorName threePlusTwoFive1a}`n` is three, it should be possible to use the constructor of {anchorName threePlusTwoFive1a}`IsFive` to complete the proof:
 ```anchor threePlusTwoFive1a
 theorem three_plus_two_five : IsThree n → IsFive (n + 2) := by
   intro three
@@ -164,22 +166,22 @@ n : Nat
 three : IsThree n
 ⊢ IsFive (n + 2)
 ```
-This error occurs because `n + 2` is not definitionally equal to `5`.
-In an ordinary function definition, dependent pattern matching on the assumption `three` could be used to refine `n` to `3`.
-The tactic equivalent of dependent pattern matching is `cases`, which has a syntax similar to that of `induction`:
+This error occurs because {anchorTerm threePlusTwoFive2}`n + 2` is not definitionally equal to {anchorTerm IsFive}`5`.
+In an ordinary function definition, dependent pattern matching on the assumption {anchorName threePlusTwoFive2}`three` could be used to refine {anchorName threePlusTwoFive2}`n` to {anchorTerm threeIsThree}`3`.
+The tactic equivalent of dependent pattern matching is {anchorTerm threePlusTwoFive2}`cases`, which has a syntax similar to that of {kw}`induction`:
 ```anchor threePlusTwoFive2
 theorem three_plus_two_five : IsThree n → IsFive (n + 2) := by
   intro three
   cases three with
   | isThree => skip
 ```
-In the remaining case, `n` has been refined to `3`:
+In the remaining case, {anchorName threePlusTwoFive2}`n` has been refined to {anchorTerm IsThree}`3`:
 ```anchorError threePlusTwoFive2
 unsolved goals
 case isThree
 ⊢ IsFive (3 + 2)
 ```
-Because `3 + 2` is definitionally equal to `5`, the constructor is now applicable:
+Because {anchorTerm various}`3 + 2` is definitionally equal to {anchorTerm IsFive}`5`, the constructor is now applicable:
 
 ```anchor threePlusTwoFive3
 theorem three_plus_two_five : IsThree n → IsFive (n + 2) := by
@@ -188,22 +190,22 @@ theorem three_plus_two_five : IsThree n → IsFive (n + 2) := by
   | isThree => constructor
 ```
 
-The standard false proposition `False` has no constructors, making it impossible to provide direct evidence for.
-The only way to provide evidence for `False` is if an assumption is itself impossible, similarly to how `nomatch` can be used to mark code that the type system can see is unreachable.
-As described in [the initial Interlude on proofs](../props-proofs-indexing.md#connectives), the negation `Not A` is short for `A → False`.
-`Not A` can also be written `¬A`.
+The standard false proposition {anchorName various}`False` has no constructors, making it impossible to provide direct evidence for.
+The only way to provide evidence for {anchorName various}`False` is if an assumption is itself impossible, similarly to how {kw}`nomatch` can be used to mark code that the type system can see is unreachable.
+As described in {ref "connectives"}[the initial Interlude on proofs], the negation {anchorTerm various}`Not A` is short for {anchorTerm various}`A → False`.
+{anchorTerm various}`Not A` can also be written {anchorTerm various}`¬A`.
 
 It is not the case that four is three:
 ```anchor fourNotThree0
 theorem four_is_not_three : ¬ IsThree 4 := by
   skip
 ```
-The initial proof goal contains `Not`:
+The initial proof goal contains {anchorName fourNotThree1}`Not`:
 ```anchorError fourNotThree0
 unsolved goals
 ⊢ ¬IsThree 4
 ```
-The fact that it's actually a function type can be exposed using `unfold`:
+The fact that it's actually a function type can be exposed using {anchorTerm fourNotThree1}`unfold`:
 ```anchor fourNotThree1
 theorem four_is_not_three : ¬ IsThree 4 := by
   unfold Not
@@ -212,8 +214,8 @@ theorem four_is_not_three : ¬ IsThree 4 := by
 unsolved goals
 ⊢ IsThree 4 → False
 ```
-Because the goal is a function type, `intro` can be used to convert the argument into an assumption.
-There is no need to keep `unfold`, as `intro` can unfold the definition of `Not` itself:
+Because the goal is a function type, {anchorTerm fourNotThree2}`intro` can be used to convert the argument into an assumption.
+There is no need to keep {anchorTerm fourNotThree1}`unfold`, as {anchorTerm fourNotThree2}`intro` can unfold the definition of {anchorName fourNotThree1}`Not` itself:
 ```anchor fourNotThree2
 theorem four_is_not_three : ¬ IsThree 4 := by
   intro h
@@ -223,31 +225,31 @@ unsolved goals
 h : IsThree 4
 ⊢ False
 ```
-In this proof, the `cases` tactic solves the goal immediately:
+In this proof, the {anchorTerm fourNotThreeDone}`cases` tactic solves the goal immediately:
 
 ```anchor fourNotThreeDone
 theorem four_is_not_three : ¬ IsThree 4 := by
   intro h
   cases h
 ```
-Just as a pattern match on a `Vect String 2` doesn't need to include a case for `Vect.nil`, a proof by cases over `IsThree 4` doesn't need to include a case for `isThree`.
+Just as a pattern match on a {anchorTerm otherEx (module:=Examples.DependentTypes)}`Vect String 2` doesn't need to include a case for {anchorName otherEx (module:=Examples.DependentTypes)}`Vect.nil`, a proof by cases over {anchorTerm fourNotThreeDone}`IsThree 4` doesn't need to include a case for {anchorName IsThree}`isThree`.
 
 ## Inequality of Natural Numbers
 
-The definition of `Nat.le` has a parameter and an index:
+The definition of {anchorName NatLe}`Nat.le` has a parameter and an index:
 
 ```anchor NatLe
 inductive Nat.le (n : Nat) : Nat → Prop
   | refl : Nat.le n n
   | step : Nat.le n m → Nat.le n (m + 1)
 ```
-The parameter `n` is the number that should be smaller, while the index is the number that should be greater than or equal to `n`.
-The `refl` constructor is used when both numbers are equal, while the `step` constructor is used when the index is greater than `n`.
+The parameter {anchorName NatLe}`n` is the number that should be smaller, while the index is the number that should be greater than or equal to {anchorName NatLe}`n`.
+The {anchorName NatLe}`refl` constructor is used when both numbers are equal, while the {anchorName NatLe}`step` constructor is used when the index is greater than {anchorName NatLe}`n`.
 
 From the perspective of evidence, a proof that $`n \leq k` consists of finding some number $`d` such that $`n + d = m`.
-In Lean, the proof then consists of a `Nat.le.refl` constructor wrapped by $`d` instances of `Nat.le.step`.
-Each `step` constructor adds one to its index argument, so $`d` `step` constructors adds $`d` to the larger number.
-For example, evidence that four is less than or equal to seven consists of three `step`s around a `refl`:
+In Lean, the proof then consists of a {anchorName leNames}`Nat.le.refl` constructor wrapped by $`d` instances of {anchorName leNames}`Nat.le.step`.
+Each {anchorName NatLe}`step` constructor adds one to its index argument, so $`d` {anchorName NatLe}`step` constructors adds $`d` to the larger number.
+For example, evidence that four is less than or equal to seven consists of three {anchorName NatLe}`step`s around a {anchorName NatLe}`refl`:
 
 ```anchor four_le_seven
 theorem four_le_seven : 4 ≤ 7 :=
@@ -264,21 +266,24 @@ def Nat.lt (n m : Nat) : Prop :=
 instance : LT Nat where
   lt := Nat.lt
 ```
-Evidence that four is strictly less than seven consists of two `step`'s around a `refl`:
+Evidence that four is strictly less than seven consists of two {anchorName four_lt_seven}`step`'s around a {anchorName four_lt_seven}`refl`:
 
 ```anchor four_lt_seven
 theorem four_lt_seven : 4 < 7 :=
   open Nat.le in
   step (step refl)
 ```
-This is because `4 < 7` is equivalent to `5 ≤ 7`.
+This is because {anchorTerm four_lt_seven}`4 < 7` is equivalent to {anchorTerm four_lt_seven_alt}`5 ≤ 7`.
 
 # Proving Termination
+%%%
+tag := "proving-termination"
+%%%
 
-The function `Array.map` transforms an array with a function, returning a new array that contains the result of applying the function to each element of the input array.
+The function {anchorName ArrayMap}`Array.map` transforms an array with a function, returning a new array that contains the result of applying the function to each element of the input array.
 Writing it as a tail-recursive function follows the usual pattern of delegating to a function that passes the output array in an accumulator.
 The accumulator is initialized with an empty array.
-The accumulator-passing helper function also takes an argument that tracks the current index into the array, which starts at `0`:
+The accumulator-passing helper function also takes an argument that tracks the current index into the array, which starts at {anchorTerm ArrayMap}`0`:
 
 ```anchor ArrayMap
 def Array.map (f : α → β) (arr : Array α) : Array β :=
@@ -286,11 +291,12 @@ def Array.map (f : α → β) (arr : Array α) : Array β :=
 ```
 
 The helper should, at each iteration, check whether the index is still in bounds.
-If so, it should loop again with the transformed element added to the end of the accumulator and the index incremented by `1`.
+If so, it should loop again with the transformed element added to the end of the accumulator and the index incremented by {anchorTerm mapHelperIndexIssue}`1`.
 If not, then it should terminate and return the accumulator.
 An initial implementation of this code fails because Lean is unable to prove that the array index is valid:
 ```anchor mapHelperIndexIssue
-def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
+def arrayMapHelper (f : α → β) (arr : Array α)
+    (soFar : Array β) (i : Nat) : Array β :=
   if i < arr.size then
     arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
   else soFar
@@ -301,19 +307,20 @@ failed to prove index is valid, possible solutions:
   - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
-α : Type ?u.1675
-β : Type ?u.1678
+α : Type ?u.1811
+β : Type ?u.1814
 f : α → β
 arr : Array α
 soFar : Array β
 i : Nat
 ⊢ i < arr.size
 ```
-However, the conditional expression already checks the precise condition that the array index's validity demands (namely, `i < arr.size`).
+However, the conditional expression already checks the precise condition that the array index's validity demands (namely, {anchorTerm arrayMapHelperTermIssue}`i < arr.size`).
 Adding a name to the {kw}`if` resolves the issue, because it adds an assumption that the array indexing tactic can use:
 
 ```anchor arrayMapHelperTermIssue
-def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
+def arrayMapHelper (f : α → β) (arr : Array α)
+    (soFar : Array β) (i : Nat) : Array β :=
   if inBounds : i < arr.size then
     arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
   else soFar
@@ -324,35 +331,38 @@ In fact, both the accumulator and the index grow, rather than shrinking.
 Behind the scenes, Lean's proof automation constructs a termination proof.
 Reconstructing this proof can make it easier to understand the cases that Lean cannot automatically recognize.
 
-Why does `arrayMapHelper` terminate?
-Each iteration checks whether the index `i` is still in bounds for the array `arr`.
-If so, `i` is incremented and the loop repeats.
+Why does {anchorName arrayMapHelperTermIssue}`arrayMapHelper` terminate?
+Each iteration checks whether the index {anchorName arrayMapHelperTermIssue}`i` is still in bounds for the array {anchorName arrayMapHelperTermIssue}`arr`.
+If so, {anchorName arrayMapHelperTermIssue}`i` is incremented and the loop repeats.
 If not, the program terminates.
-Because `arr.size` is a finite number, `i` can be incremented only a finite number of times.
-Even though no argument to the function decreases on each call, `arr.size - i` decreases toward zero.
+Because {anchorTerm arrayMapHelperTermIssue}`arr.size` is a finite number, {anchorName arrayMapHelperTermIssue}`i` can be incremented only a finite number of times.
+Even though no argument to the function decreases on each call, {anchorTerm ArrayMapHelperOk}`arr.size - i` decreases toward zero.
 
 The value that decreases at each recursive call is called a _measure_.
-Lean can be instructed to use a specific expression as the measure of termination by providing a `termination_by` clause at the end of a definition.
-For `arrayMapHelper`, the explicit measure looks like this:
+Lean can be instructed to use a specific expression as the measure of termination by providing a {kw}`termination_by` clause at the end of a definition.
+For {anchorName ArrayMapHelperOk}`arrayMapHelper`, the explicit measure looks like this:
 
 ```anchor ArrayMapHelperOk
-def arrayMapHelper (f : α → β) (arr : Array α) (soFar : Array β) (i : Nat) : Array β :=
+def arrayMapHelper (f : α → β) (arr : Array α)
+    (soFar : Array β) (i : Nat) : Array β :=
   if inBounds : i < arr.size then
     arrayMapHelper f arr (soFar.push (f arr[i])) (i + 1)
   else soFar
 termination_by arr.size - i
 ```
 
-A similar termination proof can be used to write `Array.find`, a function that finds the first element in an array that satisfies a Boolean function and returns both the element and its index:
+A similar termination proof can be used to write {anchorName ArrayFind}`Array.find`, a function that finds the first element in an array that satisfies a Boolean function and returns both the element and its index:
 
 ```anchor ArrayFind
-def Array.find (arr : Array α) (p : α → Bool) : Option (Nat × α) :=
+def Array.find (arr : Array α) (p : α → Bool) :
+    Option (Nat × α) :=
   findHelper arr p 0
 ```
-Once again, the helper function terminates because `arr.size - i` decreases as `i` increases:
+Once again, the helper function terminates because {lit}`arr.size - i` decreases as {lit}`i` increases:
 
 ```anchor ArrayFindHelper
-def findHelper (arr : Array α) (p : α → Bool) (i : Nat) : Option (Nat × α) :=
+def findHelper (arr : Array α) (p : α → Bool)
+    (i : Nat) : Option (Nat × α) :=
   if h : i < arr.size then
     let x := arr[i]
     if p x then
@@ -361,9 +371,10 @@ def findHelper (arr : Array α) (p : α → Bool) (i : Nat) : Option (Nat × α)
   else none
 ```
 
-Adding a question mark to `termination_by` (that is, using `termination_by?`) causes Lean to explicitly suggest the measure that it chose:
+Adding a question mark to {kw}`termination_by` (that is, using {kw}`termination_by?`) causes Lean to explicitly suggest the measure that it chose:
 ```anchor ArrayFindHelperSugg
-def findHelper (arr : Array α) (p : α → Bool) (i : Nat) : Option (Nat × α) :=
+def findHelper (arr : Array α) (p : α → Bool)
+    (i : Nat) : Option (Nat × α) :=
   if h : i < arr.size then
     let x := arr[i]
     if p x then
@@ -384,6 +395,6 @@ Sometimes, creativity can be required in order to figure out just why a function
 
 # Exercises
 
- * Implement a `ForM (Array α)` instance on arrays using a tail-recursive accumulator-passing function and a `termination_by` clause.
- * Reimplement `Array.map`, `Array.find`, and the `ForM` instance using `for ... in ...` loops in the identity monad and compare the resulting code.
- * Reimplement array reversal using a `for ... in ...` loop in the identity monad. Compare it to the tail-recursive function.
+ * Implement a {anchorTerm ForMArr}`ForM m (Array α)` instance on arrays using a tail-recursive accumulator-passing function and a {kw}`termination_by` clause.
+ * Reimplement {anchorName ArrayMap}`Array.map`, {anchorName ArrayFind}`Array.find`, and the {anchorName ForMArr}`ForM` instance using {kw}`for`{lit}` ... `{kw}`in`{lit}` ...` loops in the identity monad and compare the resulting code.
+ * Reimplement array reversal using a {kw}`for`{lit}` ... `{kw}`in`{lit}` ...` loop in the identity monad. Compare it to the tail-recursive function.

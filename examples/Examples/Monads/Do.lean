@@ -4,7 +4,15 @@ import Examples.Monads.Class
 
 set_option linter.unusedVariables false
 
-
+-- ANCHOR: names
+example := @HAdd.hAdd
+example := IO
+example := Unit
+section
+open List
+example := @map
+end
+-- ANCHOR_END: names
 
 section
 variable {m : Type → Type} [Monad m] {E : m α} {E₁ : m β} {E₂ : m γ}
@@ -97,8 +105,10 @@ E₁ >>= fun () =>
 end
 
 namespace WithDo
+variable {α β : Type} {m : Type → Type}
 -- ANCHOR: firstThirdFifthSeventhDo
-def firstThirdFifthSeventh [Monad m] (lookup : List α → Nat → m α) (xs : List α) : m (α × α × α × α) := do
+def firstThirdFifthSeventh [Monad m] (lookup : List α → Nat → m α)
+    (xs : List α) : m (α × α × α × α) := do
   let first ← lookup xs 0
   let third ← lookup xs 2
   let fifth ← lookup xs 4
@@ -117,13 +127,15 @@ def mapM [Monad m] (f : α → m β) : List α → m (List β)
 -- ANCHOR_END: mapM
 end WithDo
 
+section
+variable {α β : Type} {m : Type → Type}
 -- ANCHOR: mapMNested
 def mapM [Monad m] (f : α → m β) : List α → m (List β)
   | [] => pure []
   | x :: xs => do
     pure ((← f x) :: (← mapM f xs))
 -- ANCHOR_END: mapMNested
-
+end
 
 namespace Numbering
 
@@ -161,7 +173,11 @@ def number (t : BinTree α) : BinTree (Nat × α) :=
   let rec helper : BinTree α → State Nat (BinTree (Nat × α))
     | BinTree.leaf => pure BinTree.leaf
     | BinTree.branch left x right => do
-      pure (BinTree.branch (← helper left) ((← increment), x) (← helper right))
+      pure
+        (BinTree.branch
+          (← helper left)
+          ((← increment), x)
+          (← helper right))
   (helper t 0).snd
 -- ANCHOR_END: numberDoShort
 end Short

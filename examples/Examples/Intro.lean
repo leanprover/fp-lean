@@ -3,11 +3,13 @@ import SubVerso.Examples
 
 set_option linter.unusedVariables false
 
-bookExample {{{ three }}}
-  1 + 2
-  ===>
-  3
-end bookExample
+-- ANCHOR: three
+example : (
+1 + 2
+) = (
+3
+) := rfl
+-- ANCHOR_END: three
 
 /-- info: 3 -/
 #check_msgs in
@@ -41,14 +43,16 @@ end bookExample
 --- ANCHOR_END: stringAppendNested
 
 
-evaluation steps {{{ stringAppend }}}
-  String.append "it is " (if 1 > 2 then "yes" else "no")
-  ===>
-  String.append "it is " (if false then "yes" else "no")
-  ===>
-  String.append "it is " "no"
-  ===>
-  "it is no"
+evaluation steps  {{{ stringAppend }}}
+-- ANCHOR: stringAppend
+String.append "it is " (if 1 > 2 then "yes" else "no")
+===>
+String.append "it is " (if false then "yes" else "no")
+===>
+String.append "it is " "no"
+===>
+"it is no"
+-- ANCHOR_END: stringAppend
 end evaluation steps
 
 /--
@@ -60,199 +64,247 @@ error: could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type
 #eval String.append "it is "
 -- ANCHOR_END: stringAppendReprFunction
 
-expect info {{{ stringAppendCond }}}
-  #eval 1 > 2
-message
-"false
-"
-end expect
+/-- info:
+false
+-/
+#check_msgs in
+-- ANCHOR: stringAppendCond
+#eval 1 > 2
+-- ANCHOR_END: stringAppendCond
 
-expect info {{{ onePlusTwoEval }}}
-  #eval (1 + 2 : Nat)
-message
-"3"
-end expect
-
-
-bookExample {{{ onePlusTwoType }}}
-  (1 + 2 : Nat)
-  ===>
-  3
-end bookExample
-
-bookExample {{{ oneMinusTwo }}}
-  1 - 2
-  ===>
-  0
-end bookExample
-
-expect info {{{ oneMinusTwoEval }}}
-  #eval (1 - 2 : Nat)
-message
-"0"
-end expect
+/-- info:
+3
+-/
+#check_msgs in
+-- ANCHOR: onePlusTwoEval
+#eval (1 + 2 : Nat)
+-- ANCHOR_END: onePlusTwoEval
 
 
-bookExample {{{ oneMinusTwoInt }}}
-  (1 - 2 : Int)
-  ===>
-  -1
-end bookExample
+-- ANCHOR: onePlusTwoType
+example : (
+(1 + 2 : Nat)
+) = (
+3
+) := rfl
+-- ANCHOR_END: onePlusTwoType
 
-expect info {{{ oneMinusTwoIntEval }}}
-  #eval (1 - 2 : Int)
-message
-"-1"
-end expect
+-- ANCHOR: oneMinusTwo
+example : (
+1 - 2
+) = (
+0
+) := rfl
+-- ANCHOR_END: oneMinusTwo
+
+/-- info:
+0
+-/
+#check_msgs in
+-- ANCHOR: oneMinusTwoEval
+#eval (1 - 2 : Nat)
+-- ANCHOR_END: oneMinusTwoEval
 
 
-expect info {{{ oneMinusTwoIntType }}}
-  #check (1 - 2 : Int)
-message
-  "1 - 2 : Int"
-end expect
+-- ANCHOR: oneMinusTwoInt
+example : (
+(1 - 2 : Int)
+) = (
+-1
+) := rfl
+-- ANCHOR_END: oneMinusTwoInt
+
+/-- info:
+-1
+-/
+#check_msgs in
+-- ANCHOR: oneMinusTwoIntEval
+#eval (1 - 2 : Int)
+-- ANCHOR_END: oneMinusTwoIntEval
 
 
-expect error {{{ stringAppendList }}}
-  #check String.append ["hello", " "] "world"
-message
-"application type mismatch
-  String.append [\"hello\", \" \"]
+/-- info:
+1 - 2 : Int
+-/
+#check_msgs in
+-- ANCHOR: oneMinusTwoIntType
+#check (1 - 2 : Int)
+-- ANCHOR_END: oneMinusTwoIntType
+
+
+/--
+error: application type mismatch
+  String.append ["hello", " "]
 argument
-  [\"hello\", \" \"]
+  ["hello", " "]
 has type
   List String : Type
 but is expected to have type
-  String : Type"
-end expect
+  String : Type
+---
+info: sorry.append "world" : String
+-/
+#check_msgs in
+-- ANCHOR: stringAppendList
+#check String.append ["hello", " "] "world"
+-- ANCHOR_END: stringAppendList
 
 
-book declaration {{{ hello }}}
-  def hello := "Hello"
-stop book declaration
+-- ANCHOR: hello
+def hello := "Hello"
+-- ANCHOR_END: hello
 
-bookExample {{{ helloNameVal }}}
-  hello
-  ===>
-  "Hello"
-end bookExample
+-- ANCHOR: helloNameVal
+example : (
+hello
+) = (
+"Hello"
+) := rfl
+-- ANCHOR_END: helloNameVal
 
-book declaration {{{ lean }}}
-  def lean : String := "Lean"
-stop book declaration
+-- ANCHOR: lean
+def lean : String := "Lean"
+-- ANCHOR_END: lean
 
-expect info {{{ helloLean }}}
-  #eval String.append hello (String.append " " lean)
-message
-"\"Hello Lean\"
-"
-end expect
+/-- info:
+"Hello Lean"
+-/
+#check_msgs in
+-- ANCHOR: helloLean
+#eval String.append hello (String.append " " lean)
+-- ANCHOR_END: helloLean
 
-book declaration {{{ add1 }}}
-  def add1 (n : Nat) : Nat := n + 1
-stop book declaration
+-- ANCHOR: add1
+def add1 (n : Nat) : Nat := n + 1
+-- ANCHOR_END: add1
 
-expect info {{{ add1sig }}}
-  #check add1
-message
-"add1 (n : Nat) : Nat"
-end expect
+/-- info:
+add1 (n : Nat) : Nat
+-/
+#check_msgs in
+-- ANCHOR: add1sig
+#check add1
+-- ANCHOR_END: add1sig
 
 
-expect info {{{ add1type }}}
-  #check (add1)
-message
-"add1 : Nat → Nat"
-end expect
+/-- info:
+add1 : Nat → Nat
+-/
+#check_msgs in
+-- ANCHOR: add1type
+#check (add1)
+-- ANCHOR_END: add1type
 
-bookExample type {{{ add1typeASCII }}}
-  add1
-  ===>
-  Nat -> Nat
-end bookExample
+-- ANCHOR: add1typeASCII
+example : Nat -> Nat := add1
+-- ANCHOR_END: add1typeASCII
 
-expect info {{{ add1_7 }}}
-  #eval add1 7
-message
-"8
-"
-end expect
+/-- info:
+8
+-/
+#check_msgs in
+-- ANCHOR: add1_7
+#eval add1 7
+-- ANCHOR_END: add1_7
 
-expect error {{{ add1_string }}}
-  #check add1 "seven"
-message
-"application type mismatch
-  add1 \"seven\"
+/--
+error: application type mismatch
+  add1 "seven"
 argument
-  \"seven\"
+  "seven"
 has type
   String : Type
 but is expected to have type
-  Nat : Type"
-end expect
+  Nat : Type
+---
+info: add1 sorry : Nat
+-/
+#check_msgs in
+-- ANCHOR: add1_string
+#check add1 "seven"
+-- ANCHOR_END: add1_string
 
-expect warning {{{ add1_warn }}}
-  def foo := add1 sorry
-message
-  "declaration uses 'sorry'"
-end expect
+/-- warning: declaration uses 'sorry' -/
+#check_msgs in
+-- ANCHOR: add1_warn
+def foo := add1 sorry
+-- ANCHOR_END: add1_warn
 
 
 section
 open SubVerso.Examples
 
-book declaration {{{ maximum }}}
+-- ANCHOR: maximum
 def maximum (n : Nat) (k : Nat) : Nat :=
-  if %ex{n}{n} < %ex{k}{k} then
+  if n < k then
     k
   else n
-stop book declaration
+-- ANCHOR_END: maximum
 end
 
 
 
-book declaration {{{ spaceBetween }}}
+-- ANCHOR: spaceBetween
 def spaceBetween (before : String) (after : String) : String :=
   String.append before (String.append " " after)
-stop book declaration
+-- ANCHOR_END: spaceBetween
 
-expect info {{{ maximumType }}}
-  #check (maximum)
-message
-"maximum : Nat → Nat → Nat"
-end expect
+/-- info:
+maximum : Nat → Nat → Nat
+-/
+#check_msgs in
+-- ANCHOR: maximumType
+#check (maximum)
+-- ANCHOR_END: maximumType
 
-bookExample type {{{ maximumTypeASCII }}}
-  maximum
-  ===>
-  Nat -> Nat -> Nat
-end bookExample
-
-
-expect info {{{ maximum3Type }}}
-  #check maximum 3
-message
-"maximum 3 : Nat → Nat"
-end expect
-
-expect info {{{ stringAppendHelloType }}}
-  #check spaceBetween "Hello "
-message
-"spaceBetween \"Hello \" : String → String"
-end expect
+-- ANCHOR: maximumTypeASCII
+example : Nat -> Nat -> Nat := maximum
+-- ANCHOR_END: maximumTypeASCII
 
 
-evaluation steps {{{ maximum_eval }}}
-  maximum (5 + 8) (2 * 7)
-  ===>
-  maximum 13 14
-  ===>
-  if 13 < 14 then 14 else 13
-  ===>
-  14
+/-- info:
+maximum 3 : Nat → Nat
+-/
+#check_msgs in
+-- ANCHOR: maximum3Type
+#check maximum 3
+-- ANCHOR_END: maximum3Type
+
+/-- info:
+spaceBetween "Hello " : String → String
+-/
+#check_msgs in
+-- ANCHOR: stringAppendHelloType
+#check spaceBetween "Hello "
+-- ANCHOR_END: stringAppendHelloType
+
+-- ANCHOR: currying
+example : (
+Nat → Nat → Nat
+) = (
+Nat → (Nat → Nat)
+) := rfl
+
+-- ANCHOR_END: currying
+
+evaluation steps  {{{ maximum_eval }}}
+-- ANCHOR: maximum_eval
+maximum (5 + 8) (2 * 7)
+===>
+maximum 13 14
+===>
+if 13 < 14 then 14 else 13
+===>
+14
+-- ANCHOR_END: maximum_eval
 end evaluation steps
 
+---ANCHOR: joinStringsWith
 def joinStringsWith (sep x y : String) : String := String.append x (String.append sep y)
+example : String → String → String → String := joinStringsWith
+example : String → String → String := joinStringsWith ": "
+---ANCHOR_END: joinStringsWith
+
 
 section
 open SubVerso.Examples
@@ -261,111 +313,129 @@ open SubVerso.Examples
 end
 
 open SubVerso.Examples in
-book declaration {{{ volume }}}
-  def volume : %ex{«type»}{Nat → Nat → Nat → Nat} :=
-    fun x y z => x * y * z
-stop book declaration
+-- ANCHOR: volume
+def volume : Nat → Nat → Nat → Nat :=
+  fun x y z => x * y * z
+-- ANCHOR_END: volume
 open SubVerso.Examples in
 %show_name volume as volume.name
 
-evaluation steps {{{ joinStringsWithEx }}}
-  joinStringsWith ", " "one" "and another"
-  ===>
-  "one, and another"
+evaluation steps  {{{ joinStringsWithEx }}}
+-- ANCHOR: joinStringsWithEx
+joinStringsWith ", " "one" "and another"
+===>
+"one, and another"
+-- ANCHOR_END: joinStringsWithEx
 end evaluation steps
 
 
-book declaration {{{ StringTypeDef }}}
-  def Str : Type := String
-stop book declaration
+-- ANCHOR: StringTypeDef
+def Str : Type := String
+-- ANCHOR_END: StringTypeDef
 
 open SubVerso.Examples in
 %show_name Str as Str.name
 
-book declaration {{{ aStr }}}
-  def aStr : Str := "This is a string."
-stop book declaration
+-- ANCHOR: aStr
+def aStr : Str := "This is a string."
+-- ANCHOR_END: aStr
 
 
-book declaration {{{ NaturalNumberTypeDef }}}
-  def NaturalNumber : Type := Nat
-stop book declaration
+-- ANCHOR: NaturalNumberTypeDef
+def NaturalNumber : Type := Nat
+-- ANCHOR_END: NaturalNumberTypeDef
 
 open SubVerso.Examples in
 %show_name NaturalNumber
 
+discarding
 open SubVerso.Examples in
-expect error {{{ thirtyEight }}}
-  def thirtyEight : NaturalNumber := %ex{val}{38}
-message
-"failed to synthesize
+/-- error:
+failed to synthesize
   OfNat NaturalNumber 38
 numerals are polymorphic in Lean, but the numeral `38` cannot be used in a context where the expected type is
   NaturalNumber
 due to the absence of the instance above
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command."
-end expect
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#check_msgs in
+-- ANCHOR: thirtyEight
+def thirtyEight : NaturalNumber := 38
+-- ANCHOR_END: thirtyEight
+stop discarding
 
 open SubVerso.Examples in
-book declaration {{{ thirtyEightFixed }}}
-  def thirtyEight : NaturalNumber := (%ex{val}{38} : Nat)
-stop book declaration
+-- ANCHOR: thirtyEightFixed
+def thirtyEight : NaturalNumber := (38 : Nat)
+-- ANCHOR_END: thirtyEightFixed
 
-book declaration {{{ NTypeDef }}}
-  abbrev N : Type := Nat
-stop book declaration
+-- ANCHOR: NTypeDef
+abbrev N : Type := Nat
+-- ANCHOR_END: NTypeDef
 
-book declaration {{{ thirtyNine }}}
-  def thirtyNine : N := 39
-stop book declaration
-
-
+-- ANCHOR: thirtyNine
+def thirtyNine : N := 39
+-- ANCHOR_END: thirtyNine
 
 
-evaluation steps {{{ NaturalNumberDef }}}
-  NaturalNumber
-  ===>
-  Nat
+
+
+evaluation steps  {{{ NaturalNumberDef }}}
+-- ANCHOR: NaturalNumberDef
+NaturalNumber
+===>
+Nat
+-- ANCHOR_END: NaturalNumberDef
 end evaluation steps
 
-expect info {{{ onePointTwo }}}
-  #check 1.2
-message
-  "1.2 : Float"
-end expect
+/-- info:
+1.2 : Float
+-/
+#check_msgs in
+-- ANCHOR: onePointTwo
+#check 1.2
+-- ANCHOR_END: onePointTwo
 
-expect info {{{ negativeLots }}}
-  #check -454.2123215
-message
-  "-454.2123215 : Float"
-end expect
+/-- info:
+-454.2123215 : Float
+-/
+#check_msgs in
+-- ANCHOR: negativeLots
+#check -454.2123215
+-- ANCHOR_END: negativeLots
 
-expect info {{{ zeroPointZero }}}
-  #check 0.0
-message
-  "0.0 : Float"
-end expect
+/-- info:
+0.0 : Float
+-/
+#check_msgs in
+-- ANCHOR: zeroPointZero
+#check 0.0
+-- ANCHOR_END: zeroPointZero
 
-expect info {{{ zeroNat }}}
-  #check 0
-message
-  "0 : Nat"
-end expect
+/-- info:
+0 : Nat
+-/
+#check_msgs in
+-- ANCHOR: zeroNat
+#check 0
+-- ANCHOR_END: zeroNat
 
-expect info {{{ zeroFloat }}}
-  #check (0 : Float)
-message
-  "0 : Float"
-end expect
+/-- info:
+0 : Float
+-/
+#check_msgs in
+-- ANCHOR: zeroFloat
+#check (0 : Float)
+-- ANCHOR_END: zeroFloat
 
 
-book declaration {{{ Point }}}
-  structure Point where
-    x : Float
-    y : Float
-  deriving Repr
-stop book declaration
+-- ANCHOR: Point
+structure Point where
+  x : Float
+  y : Float
+deriving Repr
+-- ANCHOR_END: Point
 
 
 section
@@ -378,160 +448,182 @@ open Point
 
 end
 
-book declaration {{{ origin }}}
-  def origin : Point := { x := 0.0, y := 0.0 }
-stop book declaration
+-- ANCHOR: origin
+def origin : Point := { x := 0.0, y := 0.0 }
+-- ANCHOR_END: origin
 
-expect info {{{ originEval }}}
-  #eval origin
-message
-"{ x := 0.000000, y := 0.000000 }
-"
-end expect
+/-- info:
+{ x := 0.000000, y := 0.000000 }
+-/
+#check_msgs in
+-- ANCHOR: originEval
+#eval origin
+-- ANCHOR_END: originEval
 
 namespace Oops
   structure Point where
     x : Float
     y : Float
 
-book declaration {{{ originNoRepr }}}
-  def origin : Point := { x := 0.0, y := 0.0 }
-stop book declaration
+-- ANCHOR: originNoRepr
+def origin : Point := { x := 0.0, y := 0.0 }
+-- ANCHOR_END: originNoRepr
 
 open SubVerso.Examples in
 %show_name origin as origin.name
 
 end Oops
 
-expect error {{{ originNoType }}}
-  #check { x := 0.0, y := 0.0 }
-message
-"invalid {...} notation, expected type is not known"
-end expect
+/-- error:
+invalid {...} notation, expected type is not known
+-/
+#check_msgs in
+-- ANCHOR: originNoType
+#check { x := 0.0, y := 0.0 }
+-- ANCHOR_END: originNoType
 
-expect info {{{ originWithAnnot }}}
-  #check ({ x := 0.0, y := 0.0 } : Point)
-message
-"{ x := 0.0, y := 0.0 } : Point"
-end expect
+/-- info:
+{ x := 0.0, y := 0.0 } : Point
+-/
+#check_msgs in
+-- ANCHOR: originWithAnnot
+#check ({ x := 0.0, y := 0.0 } : Point)
+-- ANCHOR_END: originWithAnnot
 
-expect info {{{ originWithAnnot2 }}}
-  #check { x := 0.0, y := 0.0 : Point}
-message
-"{ x := 0.0, y := 0.0 } : Point"
-end expect
+/-- info:
+{ x := 0.0, y := 0.0 } : Point
+-/
+#check_msgs in
+-- ANCHOR: originWithAnnot2
+#check { x := 0.0, y := 0.0 : Point}
+-- ANCHOR_END: originWithAnnot2
 
 namespace Oops
-book declaration {{{ zeroXBad }}}
-  def zeroX (p : Point) : Point :=
-    { x := 0, y := p.y }
-stop book declaration
+-- ANCHOR: zeroXBad
+def zeroX (p : Point) : Point :=
+  { x := 0, y := p.y }
+-- ANCHOR_END: zeroXBad
 end Oops
 
-book declaration {{{ zeroX }}}
-  def zeroX (p : Point) : Point :=
-    { p with x := 0 }
-stop book declaration
+-- ANCHOR: zeroX
+def zeroX (p : Point) : Point :=
+  { p with x := 0 }
+-- ANCHOR_END: zeroX
 
 open SubVerso.Examples in
 %show_name zeroX as zeroX.name
 open SubVerso.Examples in
 %show_term zeroPointZero.term := 0.0
 
-book declaration {{{ fourAndThree }}}
-  def fourAndThree : Point :=
-    { x := 4.3, y := 3.4 }
-stop book declaration
+-- ANCHOR: fourAndThree
+def fourAndThree : Point :=
+  { x := 4.3, y := 3.4 }
+-- ANCHOR_END: fourAndThree
 
 
 
-expect info {{{ fourAndThreeEval }}}
-  #eval fourAndThree
-message
-"{ x := 4.300000, y := 3.400000 }
-"
-end expect
+/-- info:
+{ x := 4.300000, y := 3.400000 }
+-/
+#check_msgs in
+-- ANCHOR: fourAndThreeEval
+#eval fourAndThree
+-- ANCHOR_END: fourAndThreeEval
 
-expect info {{{ zeroXFourAndThreeEval }}}
-  #eval zeroX fourAndThree
-message
-"{ x := 0.000000, y := 3.400000 }
-"
-end expect
+/-- info:
+{ x := 0.000000, y := 3.400000 }
+-/
+#check_msgs in
+-- ANCHOR: zeroXFourAndThreeEval
+#eval zeroX fourAndThree
+-- ANCHOR_END: zeroXFourAndThreeEval
 
-expect info {{{ Pointmk }}}
-  #check (Point.mk)
-message
-"Point.mk : Float → Float → Point"
-end expect
+/-- info:
+Point.mk : Float → Float → Point
+-/
+#check_msgs in
+-- ANCHOR: Pointmk
+#check (Point.mk)
+-- ANCHOR_END: Pointmk
 
-expect info {{{ Pointx }}}
-  #check (Point.x)
-message
-"Point.x : Point → Float"
-end expect
+/-- info:
+Point.x : Point → Float
+-/
+#check_msgs in
+-- ANCHOR: Pointx
+#check (Point.x)
+-- ANCHOR_END: Pointx
 
-expect info {{{ Pointy }}}
-  #check (Point.y)
-message
-"Point.y : Point → Float"
-end expect
+/-- info:
+Point.y : Point → Float
+-/
+#check_msgs in
+-- ANCHOR: Pointy
+#check (Point.y)
+-- ANCHOR_END: Pointy
 
-expect info {{{ originx1 }}}
-  #eval Point.x origin
-message
-"0.000000
-"
-end expect
+/-- info:
+0.000000
+-/
+#check_msgs in
+-- ANCHOR: originx1
+#eval Point.x origin
+-- ANCHOR_END: originx1
 
-expect info {{{ originx }}}
-  #eval origin.x
-message
-"0.000000
-"
-end expect
+/-- info:
+0.000000
+-/
+#check_msgs in
+-- ANCHOR: originx
+#eval origin.x
+-- ANCHOR_END: originx
 
-expect info {{{ originy }}}
-  #eval origin.y
-message
-"0.000000
-"
-end expect
+/-- info:
+0.000000
+-/
+#check_msgs in
+-- ANCHOR: originy
+#eval origin.y
+-- ANCHOR_END: originy
 
 open SubVerso.Examples in
-book declaration {{{ addPoints }}}
-  def addPoints (p1 : Point) (p2 : Point) : Point :=
-    { x := %ex{p1.x}{%ex{p1}{p1}.x} + %ex{p2}{p2}.x, y := p1.y + p2.y }
-stop book declaration
+-- ANCHOR: addPoints
+def addPoints (p1 : Point) (p2 : Point) : Point :=
+  { x := p1.x + p2.x, y := p1.y + p2.y }
+-- ANCHOR_END: addPoints
 
-expect info {{{ addPointsEx }}}
-  #eval addPoints { x := 1.5, y := 32 } { x := -8, y := 0.2 }
-message
-"{ x := -6.500000, y := 32.200000 }
-"
-end expect
+/-- info:
+{ x := -6.500000, y := 32.200000 }
+-/
+#check_msgs in
+-- ANCHOR: addPointsEx
+#eval addPoints { x := 1.5, y := 32 } { x := -8, y := 0.2 }
+-- ANCHOR_END: addPointsEx
 
-book declaration {{{ Point3D }}}
-  structure Point3D where
-    x : Float
-    y : Float
-    z : Float
-  deriving Repr
-stop book declaration
+-- ANCHOR: Point3D
+structure Point3D where
+  x : Float
+  y : Float
+  z : Float
+deriving Repr
+-- ANCHOR_END: Point3D
 
-book declaration {{{ origin3D }}}
-  def origin3D : Point3D := { x := 0.0, y := 0.0, z := 0.0 }
-stop book declaration
+-- ANCHOR: origin3D
+def origin3D : Point3D := { x := 0.0, y := 0.0, z := 0.0 }
+-- ANCHOR_END: origin3D
 
 
 namespace Ctor
-book declaration {{{ PointCtorName }}}
-  structure Point where
-    point ::
-    x : Float
-    y : Float
-  deriving Repr
-stop book declaration
+-- ANCHOR: PointCtorName
+structure Point where
+  point ::
+  x : Float
+  y : Float
+deriving Repr
+-- ANCHOR_END: PointCtorName
+-- ANCHOR: PointCtorNameName
+example := Point.point
+-- ANCHOR_END: PointCtorNameName
 end Ctor
 
 section
@@ -540,24 +632,27 @@ open Ctor
 %show_name Point.point
 end
 
-expect info {{{ checkPointMk }}}
-  #check Point.mk 1.5 2.8
-message
-  "{ x := 1.5, y := 2.8 } : Point"
-end expect
+/-- info:
+{ x := 1.5, y := 2.8 } : Point
+-/
+#check_msgs in
+-- ANCHOR: checkPointMk
+#check Point.mk 1.5 2.8
+-- ANCHOR_END: checkPointMk
 
-expect info {{{ stringAppendDot }}}
-  #eval "one string".append " and another"
-message
-"\"one string and another\"
-"
-end expect
+/-- info:
+"one string and another"
+-/
+#check_msgs in
+-- ANCHOR: stringAppendDot
+#eval "one string".append " and another"
+-- ANCHOR_END: stringAppendDot
 
 
-book declaration {{{ modifyBoth }}}
-  def Point.modifyBoth (f : Float → Float) (p : Point) : Point :=
-    { x := f p.x, y := f p.y }
-stop book declaration
+-- ANCHOR: modifyBoth
+def Point.modifyBoth (f : Float → Float) (p : Point) : Point :=
+  { x := f p.x, y := f p.y }
+-- ANCHOR_END: modifyBoth
 
 section
 open SubVerso.Examples
@@ -570,63 +665,82 @@ open Point
 
 end
 
-expect info {{{ modifyBothTest }}}
-  #eval fourAndThree.modifyBoth Float.floor
-message
-  "{ x := 4.000000, y := 3.000000 }"
-end expect
+/-- info:
+{ x := 4.000000, y := 3.000000 }
+-/
+#check_msgs in
+-- ANCHOR: modifyBothTest
+#eval fourAndThree.modifyBoth Float.floor
+-- ANCHOR_END: modifyBothTest
 
 open SubVerso.Examples in
 %show_name Float.floor
 
-book declaration {{{ distance }}}
-  def distance (p1 : Point) (p2 : Point) : Float :=
-    Float.sqrt (((p2.x - p1.x) ^ 2.0) + ((p2.y - p1.y) ^ 2.0))
-stop book declaration
+-- ANCHOR: distance
+def distance (p1 : Point) (p2 : Point) : Float :=
+  Float.sqrt (((p2.x - p1.x) ^ 2.0) + ((p2.y - p1.y) ^ 2.0))
+-- ANCHOR_END: distance
 
-expect info {{{ evalDistance }}}
-  #eval distance { x := 1.0, y := 2.0 } { x := 5.0, y := -1.0 }
-message
-"5.000000"
-end expect
+/-- info:
+5.000000
+-/
+#check_msgs in
+-- ANCHOR: evalDistance
+#eval distance { x := 1.0, y := 2.0 } { x := 5.0, y := -1.0 }
+-- ANCHOR_END: evalDistance
 
 
-book declaration {{{ Hamster }}}
-  structure Hamster where
-    name : String
-    fluffy : Bool
-stop book declaration
+-- ANCHOR: Hamster
+structure Hamster where
+  name : String
+  fluffy : Bool
+-- ANCHOR_END: Hamster
 
-book declaration {{{ Book }}}
-  structure Book where
-    makeBook ::
-    title : String
-    author : String
-    price : Float
-stop book declaration
+-- ANCHOR: Book
+structure Book where
+  makeBook ::
+  title : String
+  author : String
+  price : Float
+-- ANCHOR_END: Book
 
 set_option SubVerso.examples.suppressedNamespaces "Inductive Oops Ooops Oooops _root_ BetterPlicity StdLibNoUni BadUnzip NRT WithPattern MatchDef AutoImpl"
 
 namespace Inductive
 
-book declaration {{{ Bool }}}
-  inductive Bool where
-    | false : Bool
-    | true : Bool
-stop book declaration
+-- ANCHOR: Bool
+inductive Bool where
+  | false : Bool
+  | true : Bool
+-- ANCHOR_END: Bool
 attribute [inherit_doc _root_.Bool] Inductive.Bool
 attribute [inherit_doc _root_.Bool.true] Inductive.Bool.true
 attribute [inherit_doc _root_.Bool.false] Inductive.Bool.false
 
-book declaration {{{ Nat }}}
-  inductive Nat where
-    | zero : Nat
-    | succ (n : Nat) : Nat
-stop book declaration
+section
+-- ANCHOR: BoolNames
+example : List Bool := [Bool.true, Bool.false]
+open Bool
+example : List Bool := [true, false]
+-- ANCHOR_END: BoolNames
+end
+
+-- ANCHOR: Nat
+inductive Nat where
+  | zero : Nat
+  | succ (n : Nat) : Nat
+-- ANCHOR_END: Nat
 attribute [inherit_doc _root_.Nat] Inductive.Nat
 attribute [inherit_doc _root_.Nat.zero] Inductive.Nat.zero
 attribute [inherit_doc _root_.Nat.succ] Inductive.Nat.succ
 
+section
+-- ANCHOR: NatNames
+example : Nat := Nat.succ Nat.zero
+open Nat
+example : Nat := succ zero
+-- ANCHOR_END: NatNames
+end
 
 open Nat
 open SubVerso.Examples
@@ -655,139 +769,150 @@ where
 
 
 evaluation steps : Nat {{{ four }}}
-  Nat.succ (Nat.succ (Nat.succ (Nat.succ Nat.zero)))
-  ===>
-  4
+-- ANCHOR: four
+Nat.succ (Nat.succ (Nat.succ (Nat.succ Nat.zero)))
+===>
+4
+-- ANCHOR_END: four
 end evaluation steps
 
 end Inductive
 
 open SubVerso.Examples in
-book declaration {{{ isZero }}}
-  def isZero (n : Nat) : Bool :=
-    match %ex{n}{n} with
-    | Nat.zero => true
-    | Nat.succ %ex{k}{k} => false
-stop book declaration
-
-evaluation steps {{{ isZeroZeroSteps }}}
-  isZero Nat.zero
-  ===>
-  match Nat.zero with
+-- ANCHOR: isZero
+def isZero (n : Nat) : Bool :=
+  match n with
   | Nat.zero => true
   | Nat.succ k => false
-  ===>
-  true
+-- ANCHOR_END: isZero
+
+evaluation steps  {{{ isZeroZeroSteps }}}
+-- ANCHOR: isZeroZeroSteps
+isZero Nat.zero
+===>
+match Nat.zero with
+| Nat.zero => true
+| Nat.succ k => false
+===>
+true
+-- ANCHOR_END: isZeroZeroSteps
 end evaluation steps
 
-expect info {{{ isZeroZero }}}
-  #eval isZero 0
-message
-  "true
-"
-end expect
+/-- info:
+true
+-/
+#check_msgs in
+-- ANCHOR: isZeroZero
+#eval isZero 0
+-- ANCHOR_END: isZeroZero
 
-evaluation steps {{{ isZeroFiveSteps }}}
-  isZero 5
-  ===>
-  isZero (Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ Nat.zero)))))
-  ===>
-  match Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ Nat.zero)))) with
-  | Nat.zero => true
-  | Nat.succ k => false
-  ===>
-  false
+evaluation steps  {{{ isZeroFiveSteps }}}
+-- ANCHOR: isZeroFiveSteps
+isZero 5
+===>
+isZero (Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ Nat.zero)))))
+===>
+match Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ Nat.zero)))) with
+| Nat.zero => true
+| Nat.succ k => false
+===>
+false
+-- ANCHOR_END: isZeroFiveSteps
 end evaluation steps
 
 
-expect info {{{ isZeroFive }}}
-  #eval isZero 5
-message
-  "false"
-end expect
+/-- info:
+false
+-/
+#check_msgs in
+-- ANCHOR: isZeroFive
+#eval isZero 5
+-- ANCHOR_END: isZeroFive
 
 open SubVerso.Examples in
-book declaration {{{ pred }}}
-  def pred (n : Nat) : Nat :=
-    match n with
-    | Nat.zero => Nat.zero
-    | Nat.succ k => %ex{k}{k}
-stop book declaration
+-- ANCHOR: pred
+def pred (n : Nat) : Nat :=
+  match n with
+  | Nat.zero => Nat.zero
+  | Nat.succ k => k
+-- ANCHOR_END: pred
 
 open SubVerso.Examples in
 %show_name pred as pred.name
 
-expect info {{{ predFive }}}
-  #eval pred 5
-message
-"4
-"
-end expect
+/-- info:
+4
+-/
+#check_msgs in
+-- ANCHOR: predFive
+#eval pred 5
+-- ANCHOR_END: predFive
 
 
-evaluation steps {{{ predFiveSteps }}}
-  pred 5
-  ===>
-  pred (Nat.succ 4)
-  ===>
-  match Nat.succ 4 with
-  | Nat.zero => Nat.zero
-  | Nat.succ k => k
-  ===>
-  4
+evaluation steps  {{{ predFiveSteps }}}
+-- ANCHOR: predFiveSteps
+pred 5
+===>
+pred (Nat.succ 4)
+===>
+match Nat.succ 4 with
+| Nat.zero => Nat.zero
+| Nat.succ k => k
+===>
+4
+-- ANCHOR_END: predFiveSteps
 end evaluation steps
 
-expect info {{{ predBig }}}
-  #eval pred 839
-message
-"838
-"
-end expect
+/-- info:
+838
+-/
+#check_msgs in
+-- ANCHOR: predBig
+#eval pred 839
+-- ANCHOR_END: predBig
 
-expect info {{{ predZero }}}
-  #eval pred 0
-message
-"0
-"
-end expect
+/-- info:
+0
+-/
+#check_msgs in
+-- ANCHOR: predZero
+#eval pred 0
+-- ANCHOR_END: predZero
 
 
-book declaration {{{ depth }}}
-  def depth (p : Point3D) : Float :=
-    match p with
-    | { x:= h, y := w, z := d } => d
-stop book declaration
+-- ANCHOR: depth
+def depth (p : Point3D) : Float :=
+  match p with
+  | { x:= h, y := w, z := d } => d
+-- ANCHOR_END: depth
 
 open SubVerso.Examples in
-book declaration {{{ even }}}
-  def even (n : Nat) : Bool :=
-    match n with
-    | Nat.zero => true
-    | Nat.succ k => not (%ex{name}{even} k)
-stop book declaration
+-- ANCHOR: even
+def even (n : Nat) : Bool :=
+  match n with
+  | Nat.zero => true
+  | Nat.succ k => not (even k)
+-- ANCHOR_END: even
 
-expect info {{{ _something }}}
-  #eval even 2
-message
-"true
-"
-end expect
+/-- info:
+true
+-/
+#check_msgs in
+-- ANCHOR: _something
+#eval even 2
+-- ANCHOR_END: _something
 
-expect info {{{ _something }}}
-  #eval even 5
-message
-"false
-"
-end expect
+/-- info:
+false
+-/
+#check_msgs in
+-- ANCHOR: _something_more
+#eval even 5
+-- ANCHOR_END: _something_more
 
 
-expect error {{{ evenLoops }}}
-  def evenLoops (n : Nat) : Bool :=
-    match n with
-    | Nat.zero => true
-    | Nat.succ k => not (evenLoops n)
-message
-"fail to show termination for
+/-- error:
+fail to show termination for
   evenLoops
 with errors
 failed to infer structural recursion:
@@ -795,70 +920,74 @@ Not considering parameter n of evenLoops:
   it is unchanged in the recursive calls
 no parameters suitable for structural recursion
 
-well-founded recursion cannot be used, 'evenLoops' does not take any (non-fixed) arguments"
-end expect
+well-founded recursion cannot be used, 'evenLoops' does not take any (non-fixed) arguments
+-/
+#check_msgs in
+-- ANCHOR: evenLoops
+def evenLoops (n : Nat) : Bool :=
+  match n with
+  | Nat.zero => true
+  | Nat.succ k => not (evenLoops n)
+-- ANCHOR_END: evenLoops
 
 open SubVerso.Examples in
-book declaration {{{ plus }}}
-  def plus (n : Nat) (k : Nat) : Nat :=
-    match %ex{k}{k} with
-    | Nat.zero => n
-    | Nat.succ %ex{k'}{k'} => Nat.succ (plus n k')
-stop book declaration
+-- ANCHOR: plus
+def plus (n : Nat) (k : Nat) : Nat :=
+  match k with
+  | Nat.zero => n
+  | Nat.succ k' => Nat.succ (plus n k')
+-- ANCHOR_END: plus
 
 open SubVerso.Examples in
 %show_name plus as plus.name
 
-evaluation steps {{{ plusThreeTwo }}}
-  plus 3 2
-  ===>
-  plus 3 (Nat.succ (Nat.succ Nat.zero))
-  ===>
-  match Nat.succ (Nat.succ Nat.zero) with
-  | Nat.zero => 3
-  | Nat.succ k' => Nat.succ (plus 3 k')
-  ===>
-  Nat.succ (plus 3 (Nat.succ Nat.zero))
-  ===>
-  Nat.succ (match Nat.succ Nat.zero with
-  | Nat.zero => 3
-  | Nat.succ k' => Nat.succ (plus 3 k'))
-  ===>
-  Nat.succ (Nat.succ (plus 3 Nat.zero))
-  ===>
-  Nat.succ (Nat.succ (match Nat.zero with
-  | Nat.zero => 3
-  | Nat.succ k' => Nat.succ (plus 3 k')))
-  ===>
-  Nat.succ (Nat.succ 3)
-  ===>
-  5
+evaluation steps  {{{ plusThreeTwo }}}
+-- ANCHOR: plusThreeTwo
+plus 3 2
+===>
+plus 3 (Nat.succ (Nat.succ Nat.zero))
+===>
+match Nat.succ (Nat.succ Nat.zero) with
+| Nat.zero => 3
+| Nat.succ k' => Nat.succ (plus 3 k')
+===>
+Nat.succ (plus 3 (Nat.succ Nat.zero))
+===>
+Nat.succ (match Nat.succ Nat.zero with
+| Nat.zero => 3
+| Nat.succ k' => Nat.succ (plus 3 k'))
+===>
+Nat.succ (Nat.succ (plus 3 Nat.zero))
+===>
+Nat.succ (Nat.succ (match Nat.zero with
+| Nat.zero => 3
+| Nat.succ k' => Nat.succ (plus 3 k')))
+===>
+Nat.succ (Nat.succ 3)
+===>
+5
+-- ANCHOR_END: plusThreeTwo
 end evaluation steps
 
-book declaration {{{ times }}}
-  def times (n : Nat) (k : Nat) : Nat :=
-    match k with
-    | Nat.zero => Nat.zero
-    | Nat.succ k' => plus n (times n k')
-stop book declaration
+-- ANCHOR: times
+def times (n : Nat) (k : Nat) : Nat :=
+  match k with
+  | Nat.zero => Nat.zero
+  | Nat.succ k' => plus n (times n k')
+-- ANCHOR_END: times
 
 #eval times 5 3
 
-book declaration {{{ minus }}}
-  def minus (n : Nat) (k : Nat) : Nat :=
-    match k with
-    | Nat.zero => n
-    | Nat.succ k' => pred (minus n k')
-stop book declaration
+-- ANCHOR: minus
+def minus (n : Nat) (k : Nat) : Nat :=
+  match k with
+  | Nat.zero => n
+  | Nat.succ k' => pred (minus n k')
+-- ANCHOR_END: minus
 
 open SubVerso.Examples in
-expect error {{{ div }}}
-  def div (n : Nat) (k : Nat) : Nat :=
-    if n < k then
-      0
-    else Nat.succ (%ex{name}{div} (n - k) k)
-message
-"fail to show termination for
+/--
+error: fail to show termination for
   div
 with errors
 failed to infer structural recursion:
@@ -873,19 +1002,26 @@ Cannot use parameter k:
 Could not find a decreasing measure.
 The basic measures relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
-             n k
-1) 736:29-43 ≤ =
-Please use `termination_by` to specify a decreasing measure."
-end expect
+              n k
+1) 1014:17-30 ≤ =
+Please use `termination_by` to specify a decreasing measure.
+-/
+#check_msgs in
+-- ANCHOR: div
+def div (n : Nat) (k : Nat) : Nat :=
+  if n < k then
+    0
+  else Nat.succ (div (n - k) k)
+-- ANCHOR_END: div
 
 
 open SubVerso.Examples in
-book declaration {{{ PPoint }}}
-  structure PPoint (α : Type) where
-    x : %ex{α}{α}
-    y : α
-  deriving Repr
-stop book declaration
+-- ANCHOR: PPoint
+structure PPoint (α : Type) where
+  x : α
+  y : α
+deriving Repr
+-- ANCHOR_END: PPoint
 
 
 section
@@ -897,10 +1033,10 @@ open PPoint
 end
 
 
-book declaration {{{ natPoint }}}
-  def natOrigin : PPoint Nat :=
-    { x := Nat.zero, y := Nat.zero }
-stop book declaration
+-- ANCHOR: natPoint
+def natOrigin : PPoint Nat :=
+  { x := Nat.zero, y := Nat.zero }
+-- ANCHOR_END: natPoint
 
 section
 open SubVerso.Examples
@@ -909,52 +1045,61 @@ end
 
 
 
-book declaration {{{ toPPoint }}}
-  def Point.toPPoint (p : Point) : PPoint Float :=
-    { x := p.x, y := p.y }
-stop book declaration
+-- ANCHOR: toPPoint
+def Point.toPPoint (p : Point) : PPoint Float :=
+  { x := p.x, y := p.y }
+-- ANCHOR_END: toPPoint
 
 open SubVerso.Examples in
-book declaration {{{ replaceX }}}
-  def replaceX (α : Type) (point : PPoint α) (newX : α) : PPoint %ex{α}{α} :=
-    { %ex{point}{point} with x := %ex{newX}{newX} }
-stop book declaration
+-- ANCHOR: replaceX
+def replaceX (α : Type) (point : PPoint α) (newX : α) : PPoint α :=
+  { point with x := newX }
+-- ANCHOR_END: replaceX
 
-expect info {{{ replaceXT }}}
-  #check (replaceX)
-message
-  "replaceX : (α : Type) → PPoint α → α → PPoint α"
-end expect
+/-- info:
+replaceX : (α : Type) → PPoint α → α → PPoint α
+-/
+#check_msgs in
+-- ANCHOR: replaceXT
+#check (replaceX)
+-- ANCHOR_END: replaceXT
 
 open SubVerso.Examples in
-expect info {{{ replaceXNatT }}}
-  #check %ex{term}{replaceX Nat}
-message
-  "replaceX Nat : PPoint Nat → Nat → PPoint Nat"
-end expect
+/-- info:
+replaceX Nat : PPoint Nat → Nat → PPoint Nat
+-/
+#check_msgs in
+-- ANCHOR: replaceXNatT
+#check replaceX Nat
+-- ANCHOR_END: replaceXNatT
 
-expect info {{{ replaceXNatOriginT }}}
-  #check replaceX Nat natOrigin
-message
-  "replaceX Nat natOrigin : Nat → PPoint Nat"
-end expect
+/-- info:
+replaceX Nat natOrigin : Nat → PPoint Nat
+-/
+#check_msgs in
+-- ANCHOR: replaceXNatOriginT
+#check replaceX Nat natOrigin
+-- ANCHOR_END: replaceXNatOriginT
 
-expect info {{{ replaceXNatOriginFiveT }}}
-  #check replaceX Nat natOrigin 5
-message
-  "replaceX Nat natOrigin 5 : PPoint Nat"
-end expect
+/-- info:
+replaceX Nat natOrigin 5 : PPoint Nat
+-/
+#check_msgs in
+-- ANCHOR: replaceXNatOriginFiveT
+#check replaceX Nat natOrigin 5
+-- ANCHOR_END: replaceXNatOriginFiveT
 
-expect info {{{ replaceXNatOriginFiveV }}}
-  #eval replaceX Nat natOrigin 5
-message
-"{ x := 5, y := 0 }
-"
-end expect
+/-- info:
+{ x := 5, y := 0 }
+-/
+#check_msgs in
+-- ANCHOR: replaceXNatOriginFiveV
+#eval replaceX Nat natOrigin 5
+-- ANCHOR_END: replaceXNatOriginFiveV
 
-book declaration {{{ primesUnder10 }}}
-  def primesUnder10 : List Nat := [2, 3, 5, 7]
-stop book declaration
+-- ANCHOR: primesUnder10
+def primesUnder10 : List Nat := [2, 3, 5, 7]
+-- ANCHOR_END: primesUnder10
 
 open SubVerso.Examples in
 %show_name primesUnder10 as primesUnder10.name
@@ -962,11 +1107,11 @@ open SubVerso.Examples in
 namespace Oops
 open SubVerso.Examples
 
-book declaration {{{ List }}}
-  inductive List (α : Type) where
-    | nil : List α
-    | cons : α → %ex{rec}{List α} → List α
-stop book declaration
+-- ANCHOR: List
+inductive List (α : Type) where
+  | nil : List α
+  | cons : α → List α → List α
+-- ANCHOR_END: List
 
 %show_term fakeList : Type → Type := List
 
@@ -979,10 +1124,10 @@ end Oops
 similar datatypes List Oops.List
 
 
-book declaration {{{ explicitPrimesUnder10 }}}
-  def explicitPrimesUnder10 : List Nat :=
-    List.cons 2 (List.cons 3 (List.cons 5 (List.cons 7 List.nil)))
-stop book declaration
+-- ANCHOR: explicitPrimesUnder10
+def explicitPrimesUnder10 : List Nat :=
+  List.cons 2 (List.cons 3 (List.cons 5 (List.cons 7 List.nil)))
+-- ANCHOR_END: explicitPrimesUnder10
 
 open SubVerso.Examples in
 %show_name explicitPrimesUnder10 as explicitPrimesUnder10.name
@@ -990,109 +1135,118 @@ open SubVerso.Examples in
 namespace Ooops
 open SubVerso.Examples
 
-book declaration {{{ length1 }}}
-  def length (α : Type) (xs : List α) : Nat :=
-    match xs with
-    | List.nil => Nat.zero
-    | List.cons y ys => Nat.succ (%ex{name}{length} α ys)
-stop book declaration
+-- ANCHOR: length1
+def length (α : Type) (xs : List α) : Nat :=
+  match xs with
+  | List.nil => Nat.zero
+  | List.cons y ys => Nat.succ (length α ys)
+-- ANCHOR_END: length1
 
 
-evaluation steps {{{ length1EvalSummary }}}
-  length String ["Sourdough", "bread"]
-  ===>
-  length String (List.cons "Sourdough" (List.cons "bread" List.nil))
-  ===>
-  Nat.succ (length String (List.cons "bread" List.nil))
-  ===>
-  Nat.succ (Nat.succ (length String List.nil))
-  ===>
-  Nat.succ (Nat.succ Nat.zero)
-  ===>
-  2
+evaluation steps  {{{ length1EvalSummary }}}
+-- ANCHOR: length1EvalSummary
+length String ["Sourdough", "bread"]
+===>
+length String (List.cons "Sourdough" (List.cons "bread" List.nil))
+===>
+Nat.succ (length String (List.cons "bread" List.nil))
+===>
+Nat.succ (Nat.succ (length String List.nil))
+===>
+Nat.succ (Nat.succ Nat.zero)
+===>
+2
+-- ANCHOR_END: length1EvalSummary
 end evaluation steps
 
-evaluation steps {{{ length1Eval }}}
-  length String ["Sourdough", "bread"]
-  ===>
-  length String (List.cons "Sourdough" (List.cons "bread" List.nil))
-  ===>
-  match List.cons "Sourdough" (List.cons "bread" List.nil) with
-  | List.nil => Nat.zero
-  | List.cons y ys => Nat.succ (length String ys)
-  ===>
-  Nat.succ (length String (List.cons "bread" List.nil))
-  ===>
-  Nat.succ (match List.cons "bread" List.nil with
-  | List.nil => Nat.zero
-  | List.cons y ys => Nat.succ (length String ys))
-  ===>
-  Nat.succ (Nat.succ (length String List.nil))
-  ===>
-  Nat.succ (Nat.succ (match List.nil with
-  | List.nil => Nat.zero
-  | List.cons y ys => Nat.succ (length String ys)))
-  ===>
-  Nat.succ (Nat.succ Nat.zero)
-  ===>
-  2
+evaluation steps  {{{ length1Eval }}}
+-- ANCHOR: length1Eval
+length String ["Sourdough", "bread"]
+===>
+length String (List.cons "Sourdough" (List.cons "bread" List.nil))
+===>
+match List.cons "Sourdough" (List.cons "bread" List.nil) with
+| List.nil => Nat.zero
+| List.cons y ys => Nat.succ (length String ys)
+===>
+Nat.succ (length String (List.cons "bread" List.nil))
+===>
+Nat.succ (match List.cons "bread" List.nil with
+| List.nil => Nat.zero
+| List.cons y ys => Nat.succ (length String ys))
+===>
+Nat.succ (Nat.succ (length String List.nil))
+===>
+Nat.succ (Nat.succ (match List.nil with
+| List.nil => Nat.zero
+| List.cons y ys => Nat.succ (length String ys)))
+===>
+Nat.succ (Nat.succ Nat.zero)
+===>
+2
+-- ANCHOR_END: length1Eval
 end evaluation steps
 end Ooops
 
 
 
 namespace Oooops
-book declaration {{{ length2 }}}
-  def length (α : Type) (xs : List α) : Nat :=
-    match xs with
-    | [] => 0
-    | y :: ys => Nat.succ (length α ys)
-stop book declaration
+-- ANCHOR: length2
+def length (α : Type) (xs : List α) : Nat :=
+  match xs with
+  | [] => 0
+  | y :: ys => Nat.succ (length α ys)
+-- ANCHOR_END: length2
 end Oooops
 
 
 namespace BetterPlicity
 open SubVerso.Examples
-book declaration {{{ replaceXImp }}}
-  def replaceX {α : Type} (point : PPoint %ex{α}{α}) (newX : α) : PPoint α :=
-    { point with x := newX }
-stop book declaration
+-- ANCHOR: replaceXImp
+def replaceX {α : Type} (point : PPoint α) (newX : α) : PPoint α :=
+  { point with x := newX }
+-- ANCHOR_END: replaceXImp
 
-expect info {{{ replaceXImpNat }}}
-  #eval replaceX natOrigin 5
-message
-"{ x := 5, y := 0 }
-"
-end expect
+/-- info:
+{ x := 5, y := 0 }
+-/
+#check_msgs in
+-- ANCHOR: replaceXImpNat
+#eval replaceX natOrigin 5
+-- ANCHOR_END: replaceXImpNat
 
 
-book declaration {{{ lengthImp }}}
-  def length {α : Type} (xs : List α) : Nat :=
-    match %ex{xs}{xs} with
-    | [] => 0
-    | y :: ys => Nat.succ (%ex{name}{length} ys)
-stop book declaration
+-- ANCHOR: lengthImp
+def length {α : Type} (xs : List α) : Nat :=
+  match xs with
+  | [] => 0
+  | y :: ys => Nat.succ (length ys)
+-- ANCHOR_END: lengthImp
 
-expect info {{{ lengthImpPrimes }}}
-  #eval length primesUnder10
-message
-"4
-"
-end expect
+/-- info:
+4
+-/
+#check_msgs in
+-- ANCHOR: lengthImpPrimes
+#eval length primesUnder10
+-- ANCHOR_END: lengthImpPrimes
 end BetterPlicity
 
-expect info {{{ lengthDotPrimes }}}
-  #eval primesUnder10.length
-message
-"4
-"
-end expect
+/-- info:
+4
+-/
+#check_msgs in
+-- ANCHOR: lengthDotPrimes
+#eval primesUnder10.length
+-- ANCHOR_END: lengthDotPrimes
 
-expect info {{{ lengthExpNat }}}
-  #check List.length (α := Int)
-message
-  "List.length : List Int → Nat"
-end expect
+/-- info:
+List.length : List Int → Nat
+-/
+#check_msgs in
+-- ANCHOR: lengthExpNat
+#check List.length (α := Int)
+-- ANCHOR_END: lengthExpNat
 
 def x := Unit
 
@@ -1107,11 +1261,11 @@ structure Iso (α : Type u) (β : Type u) : Type u where
 namespace StdLibNoUni
 open SubVerso.Examples
 
-book declaration {{{ Option }}}
-  inductive Option (α : Type) : Type where
-    | none : Option α
-    | some (val : α) : Option α
-stop book declaration
+-- ANCHOR: Option
+inductive Option (α : Type) : Type where
+  | none : Option α
+  | some (val : α) : Option α
+-- ANCHOR_END: Option
 
 %show_name Option as fakeOption
 %show_name Option.none as fakeOption.none
@@ -1121,11 +1275,11 @@ namespace Option
 %show_name some as fakeSome
 end Option
 
-book declaration {{{ Prod }}}
-  structure Prod (α : Type) (β : Type) : Type where
-    fst : α
-    snd : β
-stop book declaration
+-- ANCHOR: Prod
+structure Prod (α : Type) (β : Type) : Type where
+  fst : α
+  snd : β
+-- ANCHOR_END: Prod
 
 %show_name Prod as fakeProd
 %show_name Prod.fst as fakeProd.fst
@@ -1145,14 +1299,17 @@ def iso_Prod_PPoint {α : Type} : Iso (Prod α α) (PPoint α) := by
 
 
 
-book declaration {{{ Sum }}}
-  inductive Sum (α : Type) (β : Type) : Type where
-    | inl : α → Sum α β
-    | inr : β → Sum α β
-stop book declaration
+-- ANCHOR: Sum
+inductive Sum (α : Type) (β : Type) : Type where
+  | inl : α → Sum α β
+  | inr : β → Sum α β
+-- ANCHOR_END: Sum
 
-%show_term Sumαβ := {α β : Type} → %ex{ex}{Sum %ex{α}{α} %ex{β}{β}} → %ex{sugar}{α ⊕ β}
+-- ANCHOR: Sumαβ
+%show_term Sumαβ := {α β : Type} → Sum α β → α ⊕ β
+-- ANCHOR_END: Sumαβ
 
+-- ANCHOR: FakeSum
 %show_name Sum as fakeSum
 %show_name Sum.inl as fakeSum.inl
 %show_name Sum.inr as fakeSum.inr
@@ -1160,12 +1317,13 @@ namespace Sum
 %show_name inl as fakeInl
 %show_name inr as fakeInr
 end Sum
+-- ANCHOR_END: FakeSum
 
 
-book declaration {{{ Unit }}}
-  inductive Unit : Type where
-    | unit : Unit
-stop book declaration
+-- ANCHOR: Unit
+inductive Unit : Type where
+  | unit : Unit
+-- ANCHOR_END: Unit
 
 %show_name Unit as fakeUnit
 
@@ -1184,60 +1342,62 @@ similar datatypes Sum StdLibNoUni.Sum
 similar datatypes PUnit StdLibNoUni.Unit
 similar datatypes Empty StdLibNoUni.Empty
 
-book declaration {{{ PetName }}}
-  def PetName : Type := String ⊕ String
-stop book declaration
+-- ANCHOR: PetName
+def PetName : Type := String ⊕ String
+-- ANCHOR_END: PetName
 
 open SubVerso.Examples in
 %show_name PetName as PetName.name
 
-book declaration {{{ animals }}}
-  def animals : List PetName :=
-    [Sum.inl "Spot", Sum.inr "Tiger", Sum.inl "Fifi",
-     Sum.inl "Rex", Sum.inr "Floof"]
-stop book declaration
+-- ANCHOR: animals
+def animals : List PetName :=
+  [Sum.inl "Spot", Sum.inr "Tiger", Sum.inl "Fifi",
+   Sum.inl "Rex", Sum.inr "Floof"]
+-- ANCHOR_END: animals
 
-book declaration {{{ howManyDogs }}}
-  def howManyDogs (pets : List PetName) : Nat :=
-    match pets with
-    | [] => 0
-    | Sum.inl _ :: morePets => howManyDogs morePets + 1
-    | Sum.inr _ :: morePets => howManyDogs morePets
-stop book declaration
+-- ANCHOR: howManyDogs
+def howManyDogs (pets : List PetName) : Nat :=
+  match pets with
+  | [] => 0
+  | Sum.inl _ :: morePets => howManyDogs morePets + 1
+  | Sum.inr _ :: morePets => howManyDogs morePets
+-- ANCHOR_END: howManyDogs
 
 section
 variable (morePets : List PetName)
 
-bookExample {{{ howManyDogsAdd }}}
-  howManyDogs morePets + 1
-  ===>
-  (howManyDogs morePets) + 1
-end bookExample
+-- ANCHOR: howManyDogsAdd
+example : (
+howManyDogs morePets + 1
+) = (
+(howManyDogs morePets) + 1
+) := rfl
+-- ANCHOR_END: howManyDogsAdd
 end
 
-expect info {{{ dogCount }}}
-  #eval howManyDogs animals
-message
-"3
-"
-end expect
+/-- info:
+3
+-/
+#check_msgs in
+-- ANCHOR: dogCount
+#eval howManyDogs animals
+-- ANCHOR_END: dogCount
 
-bookExample type {{{ unitParens }}}
-  ()
-  ===>
-  Unit
-end bookExample
+-- ANCHOR: unitParens
+example : Unit := (() : Unit)
+-- ANCHOR_END: unitParens
 
 
 open SubVerso.Examples in
-book declaration {{{ ArithExpr }}}
-  inductive ArithExpr (ann : Type) : Type where
-    | int : ann → Int → ArithExpr %ex{ann}{ann}
-    | plus : ann → ArithExpr ann → ArithExpr ann → ArithExpr ann
-    | minus : ann → ArithExpr ann → ArithExpr ann → ArithExpr ann
-    | times : ann → ArithExpr ann → ArithExpr ann → ArithExpr ann
-stop book declaration
+-- ANCHOR: ArithExpr
+inductive ArithExpr (ann : Type) : Type where
+  | int : ann → Int → ArithExpr ann
+  | plus : ann → ArithExpr ann → ArithExpr ann → ArithExpr ann
+  | minus : ann → ArithExpr ann → ArithExpr ann → ArithExpr ann
+  | times : ann → ArithExpr ann → ArithExpr ann → ArithExpr ann
+-- ANCHOR_END: ArithExpr
 
+-- ANCHOR: ArithExprEx
 section
 open SubVerso.Examples
 structure SourcePos where
@@ -1249,76 +1409,89 @@ structure SourcePos where
 %show_name SourcePos as SourcePos.name
 
 end
+-- ANCHOR_END: ArithExprEx
 
-bookExample type {{{ nullOne }}}
-  none
-  ===>
-  Option (Option Int)
-end bookExample
+-- ANCHOR: nullOne
+example : Option (Option Int) := none
+-- ANCHOR_END: nullOne
 
-bookExample type {{{ nullTwo }}}
-  some none
-  ===>
-  Option (Option Int)
-end bookExample
+-- ANCHOR: nullTwo
+example : Option (Option Int) := some none
+-- ANCHOR_END: nullTwo
 
-bookExample type {{{ nullThree }}}
-  some (some 360)
-  <===
-  Option (Option Int)
-end bookExample
+-- ANCHOR: nullThree
+example : Option (Option Int) := some (some 360)
+-- ANCHOR_END: nullThree
 
 
 namespace Floop
 open SubVerso.Examples
 
-book declaration {{{ headHuh }}}
-  def List.head? {α : Type} (xs : List α) : Option α :=
-    match xs with
-    | [] => none
-    | y :: _ => some y
-stop book declaration
+-- ANCHOR: headHuh
+def List.head? {α : Type} (xs : List α) : Option α :=
+  match xs with
+  | [] => none
+  | y :: _ => some y
+-- ANCHOR_END: headHuh
 
 %show_name List.head? as fakeHead?
 
-expect info {{{ headSome }}}
-  #eval primesUnder10.head?
-message
-"some 2
-"
-end expect
+/-- info:
+some 2
+-/
+#check_msgs in
+-- ANCHOR: headSome
+#eval primesUnder10.head?
+-- ANCHOR_END: headSome
 
-expect error {{{ headNoneBad }}}
-  #eval [].head?
-message
-"don't know how to synthesize implicit argument 'α'
-  @List.nil ?m.18195
+/--
+error: don't know how to synthesize implicit argument 'α'
+  @_root_.List.head? ?m.41386 []
 context:
-⊢ Type ?u.18192"
-end expect
-
-expect error {{{ headNoneBad2 }}}
-  #eval [].head?
-message
-"don't know how to synthesize implicit argument 'α'
-  @_root_.List.head? ?m.18195 []
+⊢ Type ?u.41383
+---
+error: don't know how to synthesize implicit argument 'α'
+  @List.nil ?m.41386
 context:
-⊢ Type ?u.18192"
-end expect
+⊢ Type ?u.41383
+-/
+#check_msgs in
+-- ANCHOR: headNoneBad
+#eval [].head?
+-- ANCHOR_END: headNoneBad
+
+/--
+error: don't know how to synthesize implicit argument 'α'
+  @_root_.List.head? ?m.41395 []
+context:
+⊢ Type ?u.41392
+---
+error: don't know how to synthesize implicit argument 'α'
+  @List.nil ?m.41395
+context:
+⊢ Type ?u.41392
+-/
+#check_msgs in
+-- ANCHOR: headNoneBad2
+#eval [].head?
+-- ANCHOR_END: headNoneBad2
 
 
-expect info {{{ headNone }}}
-  #eval [].head? (α := Int)
-message
-"none
-"
-end expect
+/-- info:
+none
+-/
+#check_msgs in
+-- ANCHOR: headNone
+#eval [].head? (α := Int)
+-- ANCHOR_END: headNone
 
-expect info {{{ headNoneTwo }}}
-  #eval ([] : List Int).head?
-message
-"none"
-end expect
+/-- info:
+none
+-/
+#check_msgs in
+-- ANCHOR: headNoneTwo
+#eval ([] : List Int).head?
+-- ANCHOR_END: headNoneTwo
 
 
 
@@ -1335,31 +1508,31 @@ def List.final? {α : Type} (xs : List α) : Option α :=
 end Floop
 
 open SubVerso.Examples in
-%show_term αxβ := (α β : Type) → %ex{desugar}{Prod α β} → %ex{sugar}{α × β}
+%show_term αxβ := (α β : Type) → Prod α β → α × β
 
 
 namespace StructNotation
-book declaration {{{ fivesStruct }}}
-  def fives : String × Int := { fst := "five", snd := 5 }
-stop book declaration
+-- ANCHOR: fivesStruct
+def fives : String × Int := { fst := "five", snd := 5 }
+-- ANCHOR_END: fivesStruct
 end StructNotation
 
-book declaration {{{ fives }}}
-  def fives : String × Int := ("five", 5)
-stop book declaration
+-- ANCHOR: fives
+def fives : String × Int := ("five", 5)
+-- ANCHOR_END: fives
 
 example : StructNotation.fives = fives := by rfl
 
 
 namespace Nested
-book declaration {{{ sevensNested }}}
-  def sevens : String × (Int × Nat) := ("VII", (7, 4 + 3))
-stop book declaration
+-- ANCHOR: sevensNested
+def sevens : String × (Int × Nat) := ("VII", (7, 4 + 3))
+-- ANCHOR_END: sevensNested
 end Nested
 
-book declaration {{{ sevens }}}
-  def sevens : String × Int × Nat := ("VII", 7, 4 + 3)
-stop book declaration
+-- ANCHOR: sevens
+def sevens : String × Int × Nat := ("VII", 7, 4 + 3)
+-- ANCHOR_END: sevens
 
 -- Backing up that they are equivalent
 example : Nested.sevens = sevens := by rfl
@@ -1388,20 +1561,20 @@ def List.findFirst? {α : Type} (xs : List α) (predicate : α → Bool) : Optio
   | y :: ys => if predicate y then some y else ys.findFirst? predicate
 
 
-book declaration {{{ Sign }}}
-  inductive Sign where
-    | pos
-    | neg
-stop book declaration
+-- ANCHOR: Sign
+inductive Sign where
+  | pos
+  | neg
+-- ANCHOR_END: Sign
 
 open SubVerso.Examples in
-book declaration {{{ posOrNegThree }}}
-  def posOrNegThree (s : Sign) :
-      match %ex{s}{s} with | Sign.pos => Nat | Sign.neg => Int :=
-    match s with
-    | Sign.pos => (3 : Nat)
-    | Sign.neg => (-3 : Int)
-stop book declaration
+-- ANCHOR: posOrNegThree
+def posOrNegThree (s : Sign) :
+    match s with | Sign.pos => Nat | Sign.neg => Int :=
+  match s with
+  | Sign.pos => (3 : Nat)
+  | Sign.neg => (-3 : Int)
+-- ANCHOR_END: posOrNegThree
 
 
 section
@@ -1414,18 +1587,20 @@ open Sign
 %show_name neg as neg.name
 end
 
-evaluation steps {{{ posOrNegThreePos }}}
-  (posOrNegThree Sign.pos :
-   match Sign.pos with | Sign.pos => Nat | Sign.neg => Int)
-  ===>
-  ((match Sign.pos with
-    | Sign.pos => (3 : Nat)
-    | Sign.neg => (-3 : Int)) :
-   match Sign.pos with | Sign.pos => Nat | Sign.neg => Int)
-  ===>
-  ((3 : Nat) : Nat)
-  ===>
-  3
+evaluation steps  {{{ posOrNegThreePos }}}
+-- ANCHOR: posOrNegThreePos
+(posOrNegThree Sign.pos :
+ match Sign.pos with | Sign.pos => Nat | Sign.neg => Int)
+===>
+((match Sign.pos with
+  | Sign.pos => (3 : Nat)
+  | Sign.neg => (-3 : Int)) :
+ match Sign.pos with | Sign.pos => Nat | Sign.neg => Int)
+===>
+((3 : Nat) : Nat)
+===>
+3
+-- ANCHOR_END: posOrNegThreePos
 end evaluation steps
 
 
@@ -1438,19 +1613,21 @@ def take (n : Nat) (xs : List α) : List α :=
 
 
 
-expect info {{{ takeThree }}}
-  #eval take 3 ["bolete", "oyster"]
-message
-"[\"bolete\", \"oyster\"]
-"
-end expect
+/-- info:
+["bolete", "oyster"]
+-/
+#check_msgs in
+-- ANCHOR: takeThree
+#eval take 3 ["bolete", "oyster"]
+-- ANCHOR_END: takeThree
 
-expect info {{{ takeOne }}}
-  #eval take 1 ["bolete", "oyster"]
-message
-"[\"bolete\"]
-"
-end expect
+/-- info:
+["bolete"]
+-/
+#check_msgs in
+-- ANCHOR: takeOne
+#eval take 1 ["bolete", "oyster"]
+-- ANCHOR_END: takeOne
 
 
 -- sum notation
@@ -1475,43 +1652,55 @@ example : Exhausts (Bool ⊕ Empty) [Sum.inl true, Sum.inl false] := by
   | inr y => cases y
 
 
-expect error {{{ TypeInType }}}
-  inductive MyType : Type where
-    | ctor : (α : Type) → α → MyType
-message
-"invalid universe level in constructor 'MyType.ctor', parameter 'α' has type
+/-- error:
+invalid universe level in constructor 'MyType.ctor', parameter 'α' has type
   Type
 at universe level
   2
 which is not less than or equal to the inductive type's resulting universe level
-  1"
-end expect
+  1
+-/
+#check_msgs in
+-- ANCHOR: TypeInType
+inductive MyType : Type where
+  | ctor : (α : Type) → α → MyType
+-- ANCHOR_END: TypeInType
 
 
-expect error {{{ Positivity }}}
-  inductive MyType : Type where
-    | ctor : (MyType → Int) → MyType
-message
-  "(kernel) arg #1 of 'MyType.ctor' has a non positive occurrence of the datatypes being declared"
-end expect
+/-- error:
+(kernel) arg #1 of 'MyType.ctor' has a non positive occurrence of the datatypes being declared
+-/
+#check_msgs in
+-- ANCHOR: Positivity
+inductive MyType : Type where
+  | ctor : (MyType → Int) → MyType
+-- ANCHOR_END: Positivity
 
 #eval if let Option.some x := Option.some 5 then x else 55
 
 section
 open SubVerso.Examples
 
-expect error {{{ MissingTypeArg }}}
-  inductive MyType (α : Type) : Type where
-    | ctor : %ex{α}{α} → MyType
-message
-"type expected, got
-  (MyType : Type → Type)"
-end expect
+/-- error:
+type expected, got
+  (MyType : Type → Type)
+-/
+#check_msgs in
+-- ANCHOR: MissingTypeArg
+inductive MyType (α : Type) : Type where
+  | ctor : α → MyType
+-- ANCHOR_END: MissingTypeArg
 
-book declaration {{{ MyTypeDef }}}
-  inductive MyType (α : Type) : Type where
-    | ctor : α → MyType %ex{α}{α}
-stop book declaration
+
+
+-- ANCHOR: MyTypeDef
+inductive MyType (α : Type) : Type where
+  | ctor : α → MyType α
+-- ANCHOR_END: MyTypeDef
+
+-- ANCHOR: MissingTypeArgT
+example : Type → Type := MyType
+-- ANCHOR_END: MissingTypeArgT
 
 %show_name MyType as MyType.name
 section
@@ -1519,12 +1708,14 @@ open MyType
 %show_name ctor as MyType.ctor.name
 end
 
-expect error {{{ MissingTypeArg2 }}}
-  def ofFive : MyType := ctor 5
-message
-"type expected, got
-  (MyType : Type → Type)"
-end expect
+/-- error:
+type expected, got
+  (MyType : Type → Type)
+-/
+#check_msgs in
+-- ANCHOR: MissingTypeArg2
+def ofFive : MyType := ctor 5
+-- ANCHOR_END: MissingTypeArg2
 
 end
 
@@ -1537,15 +1728,11 @@ def zip {α β : Type} (xs : List α) (ys : List β) : List (α × β) :=
     | [] => []
     | y :: ys' => (x, y) :: zip xs' ys'
 
+variable {α β : Type}
+
 open SubVerso.Examples in
-expect error {{{ sameLengthPair }}}
-  def sameLength (xs : List α) (ys : List β) : Bool :=
-    match (%ex{xs}{xs}, ys) with
-    | ([], []) => true
-    | (%ex{x_xs}{x :: xs'}, y :: ys') => %ex{name}{sameLength} xs' ys'
-    | _ => false
-message
-"fail to show termination for
+/--
+error: fail to show termination for
   sameLength
 with errors
 failed to infer structural recursion:
@@ -1565,161 +1752,179 @@ Could not find a decreasing measure.
 The basic measures relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
               xs ys
-1) 1298:51-70  ?  ?
-Please use `termination_by` to specify a decreasing measure."
-end expect
+1) 1763:28-46  ?  ?
+Please use `termination_by` to specify a decreasing measure.
+-/
+#check_msgs in
+-- ANCHOR: sameLengthPair
+def sameLength (xs : List α) (ys : List β) : Bool :=
+  match (xs, ys) with
+  | ([], []) => true
+  | (x :: xs', y :: ys') => sameLength xs' ys'
+  | _ => false
+-- ANCHOR_END: sameLengthPair
 
 namespace Nested
-book declaration {{{ sameLengthOk1 }}}
-  def sameLength (xs : List α) (ys : List β) : Bool :=
-    match xs with
-    | [] =>
-      match ys with
-      | [] => true
-      | _ => false
-    | x :: xs' =>
-      match ys with
-      | y :: ys' => sameLength xs' ys'
-      | _ => false
-stop book declaration
+-- ANCHOR: sameLengthOk1
+def sameLength (xs : List α) (ys : List β) : Bool :=
+  match xs with
+  | [] =>
+    match ys with
+    | [] => true
+    | _ => false
+  | x :: xs' =>
+    match ys with
+    | y :: ys' => sameLength xs' ys'
+    | _ => false
+-- ANCHOR_END: sameLengthOk1
 end Nested
 
 namespace Both
-book declaration {{{ sameLengthOk2 }}}
-  def sameLength (xs : List α) (ys : List β) : Bool :=
-    match xs, ys with
-    | [], [] => true
-    | x :: xs', y :: ys' => sameLength xs' ys'
-    | _, _ => false
-stop book declaration
+-- ANCHOR: sameLengthOk2
+def sameLength (xs : List α) (ys : List β) : Bool :=
+  match xs, ys with
+  | [], [] => true
+  | x :: xs', y :: ys' => sameLength xs' ys'
+  | _, _ => false
+-- ANCHOR_END: sameLengthOk2
 end Both
 
 namespace AutoImpl
-book declaration {{{ lengthImpAuto }}}
-  def length (xs : List α) : Nat :=
-    match xs with
-    | [] => 0
-    | y :: ys => Nat.succ (length ys)
-stop book declaration
+-- ANCHOR: lengthImpAuto
+def length (xs : List α) : Nat :=
+  match xs with
+  | [] => 0
+  | y :: ys => Nat.succ (length ys)
+-- ANCHOR_END: lengthImpAuto
 
 end AutoImpl
 
 namespace MatchDef
+variable {α : Type}
 open SubVerso.Examples
 
-book declaration {{{ lengthMatchDef }}}
-  def length : %ex{rtype}{List α → Nat}
-    | [] => 0
-    | y :: ys => Nat.succ (%ex{name}{length} ys)
-stop book declaration
+-- ANCHOR: lengthMatchDef
+def length : List α → Nat
+  | [] => 0
+  | y :: ys => Nat.succ (length ys)
+-- ANCHOR_END: lengthMatchDef
 end MatchDef
 
+section
+variable {α : Type}
 open SubVerso.Examples in
-book declaration {{{ drop }}}
-  def drop : Nat → List α → List α
-    | Nat.zero, xs => xs
-    | _, [] => []
-    | Nat.succ n, x :: xs => %ex{name}{drop} n xs
-stop book declaration
+-- ANCHOR: drop
+def drop : Nat → List α → List α
+  | Nat.zero, xs => xs
+  | _, [] => []
+  | Nat.succ n, x :: xs => drop n xs
+-- ANCHOR_END: drop
 
 
 
-book declaration {{{ fromOption }}}
-  def fromOption (default : α) : Option α → α
-    | none => default
-    | some x => x
-stop book declaration
+-- ANCHOR: fromOption
+def fromOption (default : α) : Option α → α
+  | none => default
+  | some x => x
+-- ANCHOR_END: fromOption
+end
 
+/-- info:
+"salmonberry"
+-/
+#check_msgs in
+-- ANCHOR: getD
+#eval (some "salmonberry").getD ""
+-- ANCHOR_END: getD
 
-expect info {{{ getD }}}
-  #eval (some "salmonberry").getD ""
-message
-"\"salmonberry\"
-"
-end expect
+/-- info:
+""
+-/
+#check_msgs in
+-- ANCHOR: getDNone
+#eval none.getD ""
+-- ANCHOR_END: getDNone
 
-expect info {{{ getDNone }}}
-  #eval none.getD ""
-message
-"\"\"
-"
-end expect
-
-
+section
+variable {α β : Type}
 namespace BadUnzip
+
 open SubVerso.Examples
 
-book declaration {{{ unzipBad }}}
-  def unzip : List (α × β) → List α × List β
-    | [] => ([], [])
-    | (x, y) :: xys =>
-      (x :: (unzip xys).fst, y :: (unzip xys).snd)
-stop book declaration
+-- ANCHOR: unzipBad
+def unzip : List (α × β) → List α × List β
+  | [] => ([], [])
+  | (x, y) :: xys =>
+    (x :: (unzip xys).fst, y :: (unzip xys).snd)
+-- ANCHOR_END: unzipBad
 
 %show_name unzip as unzipBad.name
 end BadUnzip
 
-book declaration {{{ unzip }}}
-  def unzip : List (α × β) → List α × List β
-    | [] => ([], [])
-    | (x, y) :: xys =>
-      let unzipped : List α × List β := unzip xys
-      (x :: unzipped.fst, y :: unzipped.snd)
-stop book declaration
+-- ANCHOR: unzip
+def unzip : List (α × β) → List α × List β
+  | [] => ([], [])
+  | (x, y) :: xys =>
+    let unzipped : List α × List β := unzip xys
+    (x :: unzipped.fst, y :: unzipped.snd)
+-- ANCHOR_END: unzip
 
 open SubVerso.Examples in
 %show_name unzip as unzip.name
 
 open SubVerso.Examples in
-book declaration {{{ reverse }}}
+-- ANCHOR: reverse
 def reverse (xs : List α) : List α :=
   let rec helper : List α → List α → List α
-    | [], soFar => %ex{soFar}{soFar}
+    | [], soFar => soFar
     | y :: ys, soFar => helper ys (y :: soFar)
   helper xs []
-stop book declaration
-
+-- ANCHOR_END: reverse
+end
 namespace WithPattern
-book declaration {{{ unzipPat }}}
-  def unzip : List (α × β) → List α × List β
-    | [] => ([], [])
-    | (x, y) :: xys =>
-      let (xs, ys) : List α × List β := unzip xys
-      (x :: xs, y :: ys)
-stop book declaration
+variable {α β : Type}
+-- ANCHOR: unzipPat
+def unzip : List (α × β) → List α × List β
+  | [] => ([], [])
+  | (x, y) :: xys =>
+    let (xs, ys) : List α × List β := unzip xys
+    (x :: xs, y :: ys)
+-- ANCHOR_END: unzipPat
 end WithPattern
 
 namespace NT
+variable {α β : Type}
 open SubVerso.Examples
-book declaration {{{ unzipNT }}}
-  def unzip : List (α × β) → List α × List β
-    | [] => ([], [])
-    | (x, y) :: xys =>
-      let unzipped := %ex{name}{unzip} xys
-      (x :: %ex{unzipped}{unzipped}.fst, y :: unzipped.snd)
-stop book declaration
+-- ANCHOR: unzipNT
+def unzip : List (α × β) → List α × List β
+  | [] => ([], [])
+  | (x, y) :: xys =>
+    let unzipped := unzip xys
+    (x :: unzipped.fst, y :: unzipped.snd)
+-- ANCHOR_END: unzipNT
 
 
-book declaration {{{ idA }}}
-  def id (x : α) : α := x
-stop book declaration
+-- ANCHOR: idA
+def id (x : α) : α := x
+-- ANCHOR_END: idA
 
 end NT
 
 namespace NRT
+variable {α β : Type}
 open SubVerso.Examples
-book declaration {{{ unzipNRT }}}
-  def unzip (pairs : List (α × β)) :=
-    match pairs with
-    | [] => ([], [])
-    | (x, y) :: xys =>
-      let unzipped := %ex{name}{unzip} xys
-      (x :: unzipped.fst, y :: unzipped.snd)
-stop book declaration
+-- ANCHOR: unzipNRT
+def unzip (pairs : List (α × β)) :=
+  match pairs with
+  | [] => ([], [])
+  | (x, y) :: xys =>
+    let unzipped := unzip xys
+    (x :: unzipped.fst, y :: unzipped.snd)
+-- ANCHOR_END: unzipNRT
 
-book declaration {{{ idB }}}
-  def id (x : α) := x
-stop book declaration
+-- ANCHOR: idB
+def id (x : α) := x
+-- ANCHOR_END: idB
 
 end NRT
 
@@ -1729,173 +1934,206 @@ end NRT
 namespace ReallyNoTypes
 open SubVerso.Examples
 
-expect error {{{ identNoTypes }}}
-  def id x := x
-message
-"failed to infer binder type"
-end expect
+/--
+error: failed to infer definition type
+---
+error: failed to infer binder type
+-/
+#check_msgs in
+-- ANCHOR: identNoTypes
+def id x := x
+-- ANCHOR_END: identNoTypes
 
-expect error {{{ unzipNoTypesAtAll }}}
-  def unzip pairs :=
-    match pairs with
-    | [] => ([], [])
-    | (x, y) :: xys =>
-      let unzipped := %ex{name}{unzip} xys
-      (x :: unzipped.fst, y :: unzipped.snd)
-message
-"invalid match-expression, pattern contains metavariables
-  []"
-end expect
+/-- error:
+invalid match-expression, pattern contains metavariables
+  []
+-/
+#check_msgs in
+-- ANCHOR: unzipNoTypesAtAll
+def unzip pairs :=
+  match pairs with
+  | [] => ([], [])
+  | (x, y) :: xys =>
+    let unzipped := unzip xys
+    (x :: unzipped.fst, y :: unzipped.snd)
+-- ANCHOR_END: unzipNoTypesAtAll
 end ReallyNoTypes
 
 
-expect info {{{ fourteenNat }}}
-  #check 14
-message
-"14 : Nat"
-end expect
+/-- info:
+14 : Nat
+-/
+#check_msgs in
+-- ANCHOR: fourteenNat
+#check 14
+-- ANCHOR_END: fourteenNat
 
-expect info {{{ fourteenInt }}}
-  #check (14 : Int)
-message
-"14 : Int"
-end expect
+/-- info:
+14 : Int
+-/
+#check_msgs in
+-- ANCHOR: fourteenInt
+#check (14 : Int)
+-- ANCHOR_END: fourteenInt
 
 namespace Match
+variable {α β : Type}
 open SubVerso.Examples
-book declaration {{{ dropMatch }}}
-  def drop (n : Nat) (xs : List α) : List α :=
-    match n, xs with
-    | Nat.zero, ys => ys
-    | _, [] => []
-    | Nat.succ n , y :: ys => %ex{name}{drop} n ys
-stop book declaration
+-- ANCHOR: dropMatch
+def drop (n : Nat) (xs : List α) : List α :=
+  match n, xs with
+  | Nat.zero, ys => ys
+  | _, [] => []
+  | Nat.succ n , y :: ys => drop n ys
+-- ANCHOR_END: dropMatch
 
-book declaration {{{ evenFancy }}}
-  def even : Nat → Bool
-    | 0 => true
-    | n + %ex{one}{1} => not (%ex{name}{even} %ex{n}{n})
-stop book declaration
+-- ANCHOR: evenFancy
+def even : Nat → Bool
+  | 0 => true
+  | n + 1 => not (even n)
+-- ANCHOR_END: evenFancy
 
 namespace Explicit
-book declaration {{{ explicitHalve }}}
-  def halve : Nat → Nat
-    | Nat.zero => 0
-    | Nat.succ Nat.zero => 0
-    | Nat.succ (Nat.succ n) => %ex{name}{halve} n + 1
-stop book declaration
+-- ANCHOR: explicitHalve
+def halve : Nat → Nat
+  | Nat.zero => 0
+  | Nat.succ Nat.zero => 0
+  | Nat.succ (Nat.succ n) => halve n + 1
+-- ANCHOR_END: explicitHalve
 end Explicit
 
 
-book declaration {{{ halve }}}
+-- ANCHOR: halve
 def halve : Nat → Nat
   | 0 => 0
   | 1 => 0
-  | n + 2 => %ex{recur}{halve n + 1}
-stop book declaration
+  | n + 2 => halve n + 1
+-- ANCHOR_END: halve
 
-%show_term halveParens := fun n => [%ex{one}{(halve n) + 1}, %ex{two}{halve (n + 1)}]
+-- ANCHOR: halveParens
+%show_term halveParens := fun n => [(halve n) + 1, halve (n + 1)]
+-- ANCHOR_END: halveParens
 
 example : Explicit.halve = halve := by
   funext x
   fun_induction halve x <;> simp [halve, Explicit.halve, *]
 
 namespace Oops
-expect error {{{ halveFlippedPat }}}
-  def halve : Nat → Nat
-    | 0 => 0
-    | 1 => 0
-    | 2 + n => halve n + 1
-message
-"invalid patterns, `n` is an explicit pattern variable, but it only occurs in positions that are inaccessible to pattern matching
-  .(Nat.add 2 n)"
-end expect
+/-- error:
+invalid patterns, `n` is an explicit pattern variable, but it only occurs in positions that are inaccessible to pattern matching
+  .(Nat.add 2 n)
+-/
+#check_msgs in
+-- ANCHOR: halveFlippedPat
+def halve : Nat → Nat
+  | 0 => 0
+  | 1 => 0
+  | 2 + n => halve n + 1
+-- ANCHOR_END: halveFlippedPat
 end Oops
 
 end Match
 
 
-evaluation steps {{{ incrSteps }}}
-  fun x => x + 1
-  ===>
-  (· + 1)
-  ===>
-  Nat.succ
+evaluation steps  {{{ incrSteps }}}
+-- ANCHOR: incrSteps
+fun x => x + 1
+===>
+(· + 1)
+===>
+Nat.succ
+-- ANCHOR_END: incrSteps
 end evaluation steps
 
-expect info {{{ incr }}}
-  #check fun x => x + 1
-message
-  "fun x => x + 1 : Nat → Nat"
-end expect
+/-- info:
+fun x => x + 1 : Nat → Nat
+-/
+#check_msgs in
+-- ANCHOR: incr
+#check fun x => x + 1
+-- ANCHOR_END: incr
 
-expect info {{{ incrInt }}}
-  #check fun (x : Int) => x + 1
-message
-  "fun x => x + 1 : Int → Int"
-end expect
+/-- info:
+fun x => x + 1 : Int → Int
+-/
+#check_msgs in
+-- ANCHOR: incrInt
+#check fun (x : Int) => x + 1
+-- ANCHOR_END: incrInt
 
-expect info {{{ identLambda }}}
-  #check fun {α : Type} (x : α) => x
-message
-  "fun {α} x => x : {α : Type} → α → α"
-end expect
+/-- info:
+fun {α} x => x : {α : Type} → α → α
+-/
+#check_msgs in
+-- ANCHOR: identLambda
+#check fun {α : Type} (x : α) => x
+-- ANCHOR_END: identLambda
 
-expect info {{{ predHuh }}}
-  #check fun
-    | 0 => none
-    | n + 1 => some n
-message
-"fun x =>
+/-- info:
+fun x =>
   match x with
   | 0 => none
-  | n.succ => some n : Nat → Option Nat"
-end expect
+  | n.succ => some n : Nat → Option Nat
+-/
+#check_msgs in
+-- ANCHOR: predHuh
+#check fun
+  | 0 => none
+  | n + 1 => some n
+-- ANCHOR_END: predHuh
 
 namespace Double
-book declaration {{{ doubleLambda }}}
-  def double : Nat → Nat := fun
-    | 0 => 0
-    | k + 1 => double k + 2
-stop book declaration
+-- ANCHOR: doubleLambda
+def double : Nat → Nat := fun
+  | 0 => 0
+  | k + 1 => double k + 2
+-- ANCHOR_END: doubleLambda
 end Double
 
-evaluation steps {{{ funPair }}}
-  (· + 5, 3)
+evaluation steps  {{{ funPair }}}
+-- ANCHOR: funPair
+(· + 5, 3)
+-- ANCHOR_END: funPair
 end evaluation steps
 
-evaluation steps {{{ pairFun }}}
-  ((· + 5), 3)
-end evaluation steps
-
-
-evaluation steps {{{ twoDots }}}
-  (· , ·) 1 2
-  ===>
-  (1, ·) 2
-  ===>
-  (1, 2)
+evaluation steps  {{{ pairFun }}}
+-- ANCHOR: pairFun
+((· + 5), 3)
+-- ANCHOR_END: pairFun
 end evaluation steps
 
 
-expect info {{{ applyLambda }}}
-  #eval (fun x => x + x) 5
-message
-"10
-"
-end expect
+evaluation steps  {{{ twoDots }}}
+-- ANCHOR: twoDots
+(· , ·) 1 2
+===>
+(1, ·) 2
+===>
+(1, 2)
+-- ANCHOR_END: twoDots
+end evaluation steps
 
 
-expect info {{{ applyCdot }}}
-  #eval (· * 2) 5
-message
-"10
-"
-end expect
+/-- info:
+10
+-/
+#check_msgs in
+-- ANCHOR: applyLambda
+#eval (fun x => x + x) 5
+-- ANCHOR_END: applyLambda
 
-book declaration {{{ NatDouble }}}
-  def Nat.double (x : Nat) : Nat := x + x
-stop book declaration
+
+/-- info:
+10
+-/
+#check_msgs in
+-- ANCHOR: applyCdot
+#eval (· * 2) 5
+-- ANCHOR_END: applyCdot
+
+-- ANCHOR: NatDouble
+def Nat.double (x : Nat) : Nat := x + x
+-- ANCHOR_END: NatDouble
 
 open SubVerso.Examples in
 %show_name Nat.double as Nat.double.name
@@ -1908,19 +2146,20 @@ end
 
 
 
-expect info {{{ NatDoubleFour }}}
-  #eval (4 : Nat).double
-message
-"8
-"
-end expect
+/-- info:
+8
+-/
+#check_msgs in
+-- ANCHOR: NatDoubleFour
+#eval (4 : Nat).double
+-- ANCHOR_END: NatDoubleFour
 
-book declaration {{{ NewNamespace }}}
-  namespace NewNamespace
-  def triple (x : Nat) : Nat := 3 * x
-  def quadruple (x : Nat) : Nat := 2 * x + 2 * x
-  end NewNamespace
-stop book declaration
+-- ANCHOR: NewNamespace
+namespace NewNamespace
+def triple (x : Nat) : Nat := 3 * x
+def quadruple (x : Nat) : Nat := 2 * x + 2 * x
+end NewNamespace
+-- ANCHOR_END: NewNamespace
 
 section
 open SubVerso.Examples
@@ -1930,138 +2169,146 @@ open NewNamespace
 end
 
 
-expect info {{{ tripleNamespace }}}
-  #check NewNamespace.triple
-message
-  "NewNamespace.triple (x : Nat) : Nat"
-end expect
+/-- info:
+NewNamespace.triple (x : Nat) : Nat
+-/
+#check_msgs in
+-- ANCHOR: tripleNamespace
+#check NewNamespace.triple
+-- ANCHOR_END: tripleNamespace
 
-expect info {{{ quadrupleNamespace }}}
-  #check NewNamespace.quadruple
-message
-  "NewNamespace.quadruple (x : Nat) : Nat"
-end expect
+/-- info:
+NewNamespace.quadruple (x : Nat) : Nat
+-/
+#check_msgs in
+-- ANCHOR: quadrupleNamespace
+#check NewNamespace.quadruple
+-- ANCHOR_END: quadrupleNamespace
 
 
-book declaration {{{ quadrupleOpenDef }}}
-  def timesTwelve (x : Nat) :=
-    open NewNamespace in
-    quadruple (triple x)
-stop book declaration
+-- ANCHOR: quadrupleOpenDef
+def timesTwelve (x : Nat) :=
+  open NewNamespace in
+  quadruple (triple x)
+-- ANCHOR_END: quadrupleOpenDef
 
 open SubVerso.Examples in
 %show_name timesTwelve
 
 example : timesTwelve 2 = 24 := by rfl
 
-expect info {{{ quadrupleNamespaceOpen }}}
-  open NewNamespace in
-  #check quadruple
-message
-  "NewNamespace.quadruple (x : Nat) : Nat"
-end expect
+/-- info:
+NewNamespace.quadruple (x : Nat) : Nat
+-/
+#check_msgs in
+-- ANCHOR: quadrupleNamespaceOpen
+open NewNamespace in
+#check quadruple
+-- ANCHOR_END: quadrupleNamespaceOpen
 
 
 
-expect info {{{ interpolation }}}
-  #eval s!"three fives is {NewNamespace.triple 5}"
-message
-"\"three fives is 15\"
-"
-end expect
+/-- info:
+"three fives is 15"
+-/
+#check_msgs in
+-- ANCHOR: interpolation
+#eval s!"three fives is {NewNamespace.triple 5}"
+-- ANCHOR_END: interpolation
 
-expect error {{{ interpolationOops }}}
-  #check s!"three fives is {NewNamespace.triple}"
-message
-"failed to synthesize
+/--
+error: failed to synthesize
   ToString (Nat → Nat)
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command."
-end expect
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+---
+info: toString "three fives is " ++ sorry ++ toString "" : String
+-/
+#check_msgs in
+-- ANCHOR: interpolationOops
+#check s!"three fives is {NewNamespace.triple}"
+-- ANCHOR_END: interpolationOops
 
 
-book declaration {{{ Inline }}}
-  inductive Inline : Type where
-    | lineBreak
-    | string : String → Inline
-    | emph : Inline → Inline
-    | strong : Inline → Inline
-stop book declaration
+-- ANCHOR: Inline
+inductive Inline : Type where
+  | lineBreak
+  | string : String → Inline
+  | emph : Inline → Inline
+  | strong : Inline → Inline
+-- ANCHOR_END: Inline
 
 namespace WithMatch
-book declaration {{{ inlineStringHuhMatch }}}
-  def Inline.string? (inline : Inline) : Option String :=
-    match inline with
-    | Inline.string s => some s
-    | _ => none
-stop book declaration
+-- ANCHOR: inlineStringHuhMatch
+def Inline.string? (inline : Inline) : Option String :=
+  match inline with
+  | Inline.string s => some s
+  | _ => none
+-- ANCHOR_END: inlineStringHuhMatch
 end WithMatch
 
 
 
-book declaration {{{ inlineStringHuh }}}
-  def Inline.string? (inline : Inline) : Option String :=
-    if let Inline.string s := inline then
-      some s
-    else none
-stop book declaration
+-- ANCHOR: inlineStringHuh
+def Inline.string? (inline : Inline) : Option String :=
+  if let Inline.string s := inline then
+    some s
+  else none
+-- ANCHOR_END: inlineStringHuh
 
 example : WithMatch.Inline.string? = Inline.string? := by rfl
 
-bookExample : Point {{{ pointCtor }}}
-  Point.mk 1 2
-  ===>
-  { x := 1, y := 2 }
-end bookExample
+-- ANCHOR: pointCtor
+example : (Point.mk 1 2 : (Point)) = ({ x := 1, y := 2 } : (Point)) := rfl
+-- ANCHOR_END: pointCtor
 
-bookExample : Point {{{ pointBraces }}}
-  { x := 1, y := 2 }
-  ===>
-  Point.mk 1 2
-end bookExample
+-- ANCHOR: pointBraces
+example : ({ x := 1, y := 2 } : (Point)) = (Point.mk 1 2 : (Point)) := rfl
+-- ANCHOR_END: pointBraces
 
-bookExample : Point {{{ pointPos }}}
-  ⟨1, 2⟩
-  ===>
-  Point.mk 1 2
-end bookExample
+-- ANCHOR: pointPos
+example : (⟨1, 2⟩ : (Point)) = (Point.mk 1 2 : (Point)) := rfl
+-- ANCHOR_END: pointPos
 
 
-expect error {{{ pointPosEvalNoType }}}
-  #eval ⟨1, 2⟩
-message
-"invalid constructor ⟨...⟩, expected type must be an inductive type
-  ?m.29916"
-end expect
+/--
+error: invalid constructor ⟨...⟩, expected type must be an inductive type ⏎
+  ?m.93541
+-/
+#check_msgs in
+-- ANCHOR: pointPosEvalNoType
+#eval ⟨1, 2⟩
+-- ANCHOR_END: pointPosEvalNoType
 
-expect info {{{ pointPosWithType }}}
-  #eval (⟨1, 2⟩ : Point)
-message
-"{ x := 1.000000, y := 2.000000 }
-"
-end expect
+/-- info:
+{ x := 1.000000, y := 2.000000 }
+-/
+#check_msgs in
+-- ANCHOR: pointPosWithType
+#eval (⟨1, 2⟩ : Point)
+-- ANCHOR_END: pointPosWithType
 
 
-bookExample type {{{ swapLambda }}}
-  fun (point : Point) => { x := point.y, y := point.x : Point }
-  ===>
-  (Point → Point)
-end bookExample
+-- ANCHOR: swapLambda
+example : (Point → Point) := fun (point : Point) => { x := point.y, y := point.x : Point }
+-- ANCHOR_END: swapLambda
 
-bookExample : Int → Int {{{ subOneDots }}}
-  (· - 1)
-  ===>
-  fun x => x - 1
-end bookExample
+-- ANCHOR: subOneDots
+example : ((· - 1) : (Int → Int)) = (fun x => x - 1 : (Int → Int)) := rfl
+-- ANCHOR_END: subOneDots
 
 open SubVerso.Examples
 
 section
-%show_term sizes := (α β : Type) → %ex{α}{α} → %ex{β}{β} → %ex{sum}{α ⊕ β} → %ex{prod}{α × β}
+%show_term sizes := (α β : Type) → α → β → α ⊕ β → α × β
 %show_term «Bool × Unit» := Bool × Unit
-%show_term BoolxUnit.vals : List (Bool × Unit) := [%ex{one}{(true, Unit.unit)}, %ex{two}{(false, Unit.unit)}]
+-- ANCHOR: BoolxUnit
+%show_term BoolxUnit.vals : List (Bool × Unit) := [(true, Unit.unit), (false, Unit.unit)]
+-- ANCHOR_END: BoolxUnit
 %show_term «Bool ⊕ Unit» := Bool ⊕ Unit
-%show_term BooloUnit.vals : List (Bool ⊕ Unit) := [%ex{one}{Sum.inl true}, %ex{two}{Sum.inl false}, %ex{three}{Sum.inr Unit.unit}]
+-- ANCHOR: BooloUnit
+%show_term BooloUnit.vals : List (Bool ⊕ Unit) := [Sum.inl true, Sum.inl false, Sum.inr Unit.unit]
+-- ANCHOR_END: BooloUnit
 end
 
 section
@@ -2172,15 +2419,15 @@ end
 %show_name Array.map as Array.map.name
 section
 
-%show_term distr := (α β γ : Type) → %ex{one}{α × (β ⊕ γ) → (α × β) ⊕ (α × γ)} → %ex{two}{Bool × α → α ⊕ α}
+-- ANCHOR: distr
+%show_term distr := (α β γ : Type) → α × (β ⊕ γ) → (α × β) ⊕ (α × γ) → Bool × α → α ⊕ α
+-- ANCHOR_END: distr
 
 end
 
-bookExample type {{{ α }}}
-  ({α : Type} → %ex{name}{α} → Nat : Type 1)
-  ===>
-  Type 1
-end bookExample
+-- ANCHOR: α
+example : Type 1 := ({α : Type} → α → Nat : Type 1)
+-- ANCHOR_END: α
 
 namespace Oops
 axiom mySorry : α
@@ -2188,20 +2435,87 @@ scoped macro "…" : term => `(mySorry)
 
 noncomputable section
 
-book declaration {{{ List.findFirst?Ex }}}
+-- ANCHOR: List.findFirst?Ex
 def List.findFirst? {α : Type} (xs : List α) (predicate : α → Bool) : Option α := …
-stop book declaration
+-- ANCHOR_END: List.findFirst?Ex
 %show_name List.findFirst?
 
-book declaration {{{ Prod.switchEx }}}
+-- ANCHOR: Prod.switchEx
 def Prod.switch {α β : Type} (pair : α × β) : β × α := …
-stop book declaration
+-- ANCHOR_END: Prod.switchEx
 %show_name Prod.switch
 
-book declaration {{{ zipEx }}}
+-- ANCHOR: zipEx
 def zip {α β : Type} (xs : List α) (ys : List β) : List (α × β) := …
-stop book declaration
+-- ANCHOR_END: zipEx
 %show_name zip
 
 end
 end Oops
+
+
+-- ANCHOR: fragments
+example := [List Nat, List String, List (List Point), PPoint Int, Nat, Bool × Unit, Bool ⊕ Unit, Empty, Option (List String)]
+example := [Prod Nat String, Prod Nat Nat, Sum String Int]
+example := Point3D.z
+example := {α : Type} → Nat → α → List α
+example := Option (String ⊕ (Nat × String))
+example := @Option.getD
+example := Nat.double
+section
+open Nat
+example := double
+end
+example := @List.nil
+example := @List.cons
+example := @List.head!
+example := @List.head?
+example := @List.headD
+example := @List.head
+example := @List.map
+example := @Array.map
+section
+open List
+example := @map
+example := @head?
+end
+-- ANCHOR_END: fragments
+
+-- ANCHOR: ProdSugar
+example {α β : Type} : (
+Prod α β
+) = (
+α × β
+) := rfl
+-- ANCHOR_END: ProdSugar
+
+-- ANCHOR: SumSugar
+example {α β : Type} : (
+Sum α β
+) = (
+α ⊕ β
+) := rfl
+-- ANCHOR_END: SumSugar
+
+-- ANCHOR: SumProd
+section
+variable (α β : Type)
+example := α ⊕ β
+example := α × β
+end
+
+-- ANCHOR_END: SumProd
+
+namespace Ex
+-- ANCHOR: RectangularPrism
+structure RectangularPrism where
+  -- Exercise
+
+def volume : RectangularPrism → Float := fun _ => 0.0 -- Exercise
+
+structure Segment where
+  -- Exercise
+
+def length : Segment → Float := fun _ => 0.0 -- Exercise
+
+-- ANCHOR_END: RectangularPrism

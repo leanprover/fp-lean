@@ -4,6 +4,9 @@ def String.separate := String.intercalate
 
 namespace DirTree
 
+-- ANCHOR: names
+example := System.FilePath.components
+-- ANCHOR_END: names
 
 -- ANCHOR: Config
 structure Config where
@@ -203,7 +206,8 @@ namespace T
 
 -- These are replicated here to make sure we don't forget any important declarations
 -- ANCHOR: MyReaderT
-def ReaderT (ρ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
+def ReaderT (ρ : Type u) (m : Type u → Type v) (α : Type u) :
+    Type (max u v) :=
   ρ → m α
 -- ANCHOR_END: MyReaderT
 
@@ -225,7 +229,8 @@ end R
 
 
 -- ANCHOR: MonadReader
-class MonadReader (ρ : outParam (Type u)) (m : Type u → Type v) : Type (max (u + 1) v) where
+class MonadReader (ρ : outParam (Type u)) (m : Type u → Type v) :
+    Type (max (u + 1) v) where
   read : m ρ
 
 instance [Monad m] : MonadReader ρ (ReaderT ρ m) where

@@ -465,7 +465,8 @@ n k : Nat
 -/
 #check_msgs in
 -- ANCHOR: plusR_succ_left_0
-theorem plusR_succ_left (n : Nat) : (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
+theorem plusR_succ_left (n : Nat) :
+    (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
   | 0 => by rfl
   | k + 1 => _
 -- ANCHOR_END: plusR_succ_left_0
@@ -480,14 +481,16 @@ n k : Nat
 -/
 #check_msgs in
 -- ANCHOR: plusR_succ_left_2
-theorem plusR_succ_left (n : Nat) : (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
+theorem plusR_succ_left (n : Nat) :
+    (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
   | 0 => by rfl
   | k + 1 => _
 -- ANCHOR_END: plusR_succ_left_2
 stop discarding
 
 -- ANCHOR: plusR_succ_left
-theorem plusR_succ_left (n : Nat) : (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
+theorem plusR_succ_left (n : Nat) :
+    (k : Nat) → Nat.plusR (n + 1) k = Nat.plusR n k + 1
   | 0 => by rfl
   | k + 1 => congrArg (· + 1) (plusR_succ_left n k)
 -- ANCHOR_END: plusR_succ_left
@@ -495,8 +498,10 @@ theorem plusR_succ_left (n : Nat) : (k : Nat) → Nat.plusR (n + 1) k = Nat.plus
 
 -- ANCHOR: appendR
 def appendR : (n k : Nat) → Vect α n → Vect α k → Vect α (n.plusR k)
-  | 0, k, .nil, ys => plusR_zero_left k ▸ ys
-  | n + 1, k, .cons x xs, ys => plusR_succ_left n k ▸ .cons x (appendR n k xs ys)
+  | 0, k, .nil, ys =>
+    plusR_zero_left k ▸ ys
+  | n + 1, k, .cons x xs, ys =>
+    plusR_succ_left n k ▸ .cons x (appendR n k xs ys)
 -- ANCHOR_END: appendR
 
 namespace Impl
@@ -511,6 +516,79 @@ def plusRAdd (n : Nat) : (k : Nat) → n.plusR k = n + k
   | 0 => by rfl
   | k + 1 =>  congrArg (· + 1) (plusRAdd n k)
 
+
+-- ANCHOR: moreNames
+example : (
+-- ANCHOR: moreFun
+(n : Nat) → Vect String n
+-- ANCHOR_END: moreFun
+) = (
+(k : Nat) → Vect String k
+) := rfl
+-- ANCHOR: againFun
+example := (n : Nat) → Vect String (Nat.plusL 0 n)
+-- ANCHOR_END: againFun
+-- ANCHOR: stuckFun
+example := (n : Nat) → Vect String (Nat.plusL n 0)
+-- ANCHOR_END: stuckFun
+example := List String
+example : List Nat := [5, 3, 1]
+example := (n k : Nat) → Vect Int n
+example := (n k : Nat) → Vect Int k
+example : (Vect String (1 + 4)) = (Vect String (3 + 2)) := rfl
+example := 5
+example := 17
+example := 33
+example := ["a", "b"] ++ ["c"]
+example := List Nat
+example := Int
+example := List
+example := @List.append
+section
+open List
+example := @nil
+example := @cons
+end
+section
+open Nat
+variable (k : Nat)
+example := plusL 0 k
+example := zero
+example := succ
+end
+example {α} {k} := (Vect α (Nat.plusL 0 k)) = (Vect α k)
+-- ANCHOR_END: moreNames
+
+-- ANCHOR: plusRinfo
+example {k} := (Nat.plusR 0 k, k)
+example := Nat.add
+section
+open Nat
+example := plusR
+example := plusL
+end
+-- ANCHOR_END: plusRinfo
+
+-- ANCHOR: congr
+example := @congrArg
+section
+variable {x y : α} {f : α → β}
+example : x = y → f x = f y := congrArg f
+end
+example {n k} := Nat.plusR (n + 1) k + 1 = Nat.plusR n (k + 1) + 1
+-- ANCHOR_END: congr
+
+-- ANCHOR: exercises
+example {n k : Nat} := n.plusR k = n + k
+-- ANCHOR_END: exercises
+
+-- ANCHOR: Vect
+section
+open Vect
+example := @cons
+example := @nil
+end
+-- ANCHOR_END: Vect
 
 namespace Eta
 axiom α : Type

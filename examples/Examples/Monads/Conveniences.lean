@@ -1,7 +1,21 @@
 import ExampleSupport
 import Examples.Classes
 
+set_option linter.unusedVariables false
+
+-- ANCHOR: SumNames
+example := Sum
+example := @Sum.inl
+example := @Sum.inr
+section
+open Sum
+example := @inl
+example := @inr
+end
+-- ANCHOR_END: SumNames
+
 namespace Old
+variable {α : Type}
 -- ANCHOR: equalHuhOld
 def equal? [BEq α] (x : α) (y : α) : Option α :=
   if x == y then
@@ -13,6 +27,7 @@ end Old
 
 
 namespace New
+variable {α : Type}
 -- ANCHOR: equalHuhNew
 def equal? [BEq α] (x y : α) : Option α :=
   if x == y then
@@ -61,7 +76,7 @@ inductive Weekday where
   | friday
   | saturday
   | sunday
-  deriving Repr
+deriving Repr
 -- ANCHOR_END: Weekday
 
 namespace A
@@ -95,6 +110,7 @@ def Weekday.isWeekend (day : Weekday) : Bool :=
 end C
 
 namespace D
+variable {α : Type}
 -- ANCHOR: isWeekendD
 def Weekday.isWeekend : Weekday → Bool
   | .saturday | .sunday => true
@@ -102,7 +118,7 @@ def Weekday.isWeekend : Weekday → Bool
 -- ANCHOR_END: isWeekendD
 end D
 
-
+variable {α : Type}
 
 -- ANCHOR: condense
 def condense : α ⊕ α → α

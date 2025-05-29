@@ -11,7 +11,7 @@ set_option verso.exampleModule "Examples.FunctorApplicativeMonad"
 
 #doc (Manual) "Structures and Inheritance" =>
 
-In order to understand the full definitions of `Functor`, `Applicative`, and `Monad`, another Lean feature is necessary: structure inheritance.
+In order to understand the full definitions of {anchorName ApplicativeLaws}`Functor`, {anchorName ApplicativeLaws}`Applicative`, and {anchorName ApplicativeLaws}`Monad`, another Lean feature is necessary: structure inheritance.
 Structure inheritance allows one structure type to provide the interface of another, along with additional fields.
 This can be useful when modeling concepts that have a clear taxonomic relationship.
 For example, take a model of mythical creatures.
@@ -22,14 +22,14 @@ structure MythicalCreature where
   large : Bool
 deriving Repr
 ```
-Behind the scenes, defining the `MythicalCreature` structure creates an inductive type with a single constructor called `mk`:
+Behind the scenes, defining the {anchorName MythicalCreature}`MythicalCreature` structure creates an inductive type with a single constructor called {anchorName MythicalCreatureMore}`mk`:
 ```anchor MythicalCreatureMk
 #check MythicalCreature.mk
 ```
 ```anchorInfo MythicalCreatureMk
 MythicalCreature.mk (large : Bool) : MythicalCreature
 ```
-Similarly, a function `MythicalCreature.large` is created that actually extracts the field from the constructor:
+Similarly, a function {anchorName MythicalCreatureLarge}`MythicalCreature.large` is created that actually extracts the field from the constructor:
 ```anchor MythicalCreatureLarge
 #check MythicalCreature.large
 ```
@@ -45,8 +45,8 @@ structure Monster extends MythicalCreature where
   vulnerability : String
 deriving Repr
 ```
-The `extends MythicalCreature` in the heading states that every monster is also mythical.
-To define a `Monster`, both the fields from `MythicalCreature` and the fields from `Monster` should be provided.
+The {anchorTerm Monster}`extends MythicalCreature` in the heading states that every monster is also mythical.
+To define a {anchorName Monster}`Monster`, both the fields from {anchorName Monster}`MythicalCreature` and the fields from {anchorName Monster}`Monster` should be provided.
 A troll is a large monster that is vulnerable to sunlight:
 
 ```anchor troll
@@ -56,7 +56,7 @@ def troll : Monster where
 ```
 
 Behind the scenes, inheritance is implemented using composition.
-The constructor `Monster.mk` takes a `MythicalCreature` as its argument:
+The constructor {anchorName MonsterMk}`Monster.mk` takes a {anchorName Monster}`MythicalCreature` as its argument:
 ```anchor MonsterMk
 #check Monster.mk
 ```
@@ -69,14 +69,14 @@ This can be used to extract the underlying creature.
 Moving up the inheritance hierarchy in Lean is not the same thing as upcasting in object-oriented languages.
 An upcast operator causes a value from a derived class to be treated as an instance of the parent class, but the value retains its identity and structure.
 In Lean, however, moving up the inheritance hierarchy actually erases the underlying information.
-To see this in action, consider the result of evaluating `troll.toMythicalCreature`:
+To see this in action, consider the result of evaluating {anchorTerm evalTrollCast}`troll.toMythicalCreature`:
 ```anchor evalTrollCast
 #eval troll.toMythicalCreature
 ```
 ```anchorInfo evalTrollCast
 { large := true }
 ```
-Only the fields of `MythicalCreature` remain.
+Only the fields of {anchorName MythicalCreature}`MythicalCreature` remain.
 
 
 Just like the {kw}`where` syntax, curly-brace notation with field names also works with structure inheritance:
@@ -98,7 +98,7 @@ has type
 but is expected to have type
   MythicalCreature : Type
 ```
-An extra set of angle brackets is required, which invokes `MythicalCreature.mk` on `true`:
+An extra set of angle brackets is required, which invokes {anchorName MythicalCreatureMk}`MythicalCreature.mk` on {anchorName troll3}`true`:
 
 ```anchor troll3
 def troll : Monster := ⟨⟨true⟩, "sunlight"⟩
@@ -106,7 +106,7 @@ def troll : Monster := ⟨⟨true⟩, "sunlight"⟩
 
 
 Lean's dot notation is capable of taking inheritance into account.
-In other words, the existing `MythicalCreature.large` can be used with a `Monster`, and Lean automatically inserts the call to {anchorTerm MonsterToCreature}`Monster.toMythicalCreature` before the call to `MythicalCreature.large`.
+In other words, the existing {anchorName trollLargeNoDot}`MythicalCreature.large` can be used with a {anchorName Monster}`Monster`, and Lean automatically inserts the call to {anchorTerm MonsterToCreature}`Monster.toMythicalCreature` before the call to {anchorName trollLargeNoDot}`MythicalCreature.large`.
 However, this only occurs when using dot notation, and applying the field lookup function using normal function call syntax results in a type error:
 ```anchor trollLargeNoDot
 #eval MythicalCreature.large troll
@@ -176,21 +176,21 @@ def domesticatedTroll : MonstrousAssistant where
   vulnerability := "sunlight"
 ```
 
-Both of the parent structure types extend `MythicalCreature`.
-If multiple inheritance were implemented naïvely, then this could lead to a "diamond problem", where it would be unclear which path to `large` should be taken from a given `MonstrousAssistant`.
-Should it take `large` from the contained `Monster` or from the contained `Helper`?
+Both of the parent structure types extend {anchorName MythicalCreature}`MythicalCreature`.
+If multiple inheritance were implemented naïvely, then this could lead to a “diamond problem”, where it would be unclear which path to {anchorName MythicalCreature}`large` should be taken from a given {anchorName MonstrousAssistant}`MonstrousAssistant`.
+Should it take {lit}`large` from the contained {anchorName Monster}`Monster` or from the contained {anchorName Helper}`Helper`?
 In Lean, the answer is that the first specified path to the grandparent structure is taken, and the additional parent structures' fields are copied rather than having the new structure include both parents directly.
 
-This can be seen by examining the signature of the constructor for `MonstrousAssistant`:
+This can be seen by examining the signature of the constructor for {anchorName MonstrousAssistant}`MonstrousAssistant`:
 ```anchor checkMonstrousAssistantMk
 #check MonstrousAssistant.mk
 ```
 ```anchorInfo checkMonstrousAssistantMk
 MonstrousAssistant.mk (toMonster : Monster) (assistance payment : String) : MonstrousAssistant
 ```
-It takes a `Monster` as an argument, along with the two fields that `Helper` introduces on top of `MythicalCreature`.
-Similarly, while `MonstrousAssistant.toMonster` merely extracts the `Monster` from the constructor, `MonstrousAssistant.toHelper` has no `Helper` to extract.
-The `#print` command exposes its implementation:
+It takes a {anchorName Monster}`Monster` as an argument, along with the two fields that {anchorName Helper}`Helper` introduces on top of {anchorName MythicalCreature}`MythicalCreature`.
+Similarly, while {anchorName MonstrousAssistantMore}`MonstrousAssistant.toMonster` merely extracts the {anchorName Monster}`Monster` from the constructor, {anchorName printMonstrousAssistantToHelper}`MonstrousAssistant.toHelper` has no {anchorName Helper}`Helper` to extract.
+The {kw}`#print` command exposes its implementation:
 ```anchor printMonstrousAssistantToHelper
 #print MonstrousAssistant.toHelper
 ```
@@ -198,13 +198,13 @@ The `#print` command exposes its implementation:
 @[reducible] def MonstrousAssistant.toHelper : MonstrousAssistant → Helper :=
 fun self => { toMythicalCreature := self.toMythicalCreature, assistance := self.assistance, payment := self.payment }
 ```
-This function constructs a `Helper` from the fields of `MonstrousAssistant`.
-The `@[reducible]` attribute has the same effect as writing `abbrev`.
+This function constructs a {anchorName Helper}`Helper` from the fields of {anchorName MonstrousAssistant}`MonstrousAssistant`.
+The {lit}`@[reducible]` attribute has the same effect as writing {kw}`abbrev`.
 
 ## Default Declarations
 
 When one structure inherits from another, default field definitions can be used to instantiate the parent structure's fields based on the child structure's fields.
-If more size specificity is required than whether a creature is large or not, a dedicated datatype describing sizes can be used together with inheritance, yielding a structure in which the `large` field is computed from the contents of the `size` field:
+If more size specificity is required than whether a creature is large or not, a dedicated datatype describing sizes can be used together with inheritance, yielding a structure in which the {anchorName MythicalCreature}`large` field is computed from the contents of the {anchorName SizedCreature}`size` field:
 
 ```anchor SizedCreature
 inductive Size where
@@ -218,7 +218,7 @@ structure SizedCreature extends MythicalCreature where
   large := size == Size.large
 ```
 This default definition is only a default definition, however.
-Unlike property inheritance in a language like C# or Scala, the definitions in the child structure are only used when no specific value for `large` is provided, and nonsensical results can occur:
+Unlike property inheritance in a language like C# or Scala, the definitions in the child structure are only used when no specific value for {anchorName MythicalCreature}`large` is provided, and nonsensical results can occur:
 
 ```anchor nonsenseCreature
 def nonsenseCreature : SizedCreature where
@@ -227,7 +227,7 @@ def nonsenseCreature : SizedCreature where
 ```
 If the child structure should not deviate from the parent structure, there are a few options:
 
- 1. Documenting the relationship, as is done for `BEq` and `Hashable`
+ 1. Documenting the relationship, as is done for {anchorName SizedCreature}`BEq` and {anchorName MonstrousAssistantMore}`Hashable`
  2. Defining a proposition that the fields are related appropriately, and designing the API to require evidence that the proposition is true where it matters
  3. Not using inheritance at all
 
@@ -237,11 +237,11 @@ The second option could look like this:
 abbrev SizesMatch (sc : SizedCreature) : Prop :=
   sc.large = (sc.size == Size.large)
 ```
-Note that a single equality sign is used to indicate the equality _proposition_, while a double equality sign is used to indicate a function that checks equality and returns a `Bool`.
-`SizesMatch` is defined as an `abbrev` because it should automatically be unfolded in proofs, so that `simp` can see the equality that should be proven.
+Note that a single equality sign is used to indicate the equality _proposition_, while a double equality sign is used to indicate a function that checks equality and returns a {anchorName MythicalCreature}`Bool`.
+{anchorName sizesMatch}`SizesMatch` is defined as an {kw}`abbrev` because it should automatically be unfolded in proofs, so that {kw}`decide` can see the equality that should be proven.
 
 A _huldre_ is a medium-sized mythical creature—in fact, they are the same size as humans.
-The two sized fields on `huldre` match one another:
+The two sized fields on {anchorName huldresize}`huldre` match one another:
 
 ```anchor huldresize
 def huldre : SizedCreature where

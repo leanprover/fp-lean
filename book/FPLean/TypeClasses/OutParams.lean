@@ -33,7 +33,7 @@ These functions allow natural numbers to be added to positive numbers, but they 
 
 # Heterogeneous Overloadings
 
-As mentioned in the section on [overloaded addition](pos.md#overloaded-addition), Lean provides a type class called {moduleName}`HAdd` for overloading addition heterogeneously.
+As mentioned in the section on {ref "overloaded-addition"}[overloaded addition], Lean provides a type class called {moduleName}`HAdd` for overloading addition heterogeneously.
 The {moduleName}`HAdd` class takes three type parameters: the two argument types and the return type.
 Instances of {moduleTerm}`HAdd Nat Pos Pos` and {moduleTerm}`HAdd Pos Nat Pos` allow ordinary addition notation to be used to mix the types:
 

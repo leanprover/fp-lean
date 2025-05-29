@@ -97,9 +97,9 @@ class SeqRight (f : Type u → Type v) : Type (max (u+1) v) where
 -- ANCHOR_END: SeqRight
 
 
-
 -- ANCHOR: Applicative
-class Applicative (f : Type u → Type v) extends Functor f, Pure f, Seq f, SeqLeft f, SeqRight f where
+class Applicative (f : Type u → Type v)
+    extends Functor f, Pure f, Seq f, SeqLeft f, SeqRight f where
   map      := fun x y => Seq.seq (pure x) fun _ => y
   seqLeft  := fun a b => Seq.seq (Functor.map (Function.const _) a) b
   seqRight := fun a b => Seq.seq (Functor.map (Function.const _ id) a) b
@@ -186,7 +186,8 @@ class Bind (m : Type u → Type v) where
 
 
 -- ANCHOR: Monad
-class Monad (m : Type u → Type v) : Type (max (u+1) v) extends Applicative m, Bind m  where
+class Monad (m : Type u → Type v) : Type (max (u+1) v)
+    extends Applicative m, Bind m where
   map      f x := bind x (Function.comp pure f)
   seq      f x := bind f fun y => Functor.map y (x ())
   seqLeft  x y := bind x fun a => bind (y ()) (fun _ => pure a)
@@ -197,3 +198,12 @@ end M
 
 similar datatypes Bind M.Bind
 similar datatypes Monad M.Monad
+
+-- ANCHOR: extras
+example := Prop
+example := Type
+example := Type 1
+example := Type 2
+example : List Nat := [0, 17]
+example := @List.map
+-- ANCHOR_END: extras

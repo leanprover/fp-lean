@@ -43,7 +43,7 @@ The first line is {anchor line1}`let stdin ← IO.getStdin`, while the remainder
 ```
 :::
 
-To execute a {kw}`let` statement that uses a `←`, start by evaluating the expression to the right of the arrow (in this case, {moduleTerm}`IO.getStdin`).
+To execute a {kw}`let` statement that uses a {anchorTerm block2}`←`, start by evaluating the expression to the right of the arrow (in this case, {moduleTerm}`IO.getStdin`).
 Because this expression is just a variable, its value is looked up.
 The resulting value is a built-in primitive {moduleTerm}`IO` action.
 The next step is to execute this {moduleTerm}`IO` action, resulting in a value that represents the standard input stream, which has type {moduleTerm}`IO.FS.Stream`.
@@ -70,7 +70,7 @@ The first statement in the block, {anchor line3}`stdout.putStrLn "How would you 
 To execute an expression, it is first evaluated.
 In this case, {moduleTerm}`IO.FS.Stream.putStrLn` has type {moduleTerm}`IO.FS.Stream → String → IO Unit`.
 This means that it is a function that accepts a stream and a string, returning an {moduleTerm}`IO` action.
-The expression uses [accessor notation](../getting-to-know/structures.md#behind-the-scenes) for a function call.
+The expression uses {ref "behind-the-scenes"}[accessor notation] for a function call.
 This function is applied to two arguments: the standard output stream and a string.
 The value of the expression is an {moduleTerm}`IO` action that will write the string and a newline character to the output stream.
 Having found this value, the next step is to execute it, which causes the string and newline to actually be written to {anchorTerm setup}`stdout`.
@@ -80,8 +80,8 @@ The next statement in the block is {anchor line4}`let input ← stdin.getLine`.
 {moduleTerm}`IO.FS.Stream.getLine` has type {moduleTerm}`IO.FS.Stream → IO String`, which means that it is a function from a stream to an {moduleTerm}`IO` action that will return a string.
 Once again, this is an example of accessor notation.
 This {moduleTerm}`IO` action is executed, and the program waits until the user has typed a complete line of input.
-Assume the user writes "`David`".
-The resulting line (`"David\n"`) is associated with {anchorTerm block5}`input`, where the escape sequence `\n` denotes the newline character.
+Assume the user writes {lit}“`David`”.
+The resulting line ({lit}`"David\n"`) is associated with {anchorTerm block5}`input`, where the escape sequence {lit}`\n` denotes the newline character.
 
 ```anchor block5
   let name := input.dropRightWhile Char.isWhitespace
@@ -90,24 +90,32 @@ The resulting line (`"David\n"`) is associated with {anchorTerm block5}`input`, 
 
 :::paragraph
 The next line, {anchor line5}`let name := input.dropRightWhile Char.isWhitespace`, is a {kw}`let` statement.
-Unlike the other {kw}`let` statements in this program, it uses `:=` instead of `←`.
+Unlike the other {kw}`let` statements in this program, it uses {anchorTerm block5}`:=` instead of {anchorTerm line4}`←`.
 This means that the expression will be evaluated, but the resulting value need not be an {moduleTerm}`IO` action and will not be executed.
 In this case, {moduleTerm}`String.dropRightWhile` takes a string and a predicate over characters and returns a new string from which all the characters at the end of the string that satisfy the predicate have been removed.
 For example,
 
-{exampleIn dropBang}
+```anchorTerm dropBang (module := Examples.HelloWorld)
+#eval "Hello!!!".dropRightWhile (· == '!')
+```
 
 yields
 
-{exampleInfo dropBang}
+```anchorInfo dropBang (module := Examples.HelloWorld)
+"Hello"
+```
 
 and
 
-{exampleIn dropNonLetter}
+```anchorTerm dropNonLetter (module := Examples.HelloWorld)
+#eval "Hello...   ".dropRightWhile (fun c => not (c.isAlphanum))
+```
 
 yields
 
-{exampleInfo dropNonLetter}
+```anchorInfo dropNonLetter (module := Examples.HelloWorld)
+"Hello"
+```
 
 in which all non-alphanumeric characters have been removed from the right side of the string.
 In the current line of the program, whitespace characters (including the newline) are removed from the right side of the input string, resulting in {moduleTerm (module := Examples.HelloWorld)}`"David"`, which is associated with {anchorTerm block5}`name` for the remainder of the block.
@@ -126,7 +134,7 @@ The string argument to {anchorTerm line6}`putStrLn` is constructed via string in
 Because this statement is an expression, it is evaluated to yield an {moduleTerm}`IO` action that will print this string with a newline to standard output.
 Once the expression has been evaluated, the resulting {moduleTerm}`IO` action is executed, resulting in the greeting.
 
-# `IO` Actions as Values
+# {lit}`IO` Actions as Values
 
 In the above description, it can be difficult to see why the distinction between evaluating expressions and executing {moduleTerm}`IO` actions is necessary.
 After all, each action is executed immediately after it is produced.
@@ -139,19 +147,23 @@ Secondly, not all {moduleTerm}`IO` actions need be executed at the time that the
 The ability to mention an action without carrying it out allows ordinary functions to be used as control structures.
 
 :::paragraph
-For example, the function {term}`twice.name` takes an {moduleTerm}`IO` action as its argument, returning a new action that will execute the argument action twice.
+For example, the function {anchorName twice (module:=Examples.HelloWorld)}`twice` takes an {moduleTerm}`IO` action as its argument, returning a new action that will execute the argument action twice.
 
-{exampleDecl twice}
+```anchor twice (module := Examples.HelloWorld)
+def twice (action : IO Unit) : IO Unit := do
+  action
+  action
+```
 
 Executing
 
-```exampleIn twiceShy
+```anchorTerm twiceShy (module := Examples.HelloWorld)
 twice (IO.println "shy")
 ```
 
 results in
 
-```exampleInfo twiceShy
+```anchorInfo twiceShy (module := Examples.HelloWorld)
 shy
 shy
 ```
@@ -159,7 +171,7 @@ shy
 being printed.
 This can be generalized to a version that runs the underlying action any number of times:
 
-```exampleDecl nTimes
+```anchor nTimes (module := Examples.HelloWorld)
 def nTimes (action : IO Unit) : Nat → IO Unit
   | 0 => pure ()
   | n + 1 => do
@@ -173,9 +185,13 @@ In the base case for {moduleTerm (module := Examples.HelloWorld)}`Nat.zero`, the
 The function {moduleTerm (module := Examples.HelloWorld)}`pure` creates an {moduleTerm (module := Examples.HelloWorld)}`IO` action that has no side effects, but returns {moduleTerm (module := Examples.HelloWorld)}`pure`'s argument, which in this case is the constructor for {moduleTerm (module := Examples.HelloWorld)}`Unit`.
 As an action that does nothing and returns nothing interesting, {moduleTerm (module := Examples.HelloWorld)}`pure ()` is at the same time utterly boring and very useful.
 In the recursive step, a {moduleTerm (module := Examples.HelloWorld)}`do` block is used to create an action that first executes {moduleTerm (module := Examples.HelloWorld)}`action` and then executes the result of the recursive call.
-Executing {exampleIn}`nTimes3` causes the following output:
+Executing {anchor nTimes3 (module := Examples.HelloWorld)}`#eval nTimes (IO.println "Hello") 3` causes the following output:
 
-{exampleInfo nTimes3}
+```anchorInfo nTimes3 (module := Examples.HelloWorld)
+Hello
+Hello
+Hello
+```
 
 :::
 
@@ -183,35 +199,60 @@ Executing {exampleIn}`nTimes3` causes the following output:
 In addition to using functions as control structures, the fact that {moduleTerm (module := Examples.HelloWorld)}`IO` actions are first-class values means that they can be saved in data structures for later execution.
 For instance, the function {moduleName (module := Examples.HelloWorld)}`countdown` takes a {moduleTerm (module := Examples.HelloWorld)}`Nat` and returns a list of unexecuted {moduleTerm (module := Examples.HelloWorld)}`IO` actions, one for each {moduleTerm (module := Examples.HelloWorld)}`Nat`:
 
-{exampleDecl countdown}
+```anchor countdown (module := Examples.HelloWorld)
+def countdown : Nat → List (IO Unit)
+  | 0 => [IO.println "Blast off!"]
+  | n + 1 => IO.println s!"{n + 1}" :: countdown n
+```
 
 This function has no side effects, and does not print anything.
 For example, it can be applied to an argument, and the length of the resulting list of actions can be checked:
 
-{exampleDecl from5}
+```anchor from5  (module := Examples.HelloWorld)
+def from5 : List (IO Unit) := countdown 5
+```
 
 This list contains six elements (one for each number, plus a {moduleTerm (module := Examples.HelloWorld)}`"Blast off!"` action for zero):
 
-{exampleIn from5length}
+```anchorTerm from5length (module := Examples.HelloWorld)
+#eval from5.length
+```
 
-{exampleInfo from5length}
+```anchorInfo from5length (module := Examples.HelloWorld)
+6
+```
 
 :::
 
 :::paragraph
 The function {moduleTerm (module := Examples.HelloWorld)}`runActions` takes a list of actions and constructs a single action that runs them all in order:
 
-{exampleDecl runActions}
+```anchor runActions (module := Examples.HelloWorld)
+def runActions : List (IO Unit) → IO Unit
+  | [] => pure ()
+  | act :: actions => do
+    act
+    runActions actions
+```
 
 Its structure is essentially the same as that of {moduleName (module := Examples.HelloWorld)}`nTimes`, except instead of having one action that is executed for each {moduleName (module := Examples.HelloWorld)}`Nat.succ`, the action under each {moduleName (module := Examples.HelloWorld)}`List.cons` is to be executed.
 Similarly, {moduleName (module := Examples.HelloWorld)}`runActions` does not itself run the actions.
 It creates a new action that will run them, and that action must be placed in a position where it will be executed as a part of {moduleName (module := Examples.HelloWorld)}`main`:
 
-{exampleDecl main}
+```anchor main (module := Examples.HelloWorld)
+def main : IO Unit := runActions from5
+```
 
 Running this program results in the following output:
 
-{exampleInfo countdown5}
+```anchorInfo countdown5 (module := Examples.HelloWorld)
+5
+4
+3
+2
+1
+Blast off!
+```
 
 :::
 
@@ -219,7 +260,29 @@ Running this program results in the following output:
 What happens when this program is run?
 The first step is to evaluate {moduleName (module := Examples.HelloWorld)}`main`. That occurs as follows:
 
-{exampleEval evalMain}
+```anchorEvalSteps evalMain  (module := Examples.HelloWorld)
+main
+===>
+runActions from5
+===>
+runActions (countdown 5)
+===>
+runActions
+  [IO.println "5",
+   IO.println "4",
+   IO.println "3",
+   IO.println "2",
+   IO.println "1",
+   IO.println "Blast off!"]
+===>
+do IO.println "5"
+   IO.println "4"
+   IO.println "3"
+   IO.println "2"
+   IO.println "1"
+   IO.println "Blast off!"
+   pure ()
+```
 
 The resulting {moduleTerm (module := Examples.HelloWorld)}`IO` action is a {moduleTerm (module := Examples.HelloWorld)}`do` block.
 Each step of the {moduleTerm (module := Examples.HelloWorld)}`do` block is then executed, one at a time, yielding the expected output.
@@ -231,7 +294,12 @@ The final step, {moduleTerm (module := Examples.HelloWorld)}`pure ()`, does not 
 :::paragraph
 Step through the execution of the following program on a piece of paper:
 
-{exampleDecl ExMain}
+```anchor ExMain (module := Examples.HelloWorld)
+def main : IO Unit := do
+  let englishGreeting := IO.println "Hello!"
+  IO.println "Bonjour!"
+  englishGreeting
+```
 
 While stepping through the program's execution, identify when an expression is being evaluated and when an {moduleTerm (module := Examples.HelloWorld)}`IO` action is being executed.
 When executing an {moduleTerm (module := Examples.HelloWorld)}`IO` action results in a side effect, write it down.

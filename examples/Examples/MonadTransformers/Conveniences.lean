@@ -4,30 +4,30 @@ import ExampleSupport
 
 namespace PipelineEx
 
-axiom α : Type
-axiom β : Type
-axiom γ : Type
-axiom δ : Type
+variable (α : Type)
+variable (β : Type)
+variable (γ : Type)
+variable (δ : Type)
 
-axiom E1 : α
-axiom E2 : α → β
-axiom E3 : β → γ
-axiom E4 : γ → δ
+variable (E₁ : α)
+variable (E₂ : α → β)
+variable (E₃ : β → γ)
+variable (E₄ : γ → δ)
 
 -- ANCHOR: pipelineShort
 example : (
-E1 |> E2
+E₁ |> E₂
 ) = (
-E2 E1
+E₂ E₁
 ) := rfl
 -- ANCHOR_END: pipelineShort
 
 
 -- ANCHOR: pipeline
 example : (
-E1 |> E2 |> E3 |> E4
+E₁ |> E₂ |> E₃ |> E₄
 ) = (
-E4 (E3 (E2 E1))
+E₄ (E₃ (E₂ E₁))
 ) := rfl
 -- ANCHOR_END: pipeline
 
@@ -126,3 +126,7 @@ def dump (stream : IO.FS.Stream) : IO Unit := do
     buf ← stream.read bufsize
 -- ANCHOR_END: dumpWhile
 end More
+
+-- ANCHOR: names
+example := ForM
+-- ANCHOR_END: names

@@ -19,7 +19,7 @@ set_option pp.rawOnError true
 
 Behind the scenes, type classes are structure types and instances are values of these types.
 The only differences are that Lean stores additional information about type classes, such as which parameters are output parameters, and that instances are registered for searching.
-While values that have structure types are typically defined using either `⟨...⟩` syntax or with braces and fields, and instances are typically defined using {kw}`where`, both syntaxes work for both kinds of definition.
+While values that have structure types are typically defined using either {lit}`⟨...⟩` syntax or with braces and fields, and instances are typically defined using {kw}`where`, both syntaxes work for both kinds of definition.
 
 :::paragraph
 For example, a forestry application might represent trees as follows:
@@ -62,10 +62,10 @@ instance : Display Tree where
 ```
 
 The {kw}`where` syntax is typically used for instances, while structures use either the curly-brace syntax or the {kw}`where` syntax.
-The `⟨...⟩` syntax can be useful when emphasizing that a structure type is very much like a tuple in which the fields happen to be named, but the names are not important at the moment.
+The {lit}`⟨...⟩` syntax can be useful when emphasizing that a structure type is very much like a tuple in which the fields happen to be named, but the names are not important at the moment.
 However, there are situations where it can make sense to use other alternatives.
 In particular, a library might provide a function that constructs an instance value.
-Placing a call to this function after `:=` in an instance declaration is the easiest way to use such a function.
+Placing a call to this function after {lit}`:=` in an instance declaration is the easiest way to use such a function.
 :::
 
 # Examples

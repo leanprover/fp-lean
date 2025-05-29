@@ -34,6 +34,7 @@ def insertSorted [Ord α] (arr : Array α) (i : Fin arr.size) : Array α :=
 -- ANCHOR_END: insertSortedNoProof
 stop discarding
 
+
 /-- info:
 Nat.lt_of_succ_lt {n m : Nat} : n.succ < m → n < m
 -/
@@ -556,7 +557,7 @@ Could not find a decreasing measure.
 The basic measures relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
             arr i #1
-1) 569:4-55   ? ?  ?
+1) 570:4-55   ? ?  ?
 
 #1: arr.size - i
 
@@ -693,6 +694,24 @@ def insertionSort [Ord α] (arr : Array α) : Array α :=
    insertionSortLoop arr 0
 -- ANCHOR_END: insertionSort
 
+-- ANCHOR: names
+
+example := @List.map
+example := @Array.swap
+example := (@Array.swap : {α : Type _} → (xs : Array α) → (i j : Nat) → (h1 : autoParam (i < xs.size) _) → (h2 : autoParam (j < xs.size) _) → Array α)
+example : Fin 1 := {val := 0, isLt := by omega}
+example := @Array.set
+example {n} := Fin n
+example := Fin 0
+section
+variable (arr : Array α)
+example := Fin arr.size
+example := OfNat
+/-- warning: declaration uses 'sorry' -/
+#guard_msgs in
+theorem ohNoNotReallyTrue : 3 < 2 := by sorry
+end
+-- ANCHOR_END: names
 
 
 /-- info:
@@ -711,3 +730,8 @@ def insertionSort [Ord α] (arr : Array α) : Array α :=
 -- ANCHOR: insertionSortStrings
 #eval insertionSort #[ "quartz", "marble", "granite", "hematite"]
 -- ANCHOR_END: insertionSortStrings
+
+
+--ANCHOR: etc
+example := @Array.map
+--ANCHOR_END: etc

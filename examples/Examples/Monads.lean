@@ -17,7 +17,7 @@ end
 
 namespace Monads.Option
 
-
+variable {α : Type}
 
 -- ANCHOR: first
 def first (xs : List α) : Option α :=
@@ -347,7 +347,8 @@ def inorderSum : BinTree Int → List Int × Int
     let (leftVisited, leftSum) := inorderSum l
     let (hereVisited, hereSum) := ([x], x)
     let (rightVisited, rightSum) := inorderSum r
-    (leftVisited ++ hereVisited ++ rightVisited, leftSum + hereSum + rightSum)
+    (leftVisited ++ hereVisited ++ rightVisited,
+     leftSum + hereSum + rightSum)
 -- ANCHOR_END: inorderSum
 
 

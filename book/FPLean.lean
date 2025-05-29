@@ -1,6 +1,7 @@
 import VersoManual
 
 import FPLean.Intro
+import FPLean.Acks
 import FPLean.GettingToKnow
 import FPLean.HelloWorld
 import FPLean.PropsProofsIndexing
@@ -41,6 +42,8 @@ _Copyright Microsoft Corporation 2023 and Lean FRO, LLC 2023–2025_
 This is a free book on using Lean as a programming language. All code samples are tested with Lean release {versionString}[].
 
 {include 1 FPLean.Intro}
+
+{include 1 FPLean.Acks}
 
 {include 1 FPLean.GettingToKnow}
 

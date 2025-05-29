@@ -2,7 +2,9 @@
 structure LinesOf where
   stream : IO.FS.Stream
 
-partial def LinesOf.forM (readFrom : LinesOf) (action : String → IO Unit) : IO Unit := do
+partial def LinesOf.forM
+    (readFrom : LinesOf) (action : String → IO Unit) :
+    IO Unit := do
   let line ← readFrom.stream.getLine
   if line == "" then return ()
   action line

@@ -12,6 +12,21 @@ structure Fin (n : Nat) where
 
 end FinDef
 
+--ANCHOR: sundries
+example := GetElem
+example := Array
+example := Nat
+example {n} := Fin n
+example : List (Fin 3) := [0, 1, 2]
+example := Fin 0
+example := @Subtype
+section
+variable {n k : Nat}
+#synth ToString (Fin n)
+#synth OfNat (Fin (n + 1)) k
+end
+--ANCHOR_END: sundries
+
 /-- info:
 5
 -/
@@ -29,12 +44,18 @@ end FinDef
 #eval (45 : Fin 10)
 -- ANCHOR_END: finOverflow
 
+-- ANCHOR: exercise
 def Fin.next? (i : Fin n) : Option (Fin n) :=
   if h : i.val + 1 < n then
     some ⟨i.val + 1, h⟩
   else
     none
 
+section
+variable {n}
+#check (Fin.next? : Fin n → Option (Fin n))
+end
+-- ANCHOR_END: exercise
 
 /-- info:
 some 4
@@ -58,7 +79,8 @@ none
 namespace Finny
 
 -- ANCHOR: ArrayFindHelper
-def findHelper (arr : Array α) (p : α → Bool) (i : Nat) : Option (Fin arr.size × α) :=
+def findHelper (arr : Array α) (p : α → Bool) (i : Nat) :
+    Option (Fin arr.size × α) :=
   if h : i < arr.size then
     let x := arr[i]
     if p x then

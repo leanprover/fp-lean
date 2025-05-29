@@ -29,6 +29,26 @@ def fileStream (filename : System.FilePath) : IO (Option IO.FS.Stream) := do
     pure (some (IO.FS.Stream.ofHandle handle))
 -- ANCHOR_END: fileStream
 
+-- ANCHOR: Names
+section
+open IO.FS
+#check Stream
+open System
+#check FilePath
+
+namespace Main1
+def main : IO Unit := pure ()
+end Main1
+namespace Main2
+def main : IO UInt32 := pure 0
+end Main2
+namespace Main3
+def main : List String → IO UInt32 := fun _ => pure 0
+end Main3
+
+end
+-- ANCHOR_END: Names
+
 -- ANCHOR: process
 def process (exitCode : UInt32) (args : List String) : IO UInt32 := do
   match args with

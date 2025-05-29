@@ -1,5 +1,16 @@
 import ExampleSupport
 
+set_option linter.unusedVariables false
+
+-- ANCHOR: various
+example := Functor
+example := @Functor.map
+example := Monad
+example := @HAdd.hAdd
+example := semiOutParam
+example := Id
+-- ANCHOR_END: various
+
 namespace Opt
 
 
@@ -65,6 +76,10 @@ structure OptionT (m : Type u → Type v) (α : Type u) : Type v where
   run : m (Option α)
 -- ANCHOR_END: OptionTStructure
 
+-- ANCHOR: OptionTStructuredefs
+example := @OptionT.mk
+example := @OptionT.run
+-- ANCHOR_END: OptionTStructuredefs
 
 end Structed
 
@@ -87,16 +102,16 @@ instance [Monad m] : Monad (OptionT m) where
 
 namespace Lawful
 
-axiom α : Type
-axiom β : Type
-axiom γ : Type
-axiom m : Type → Type
-axiom v : α
-axiom w : m (Option α)
-axiom f : α → OptionT m β
-axiom g : β → OptionT m γ
-@[instance] axiom inst0 : Monad m
-@[instance] axiom inst1 : LawfulMonad m
+variable (α : Type)
+variable (β : Type)
+variable (γ : Type)
+variable (m : Type → Type)
+variable (v : α)
+variable (w : m (Option α))
+variable (f : α → OptionT m β)
+variable (g : β → OptionT m γ)
+variable [Monad m]
+variable [LawfulMonad m]
 
 equational steps  {{{ OptionTFirstLaw }}}
 -- ANCHOR: OptionTFirstLaw
@@ -143,6 +158,19 @@ f v
 -- ANCHOR_END: OptionTFirstLaw
 stop equational steps
 
+--ANCHOR: OptionTSecondLaw
+example := bind w pure
+example :=
+OptionT.mk do
+    match ← w with
+    | none => pure none
+    | some v => pure (some v)
+example := w >>= fun y => pure y
+--ANCHOR_END: OptionTSecondLaw
+
+--ANCHOR: OptionTThirdLaw
+example {v} := bind (bind v f) g = bind v (fun x => bind (f x) g)
+--ANCHOR_END: OptionTThirdLaw
 end Lawful
 
 
@@ -242,7 +270,8 @@ with
 -/
 #check_msgs in
 -- ANCHOR: MonadMissingUni
-instance {ε : Type u} {m : Type u → Type v} [Monad m] : Monad (ExceptT ε m) where
+instance {ε : Type u} {m : Type u → Type v} [Monad m] :
+    Monad (ExceptT ε m) where
   pure x := ExceptT.mk (pure (Except.ok x))
   bind result next := ExceptT.mk do
     match (← result) with
@@ -258,7 +287,8 @@ end Huh
 -- ANCHOR_END: ExceptTFakeStruct
 
 -- ANCHOR: MonadExceptT
-instance {ε : Type u} {m : Type u → Type v} [Monad m] : Monad (ExceptT ε m) where
+instance {ε : Type u} {m : Type u → Type v} [Monad m] :
+    Monad (ExceptT ε m) where
   pure x := ExceptT.mk (pure (Except.ok x))
   bind result next := ExceptT.mk do
     match ← result with
@@ -342,7 +372,8 @@ namespace St
 
 
 -- ANCHOR: DefStateT
-def StateT (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
+def StateT (σ : Type u)
+    (m : Type u → Type v) (α : Type u) : Type (max u v) :=
   σ → m (α × σ)
 -- ANCHOR_END: DefStateT
 
@@ -459,6 +490,22 @@ abbrev M1 := StateT LetterCounts (ExceptT Err Id)
 abbrev M2 := ExceptT Err (StateT LetterCounts Id)
 -- ANCHOR_END: SomeMonads
 
+-- ANCHOR: m
+example := ReaderT
+example := MonadReader
+example := Except
+example {α} := IO (Option α)
+-- ANCHOR_END: m
+
+-- ANCHOR: general
+section
+variable {T : (Type u → Type v) → Type u → Type v} {m : Type u → Type v} [Monad m] [Monad (T m)]
+variable [MonadLift m (T m)]
+example {α} := m α → T m α
+example {α x} := (monadLift (pure x : m α)) = (pure x : T m α)
+example {α x f} := monadLift (x >>= f : m α) = ((monadLift x : m α) >>= fun y => monadLift (f y) : T m α)
+end
+-- ANCHOR_END: general
 
 /-- info:
 Except.ok ((), { vowels := 2, consonants := 3 })
@@ -543,9 +590,9 @@ Except.ok ((), { vowels := 2, consonants := 6 })
 #eval countWithFallback (m := M2) "hello!" ⟨0, 0⟩
 -- ANCHOR_END: countWithFallbackM2Error
 
-axiom α : Type
-axiom σ : Type
-axiom σ' : Type
+variable (α : Type)
+variable (σ : Type)
+variable (σ' : Type)
 
 -- ANCHOR: M1eval
 example : (
@@ -587,7 +634,8 @@ namespace Cls
 
 
 -- ANCHOR: MonadState
-class MonadState (σ : outParam (Type u)) (m : Type u → Type v) : Type (max (u+1) v) where
+class MonadState (σ : outParam (Type u)) (m : Type u → Type v) :
+    Type (max (u+1) v) where
   get : m σ
   set : σ → m PUnit
   modifyGet : (σ → α × σ) → m α
@@ -604,7 +652,10 @@ example : (σ : Type u) → {m : Type u → Type v} → [MonadStateOf σ m] → 
 -- ANCHOR_END: getTheType
 
 -- ANCHOR: modifyTheType
-example : (σ : Type u) → {m : Type u → Type v} → [MonadStateOf σ m] → (σ → σ) → m PUnit := modifyThe
+example :
+(σ : Type u) → {m : Type u → Type v} → [MonadStateOf σ m] →
+(σ → σ) → m PUnit
+:= modifyThe
 -- ANCHOR_END: modifyTheType
 
 

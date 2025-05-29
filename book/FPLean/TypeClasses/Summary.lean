@@ -45,12 +45,12 @@ When an instance is a default instance, then it will be chosen as a fallback whe
 Most infix operators in Lean are overridden with a type class.
 For instance, the addition operator corresponds to a type class called {moduleName}`Add`.
 Most of these operators have a corresponding heterogeneous version, in which the two arguments need not have the same type.
-These heterogenous operators are overloaded using a version of the class whose name starts with `H`, such as {moduleName}`HAdd`.
+These heterogenous operators are overloaded using a version of the class whose name starts with {lit}`H`, such as {moduleName}`HAdd`.
 
 Indexing syntax is overloaded using a type class called {moduleName}`GetElem`, which involves proofs.
 {moduleName}`GetElem` has two output parameters, which are the type of elements to be extracted from the collection and a function that can be used to determine what counts as evidence that the index value is in bounds for the collection.
 This evidence is described by a proposition, and Lean attempts to prove this proposition when array indexing is used.
-When Lean is unable to check that list or array access operations are in bounds at compile time, the check can be deferred to run time by appending a `?` to the indexing syntax.
+When Lean is unable to check that list or array access operations are in bounds at compile time, the check can be deferred to run time by appending a {lit}`?` to the indexing syntax.
 
 # Functors
 
@@ -68,7 +68,7 @@ For instance, the Boolean equality class {moduleName}`BEq` is usually implemente
 Instances for these classes can be created _automatically_.
 
 When defining an inductive type or a structure, a {kw}`deriving` clause at the end of the declaration will cause instances to be created automatically.
-Additionally, the {kw}`deriving instance`﻿` ... `﻿{kw}`for`﻿` ...` command can be used outside of the definition of a datatype to cause an instance to be generated.
+Additionally, the {kw}`deriving instance`﻿{lit}` ... `﻿{kw}`for`﻿{lit}` ...` command can be used outside of the definition of a datatype to cause an instance to be generated.
 Because each class for which instances can be derived requires special handling, not all classes are derivable.
 
 # Coercions

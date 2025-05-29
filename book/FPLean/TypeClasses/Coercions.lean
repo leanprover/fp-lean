@@ -17,7 +17,7 @@ set_option pp.rawOnError true
 In mathematics, it is common to use the same symbol to stand for different aspects of some object in different contexts.
 For example, if a ring is referred to in a context where a set is expected, then it is understood that the ring's underlying set is what's intended.
 In programming languages, it is common to have rules to automatically translate values of one type into values of another type.
-Java allows a `byte` to be automatically promoted to an `int`, and Kotlin allows a non-nullable type to be used in a context that expects a nullable version of the type.
+Java allows a {java}`byte` to be automatically promoted to an {java}`int`, and Kotlin allows a non-nullable type to be used in a context that expects a nullable version of the type.
 
 In Lean, both purposes are served by a mechanism called {deftech}_coercions_.
 When Lean encounters an expression of one type in a context that expects a different type, it will attempt to coerce the expression before reporting a type error.
@@ -25,7 +25,7 @@ Unlike Java, C, and Kotlin, the coercions are extensible by defining instances o
 
 # Strings and Paths
 
-In the [source code to `feline`](../hello-world/cat.md#handling-input), a {moduleName}`String` is converted to a {moduleName}`FilePath` using the anonymous constructor syntax.
+In the {ref "handling-input"}[source code to {lit}`feline`], a {moduleName}`String` is converted to a {moduleName}`FilePath` using the anonymous constructor syntax.
 In fact, this was not necessary: Lean defines a coercion from {moduleName}`String` to {moduleName}`FilePath`, so a string can be used in an position where a path is expected.
 Even though the function {anchorTerm readFile}`IO.FS.readFile` has type {anchorTerm readFile}`System.FilePath → IO String`, the following code is accepted by Lean:
 
@@ -40,20 +40,20 @@ def fileDumper : IO Unit := do
   stdout.putStrLn (← IO.FS.readFile f)
 ```
 {moduleName}`String.trim` removes leading and trailing whitespace from a string.
-On the last line of {anchorName fileDumper}`fileDumper`, the coercion from {moduleName}`String` to {moduleName}`FilePath` automatically converts {anchorName fileDumper}`f`, so it is not necessary to write `IO.FS.readFile ⟨f⟩`.
+On the last line of {anchorName fileDumper}`fileDumper`, the coercion from {moduleName}`String` to {moduleName}`FilePath` automatically converts {anchorName fileDumper}`f`, so it is not necessary to write {lit}`IO.FS.readFile ⟨f⟩`.
 
 # Positive Numbers
 
 Every positive number corresponds to a natural number.
-The function `Pos.toNat` that was defined earlier converts a {moduleName}`Pos` to the corresponding {moduleName}`Nat`:
+The function {anchorName posToNat}`Pos.toNat` that was defined earlier converts a {moduleName}`Pos` to the corresponding {moduleName}`Nat`:
 
 ```anchor posToNat
 def Pos.toNat : Pos → Nat
   | Pos.one => 1
   | Pos.succ n => n.toNat + 1
 ```
-The function `List.drop`, with type {anchorTerm drop}`{α : Type} → Nat → List α → List α`, removes a prefix of a list.
-Applying `List.drop` to a {moduleName}`Pos`, however, leads to a type error:
+The function {anchorName drop}`List.drop`, with type {anchorTerm drop}`{α : Type} → Nat → List α → List α`, removes a prefix of a list.
+Applying {anchorName drop}`List.drop` to a {moduleName}`Pos`, however, leads to a type error:
 ```anchorTerm dropPos
 [1, 2, 3, 4].drop (2 : Pos)
 ```
@@ -67,7 +67,7 @@ has type
 but is expected to have type
   Nat : Type
 ```
-Because the author of `List.drop` did not make it a method of a type class, it can't be overridden by defining a new instance.
+Because the author of {anchorName drop}`List.drop` did not make it a method of a type class, it can't be overridden by defining a new instance.
 
 :::paragraph
 The type class {moduleName}`Coe` describes overloaded ways of coercing from one type to another:
@@ -76,7 +76,7 @@ The type class {moduleName}`Coe` describes overloaded ways of coercing from one 
 class Coe (α : Type) (β : Type) where
   coe : α → β
 ```
-An instance of `Coe Pos Nat` is enough to allow the prior code to work:
+An instance of {anchorTerm CoePosNat}`Coe Pos Nat` is enough to allow the prior code to work:
 
 ```anchor CoePosNat
 instance : Coe Pos Nat where
@@ -109,7 +109,7 @@ def oneInt : Int := Pos.one
 This definition uses two coercions: from {moduleName}`Pos` to {moduleName}`Nat`, and then from {moduleName}`Nat` to {moduleName}`Int`.
 
 The Lean compiler does not get stuck in the presence of circular coercions.
-For example, even if two types `A` and `B` can be coerced to one another, their mutual coercions can be used to find a path:
+For example, even if two types {anchorName CoercionCycle}`A` and {anchorName CoercionCycle}`B` can be coerced to one another, their mutual coercions can be used to find a path:
 
 ```anchor CoercionCycle
 inductive A where
@@ -129,8 +129,8 @@ instance : Coe Unit A where
 
 def coercedToB : B := ()
 ```
-Remember: the double parentheses `()` is short for the constructor `Unit.unit`.
-After deriving a {moduleTerm}`Repr B` instance with {anchorTerm ReprB}`  `,
+Remember: the double parentheses {anchorTerm CoercionCycle}`()` is short for the constructor {anchorName chapterIntro}`Unit.unit`.
+After deriving a {moduleTerm}`Repr B` instance with {anchorTerm ReprB}`deriving instance Repr for B`,
 ```anchor coercedToBEval
 #eval coercedToB
 ```
@@ -139,10 +139,11 @@ results in:
 B.b
 ```
 
-The `Option` type can be used similarly to nullable types in C# and Kotlin: the `none` constructor represents the absence of a value.
-The Lean standard library defines a coercion from any type `α` to `Option α` that wraps the value in `some`.
-This allows option types to be used in a manner even more similar to nullable types, because `some` can be omitted.
-For instance, the function `List.getLast?` that finds the last entry in a list can be written without a `some` around the return value `x`:
+:::paragraph
+The {anchorName CoeOption}`Option` type can be used similarly to nullable types in C# and Kotlin: the {anchorName NEListGetHuh}`none` constructor represents the absence of a value.
+The Lean standard library defines a coercion from any type {anchorName CoeOption}`α` to {anchorTerm CoeOption}`Option α` that wraps the value in {anchorName CoeOption}`some`.
+This allows option types to be used in a manner even more similar to nullable types, because {anchorName CoeOption}`some` can be omitted.
+For instance, the function {anchorName lastHuh}`List.last?` that finds the last entry in a list can be written without a {anchorName CoeOption}`some` around the return value {anchorName lastHuh}`x`:
 
 ```anchor lastHuh
 def List.last? : List α → Option α
@@ -150,14 +151,16 @@ def List.last? : List α → Option α
   | [x] => x
   | _ :: x :: xs => last? (x :: xs)
 ```
-Instance search finds the coercion, and inserts a call to `coe`, which wraps the argument in `some`.
-These coercions can be chained, so that nested uses of `Option` don't require nested `some` constructors:
+Instance search finds the coercion, and inserts a call to {anchorName Coe}`coe`, which wraps the argument in {anchorName CoeOption}`some`.
+These coercions can be chained, so that nested uses of {anchorName CoeOption}`Option` don't require nested {anchorName CoeOption}`some` constructors:
 
 ```anchor perhapsPerhapsPerhaps
 def perhapsPerhapsPerhaps : Option (Option (Option String)) :=
   "Please don't tell me"
 ```
+:::
 
+:::paragraph
 Coercions are only activated automatically when Lean encounters a mismatch between an inferred type and a type that is imposed from the rest of the program.
 In cases with other errors, coercions are not activated.
 For example, if the error is that an instance is missing, coercions will not be used:
@@ -174,7 +177,9 @@ due to the absence of the instance above
 
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
+:::
 
+:::paragraph
 This can be worked around by manually indicating the desired type to be used for {moduleName}`OfNat`:
 
 ```anchor perhapsPerhapsPerhapsNat
@@ -189,11 +194,11 @@ def perhapsPerhapsPerhapsNat : Option (Option (Option Nat)) :=
 ```
 In some cases, this can be used to ensure that Lean finds the right instances.
 It can also make the programmer's intentions more clear.
-
+:::
 
 # Non-Empty Lists and Dependent Coercions
 
-An instance of `Coe α β` makes sense when the type `β` has a value that can represent each value from the type `α`.
+An instance of {anchorTerm chapterIntro}`Coe α β` makes sense when the type {anchorName chapterIntro}`β` has a value that can represent each value from the type {anchorName chapterIntro}`α`.
 Coercing from {moduleName}`Nat` to {moduleName}`Int` makes sense, because the type {moduleName}`Int` contains all the natural numbers, but a coercion from {moduleName}`Int` to {moduleName}`Nat` is a poor idea because {moduleName}`Nat` does not contain the negative numbers.
 Similarly, a coercion from non-empty lists to ordinary lists makes sense because the {moduleName}`List` type can represent every non-empty list:
 
@@ -204,10 +209,10 @@ instance : Coe (NonEmptyList α) (List α) where
 ```
 This allows non-empty lists to be used with the entire {moduleName}`List` API.
 
-On the other hand, it is impossible to write an instance of `Coe (List α) (NonEmptyList α)`, because there's no non-empty list that can represent the empty list.
+On the other hand, it is impossible to write an instance of {anchorTerm coeNope}`Coe (List α) (NonEmptyList α)`, because there's no non-empty list that can represent the empty list.
 This limitation can be worked around by using another version of coercions, which are called _dependent coercions_.
 Dependent coercions can be used when the ability to coerce from one type to another depends on which particular value is being coerced.
-Just as the `OfNat` type class takes the particular {moduleName}`Nat` being overloaded as a parameter, dependent coercion takes the value being coerced as a parameter:
+Just as the {anchorName OfNat}`OfNat` type class takes the particular {moduleName}`Nat` being overloaded as a parameter, dependent coercion takes the value being coerced as a parameter:
 
 ```anchor CoeDep
 class CoeDep (α : Type) (x : α) (β : Type) where
@@ -224,8 +229,8 @@ instance : CoeDep (List α) (x :: xs) (NonEmptyList α) where
 # Coercing to Types
 
 In mathematics, it is common to have a concept that consists of a set equipped with additional structure.
-For example, a monoid is some set _S_, an element _s_ of _S_, and an associative binary operator on _S_, such that _s_ is neutral on the left and right of the operator.
-_S_ is referred to as the "carrier set" of the monoid.
+For example, a monoid is some set $`S`, an element $`s` of $`S`, and an associative binary operator on $`S`, such that $`s` is neutral on the left and right of the operator.
+$`S` is referred to as the “carrier set” of the monoid.
 The natural numbers with zero and addition form a monoid, because addition is associative and adding zero to any number is the identity.
 Similarly, the natural numbers with one and multiplication also form a monoid.
 Monoids are also widely used in functional programming: lists, the empty list, and the append operator form a monoid, as do strings, the empty string, and string append:
@@ -248,7 +253,7 @@ def stringMonoid : Monoid :=
 def listMonoid (α : Type) : Monoid :=
   { Carrier := List α, neutral := [], op := List.append }
 ```
-Given a monoid, it is possible to write the `foldMap` function that, in a single pass, transforms the entries in a list into a monoid's carrier set and then combines them using the monoid's operator.
+Given a monoid, it is possible to write the {anchorName firstFoldMap}`foldMap` function that, in a single pass, transforms the entries in a list into a monoid's carrier set and then combines them using the monoid's operator.
 Because monoids have a neutral element, there is a natural result to return when the list is empty, and because the operator is associative, clients of the function don't have to care whether the recursive function combines elements from left to right or from right to left.
 
 ```anchor firstFoldMap
@@ -264,7 +269,7 @@ Instead of saying “Let A be a monoid and let _x_ and _y_ be elements of its ca
 This practice can be encoded in Lean by defining a new kind of coercion, from the monoid to its carrier set.
 
 The {moduleName}`CoeSort` class is just like the {moduleName}`Coe` class, with the exception that the target of the coercion must be a _sort_, namely {moduleTerm}`Type` or {moduleTerm}`Prop`.
-The term _sort_ in Lean refers to these types that classify other types—`Type` classifies types that themselves classify data, and {moduleTerm}`Prop` classifies propositions that themselves classify evidence of their truth.
+The term _sort_ in Lean refers to these types that classify other types—{anchorTerm Coe}`Type` classifies types that themselves classify data, and {moduleTerm}`Prop` classifies propositions that themselves classify evidence of their truth.
 Just as {moduleName}`Coe` is checked when a type mismatch occurs, {moduleName}`CoeSort` is used when something other than a sort is provided in a context where a sort would be expected.
 
 The coercion from a monoid into its carrier set extracts the carrier:
@@ -284,7 +289,7 @@ def foldMap (M : Monoid) (f : α → M) (xs : List α) : M :=
 ```
 
 Another useful example of {moduleName}`CoeSort` is used to bridge the gap between {moduleName}`Bool` and {moduleTerm}`Prop`.
-As discussed in [the section on ordering and equality](standard-classes.md#equality-and-ordering), Lean's {kw}`if` expression expects the condition to be a decidable proposition rather than a {moduleName}`Bool`.
+As discussed in {ref "equality-and-ordering"}[the section on ordering and equality], Lean's {kw}`if` expression expects the condition to be a decidable proposition rather than a {moduleName}`Bool`.
 Programs typically need to be able to branch based on Boolean values, however.
 Rather than have two kinds of {kw}`if` expression, the Lean standard library defines a coercion from {moduleName}`Bool` to the proposition that the {moduleName}`Bool` in question is equal to {moduleName}`true`:
 
@@ -298,12 +303,12 @@ In this case, the sort in question is {moduleTerm}`Prop` rather than {moduleTerm
 
 Many datatypes that occur regularly in programming consist of a function along with some extra information about it.
 For example, a function might be accompanied by a name to show in logs or by some configuration data.
-Additionally, putting a type in a field of a structure, similarly to the `Monoid` example, can make sense in contexts where there is more than one way to implement an operation and more manual control is needed than type classes would allow.
+Additionally, putting a type in a field of a structure, similarly to the {anchorName Monoid}`Monoid` example, can make sense in contexts where there is more than one way to implement an operation and more manual control is needed than type classes would allow.
 For example, the specific details of values emitted by a JSON serializer may be important because another application expects a particular format.
 Sometimes, the function itself may be derivable from just the configuration data.
 
-A type class called `CoeFun` can transform values from non-function types to function types.
-`CoeFun` has two parameters: the first is the type whose values should be transformed into functions, and the second is an output parameter that determines exactly which function type is being targeted.
+A type class called {anchorName CoeFun}`CoeFun` can transform values from non-function types to function types.
+{anchorName CoeFun}`CoeFun` has two parameters: the first is the type whose values should be transformed into functions, and the second is an output parameter that determines exactly which function type is being targeted.
 
 ```anchor CoeFun
 class CoeFun (α : Type) (makeFunctionType : outParam (α → Type)) where
@@ -389,14 +394,15 @@ instance : CoeFun Serializer (fun s => s.Contents → JSON) where
 Given this instance, a serializer can be applied directly to an argument:
 
 ```anchor buildResponse
-def buildResponse (title : String) (R : Serializer) (record : R.Contents) : JSON :=
+def buildResponse (title : String) (R : Serializer)
+    (record : R.Contents) : JSON :=
   JSON.object [
     ("title", JSON.string title),
     ("status", JSON.number 200),
     ("record", R record)
   ]
 ```
-The serializer can be passed directly to `buildResponse`:
+The serializer can be passed directly to {anchorName buildResponseOut}`buildResponse`:
 ```anchor buildResponseOut
 #eval buildResponse "Functional Programming in Lean" Str "Programming is fun!"
 ```
@@ -411,10 +417,10 @@ JSON.object
 ## Aside: JSON as a String
 
 It can be a bit difficult to understand JSON when encoded as Lean objects.
-To help make sure that the serialized response was what was expected, it can be convenient to write a simple converter from `JSON` to {moduleName}`String`.
+To help make sure that the serialized response was what was expected, it can be convenient to write a simple converter from {anchorName JSON}`JSON` to {moduleName}`String`.
 The first step is to simplify the display of numbers.
-`JSON` doesn't distinguish between integers and floating point numbers, and the type `Float` is used to represent both.
-In Lean, `Float.toString` includes a number of trailing zeros:
+{anchorName JSON}`JSON` doesn't distinguish between integers and floating point numbers, and the type {anchorName JSON}`Float` is used to represent both.
+In Lean, {anchorName chapterIntro}`Float.toString` includes a number of trailing zeros:
 ```anchor fiveZeros
 #eval (5 : Float).toString
 ```
@@ -444,13 +450,13 @@ This function is useful to account for comma-separated elements in JSON arrays a
 {anchorTerm sep2ex}`", ".separate ["1", "2"]` yields {anchorInfo sep2ex}`"1, 2"`, {anchorTerm sep1ex}`", ".separate ["1"]` yields {anchorInfo sep1ex}`"1"`, and {anchorTerm sep0ex}`", ".separate []` yields {anchorInfo sep0ex}`""`.
 In the Lean standard library, this function is called {moduleName}`String.intercalate`.
 
-Finally, a string escaping procedure is needed for JSON strings, so that the Lean string containing {moduleTerm}`"Hello!"` can be output as `"\"Hello!\""`.
+Finally, a string escaping procedure is needed for JSON strings, so that the Lean string containing {moduleTerm}`"Hello!"` can be output as {anchorTerm escapeQuotes}`"\"Hello!\""`.
 Fortunately, the Lean compiler contains an internal function for escaping JSON strings already, called {moduleName}`Lean.Json.escape`.
-To access this function, add `import Lean` to the beginning of your file.
+To access this function, add {lit}`import Lean` to the beginning of your file.
 
-The function that emits a string from a `JSON` value is declared `partial` because Lean cannot see that it terminates.
-This is because recursive calls to `asString` occur in functions that are being applied by `List.map`, and this pattern of recursion is complicated enough that Lean cannot see that the recursive calls are actually being performed on smaller values.
-In an application that just needs to produce JSON strings and doesn't need to mathematically reason about the process, having the function be `partial` is not likely to cause problems.
+The function that emits a string from a {anchorName JSONasString}`JSON` value is declared {kw}`partial` because Lean cannot see that it terminates.
+This is because recursive calls to {anchorName JSONasString}`asString` occur in functions that are being applied by {anchorName chapterIntro}`List.map`, and this pattern of recursion is complicated enough that Lean cannot see that the recursive calls are actually being performed on smaller values.
+In an application that just needs to produce JSON strings and doesn't need to mathematically reason about the process, having the function be {kw}`partial` is not likely to cause problems.
 
 ```anchor JSONasString
 partial def JSON.asString (val : JSON) : String :=
@@ -478,8 +484,8 @@ With this definition, the output of serialization is easier to read:
 
 # Messages You May Meet
 
-Natural number literals are overloaded with the `OfNat` type class.
-Because coercions fire in cases where types don't match, rather than in cases of missing instances, a missing `OfNat` instance for a type does not cause a coercion from {moduleName}`Nat` to be applied:
+Natural number literals are overloaded with the {anchorName OfNat}`OfNat` type class.
+Because coercions fire in cases where types don't match, rather than in cases of missing instances, a missing {anchorName OfNat}`OfNat` instance for a type does not cause a coercion from {moduleName}`Nat` to be applied:
 ```anchor ofNatBeforeCoe
 def perhapsPerhapsPerhapsNat : Option (Option (Option Nat)) :=
   392

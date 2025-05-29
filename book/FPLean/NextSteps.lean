@@ -9,6 +9,7 @@ open FPLean
 #doc (Manual) "Next Steps" =>
 %%%
 tag := "next-steps"
+htmlSplit := .never
 %%%
 
 This book introduces the very basics of functional programming in Lean, including a tiny amount of interactive theorem proving.

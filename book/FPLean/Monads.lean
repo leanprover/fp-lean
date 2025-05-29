@@ -3,6 +3,11 @@ import FPLean.Examples
 
 import FPLean.Monads.Class
 import FPLean.Monads.Arithmetic
+import FPLean.Monads.Do
+import FPLean.Monads.IO
+import FPLean.Monads.Conveniences
+import FPLean.Monads.Summary
+
 
 open Verso.Genre Manual
 open Verso Code External
@@ -14,7 +19,7 @@ set_option verso.exampleModule "Examples.Monads"
 
 #doc (Manual) "Monads" =>
 
-In C# and Kotlin, the `?.` operator is a way to look up a property or call a method on a potentially-null value.
+In C# and Kotlin, the {CSharp}`?.` operator is a way to look up a property or call a method on a potentially-null value.
 If the receiver is {CSharp}`null`, the whole expression is null.
 Otherwise, the underlying non-{CSharp}`null` value receives the call.
 Uses of {CSharp}`?.` can be chained, in which case the first {Kotlin}`null` result terminates the chain of lookups.
@@ -31,7 +36,7 @@ Lean provides dedicated syntax that makes this API convenient to use, but can al
 This chapter begins with the nitty-gritty presentation of manually nesting null checks, and builds from there to the convenient, general API.
 Please suspend your disbelief in the meantime.
 
-## Checking for `none`: Don't Repeat Yourself
+## Checking for {lit}`none`: Don't Repeat Yourself
 
 :::paragraph
 In Lean, pattern matching can be used to chain checks for null.
@@ -93,7 +98,8 @@ def firstThirdFifthSeventh (xs : List α) : Option (α × α × α × α) :=
 :::
 
 :::paragraph
-The fundamental problem with this code is that it addresses two concerns: extracting the numbers and checking that all of them are present, but the second concern is addressed by copying and pasting the code that handles the {moduleName}`none` case.
+The fundamental problem with this code is that it addresses two concerns: extracting the numbers and checking that all of them are present.
+The second concern is addressed by copying and pasting the code that handles the {moduleName}`none` case.
 It is often good style to lift a repetitive segment into a helper function:
 
 ```anchor andThenOption
@@ -102,7 +108,7 @@ def andThen (opt : Option α) (next : α → Option β) : Option β :=
   | none => none
   | some x => next x
 ```
-This helper, which is used similarly to `?.` in C# and Kotlin, takes care of propagating {moduleName}`none` values.
+This helper, which is used similarly to {CSharp}`?.` in C# and Kotlin, takes care of propagating {moduleName}`none` values.
 It takes two arguments: an optional value and a function to apply when the value is not {moduleName}`none`.
 If the first argument is {moduleName}`none`, then the helper returns {moduleName}`none`.
 If the first argument is not {moduleName}`none`, then the function is applied to the contents of the {moduleName}`some` constructor.
@@ -134,9 +140,9 @@ Improving the syntax used to write {anchorName firstThirdandThenExpl}`andThen` c
 
 In Lean, infix operators can be declared using the {kw}`infix`, {kw}`infixl`, and {kw}`infixr` commands, which create (respectively) non-associative, left-associative, and right-associative operators.
 When used multiple times in a row, a {deftech}_left associative_ operator stacks up the opening parentheses on the left side of the expression.
-The addition operator `+` is left associative, so {anchorTerm plusFixity}`w + x + y + z` is equivalent to {anchorTerm plusFixity}`(((w + x) + y) + z)`.
-The exponentiation operator `^` is right associative, so {anchorTerm powFixity}`w ^ x ^ y ^ z` is equivalent to {anchorTerm powFixity}`w ^ (x ^ (y ^ z))`.
-Comparison operators such as `<` are non-associative, so `x < y < z` is a syntax error and requires manual parentheses.
+The addition operator {lit}`+` is left associative, so {anchorTerm plusFixity}`w + x + y + z` is equivalent to {anchorTerm plusFixity}`(((w + x) + y) + z)`.
+The exponentiation operator {lit}`^` is right associative, so {anchorTerm powFixity}`w ^ x ^ y ^ z` is equivalent to {anchorTerm powFixity}`w ^ (x ^ (y ^ z))`.
+Comparison operators such as {lit}`<` are non-associative, so {lit}`x < y < z` is a syntax error and requires manual parentheses.
 
 :::paragraph
 The following declaration makes {anchorName andThenOptArr}`andThen` into an infix operator:
@@ -145,19 +151,19 @@ The following declaration makes {anchorName andThenOptArr}`andThen` into an infi
 infixl:55 " ~~> " => andThen
 ```
 The number following the colon declares the {deftech}_precedence_ of the new infix operator.
-In ordinary mathematical notation, {anchorTerm plusTimesPrec}`x + y * z` is equivalent to {anchorTerm plusTimesPrec}`x + (y * z)` even though both `+` and `*` are left associative.
-In Lean, `+` has precedence 65 and `*` has precedence 70.
+In ordinary mathematical notation, {anchorTerm plusTimesPrec}`x + y * z` is equivalent to {anchorTerm plusTimesPrec}`x + (y * z)` even though both {lit}`+` and {lit}`*` are left associative.
+In Lean, {lit}`+` has precedence 65 and {lit}`*` has precedence 70.
 Higher-precedence operators are applied before lower-precedence operators.
-According to the declaration of `~~>`, both `+` and `*` have higher precedence, and thus apply first.
+According to the declaration of {lit}`~~>`, both {lit}`+` and {lit}`*` have higher precedence, and thus apply first.
 Typically, figuring out the most convenient precedences for a group of operators requires some experimentation and a large collection of examples.
 :::
 
-Following the new infix operator is a double arrow `=>`, which specifies the named function to be used for the infix operator.
-Lean's standard library uses this feature to define `+` and `*` as infix operators that point at {moduleName}`HAdd.hAdd` and {moduleName}`HMul.hMul`, respectively, allowing type classes to be used to overload the infix operators.
+Following the new infix operator is a double arrow {lit}`=>`, which specifies the named function to be used for the infix operator.
+Lean's standard library uses this feature to define {lit}`+` and {lit}`*` as infix operators that point at {moduleName}`HAdd.hAdd` and {moduleName}`HMul.hMul`, respectively, allowing type classes to be used to overload the infix operators.
 Here, however, {anchorName firstThirdandThen}`andThen` is just an ordinary function.
 
 :::paragraph
-Having defined an infix operator for {anchorName andThenOptArr}`andThen`, `firstThird` can be rewritten in a way that brings the “pipeline” feeling of {moduleName}`none`-checks front and center:
+Having defined an infix operator for {anchorName andThenOptArr}`andThen`, {anchorName firstThirdInfix (show := firstThird)}`firstThirdInfix` can be rewritten in a way that brings the “pipeline” feeling of {moduleName}`none`-checks front and center:
 
 ```anchor firstThirdInfix
 def firstThirdInfix (xs : List α) : Option (α × α) :=
@@ -345,6 +351,9 @@ def firstThirdFifthSeventh (xs : List α) : Except String (α × α × α × α)
 :::
 
 ## Logging
+%%%
+tag := "logging"
+%%%
 
 :::paragraph
 A number is even if dividing it by 2 leaves no remainder:
@@ -365,7 +374,7 @@ def sumAndFindEvens : List Int → List Int × Int
 :::paragraph
 This function is a simplified example of a common pattern.
 Many programs need to traverse a data structure once, while both computing a main result and accumulating some kind of tertiary extra result.
-One example of this is logging: a program that is an `IO` action can always log to a file on disk, but because the disk is outside of the mathematical world of Lean functions, it becomes much more difficult to prove things about logs based on {moduleName}`IO`.
+One example of this is logging: a program that is an {moduleName}`IO` action can always log to a file on disk, but because the disk is outside of the mathematical world of Lean functions, it becomes much more difficult to prove things about logs based on {moduleName}`IO`.
 Another example is a function that computes the sum of all the nodes in a tree with an inorder traversal, while simultaneously recording each nodes visited:
 
 ```anchor inorderSum
@@ -375,14 +384,15 @@ def inorderSum : BinTree Int → List Int × Int
     let (leftVisited, leftSum) := inorderSum l
     let (hereVisited, hereSum) := ([x], x)
     let (rightVisited, rightSum) := inorderSum r
-    (leftVisited ++ hereVisited ++ rightVisited, leftSum + hereSum + rightSum)
+    (leftVisited ++ hereVisited ++ rightVisited,
+     leftSum + hereSum + rightSum)
 ```
 :::
 
-Both `sumAndFindEvens` and `inorderSum` have a common repetitive structure.
+Both {anchorName sumAndFindEvensDirect}`sumAndFindEvens` and {anchorName inorderSum}`inorderSum` have a common repetitive structure.
 Each step of computation returns a pair that consists of a list of data that have been saved along with the primary result.
 The lists are then appended, and the primary result is computed and paired with the appended lists.
-The common structure becomes more apparent with a small rewrite of `sumAndFindEvens` that more cleanly separates the concerns of saving even numbers and computing the sum:
+The common structure becomes more apparent with a small rewrite of {anchorName sumAndFindEvensDirectish}`sumAndFindEvens` that more cleanly separates the concerns of saving even numbers and computing the sum:
 
 ```anchor sumAndFindEvensDirectish
 def sumAndFindEvens : List Int → List Int × Int
@@ -400,7 +410,7 @@ structure WithLog (logged : Type) (α : Type) where
   log : List logged
   val : α
 ```
-Similarly, the process of saving a list of accumulated results while passing a value on to the next step of a computation can be factored out into a helper, once again named `andThen`:
+Similarly, the process of saving a list of accumulated results while passing a value on to the next step of a computation can be factored out into a helper, once again named {anchorName andThenWithLog}`andThen`:
 
 ```anchor andThenWithLog
 def andThen (result : WithLog α β) (next : β → WithLog α γ) : WithLog α γ :=
@@ -408,21 +418,21 @@ def andThen (result : WithLog α β) (next : β → WithLog α γ) : WithLog α 
   let {log := nextOut, val := nextRes} := next thisRes
   {log := thisOut ++ nextOut, val := nextRes}
 ```
-In the case of errors, `ok` represents an operation that always succeeds.
+In the case of errors, {anchorName okWithLog}`ok` represents an operation that always succeeds.
 Here, however, it is an operation that simply returns a value without logging anything:
 
 ```anchor okWithLog
 def ok (x : β) : WithLog α β := {log := [], val := x}
 ```
-Just as `Except` provides `fail` as a possibility, `WithLog` should allow items to be added to a log.
-This has no interesting return value associated with it, so it returns `Unit`:
+Just as {anchorName Except}`Except` provides {anchorName failExcept}`fail` as a possibility, {anchorName WithLog}`WithLog` should allow items to be added to a log.
+This has no interesting return value associated with it, so it returns {anchorName save}`Unit`:
 
 ```anchor save
 def save (data : α) : WithLog α Unit :=
   {log := [data], val := ()}
 ```
 
-`WithLog`, `andThen`, `ok`, and `save` can be used to separate the logging concern from the summing concern in both programs:
+{anchorName WithLog}`WithLog`, {anchorName andThenWithLog}`andThen`, {anchorName okWithLog}`ok`, and {anchorName save}`save` can be used to separate the logging concern from the summing concern in both programs:
 
 ```anchor sumAndFindEvensAndThen
 def sumAndFindEvens : List Int → WithLog Int Int
@@ -466,6 +476,9 @@ def inorderSum : BinTree Int → WithLog Int Int
 ```
 
 ## Numbering Tree Nodes
+%%%
+tag := "numbering-tree-nodes"
+%%%
 
 An {deftech}_inorder numbering_ of a tree associates each data point in the tree with the step it would be visited at in an inorder traversal of the tree.
 For example, consider {anchorName aTree}`aTree`:
@@ -521,7 +534,7 @@ def number(tree):
 
     return helper(tree)
 ```
-The numbering of the Python equivalent of `aTree` is:
+The numbering of the Python equivalent of {anchorName aTree}`aTree` is:
 ```includePython "../examples/inorder_python/inordernumbering.py" (anchor := a_tree)
 a_tree = Branch("d",
                 left=Branch("c",
@@ -530,7 +543,7 @@ a_tree = Branch("d",
                 right=Branch("e"))
 ```
 and its numbering is:
-```command inorderpy "inorder_python" (show := ">>> number(a_tree)")
+```command inorderpy "inorder_python" (prompt := ">>> ") (show := "number(a_tree)")
 python3 inordernumbering.py
 ```
 ```commandOut inorderpy "python3 inordernumbering.py"
@@ -624,8 +637,8 @@ Because {anchorName State}`State` simulates only a single local variable, {ancho
 
 Each of these examples has consisted of:
  * A polymorphic type, such as {moduleName}`Option`, {moduleTerm}`Except ε`, {moduleTerm}`WithLog logged`, or {moduleTerm}`State σ`
- * An operator `andThen` that takes care of some repetitive aspect of sequencing programs that have this type
- * An operator `ok` that is (in some sense) the most boring way to use the type
+ * An operator {lit}`andThen` that takes care of some repetitive aspect of sequencing programs that have this type
+ * An operator {lit}`ok` that is (in some sense) the most boring way to use the type
  * A collection of other operations, such as {moduleName}`none`, {anchorName failExcept}`fail`, {anchorName save}`save`, and {anchorName get}`get`, that name ways of using the type
 
 This style of API is called a {deftech}_monad_.
@@ -636,3 +649,11 @@ For example, {moduleName}`Option` represents programs that can fail by returning
 {include 1 FPLean.Monads.Class}
 
 {include 1 FPLean.Monads.Arithmetic}
+
+{include 1 FPLean.Monads.Do}
+
+{include 1 FPLean.Monads.IO}
+
+{include 1 FPLean.Monads.Conveniences}
+
+{include 1 FPLean.Monads.Summary}

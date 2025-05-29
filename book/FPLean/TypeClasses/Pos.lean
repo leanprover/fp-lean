@@ -67,7 +67,7 @@ failed to synthesize
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 
-Each of these error messages begins with `failed to synthesize instance`.
+Each of these error messages begins with {lit}`failed to synthesize`.
 This indicates that the error is due to an overloaded operation that has not been implemented, and it describes the type class that must be implemented.
 
 # Classes and Instances
@@ -77,9 +77,9 @@ The parameters describe the types for which overloadable operations are being de
 Once again, there is a terminology clash with object-oriented languages.
 In object-oriented programming, a method is essentially a function that is connected to a particular object in memory, with special access to the object's private state.
 Objects are interacted with via their methods.
-In Lean, the term "method" refers to an operation that has been declared to be overloadable, with no special connection to objects or values or private fields.
+In Lean, the term “method” refers to an operation that has been declared to be overloadable, with no special connection to objects or values or private fields.
 
-One way to overload addition is to define a type class named {anchorName Plus}`Plus`, with an addition method named `plus`.
+One way to overload addition is to define a type class named {anchorName Plus}`Plus`, with an addition method named {anchorName Plus}`plus`.
 Once an instance of {anchorTerm Plus}`Plus` for {moduleTerm}`Nat` has been defined, it becomes possible to add two {moduleTerm}`Nat`s using {anchorName plusNatFiveThree}`Plus.plus`:
 ```anchor plusNatFiveThree
 #eval Plus.plus 5 3
@@ -95,27 +95,27 @@ In the following type class declaration, {anchorName Plus}`Plus` is the name of 
 class Plus (α : Type) where
   plus : α → α → α
 ```
-This declaration says that there is a type class {anchorName Plus}`Plus` that overloads operations with respect to a type `α`.
-In particular, there is one overloaded operation called `plus` that takes two `α`s and returns an `α`.
+This declaration says that there is a type class {anchorName Plus}`Plus` that overloads operations with respect to a type {anchorName Plus}`α`.
+In particular, there is one overloaded operation called {anchorName Plus}`plus` that takes two {anchorName Plus}`α`s and returns an {anchorName Plus}`α`.
 
 Type classes are first class, just as types are first class.
 In particular, a type class is another kind of type.
-The type of {anchorTerm PlusType}`Plus` is {anchorTerm PlusType}`Type → Type`, because it takes a type as an argument (`α`) and results in a new type that describes the overloading of {anchorName Plus}`Plus`'s operation for `α`.
+The type of {anchorTerm PlusType}`Plus` is {anchorTerm PlusType}`Type → Type`, because it takes a type as an argument ({anchorName Plus}`α`) and results in a new type that describes the overloading of {anchorName Plus}`Plus`'s operation for {anchorName Plus}`α`.
 
 
-To overload `plus` for a particular type, write an instance:
+To overload {anchorName PlusNat}`plus` for a particular type, write an instance:
 
 ```anchor PlusNat
 instance : Plus Nat where
   plus := Nat.add
 ```
-The colon after `instance` indicates that `Plus Nat` is indeed a type.
-Each method of class {anchorName Plus}`Plus` should be assigned a value using `:=`.
-In this case, there is only one method: `plus`.
+The colon after {anchorTerm PlusNat}`instance` indicates that {anchorTerm PlusNat}`Plus Nat` is indeed a type.
+Each method of class {anchorName Plus}`Plus` should be assigned a value using {anchorTerm PlusNat}`:=`.
+In this case, there is only one method: {anchorName PlusNat}`plus`.
 
 By default, type class methods are defined in a namespace with the same name as the type class.
-It can be convenient to `open` the namespace so that users don't need to type the name of the class first.
-Parentheses in an `open` command indicate that only the indicated names from the namespace are to be made accessible:
+It can be convenient to {anchorTerm openPlus}`open` the namespace so that users don't need to type the name of the class first.
+Parentheses in an {kw}`open` command indicate that only the indicated names from the namespace are to be made accessible:
 
 ```anchor openPlus
 open Plus (plus)
@@ -127,7 +127,7 @@ open Plus (plus)
 8
 ```
 
-Defining an addition function for `Pos` and an instance of `Plus Pos` allows `plus` to be used to add both `Pos` and {moduleTerm}`Nat` values:
+Defining an addition function for {anchorName PlusPos}`Pos` and an instance of {anchorTerm PlusPos}`Plus Pos` allows {anchorName PlusPos}`plus` to be used to add both {anchorName PlusPos}`Pos` and {moduleTerm}`Nat` values:
 
 ```anchor PlusPos
 def Pos.plus : Pos → Pos → Pos
@@ -153,14 +153,17 @@ Additional diagnostic information may be available using the `set_option diagnos
 These errors mean that Lean was unable to find an instance for a given type class.
 
 # Overloaded Addition
+%%%
+tag := "overloaded-addition"
+%%%
 
-Lean's built-in addition operator is syntactic sugar for a type class called `HAdd`, which flexibly allows the arguments to addition to have different types.
-`HAdd` is short for _heterogeneous addition_.
-For example, an `HAdd` instance can be written to allow a {moduleName}`Nat` to be added to a `Float`, resulting in a new `Float`.
+Lean's built-in addition operator is syntactic sugar for a type class called {anchorName chapterIntro}`HAdd`, which flexibly allows the arguments to addition to have different types.
+{anchorName chapterIntro}`HAdd` is short for _heterogeneous addition_.
+For example, an {anchorName chapterIntro}`HAdd` instance can be written to allow a {moduleName}`Nat` to be added to a {anchorName fiveZeros}`Float`, resulting in a new {anchorName fiveZeros}`Float`.
 When a programmer writes {anchorTerm plusDesugar}`x + y`, it is interpreted as meaning {anchorTerm plusDesugar}`HAdd.hAdd x y`.
 
-While an understanding of the full generality of `HAdd` relies on features that are discussed in {ref "out-params"}[another section in this chapter], there is a simpler type class called `Add` that does not allow the types of the arguments to be mixed.
-The Lean libraries are set up so that an instance of `Add` will be found when searching for an instance of `HAdd` in which both arguments have the same type.
+While an understanding of the full generality of {anchorName chapterIntro}`HAdd` relies on features that are discussed in {ref "out-params"}[another section in this chapter], there is a simpler type class called {anchorName AddPos}`Add` that does not allow the types of the arguments to be mixed.
+The Lean libraries are set up so that an instance of {anchorName AddPos}`Add` will be found when searching for an instance of {anchorName chapterIntro}`HAdd` in which both arguments have the same type.
 
 Defining an instance of {anchorTerm AddPos}`Add Pos` allows {anchorTerm AddPos}`Pos` values to use ordinary addition syntax:
 
@@ -176,10 +179,10 @@ def fourteen : Pos := seven + seven
 
 Another useful built-in class is called {anchorName UglyToStringPos}`ToString`.
 Instances of {anchorName UglyToStringPos}`ToString` provide a standard way of converting values from a given type into strings.
-For example, a {anchorName UglyToStringPos}`ToString` instance is used when a value occurs in an interpolated string, and it determines how the `IO.println` function used at the [beginning of the description of `IO`](../hello-world/running-a-program.html#running-a-program) will display a value.
+For example, a {anchorName UglyToStringPos}`ToString` instance is used when a value occurs in an interpolated string, and it determines how the {anchorName printlnType}`IO.println` function used at the {ref "running-a-program"}[beginning of the description of {anchorName readFile}`IO`] will display a value.
 
-For example, one way to convert a `Pos` into a `String` is to reveal its inner structure.
-The function `posToString` takes a `Bool` that determines whether to parenthesize uses of `Pos.succ`, which should be `true` in the initial call to the function and `false` in all recursive calls.
+For example, one way to convert a {anchorName Pos}`Pos` into a {anchorName readFile}`String` is to reveal its inner structure.
+The function {anchorName posToStringStructure}`posToString` takes a {anchorName posToStringStructure}`Bool` that determines whether to parenthesize uses of {anchorName posToStringStructure}`Pos.succ`, which should be {anchorName CoeBoolProp}`true` in the initial call to the function and {anchorName posToStringStructure}`false` in all recursive calls.
 
 ```anchor posToStringStructure
 def posToString (atTop : Bool) (p : Pos) : String :=
@@ -221,11 +224,11 @@ instance : ToString Pos where
 "There are 7"
 ```
 When more than one instance is defined, the most recent takes precedence.
-Additionally, if a type has a {anchorName UglyToStringPos}`ToString` instance, then it can be used to display the result of {kw}`#eval` even if the type in question was not defined with `deriving Repr`, so {anchorTerm sevenEvalStr}`#eval seven` outputs {anchorInfo sevenEvalStr}`7`.
+Additionally, if a type has a {anchorName UglyToStringPos}`ToString` instance, then it can be used to display the result of {kw}`#eval` even if the type in question was not defined with {anchorTerm JSON}`deriving Repr`, so {anchorTerm sevenEvalStr}`#eval seven` outputs {anchorInfo sevenEvalStr}`7`.
 
 # Overloaded Multiplication
 
-For multiplication, there is a type class called `HMul` that allows mixed argument types, just like `HAdd`.
+For multiplication, there is a type class called {anchorName MulPPoint}`HMul` that allows mixed argument types, just like {anchorName chapterIntro}`HAdd`.
 Just as {anchorTerm plusDesugar}`x + y` is interpreted as {anchorTerm plusDesugar}[`HAdd.hAdd x y`], {anchorTerm timesDesugar}`x * y` is interpreted as {anchorTerm timesDesugar}`HMul.hMul x y`.
 For the common case of multiplication of two arguments with the same type, a {moduleTerm}`Mul` instance suffices.
 
@@ -255,22 +258,22 @@ tag := "literal-numbers"
 %%%
 
 It is quite inconvenient to write out a sequence of constructors for positive numbers.
-One way to work around the problem would be to provide a function to convert a {moduleTerm}`Nat` into a `Pos`.
+One way to work around the problem would be to provide a function to convert a {moduleTerm}`Nat` into a {anchorName Pos}`Pos`.
 However, this approach has downsides.
-First off, because {moduleTerm}`Pos` cannot represent `0`, the resulting function would either convert a {moduleTerm}`Nat` to a bigger number, or it would return {moduleTerm}`Option Pos`.
+First off, because {moduleTerm}`Pos` cannot represent {anchorTerm nats}`0`, the resulting function would either convert a {moduleTerm}`Nat` to a bigger number, or it would return {moduleTerm}`Option Pos`.
 Neither is particularly convenient for users.
 Secondly, the need to call the function explicitly would make programs that use positive numbers much less convenient to write than programs that use {moduleTerm}`Nat`.
 Having a trade-off between precise types and convenient APIs means that the precise types become less useful.
 
 There are two type classes that are used to overload numeric literals: {moduleName}`Zero` and {moduleName}`OfNat`.
-Because many types have values that are naturally written with `0`, the {moduleName}`Zero` class allow these specific values to be overridden.
+Because many types have values that are naturally written with {anchorTerm nats}`0`, the {moduleName}`Zero` class allow these specific values to be overridden.
 It is defined as follows:
 
 ```anchor Zero
 class Zero (α : Type) where
   zero : α
 ```
-Because `0` is not a positive number, there should be no instance of {moduleTerm}`Zero Pos`.
+Because {anchorTerm nats}`0` is not a positive number, there should be no instance of {moduleTerm}`Zero Pos`.
 
 In Lean, natural number literals are interpreted using a type class called {moduleName}`OfNat`:
 
@@ -386,13 +389,16 @@ structure Pos where
 Define instances of {moduleName}`Add`, {moduleName}`Mul`, {anchorName UglyToStringPos}`ToString`, and {moduleName}`OfNat` that allow this version of {anchorName AltPos}`Pos` to be used conveniently.
 
 ## Even Numbers
+%%%
+tag := "even-numbers-ex"
+%%%
 
 Define a datatype that represents only even numbers. Define instances of {moduleName}`Add`, {moduleName}`Mul`, and {anchorName UglyToStringPos}`ToString` that allow it to be used conveniently.
 {moduleName}`OfNat` requires a feature that is introduced in {ref "tc-polymorphism"}[the next section].
 
 ## HTTP Requests
 
-An HTTP request begins with an identification of a HTTP method, such as `GET` or `POST`, along with a URI and an HTTP version.
+An HTTP request begins with an identification of a HTTP method, such as {lit}`GET` or {lit}`POST`, along with a URI and an HTTP version.
 Define an inductive type that represents an interesting subset of the HTTP methods, and a structure that represents HTTP responses.
 Responses should have a {anchorName UglyToStringPos}`ToString` instance that makes it possible to debug them.
 Use a type class to associate different {moduleName}`IO` actions with each HTTP method, and write a test harness as an {moduleName}`IO` action that calls each method and prints the result.

@@ -7,6 +7,7 @@ import FPLean.TypeClasses.OutParams
 import FPLean.TypeClasses.Indexing
 import FPLean.TypeClasses.Coercions
 import FPLean.TypeClasses.Conveniences
+import FPLean.TypeClasses.StandardClasses
 import FPLean.TypeClasses.Summary
 
 open Verso.Genre Manual
@@ -22,7 +23,7 @@ set_option pp.rawOnError true
 #doc (Manual) "Overloading and Type Classes" =>
 
 In many languages, the built-in datatypes get special treatment.
-For example, in C and Java, `+` can be used to add `float`s and `int`s, but not arbitrary-precision numbers from a third-party library.
+For example, in C and Java, {lit}`+` can be used to add {c}`float`s and {c}`int`s, but not arbitrary-precision numbers from a third-party library.
 Similarly, numeric literals can be used directly for the built-in types, but not for user-defined number types.
 Other languages provide an {deftech}_overloading_ mechanism for operators, where the same operator can be given a meaning for a new type.
 In these languages, such as C++ and C#, a wide variety of built-in operators can be overloaded, and the compiler uses the type checker to select a particular implementation.
@@ -60,6 +61,8 @@ In this way, they are very similar to Rust traits.
 {include 1 FPLean.TypeClasses.OutParams}
 
 {include 1 FPLean.TypeClasses.Indexing}
+
+{include 1 FPLean.TypeClasses.StandardClasses}
 
 {include 1 FPLean.TypeClasses.Coercions}
 

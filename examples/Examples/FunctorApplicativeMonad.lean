@@ -9,6 +9,13 @@ structure MythicalCreature where
 deriving Repr
 -- ANCHOR_END: MythicalCreature
 
+-- ANCHOR: MythicalCreatureMore
+section
+open MythicalCreature
+example := mk
+end
+-- ANCHOR_END: MythicalCreatureMore
+
 
 -- ANCHOR: Monster
 structure Monster extends MythicalCreature where
@@ -150,6 +157,12 @@ def nisse : Helper where
 structure MonstrousAssistant extends Monster, Helper where
 deriving Repr
 -- ANCHOR_END: MonstrousAssistant
+
+-- ANCHOR: MonstrousAssistantMore
+example := MonstrousAssistant.toMonster
+example := MonstrousAssistant.toHelper
+example := Hashable
+-- ANCHOR_END: MonstrousAssistantMore
 
 
 /-- info:
@@ -295,7 +308,10 @@ Seq.seq E1 (fun () => E2)
 -- ANCHOR_END: seqSugar
 
 -- ANCHOR: bindType
-example : m α → (α → m β) → m β := Bind.bind
+section
+open Monad
+example : m α → (α → m β) → m β := bind
+end
 -- ANCHOR_END: bindType
 
 
@@ -401,6 +417,12 @@ Pair.mk x y
 -- ANCHOR_END: checkPairMapId
 end evaluation steps
 
+-- ANCHOR: ApplicativePair
+example := Applicative (Pair α)
+example := Empty
+-- ANCHOR_END: ApplicativePair
+
+
 evaluation steps {{{ checkPairMapComp1 }}}
 -- ANCHOR: checkPairMapComp1
 f <$> g <$> Pair.mk x y
@@ -485,6 +507,10 @@ some (f (g x))
 -- ANCHOR_END: OptionHomomorphism1
 end evaluation steps
 
+-- ANCHOR: OptionHomomorphism
+example : some (· ∘ ·) <*> some f <*> some g <*> some x = some f <*> (some g <*> some x) := by rfl
+-- ANCHOR_END: OptionHomomorphism
+
 evaluation steps {{{ OptionHomomorphism2 }}}
 -- ANCHOR: OptionHomomorphism2
 some f <*> (some g <*> some x)
@@ -515,7 +541,14 @@ f <$> some x
 ===>
 some (f x)
 -- ANCHOR_END: OptionPureSeq
-end evaluation steps end ApplicativeOptionLaws2
+end evaluation steps
+
+-- ANCHOR: OptionPureSeq2
+example : some (fun g => g x) <*> some f = some (f x) := by rfl
+-- ANCHOR_END: OptionPureSeq2
+
+end ApplicativeOptionLaws2
+
 
 
 namespace ApplicativeToFunctor
@@ -525,7 +558,11 @@ def map [Applicative f] (g : α → β) (x : f α) : f β :=
   pure g <*> x
 -- ANCHOR_END: ApplicativeMap
 
-
+-- ANCHOR: names
+example := Prod
+example := Nat
+example := Int
+-- ANCHOR_END: names
 
 -- ANCHOR: ApplicativeExtendsFunctorOne
 class Applicative (f : Type → Type) extends Functor f where
@@ -533,6 +570,18 @@ class Applicative (f : Type → Type) extends Functor f where
   seq : f (α → β) → (Unit → f α) → f β
   map g x := seq (pure g) (fun () => x)
 -- ANCHOR_END: ApplicativeExtendsFunctorOne
+
+variable [_root_.Applicative F] [LawfulApplicative F] {x : F α} {f : β → γ} {g : α → β}
+-- ANCHOR: AppToFunTerms
+example : id <$> x = x := by simp
+example : map (f ∘ g) x = map f (map g x) := by
+  unfold map
+  show pure (f ∘ g) <*> x = pure f <*> (pure g <*> x)
+  suffices pure (· ∘ ·) <*> pure f <*> pure g <*> x = pure f <*> (pure g <*> x) by
+    rw [← this]; congr; simp
+  simp [LawfulApplicative.seq_assoc]
+-- ANCHOR_END: AppToFunTerms
+
 
 end ApplicativeToFunctor
 
@@ -589,6 +638,9 @@ v >>= fun y => pure (id y)
 v >>= fun y => pure y
 ={
 /-- `fun x => f x` is the same as `f` -/
+by
+  have {α β } {f : α → β} : (fun x => f x) = (f) := rfl
+  rfl
 }=
 v >>= pure
 ={
@@ -598,6 +650,19 @@ by simp [LawfulMonad.bind_pure_comp]
 v
 -- ANCHOR_END: mSeqRespId
 stop equational steps
+-- ANCHOR: mSeqRespIdInit
+open MonadApplicativeDesugar
+example : seq (pure id) (fun () => v) = v := by simp [seq]
+example {f : α → β} : (fun x => f x) = f := by rfl
+example :=
+  calc
+  seq (pure id) (fun () => v) = pure id >>= fun g => (fun () => v) () >>= fun y => pure (g y) := by rfl
+  _ = pure id >>= fun g => v >>= fun y => pure (g y) := by rfl
+  _ = v >>= fun y => pure (id y) := by simp
+  _ = v >>= fun y => pure y := by simp only [id_eq, bind_pure]
+  _ = v >>= pure := rfl
+  _ = v := by simp only [bind_pure]
+-- ANCHOR_END: mSeqRespIdInit
 end MonadApplicativeProof1
 
 namespace MonadApplicativeProof2
@@ -925,7 +990,8 @@ instance : LawfulMonad (Validate ε) where
 -- ANCHOR_END: unlawful
 
 -- ANCHOR: ValidateAndThen
-def Validate.andThen (val : Validate ε α) (next : α → Validate ε β) : Validate ε β :=
+def Validate.andThen (val : Validate ε α)
+    (next : α → Validate ε β) : Validate ε β :=
   match val with
   | .errors errs => .errors errs
   | .ok x => next x
@@ -948,6 +1014,10 @@ structure Subtype {α : Type} (p : α → Prop) where
 
 variable {α : Type}
 variable {p : α → Prop}
+
+example := Subtype p
+
+example := GetElem
 
 -- ANCHOR: subtypeSugar
 example : (
@@ -978,14 +1048,31 @@ def FastPos : Type := {x : Nat // x > 0}
 def one : FastPos := ⟨1, by decide⟩
 -- ANCHOR_END: one
 
+-- ANCHOR: onep
+example := 1 > 0
+-- ANCHOR_END: onep
 
+
+section
+variable {n : Nat}
 -- ANCHOR: OfNatFastPos
 instance : OfNat FastPos (n + 1) where
   ofNat := ⟨n + 1, by simp⟩
 -- ANCHOR_END: OfNatFastPos
 
+-- ANCHOR: OfNatFastPosp
+example := n + 1 > 0
+-- ANCHOR_END: OfNatFastPosp
+end
+
 def seven : FastPos := 7
 
+-- ANCHOR: NatFastPosRemarks
+section
+variable {α} (p : α → Prop)
+example := {x : α // p x}
+end
+-- ANCHOR_END: NatFastPosRemarks
 
 -- ANCHOR: NatFastPos
 def Nat.asFastPos? (n : Nat) : Option FastPos :=
@@ -1003,6 +1090,12 @@ structure CheckedInput (thisYear : Nat) : Type where
   birthYear : {y : Nat // y > 1900 ∧ y ≤ thisYear}
 -- ANCHOR_END: CheckedInput
 
+-- ANCHOR: CheckedInputEx
+example := CheckedInput 2019
+example := CheckedInput 2020
+example := (String.toNat? : String → Option Nat)
+example := String.trim
+-- ANCHOR_END: CheckedInputEx
 
 -- ANCHOR: Field
 def Field := String
@@ -1015,7 +1108,8 @@ def reportError (f : Field) (msg : String) : Validate (Field × String) α :=
 -- ANCHOR_END: reportError
 
 -- ANCHOR: checkName
-def checkName (name : String) : Validate (Field × String) {n : String // n ≠ ""} :=
+def checkName (name : String) :
+    Validate (Field × String) {n : String // n ≠ ""} :=
   if h : name = "" then
     reportError "name" "Required"
   else pure ⟨name, h⟩
@@ -1030,7 +1124,8 @@ def checkYearIsNat (year : String) : Validate (Field × String) Nat :=
 -- ANCHOR_END: checkYearIsNat
 
 -- ANCHOR: checkBirthYear
-def checkBirthYear (thisYear year : Nat) : Validate (Field × String) {y : Nat // y > 1900 ∧ y ≤ thisYear} :=
+def checkBirthYear (thisYear year : Nat) :
+    Validate (Field × String) {y : Nat // y > 1900 ∧ y ≤ thisYear} :=
   if h : year > 1900 then
     if h' : year ≤ thisYear then
       pure ⟨year, by simp [*]⟩
@@ -1040,7 +1135,8 @@ def checkBirthYear (thisYear year : Nat) : Validate (Field × String) {y : Nat /
 
 
 -- ANCHOR: checkInput
-def checkInput (year : Nat) (input : RawInput) : Validate (Field × String) (CheckedInput year) :=
+def checkInput (year : Nat) (input : RawInput) :
+    Validate (Field × String) (CheckedInput year) :=
   pure CheckedInput.mk <*>
     checkName input.name <*>
     (checkYearIsNat input.birthYear).andThen fun birthYearAsNat =>
@@ -1100,12 +1196,19 @@ match notFun with
   | .errors errs' => .errors (errs ++ errs')
 ===>
 match notArg with
-| .ok _ => .errors { head := "First error", tail := [] }
-| .errors errs' => .errors ({ head := "First error", tail := [] } ++ errs')
+| .ok _ =>
+  .errors { head := "First error", tail := [] }
+| .errors errs' =>
+  .errors ({ head := "First error", tail := [] } ++ errs')
 ===>
-.errors ({ head := "First error", tail := [] } ++ { head := "Second error", tail := []})
+.errors
+  ({ head := "First error", tail := [] } ++
+   { head := "Second error", tail := []})
 ===>
-.errors { head := "First error", tail := ["Second error"]}
+.errors {
+  head := "First error",
+  tail := ["Second error"]
+}
 -- ANCHOR_END: realSeq
 end evaluation steps
 
@@ -1153,9 +1256,15 @@ inductive LegacyCheckedInput where
 deriving Repr
 -- ANCHOR_END: LegacyCheckedInput
 
+-- ANCHOR: names1
+example := @LegacyCheckedInput.company
+-- ANCHOR_END: names1
 
 -- ANCHOR: ValidateorElse
-def Validate.orElse (a : Validate ε α) (b : Unit → Validate ε α) : Validate ε α :=
+def Validate.orElse
+    (a : Validate ε α)
+    (b : Unit → Validate ε α) :
+    Validate ε α :=
   match a with
   | .ok x => .ok x
   | .errors errs1 =>
@@ -1198,7 +1307,9 @@ instance : OrElse (Validate ε α) where
 
 
 -- ANCHOR: checkThat
-def checkThat (condition : Bool) (field : Field) (msg : String) : Validate (Field × String) Unit :=
+def checkThat (condition : Bool)
+    (field : Field) (msg : String) :
+    Validate (Field × String) Unit :=
   if condition then pure () else reportError field msg
 -- ANCHOR_END: checkThat
 
@@ -1206,9 +1317,11 @@ def checkThat (condition : Bool) (field : Field) (msg : String) : Validate (Fiel
 namespace Provisional
 
 -- ANCHOR: checkCompanyProv
-def checkCompany (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
+def checkCompany (input : RawInput) :
+    Validate (Field × String) LegacyCheckedInput :=
   pure (fun () name => .company name) <*>
-    checkThat (input.birthYear == "FIRM") "birth year" "FIRM if a company" <*>
+    checkThat (input.birthYear == "FIRM")
+      "birth year" "FIRM if a company" <*>
     checkName input.name
 -- ANCHOR_END: checkCompanyProv
 
@@ -1245,8 +1358,10 @@ end FakeSeqRight
 namespace Provisional2
 
 -- ANCHOR: checkCompanyProv2
-def checkCompany (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
-  checkThat (input.birthYear == "FIRM") "birth year" "FIRM if a company" *>
+def checkCompany (input : RawInput) :
+    Validate (Field × String) LegacyCheckedInput :=
+  checkThat (input.birthYear == "FIRM")
+    "birth year" "FIRM if a company" *>
   pure .company <*> checkName input.name
 -- ANCHOR_END: checkCompanyProv2
 
@@ -1254,14 +1369,17 @@ end Provisional2
 
 
 -- ANCHOR: checkCompany
-def checkCompany (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
-  checkThat (input.birthYear == "FIRM") "birth year" "FIRM if a company" *>
+def checkCompany (input : RawInput) :
+    Validate (Field × String) LegacyCheckedInput :=
+  checkThat (input.birthYear == "FIRM")
+    "birth year" "FIRM if a company" *>
   .company <$> checkName input.name
 -- ANCHOR_END: checkCompany
 
 
 -- ANCHOR: checkSubtype
-def checkSubtype {α : Type} (v : α) (p : α → Prop) [Decidable (p v)] (err : ε) : Validate ε {x : α // p x} :=
+def checkSubtype {α : Type} (v : α) (p : α → Prop) [Decidable (p v)]
+    (err : ε) : Validate ε {x : α // p x} :=
   if h : p v then
     pure ⟨v, h⟩
   else
@@ -1270,26 +1388,33 @@ def checkSubtype {α : Type} (v : α) (p : α → Prop) [Decidable (p v)] (err :
 
 
 -- ANCHOR: checkHumanAfter1970
-def checkHumanAfter1970 (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
+def checkHumanAfter1970 (input : RawInput) :
+    Validate (Field × String) LegacyCheckedInput :=
   (checkYearIsNat input.birthYear).andThen fun y =>
     .humanAfter1970 <$>
-      checkSubtype y (· > 1970) ("birth year", "greater than 1970") <*>
+      checkSubtype y (· > 1970)
+        ("birth year", "greater than 1970") <*>
       checkName input.name
 -- ANCHOR_END: checkHumanAfter1970
 
 
 -- ANCHOR: checkHumanBefore1970
-def checkHumanBefore1970 (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
+def checkHumanBefore1970 (input : RawInput) :
+    Validate (Field × String) LegacyCheckedInput :=
   (checkYearIsNat input.birthYear).andThen fun y =>
     .humanBefore1970 <$>
-      checkSubtype y (fun x => x > 999 ∧ x < 1970) ("birth year", "less than 1970") <*>
+      checkSubtype y (fun x => x > 999 ∧ x < 1970)
+        ("birth year", "less than 1970") <*>
       pure input.name
 -- ANCHOR_END: checkHumanBefore1970
 
 
 -- ANCHOR: checkLegacyInput
-def checkLegacyInput (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
-  checkCompany input <|> checkHumanBefore1970 input <|> checkHumanAfter1970 input
+def checkLegacyInput (input : RawInput) :
+    Validate (Field × String) LegacyCheckedInput :=
+  checkCompany input <|>
+  checkHumanBefore1970 input <|>
+  checkHumanAfter1970 input
 -- ANCHOR_END: checkLegacyInput
 
 
@@ -1412,5 +1537,68 @@ def evenDivisors (n : Nat) : Many Nat := do
 
 end Guard
 
+-- ANCHOR: FunctorNames
+section
+example := Functor
+example := @Functor.map
+example := @Functor.mapConst
+open Functor
+example := @map
+end
+-- ANCHOR_END: FunctorNames
 
-#print Applicative
+-- ANCHOR: ApplicativeNames
+section
+example := Applicative
+end
+-- ANCHOR_END: ApplicativeNames
+
+
+-- ANCHOR: ApplicativeLaws
+section
+example := Functor
+example := Monad
+variable {α β γ : Type u} {F : Type u → Type v} [Applicative F] {v : F α} {u : F (β → γ)} {w : F α}
+example := pure id <*> v = v
+variable {γ : Type u} {v : F (α → β)}
+example := pure (· ∘ ·) <*> u <*> v <*> w = u <*> (v <*> w)
+variable (x : α) (f : α → β)
+example := @Eq (F β) (pure f <*> pure x) (pure (f x))
+variable (u : F (α → β))
+example := u <*> pure x = pure (fun f => f x) <*> u
+end
+
+section
+variable (f : α → β) [Applicative F] (E : F α)
+example := pure f <*> E = f <$> E
+example := @Functor.map
+end
+-- ANCHOR_END: ApplicativeLaws
+
+-- ANCHOR: misc
+section
+example := @Validate.errors
+def Validate.mapErrors : Validate ε α → (ε → ε') → Validate ε' α
+  | .ok v, _ => .ok v
+  | .errors ⟨x, xs⟩, f => .errors ⟨f x, xs.map f⟩
+def report : TreeError → String
+  | _ => "TODO (exercise)"
+variable {α ε}
+example := [Add α, HAdd α α α]
+example := Append ε
+end
+-- ANCHOR_END: misc
+
+-- ANCHOR: ApplicativeOptionLaws1
+section
+variable {v : Option α}
+example : some id <*> v = v := by simp [Seq.seq]
+example : id <$> v = v := by simp
+-- ANCHOR_END: ApplicativeOptionLaws1
+-- ANCHOR: ApplicativeOptionLaws2
+variable {α β γ : Type _} {w : Option α} {v : Option (α → β)} {u : Option (β → γ)}
+example : some (· ∘ ·) <*> u <*> v <*> w = u <*> (v <*> w) := by
+  simp [Seq.seq, Option.map]
+  cases u <;> cases v <;> cases w <;> simp
+end
+-- ANCHOR_END: ApplicativeOptionLaws2
