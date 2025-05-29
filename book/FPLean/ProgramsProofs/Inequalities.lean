@@ -465,7 +465,8 @@ Using {anchorName splitList_shorter_le}`Nat.le_succ_of_le` together with the {li
 
 ```anchor splitList_shorter_le
 theorem splitList_shorter_le (lst : List α) :
-    (splitList lst).fst.length ≤ lst.length ∧ (splitList lst).snd.length ≤ lst.length := by
+    (splitList lst).fst.length ≤ lst.length ∧
+      (splitList lst).snd.length ≤ lst.length := by
   induction lst with
   | nil => simp [splitList]
   | cons x xs ih =>
