@@ -116,6 +116,10 @@ number := false
 htmlSplit := .never
 %%%
 
+## June, 2025
+
+The book has been reformatted with Verso.
+
 ## April, 2025
 
 The book has been extensively updated and now describes Lean version 4.18.
