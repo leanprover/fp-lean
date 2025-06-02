@@ -1,253 +1,339 @@
-import Examples.Support
+import ExampleSupport
+
+set_option linter.unusedVariables false
+
+-- ANCHOR: natOrStringThree
+def natOrStringThree (b : Bool) : if b then Nat else String :=
+  match b with
+  | true => (3 : Nat)
+  | false => "three"
+-- ANCHOR_END: natOrStringThree
 
 
-book declaration {{{ natOrStringThree }}}
-  def natOrStringThree (b : Bool) : if b then Nat else String :=
-    match b with
-    | true => (3 : Nat)
-    | false => "three"
-stop book declaration
-
-
-book declaration {{{ Vect }}}
- inductive Vect (α : Type u) : Nat → Type u where
-    | nil : Vect α 0
-    | cons : α → Vect α n → Vect α (n + 1)
-stop book declaration
+-- ANCHOR: Vect
+inductive Vect (α : Type u) : Nat → Type u where
+   | nil : Vect α 0
+   | cons : α → Vect α n → Vect α (n + 1)
+-- ANCHOR_END: Vect
 
 deriving instance Repr for Vect
 
-book declaration {{{ vect3 }}}
-  example : Vect String 3 :=
-    .cons "one" (.cons "two" (.cons "three" .nil))
-stop book declaration
+-- ANCHOR: vect3
+example : Vect String 3 :=
+  .cons "one" (.cons "two" (.cons "three" .nil))
+-- ANCHOR_END: vect3
 
-expect error {{{ nilNotLengthThree }}}
-  example : Vect String 3 := Vect.nil
-message
-"type mismatch
+/-- error:
+type mismatch
   Vect.nil
 has type
   Vect ?m.1605 0 : Type ?u.1604
 but is expected to have type
-  Vect String 3 : Type"
-end expect
+  Vect String 3 : Type
+-/
+#check_msgs in
+-- ANCHOR: nilNotLengthThree
+example : Vect String 3 := Vect.nil
+-- ANCHOR_END: nilNotLengthThree
 
 
-expect error {{{ nilNotLengthN }}}
-  example : Vect String n := Vect.nil
-message
-"type mismatch
+/-- error:
+type mismatch
   Vect.nil
 has type
   Vect ?m.1602 0 : Type ?u.1576
 but is expected to have type
-  Vect String n : Type"
-end expect
+  Vect String n : Type
+-/
+#check_msgs in
+-- ANCHOR: nilNotLengthN
+example : Vect String n := Vect.nil
+-- ANCHOR_END: nilNotLengthN
 
 
-expect error {{{ consNotLengthN }}}
-  example : Vect String n := Vect.cons "Hello" (Vect.cons "world" Vect.nil)
-message
-"type mismatch
-  Vect.cons \"Hello\" (Vect.cons \"world\" Vect.nil)
+/-- error:
+type mismatch
+  Vect.cons "Hello" (Vect.cons "world" Vect.nil)
 has type
   Vect String (0 + 1 + 1) : Type
 but is expected to have type
-  Vect String n : Type"
-end expect
+  Vect String n : Type
+-/
+#check_msgs in
+-- ANCHOR: consNotLengthN
+example : Vect String n := Vect.cons "Hello" (Vect.cons "world" Vect.nil)
+-- ANCHOR_END: consNotLengthN
 
-expect error {{{ replicateStart }}}
-  def Vect.replicate (n : Nat) (x : α) : Vect α n := _
-message
-"don't know how to synthesize placeholder
+discarding
+/-- error:
+don't know how to synthesize placeholder
 context:
 α : Type u_1
 n : Nat
 x : α
-⊢ Vect α n"
-end expect
+⊢ Vect α n
+-/
+#check_msgs in
+-- ANCHOR: replicateStart
+def Vect.replicate (n : Nat) (x : α) : Vect α n := _
+-- ANCHOR_END: replicateStart
+stop discarding
 
-
-expect error {{{ replicateMatchOne }}}
-  def Vect.replicate (n : Nat) (x : α) : Vect α n :=
-    match n with
-    | 0 => _
-    | k + 1 => _
-message
-"don't know how to synthesize placeholder
-context:
-α : Type u_1
-n : Nat
-x : α
-⊢ Vect α 0"
-end expect
-
-
-expect error {{{ replicateMatchTwo }}}
-  def Vect.replicate (n : Nat) (x : α) : Vect α n :=
-    match n with
-    | 0 => _
-    | k + 1 => _
-message
-"don't know how to synthesize placeholder
+discarding
+/--
+error: don't know how to synthesize placeholder
 context:
 α : Type u_1
 n : Nat
 x : α
 k : Nat
-⊢ Vect α (k + 1)"
-end expect
+⊢ Vect α (k + 1)
+---
+error: don't know how to synthesize placeholder
+context:
+α : Type u_1
+n : Nat
+x : α
+⊢ Vect α 0
+-/
+#check_msgs in
+-- ANCHOR: replicateMatchOne
+def Vect.replicate (n : Nat) (x : α) : Vect α n :=
+  match n with
+  | 0 => _
+  | k + 1 => _
+-- ANCHOR_END: replicateMatchOne
+stop discarding
 
-expect error {{{ replicateMatchThree }}}
-  def Vect.replicate (n : Nat) (x : α) : Vect α n :=
-    match n with
-    | 0 => .nil
-    | k + 1 => _
-message
-"don't know how to synthesize placeholder
+discarding
+/--
+error: don't know how to synthesize placeholder
 context:
 α : Type u_1
 n : Nat
 x : α
 k : Nat
-⊢ Vect α (k + 1)"
-end expect
+⊢ Vect α (k + 1)
+---
+error: don't know how to synthesize placeholder
+context:
+α : Type u_1
+n : Nat
+x : α
+⊢ Vect α 0
+-/
+#check_msgs in
+-- ANCHOR: replicateMatchTwo
+def Vect.replicate (n : Nat) (x : α) : Vect α n :=
+  match n with
+  | 0 => _
+  | k + 1 => _
+-- ANCHOR_END: replicateMatchTwo
+stop discarding
 
-expect error {{{ replicateMatchFour }}}
-  def Vect.replicate (n : Nat) (x : α) : Vect α n :=
-    match n with
-    | 0 => .nil
-    | k + 1 => .cons _ _
-message
-"don't know how to synthesize placeholder
+discarding
+/-- error:
+don't know how to synthesize placeholder
 context:
 α : Type u_1
 n : Nat
 x : α
 k : Nat
-⊢ α"
-end expect
+⊢ Vect α (k + 1)
+-/
+#check_msgs in
+-- ANCHOR: replicateMatchThree
+def Vect.replicate (n : Nat) (x : α) : Vect α n :=
+  match n with
+  | 0 => .nil
+  | k + 1 => _
+-- ANCHOR_END: replicateMatchThree
+stop discarding
 
-expect error {{{ replicateMatchFive }}}
-  def Vect.replicate (n : Nat) (x : α) : Vect α n :=
-    match n with
-    | 0 => .nil
-    | k + 1 => .cons _ _
-message
-"don't know how to synthesize placeholder
+discarding
+/--
+error: don't know how to synthesize placeholder
 context:
 α : Type u_1
 n : Nat
 x : α
 k : Nat
-⊢ Vect α k "
-end expect
+⊢ Vect α k
+---
+error: don't know how to synthesize placeholder
+context:
+α : Type u_1
+n : Nat
+x : α
+k : Nat
+⊢ α
+-/
+#check_msgs in
+-- ANCHOR: replicateMatchFour
+def Vect.replicate (n : Nat) (x : α) : Vect α n :=
+  match n with
+  | 0 => .nil
+  | k + 1 => .cons _ _
+-- ANCHOR_END: replicateMatchFour
+stop discarding
 
+discarding
+/--
+error: don't know how to synthesize placeholder
+context:
+α : Type u_1
+n : Nat
+x : α
+k : Nat
+⊢ Vect α k
+---
+error: don't know how to synthesize placeholder
+context:
+α : Type u_1
+n : Nat
+x : α
+k : Nat
+⊢ α
+-/
+#check_msgs in
+-- ANCHOR: replicateMatchFive
+def Vect.replicate (n : Nat) (x : α) : Vect α n :=
+  match n with
+  | 0 => .nil
+  | k + 1 => .cons _ _
+-- ANCHOR_END: replicateMatchFive
+stop discarding
 
-
-expect error {{{ replicateOops }}}
-  def Vect.replicate (n : Nat) (x : α) : Vect α n :=
-    match n with
-    | 0 => .nil
-    | k + 1 => .cons x (.cons x (replicate k x))
-message
-"application type mismatch
+discarding
+/-- error:
+application type mismatch
   cons x (cons x (replicate k x))
 argument
   cons x (replicate k x)
 has type
   Vect α (k + 1) : Type ?u.1578
 but is expected to have type
-  Vect α k : Type ?u.1578"
-end expect
+  Vect α k : Type ?u.1578
+-/
+#check_msgs in
+-- ANCHOR: replicateOops
+def Vect.replicate (n : Nat) (x : α) : Vect α n :=
+  match n with
+  | 0 => .nil
+  | k + 1 => .cons x (.cons x (replicate k x))
+-- ANCHOR_END: replicateOops
+stop discarding
 
-
-book declaration {{{ replicate }}}
-  def Vect.replicate (n : Nat) (x : α) : Vect α n :=
-    match n with
-    | 0 => .nil
-    | k + 1 => .cons x (replicate k x)
-stop book declaration
+-- ANCHOR: replicate
+def Vect.replicate (n : Nat) (x : α) : Vect α n :=
+  match n with
+  | 0 => .nil
+  | k + 1 => .cons x (replicate k x)
+-- ANCHOR_END: replicate
 
 
 namespace Extras
-book declaration {{{ listReplicate }}}
-  def List.replicate (n : Nat) (x : α) : List α :=
-    match n with
-    | 0 => []
-    | k + 1 => x :: x :: replicate k x
-stop book declaration
+-- ANCHOR: listReplicate
+def List.replicate (n : Nat) (x : α) : List α :=
+  match n with
+  | 0 => []
+  | k + 1 => x :: x :: replicate k x
+-- ANCHOR_END: listReplicate
 end Extras
 
-expect info {{{ replicateHi }}}
-  #eval Vect.replicate 3 "hi"
-message
-"Vect.cons \"hi\" (Vect.cons \"hi\" (Vect.cons \"hi\" (Vect.nil)))"
-end expect
+/-- info:
+Vect.cons "hi" (Vect.cons "hi" (Vect.cons "hi" (Vect.nil)))
+-/
+#check_msgs in
+-- ANCHOR: replicateHi
+#eval Vect.replicate 3 "hi"
+-- ANCHOR_END: replicateHi
 
-bookExample {{{ zip1 }}}
-  ["Mount Hood",
-   "Mount Jefferson",
-   "South Sister"].zip ["Møllehøj", "Yding Skovhøj", "Ejer Bavnehøj"]
-  ===>
-  [("Mount Hood", "Møllehøj"),
-   ("Mount Jefferson", "Yding Skovhøj"),
-   ("South Sister", "Ejer Bavnehøj")]
-end bookExample
+-- ANCHOR: zip1
+example : (
+["Mount Hood",
+ "Mount Jefferson",
+ "South Sister"].zip ["Møllehøj", "Yding Skovhøj", "Ejer Bavnehøj"]
+) = (
+[("Mount Hood", "Møllehøj"),
+ ("Mount Jefferson", "Yding Skovhøj"),
+ ("South Sister", "Ejer Bavnehøj")]
+) := rfl
+-- ANCHOR_END: zip1
 
-bookExample {{{ zip2 }}}
-  [3428.8, 3201, 3158.5, 3075, 3064].zip [170.86, 170.77, 170.35]
-  ===>
-  [(3428.8, 170.86), (3201, 170.77), (3158.5, 170.35)]
-end bookExample
+-- ANCHOR: zip2
+example :
+[3428.8, 3201, 3158.5, 3075, 3064].zip [170.86, 170.77, 170.35]
+=
+[(3428.8, 170.86), (3201, 170.77), (3158.5, 170.35)]
+:= rfl
+-- ANCHOR_END: zip2
 
 
-book declaration {{{ VectZip }}}
-  def Vect.zip : Vect α n → Vect β n → Vect (α × β) n
-    | .nil, .nil => .nil
-    | .cons x xs, .cons y ys => .cons (x, y) (zip xs ys)
-stop book declaration
+-- ANCHOR: VectZip
+def Vect.zip : Vect α n → Vect β n → Vect (α × β) n
+  | .nil, .nil => .nil
+  | .cons x xs, .cons y ys => .cons (x, y) (zip xs ys)
+-- ANCHOR_END: VectZip
+
+--ANCHOR: otherEx
+example := Vect String 2
+example := @Vect.nil
+example := Except
+example := Option
+example := IO
+example := Prop
+example := Type 3
+example := @List.zip
+example := [1, 2, 3]
+example := List String
+example := 5
+example := Nat.succ Nat.zero
+--ANCHOR_END: otherEx
 
 namespace Other
 
 
-expect error {{{ zipMissing }}}
-  def List.zip : List α → List β → List (α × β)
-    | [], [] => []
-    | x :: xs, y :: ys => (x, y) :: zip xs ys
-message
-"missing cases:
+/-- error:
+missing cases:
 (List.cons _ _), []
-[], (List.cons _ _)"
-end expect
+[], (List.cons _ _)
+-/
+#check_msgs in
+-- ANCHOR: zipMissing
+def List.zip : List α → List β → List (α × β)
+  | [], [] => []
+  | x :: xs, y :: ys => (x, y) :: zip xs ys
+-- ANCHOR_END: zipMissing
 
-expect error {{{ zipExtraCons }}}
-  def Vect.zip : Vect α n → Vect β n → Vect (α × β) n
-    | .nil, .nil => .nil
-    | .nil, .cons y ys => .nil
-    | .cons x xs, .cons y ys => .cons (x, y) (zip xs ys)
-message
-"type mismatch
+/-- error:
+type mismatch
   Vect.cons y ys
 has type
   Vect ?m.3469 (?m.3480 + 1) : Type ?u.3477
 but is expected to have type
-  Vect β 0 : Type ?u.3344"
-end expect
+  Vect β 0 : Type ?u.3344
+-/
+#check_msgs in
+-- ANCHOR: zipExtraCons
+def Vect.zip : Vect α n → Vect β n → Vect (α × β) n
+  | .nil, .nil => .nil
+  | .nil, .cons y ys => .nil
+  | .cons x xs, .cons y ys => .cons (x, y) (zip xs ys)
+-- ANCHOR_END: zipExtraCons
 end Other
 
 namespace Details
 
-book declaration {{{ VectZipLen }}}
-  def Vect.zip : (n : Nat) → Vect α n → Vect β n → Vect (α × β) n
-    | 0, .nil, .nil => .nil
-    | k + 1, .cons x xs, .cons y ys => .cons (x, y) (zip k xs ys)
-stop book declaration
+-- ANCHOR: VectZipLen
+def Vect.zip : (n : Nat) → Vect α n → Vect β n → Vect (α × β) n
+  | 0, .nil, .nil => .nil
+  | k + 1, .cons x xs, .cons y ys => .cons (x, y) (zip k xs ys)
+-- ANCHOR_END: VectZipLen
 
 end Details
 
-
+-- ANCHOR: exerciseDefs
 def oregonianPeaks : Vect String 3 :=
   .cons "Mount Hood" <|
   .cons "Mount Jefferson" <|
@@ -258,55 +344,68 @@ def danishPeaks : Vect String 3 :=
   .cons "Yding Skovhøj" <|
   .cons "Ejer Bavnehøj" <| .nil
 
-
-expect info {{{ peaksVectZip }}}
-  #eval oregonianPeaks.zip danishPeaks
-message
-"Vect.cons
-  (\"Mount Hood\", \"Møllehøj\")
-  (Vect.cons (\"Mount Jefferson\", \"Yding Skovhøj\") (Vect.cons (\"South Sister\", \"Ejer Bavnehøj\") (Vect.nil)))"
-end expect
-
-def Vect.map (f : α → β) : Vect α n → Vect β n
-  | .nil => .nil
-  | .cons x xs => .cons (f x) (map f xs)
+def Vect.map : (α → β) → Vect α n → Vect β n
+  | f, .nil => .nil
+  | f, .cons x xs => .cons (f x) (xs.map f)
 
 def Vect.zipWith : (α → β → γ) → Vect α n → Vect β n → Vect γ n
   | f, .nil, .nil => .nil
-  | f, .cons x xs, .cons y ys => .cons (f x y) (zipWith f xs ys)
+  | f, .cons x xs, .cons y ys => .cons (f x y) (xs.zipWith f ys)
 
 def Vect.unzip : Vect (α × β) n → Vect α n × Vect β n
   | .nil => (.nil, .nil)
   | .cons (x, y) xys =>
-    let (xs, ys) := unzip xys
+    let (xs, ys) := xys.unzip
     (.cons x xs, .cons y ys)
+
 
 def Vect.push : Vect α n → α → Vect α (n + 1)
   | .nil, x => .cons x .nil
   | .cons y ys, x => .cons y (push ys x)
 
-
-expect info {{{ snocSnowy }}}
-  #eval Vect.push (.cons "snowy" .nil) "peaks"
-message
-"Vect.cons \"snowy\" (Vect.cons \"peaks\" (Vect.nil))"
-end expect
+def Vect.drop : (n : Nat) → Vect α (k + n) → Vect α k
+  | 0, xs => xs
+  | n + 1, .cons x xs => xs.drop n
 
 def Vect.reverse : Vect α n → Vect α n
   | .nil => .nil
-  | .cons x xs => Vect.push (reverse xs) x
+  | .cons x xs => xs.reverse.push x
 
-def Vect.drop : (n : Nat) → Vect α (k + n) → Vect α k
-  | 0, xs => xs
-  | j + 1, .cons _ xs => drop j xs
-
-
-expect info {{{ ejerBavnehoej }}}
-  #eval danishPeaks.drop 2
-message
-"Vect.cons \"Ejer Bavnehøj\" (Vect.nil)"
-end expect
-
+-- ANCHOR: take
 def Vect.take : (n : Nat) → Vect α (k + n) → Vect α n
-  | 0, _ => .nil
-  | j + 1, .cons x xs => .cons x (take j xs)
+  | 0, xs => .nil
+  | n + 1, .cons x xs => .cons x (xs.take n)
+-- ANCHOR_END: take
+
+-- ANCHOR_END: exerciseDefs
+
+
+/-- info:
+Vect.cons
+  ("Mount Hood", "Møllehøj")
+  (Vect.cons ("Mount Jefferson", "Yding Skovhøj") (Vect.cons ("South Sister", "Ejer Bavnehøj") (Vect.nil)))
+-/
+#check_msgs in
+-- ANCHOR: peaksVectZip
+#eval oregonianPeaks.zip danishPeaks
+-- ANCHOR_END: peaksVectZip
+
+
+
+
+/-- info:
+Vect.cons "snowy" (Vect.cons "peaks" (Vect.nil))
+-/
+#check_msgs in
+-- ANCHOR: snocSnowy
+#eval Vect.push (.cons "snowy" .nil) "peaks"
+-- ANCHOR_END: snocSnowy
+
+
+/-- info:
+Vect.cons "Ejer Bavnehøj" (Vect.nil)
+-/
+#check_msgs in
+-- ANCHOR: ejerBavnehoej
+#eval danishPeaks.drop 2
+-- ANCHOR_END: ejerBavnehoej

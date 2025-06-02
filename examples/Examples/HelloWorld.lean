@@ -1,145 +1,166 @@
-import Examples.Support
+import ExampleSupport
+open SubVerso.Examples
 
-expect info {{{ dropBang }}}
-  #eval "Hello!!!".dropRightWhile (· == '!')
-message
-"\"Hello\"
-"
-end expect
+-- ANCHOR: MainTypes
+discarding
+def main : IO Unit := pure ()
+stop discarding
+discarding
+def main : IO UInt32 := pure 0
+stop discarding
+discarding
+def main : List String → IO UInt32 := fun _ => pure 0
+stop discarding
 
-expect info {{{ dropNonLetter }}}
-  #eval "Hello...   ".dropRightWhile (fun c => not (c.isAlphanum))
-message
-"\"Hello\"
-"
-end expect
+-- ANCHOR_END: MainTypes
+
+/-- info:
+"Hello"
+-/
+#check_msgs in
+-- ANCHOR: dropBang
+#eval "Hello!!!".dropRightWhile (· == '!')
+-- ANCHOR_END: dropBang
+
+/-- info:
+"Hello"
+-/
+#check_msgs in
+-- ANCHOR: dropNonLetter
+#eval "Hello...   ".dropRightWhile (fun c => not (c.isAlphanum))
+-- ANCHOR_END: dropNonLetter
 
 
 
-book declaration {{{ twice }}}
+-- ANCHOR: twice
 def twice (action : IO Unit) : IO Unit := do
   action
   action
-stop book declaration
+-- ANCHOR_END: twice
 
-expect eval info {{{ twiceShy }}}
-  twice (IO.println "shy")
-message
-"shy
+%show_name twice as twice.name
+
+/--
+info: shy
 shy
-"
-end expect
+-/
+#check_msgs in
+-- ANCHOR: twiceShy
+#eval twice (IO.println "shy")
+-- ANCHOR_END: twiceShy
 
+example := Nat.zero
+example := Nat.succ
+example := "Hello, David!"
+example := "David"
+example {α : Type} := IO α
 
-
-book declaration {{{ nTimes }}}
+-- ANCHOR: nTimes
 def nTimes (action : IO Unit) : Nat → IO Unit
   | 0 => pure ()
   | n + 1 => do
     action
     nTimes action n
-stop book declaration
+-- ANCHOR_END: nTimes
 
-expect eval info {{{ nTimes3 }}}
-  nTimes (IO.println "Hello") 3
-message
-"Hello
-Hello
-Hello
-"
-end expect
+-- ANCHOR: nTimes3
+#eval nTimes (IO.println "Hello") 3
+-- ANCHOR_END: nTimes3
 
-book declaration {{{ countdown }}}
-  def countdown : Nat → List (IO Unit)
-    | 0 => [IO.println "Blast off!"]
-    | n + 1 => IO.println s!"{n + 1}" :: countdown n
-stop book declaration
+example : α → List α → List α := List.cons
+
+-- ANCHOR: countdown
+def countdown : Nat → List (IO Unit)
+  | 0 => [IO.println "Blast off!"]
+  | n + 1 => IO.println s!"{n + 1}" :: countdown n
+-- ANCHOR_END: countdown
 
 
-book declaration {{{ from5 }}}
-  def from5 : List (IO Unit) := countdown 5
-stop book declaration
+-- ANCHOR: from5
+def from5 : List (IO Unit) := countdown 5
+-- ANCHOR_END: from5
 
 
-expect info {{{ from5length }}}
-  #eval from5.length
-message
-"6
-"
-end expect
-book declaration {{{ runActions }}}
-  def runActions : List (IO Unit) → IO Unit
-    | [] => pure ()
-    | act :: actions => do
-      act
-      runActions actions
-stop book declaration
+/-- info:
+6
+-/
+#check_msgs in
+-- ANCHOR: from5length
+#eval from5.length
+-- ANCHOR_END: from5length
+-- ANCHOR: runActions
+def runActions : List (IO Unit) → IO Unit
+  | [] => pure ()
+  | act :: actions => do
+    act
+    runActions actions
+-- ANCHOR_END: runActions
 
 
-book declaration {{{ main }}}
-  def main : IO Unit := runActions from5
-stop book declaration
+-- ANCHOR: main
+def main : IO Unit := runActions from5
+-- ANCHOR_END: main
 
-expect eval info {{{ countdown5 }}}
-  main
-message
-"5
-4
+-- ANCHOR: countdown5
+#eval main
+-- ANCHOR_END: countdown5
+
+evaluation steps : IO Unit {{{ evalMain }}}
+-- ANCHOR: evalMain
+main
+===>
+runActions from5
+===>
+runActions (countdown 5)
+===>
+runActions
+  [IO.println "5",
+   IO.println "4",
+   IO.println "3",
+   IO.println "2",
+   IO.println "1",
+   IO.println "Blast off!"]
+===>
+do IO.println "5"
+   IO.println "4"
+   IO.println "3"
+   IO.println "2"
+   IO.println "1"
+   IO.println "Blast off!"
+   pure ()
+-- ANCHOR_END: evalMain
+end evaluation steps
+
+/-- info:
 3
 2
 1
 Blast off!
-"
-end expect
-
-evaluation steps : IO Unit {{{ evalMain }}}
-  main
-  ===>
-  runActions from5
-  ===>
-  runActions (countdown 5)
-  ===>
-  runActions
-    [IO.println "5",
-     IO.println "4",
-     IO.println "3",
-     IO.println "2",
-     IO.println "1",
-     IO.println "Blast off!"]
-  ===>
-  do IO.println "5"
-     IO.println "4"
-     IO.println "3"
-     IO.println "2"
-     IO.println "1"
-     IO.println "Blast off!"
-     pure ()
-end evaluation steps
-
-expect info {{{ evalDoesIO }}}
-  #eval runActions (countdown 3)
-message
-"3
-2
-1
-Blast off!"
-end expect
+-/
+#check_msgs in
+-- ANCHOR: evalDoesIO
+#eval runActions (countdown 3)
+-- ANCHOR_END: evalDoesIO
 
 -- Verify claim in book made about guillemets. The following should work:
 def «def» := 5
 
 namespace Exercises
-  book declaration {{{ ExMain }}}
-    def main : IO Unit := do
-      let englishGreeting := IO.println "Hello!"
-      IO.println "Bonjour!"
-      englishGreeting
-  stop book declaration
+--ANCHOR: ExMain
+def main : IO Unit := do
+  let englishGreeting := IO.println "Hello!"
+  IO.println "Bonjour!"
+  englishGreeting
+--ANCHOR_END: ExMain
 
   -- Part of a solution
-  expect info
-    #eval main
-  message
-  "Bonjour!\nHello!\n"
-  end expect
+  /-- info:
+Bonjour!
+Hello!
+
+-/
+#check_msgs in
+-- ANCHOR: unused
+#eval main
+  -- ANCHOR_END: unused
 end Exercises

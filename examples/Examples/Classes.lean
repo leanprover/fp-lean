@@ -1,674 +1,798 @@
-import Examples.Support
+import ExampleSupport
 
-book declaration {{{ Plus }}}
-  class Plus (α : Type) where
-    plus : α → α → α
-stop book declaration
+set_option guard_msgs.diff true
+
+-- Names in the chapter introduction
+-- ANCHOR: chapterIntro
+example := Add
+example := Nat
+example := [HAnd, HOr, HXor, HShiftRight, HShiftLeft]
+example := [Complement]
+example := [And, Or]
+example := ToString Nat
+example := @List.sum
+example := @Ord.compare
+example := String.intercalate
+example := String.trim
+example := "Hello!"
+example := [HAdd]
+example := Unit.unit
+example := Float.toString
+example := @List.map
+example {α β : _} := Coe α β
+section
+open System
+example := FilePath
+end
+-- ANCHOR_END: chapterIntro
+
+-- ANCHOR: arrVsList
+section
+variable {α : Type}
+example := Array α → List α
+open List
+#check cons
+example := @Array.size
+end
+-- ANCHOR_END: arrVsList
+
+-- ANCHOR: posrec
+section
+variable (n : Nat) (α : Type)
+example := [n, n + 1]
+example := α
+end
+-- ANCHOR_END: posrec
+
+-- ANCHOR: Plus
+class Plus (α : Type) where
+  plus : α → α → α
+-- ANCHOR_END: Plus
 
 
-bookExample type {{{ PlusType }}}
-  Plus
-  ===>
-  Type → Type
-end bookExample
+-- ANCHOR: PlusType
+example : Type → Type := Plus
+-- ANCHOR_END: PlusType
 
 
-book declaration {{{ PlusNat }}}
-  instance : Plus Nat where
-    plus := Nat.add
-stop book declaration
+-- ANCHOR: PlusNat
+instance : Plus Nat where
+  plus := Nat.add
+-- ANCHOR_END: PlusNat
 
 
-expect info {{{ plusNatFiveThree }}}
-  #eval Plus.plus 5 3
-message
-"8
-"
-end expect
+/-- info:
+8
+-/
+#check_msgs in
+-- ANCHOR: plusNatFiveThree
+#eval Plus.plus 5 3
+-- ANCHOR_END: plusNatFiveThree
 
 
-book declaration {{{ openPlus }}}
+-- ANCHOR: openPlus
 open Plus (plus)
-stop book declaration
+-- ANCHOR_END: openPlus
 
-expect info {{{ plusNatFiveThreeAgain }}}
-  #eval plus 5 3
-message
-"8
-"
-end expect
+/-- info:
+8
+-/
+#check_msgs in
+-- ANCHOR: plusNatFiveThreeAgain
+#eval plus 5 3
+-- ANCHOR_END: plusNatFiveThreeAgain
 
 #check plus
 
-bookExample type {{{ plusType }}}
-  @Plus.plus
-  ===>
-  {α : Type} → [Plus α] → α → α → α
-end bookExample
+-- ANCHOR: plusType
+example : {α : Type} → [Plus α] → α → α → α := @Plus.plus
+-- ANCHOR_END: plusType
 
-expect error {{{ plusFloatFail }}}
-  #eval plus 5.2 917.25861
-message
-"failed to synthesize
+/-- error:
+failed to synthesize
   Plus Float
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command."
-end expect
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#check_msgs in
+-- ANCHOR: plusFloatFail
+#eval plus 5.2 917.25861
+-- ANCHOR_END: plusFloatFail
 
+example := Plus Float
 
-book declaration {{{ Pos }}}
-  inductive Pos : Type where
-    | one : Pos
-    | succ : Pos → Pos
-stop book declaration
+-- ANCHOR: Nat.zero
+section
+open Nat
+example := zero
+end
+-- ANCHOR_END: Nat.zero
 
+-- ANCHOR: Pos
+inductive Pos : Type where
+  | one : Pos
+  | succ : Pos → Pos
+-- ANCHOR_END: Pos
 
-expect error {{{ sevenOops }}}
-  def seven : Pos := 7
-message
-"failed to synthesize
+example := Option Pos
+example := Zero Pos
+example := Nat.zero
+
+discarding
+/-- error:
+failed to synthesize
   OfNat Pos 7
 numerals are polymorphic in Lean, but the numeral `7` cannot be used in a context where the expected type is
   Pos
 due to the absence of the instance above
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command."
-end expect
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#check_msgs in
+-- ANCHOR: sevenOops
+def seven : Pos := 7
+-- ANCHOR_END: sevenOops
+stop discarding
 
+-- ANCHOR: seven
+def seven : Pos :=
+  Pos.succ (Pos.succ (Pos.succ (Pos.succ (Pos.succ (Pos.succ Pos.one)))))
+-- ANCHOR_END: seven
 
-book declaration {{{ seven }}}
-  def seven : Pos :=
-    Pos.succ (Pos.succ (Pos.succ (Pos.succ (Pos.succ (Pos.succ Pos.one)))))
-stop book declaration
-
-
-expect error {{{ fourteenOops }}}
-  def fourteen : Pos := seven + seven
-message
-"failed to synthesize
+discarding
+/-- error:
+failed to synthesize
   HAdd Pos Pos ?m.332
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command."
-end expect
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#check_msgs in
+-- ANCHOR: fourteenOops
+def fourteen : Pos := seven + seven
+-- ANCHOR_END: fourteenOops
+stop discarding
 
-expect error {{{ fortyNineOops }}}
-  def fortyNine : Pos := seven * seven
-message
-"failed to synthesize
+/-- error:
+failed to synthesize
   HMul Pos Pos ?m.332
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command."
-end expect
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#check_msgs in
+-- ANCHOR: fortyNineOops
+def fortyNine : Pos := seven * seven
+-- ANCHOR_END: fortyNineOops
 
 
 
-book declaration {{{ PlusPos }}}
-  def Pos.plus : Pos → Pos → Pos
-    | Pos.one, k => Pos.succ k
-    | Pos.succ n, k => Pos.succ (n.plus k)
+-- ANCHOR: PlusPos
+def Pos.plus : Pos → Pos → Pos
+  | Pos.one, k => Pos.succ k
+  | Pos.succ n, k => Pos.succ (n.plus k)
 
-  instance : Plus Pos where
-    plus := Pos.plus
+instance : Plus Pos where
+  plus := Pos.plus
 
-  def fourteen : Pos := plus seven seven
-stop book declaration
+def fourteen : Pos := plus seven seven
+-- ANCHOR_END: PlusPos
 
 
-book declaration {{{ AddPos }}}
-  instance : Add Pos where
-    add := Pos.plus
-stop book declaration
+-- ANCHOR: AddPos
+instance : Add Pos where
+  add := Pos.plus
+-- ANCHOR_END: AddPos
 
 namespace Extra
-book declaration {{{ betterFourteen }}}
-  def fourteen : Pos := seven + seven
-stop book declaration
+-- ANCHOR: betterFourteen
+def fourteen : Pos := seven + seven
+-- ANCHOR_END: betterFourteen
 end Extra
 
 namespace Foo
 
-axiom x : Nat
-axiom y : Nat
+variable {α β : Type} (x : α) (y : β) [HAdd α β γ]
 
-evaluation steps {{{ plusDesugar }}}
-  x + y
-  ===>
-  HAdd.hAdd x y
-end evaluation steps
+
+
+-- ANCHOR: plusDesugar
+example : x + y = HAdd.hAdd x y := rfl
+-- ANCHOR_END: plusDesugar
+
 
 end Foo
 
-bookExample type {{{ readFile }}}
-  IO.FS.readFile
-  ===>
-  System.FilePath → IO String
-end bookExample
+-- ANCHOR: readFile
+example : System.FilePath → IO String := IO.FS.readFile
+-- ANCHOR_END: readFile
 
-book declaration {{{ fileDumper }}}
-  def fileDumper : IO Unit := do
-    let stdin ← IO.getStdin
-    let stdout ← IO.getStdout
-    stdout.putStr "Which file? "
-    stdout.flush
-    let f := (← stdin.getLine).trim
-    stdout.putStrLn s!"'The file {f}' contains:"
-    stdout.putStrLn (← IO.FS.readFile f)
-stop book declaration
+-- ANCHOR: fileDumper
+def fileDumper : IO Unit := do
+  let stdin ← IO.getStdin
+  let stdout ← IO.getStdout
+  stdout.putStr "Which file? "
+  stdout.flush
+  let f := (← stdin.getLine).trim
+  stdout.putStrLn s!"'The file {f}' contains:"
+  stdout.putStrLn (← IO.FS.readFile f)
+-- ANCHOR_END: fileDumper
 
-book declaration {{{ posToNat }}}
+-- ANCHOR: posToNat
 def Pos.toNat : Pos → Nat
   | Pos.one => 1
   | Pos.succ n => n.toNat + 1
-stop book declaration
+-- ANCHOR_END: posToNat
 
 namespace Argh
 
-book declaration {{{ posToStringStructure }}}
+-- ANCHOR: posToStringStructure
 def posToString (atTop : Bool) (p : Pos) : String :=
   let paren s := if atTop then s else "(" ++ s ++ ")"
   match p with
   | Pos.one => "Pos.one"
   | Pos.succ n => paren s!"Pos.succ {posToString false n}"
-stop book declaration
+-- ANCHOR_END: posToStringStructure
 
-book declaration {{{ UglyToStringPos }}}
+-- ANCHOR: UglyToStringPos
 instance : ToString Pos where
   toString := posToString true
-stop book declaration
+-- ANCHOR_END: UglyToStringPos
 
 
-expect info {{{ sevenLong }}}
-  #eval s!"There are {seven}"
-message
-"\"There are Pos.succ (Pos.succ (Pos.succ (Pos.succ (Pos.succ (Pos.succ Pos.one)))))\"
-"
-end expect
+/-- info:
+"There are Pos.succ (Pos.succ (Pos.succ (Pos.succ (Pos.succ (Pos.succ Pos.one)))))"
+-/
+#check_msgs in
+-- ANCHOR: sevenLong
+#eval s!"There are {seven}"
+-- ANCHOR_END: sevenLong
 
 end Argh
 
 section Blah
 
 
-book declaration {{{ PosToStringNat }}}
+-- ANCHOR: PosToStringNat
 instance : ToString Pos where
   toString x := toString (x.toNat)
-stop book declaration
+-- ANCHOR_END: PosToStringNat
 
-expect info {{{ sevenShort }}}
-  #eval s!"There are {seven}"
-message
-"\"There are 7\"
-"
-end expect
+/-- info:
+"There are 7"
+-/
+#check_msgs in
+-- ANCHOR: sevenShort
+#eval s!"There are {seven}"
+-- ANCHOR_END: sevenShort
 end Blah
 
-expect info {{{ sevenEvalStr }}}
-  #eval seven
-message
-"7
-"
-end expect
+/-- info:
+7
+-/
+#check_msgs in
+-- ANCHOR: sevenEvalStr
+#eval seven
+-- ANCHOR_END: sevenEvalStr
 
 
 
 namespace Foo
+variable {α β : Type} (x : α) (y : β) [HMul α β γ]
 
-evaluation steps {{{ timesDesugar }}}
-  x * y
-  ===>
-  HMul.hMul x y
-end evaluation steps
+-- ANCHOR: timesDesugar
+example : x * y = HMul.hMul x y := by rfl
+-- ANCHOR_END: timesDesugar
+
 
 end Foo
 
 
 
-book declaration {{{ PosMul }}}
-  def Pos.mul : Pos → Pos → Pos
-    | Pos.one, k => k
-    | Pos.succ n, k => n.mul k + k
+-- ANCHOR: PosMul
+def Pos.mul : Pos → Pos → Pos
+  | Pos.one, k => k
+  | Pos.succ n, k => n.mul k + k
 
-  instance : Mul Pos where
-    mul := Pos.mul
-stop book declaration
+instance : Mul Pos where
+  mul := Pos.mul
+-- ANCHOR_END: PosMul
 
 
-expect info {{{ muls }}}
-  #eval [seven * Pos.one,
-         seven * seven,
-         Pos.succ Pos.one * seven]
-message
-"[7, 49, 14]"
-end expect
+/-- info:
+[7, 49, 14]
+-/
+#check_msgs in
+-- ANCHOR: muls
+#eval [seven * Pos.one,
+       seven * seven,
+       Pos.succ Pos.one * seven]
+-- ANCHOR_END: muls
 
 namespace NatLits
 
-book declaration {{{ Zero }}}
+-- ANCHOR: Zero
 class Zero (α : Type) where
   zero : α
-stop book declaration
+-- ANCHOR_END: Zero
 
-expect error {{{ updateMe }}}
-  -- To make sure this gets update next Lean release
-  #check One
-message
-  "unknown identifier 'One'"
-end expect
+/-- error:
+unknown identifier 'One'
+-/
+#check_msgs in
+-- ANCHOR: updateMe
+-- To make sure this gets update next Lean release
+#check One
+-- ANCHOR_END: updateMe
 
-book declaration {{{ OfNat }}}
+-- ANCHOR: OfNat
 class OfNat (α : Type) (_ : Nat) where
   ofNat : α
-stop book declaration
+-- ANCHOR_END: OfNat
 
 end NatLits
 similar datatypes Zero NatLits.Zero
 similar datatypes OfNat NatLits.OfNat
 
 
-book declaration {{{ LT4 }}}
-  inductive LT4 where
-    | zero
-    | one
-    | two
-    | three
-  deriving Repr
-stop book declaration
+-- ANCHOR: LT4
+inductive LT4 where
+  | zero
+  | one
+  | two
+  | three
+deriving Repr
+-- ANCHOR_END: LT4
 
 
-book declaration {{{ LT4ofNat }}}
-  instance : OfNat LT4 0 where
-    ofNat := LT4.zero
+-- ANCHOR: LT4ofNat
+instance : OfNat LT4 0 where
+  ofNat := LT4.zero
 
-  instance : OfNat LT4 1 where
-    ofNat := LT4.one
+instance : OfNat LT4 1 where
+  ofNat := LT4.one
 
-  instance : OfNat LT4 2 where
-    ofNat := LT4.two
+instance : OfNat LT4 2 where
+  ofNat := LT4.two
 
-  instance : OfNat LT4 3 where
-    ofNat := LT4.three
-stop book declaration
+instance : OfNat LT4 3 where
+  ofNat := LT4.three
+-- ANCHOR_END: LT4ofNat
 
 
-expect info {{{ LT4three }}}
-  #eval (3 : LT4)
-message
-  "LT4.three"
-end expect
+/-- info:
+LT4.three
+-/
+#check_msgs in
+-- ANCHOR: LT4three
+#eval (3 : LT4)
+-- ANCHOR_END: LT4three
 
-expect info {{{ LT4zero }}}
-  #eval (0 : LT4)
-message
-  "LT4.zero"
-end expect
+/-- info:
+LT4.zero
+-/
+#check_msgs in
+-- ANCHOR: LT4zero
+#eval (0 : LT4)
+-- ANCHOR_END: LT4zero
 
-expect error {{{ LT4four }}}
-  #eval (4 : LT4)
-message
-"failed to synthesize
+/-- error:
+failed to synthesize
   OfNat LT4 4
 numerals are polymorphic in Lean, but the numeral `4` cannot be used in a context where the expected type is
   LT4
 due to the absence of the instance above
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command."
-end expect
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#check_msgs in
+-- ANCHOR: LT4four
+#eval (4 : LT4)
+-- ANCHOR_END: LT4four
 
 
 
-book declaration {{{ OfNatPos }}}
-  instance : OfNat Pos (n + 1) where
-    ofNat :=
-      let rec natPlusOne : Nat → Pos
-        | 0 => Pos.one
-        | k + 1 => Pos.succ (natPlusOne k)
-      natPlusOne n
-stop book declaration
+-- ANCHOR: OfNatPos
+instance : OfNat Pos (n + 1) where
+  ofNat :=
+    let rec natPlusOne : Nat → Pos
+      | 0 => Pos.one
+      | k + 1 => Pos.succ (natPlusOne k)
+    natPlusOne n
+-- ANCHOR_END: OfNatPos
 
 
-book declaration {{{ eight }}}
-  def eight : Pos := 8
-stop book declaration
+-- ANCHOR: eight
+def eight : Pos := 8
+-- ANCHOR_END: eight
 
 
-expect error {{{ zeroBad }}}
-  def zero : Pos := 0
-message
-"failed to synthesize
+/-- error:
+failed to synthesize
   OfNat Pos 0
 numerals are polymorphic in Lean, but the numeral `0` cannot be used in a context where the expected type is
   Pos
 due to the absence of the instance above
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command."
-end expect
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#check_msgs in
+-- ANCHOR: zeroBad
+def zero : Pos := 0
+-- ANCHOR_END: zeroBad
 
 namespace AltPos
 
 
-book declaration {{{ AltPos }}}
-  structure Pos where
-    succ ::
-    pred : Nat
-stop book declaration
+-- ANCHOR: AltPos
+structure Pos where
+  succ ::
+  pred : Nat
+-- ANCHOR_END: AltPos
 
 end AltPos
 
-bookExample type {{{ printlnType }}}
-  @IO.println
-  ===>
-  {α : Type} → [ToString α] → α → IO Unit
-end bookExample
+-- ANCHOR: printlnType
+example : {α : Type} → [ToString α] → α → IO Unit := @IO.println
+-- ANCHOR_END: printlnType
 
 
-expect info {{{ printlnMetas }}}
-  #check (IO.println)
-message
-"IO.println : ?m.2620 → IO Unit"
-end expect
+/-- info:
+IO.println : ?m.2620 → IO Unit
+-/
+#check_msgs in
+-- ANCHOR: printlnMetas
+#check (IO.println)
+-- ANCHOR_END: printlnMetas
 
-expect info {{{ printlnNoMetas }}}
-  #check @IO.println
-message
-"@IO.println : {α : Type u_1} → [inst : ToString α] → α → IO Unit"
-end expect
+/-- info:
+@IO.println : {α : Type u_1} → [inst : ToString α] → α → IO Unit
+-/
+#check_msgs in
+-- ANCHOR: printlnNoMetas
+#check @IO.println
+-- ANCHOR_END: printlnNoMetas
 
 discarding
-book declaration {{{ ListSum }}}
-  def List.sumOfContents [Add α] [OfNat α 0] : List α → α
-    | [] => 0
-    | x :: xs => x + xs.sumOfContents
-stop book declaration
+-- ANCHOR: ListSum
+def List.sumOfContents [Add α] [OfNat α 0] : List α → α
+  | [] => 0
+  | x :: xs => x + xs.sumOfContents
+-- ANCHOR_END: ListSum
 stop discarding
 
-book declaration {{{ ListSumZ }}}
-  def List.sumOfContents [Add α] [Zero α] : List α → α
-    | [] => 0
-    | x :: xs => x + xs.sumOfContents
-stop book declaration
+-- ANCHOR: ListSumZ
+def List.sumOfContents [Add α] [Zero α] : List α → α
+  | [] => 0
+  | x :: xs => x + xs.sumOfContents
+-- ANCHOR_END: ListSumZ
 
 
-book declaration {{{ fourNats }}}
-  def fourNats : List Nat := [1, 2, 3, 4]
-stop book declaration
+-- ANCHOR: fourNats
+def fourNats : List Nat := [1, 2, 3, 4]
+-- ANCHOR_END: fourNats
 
 
-book declaration {{{ fourPos }}}
-  def fourPos : List Pos := [1, 2, 3, 4]
-stop book declaration
+-- ANCHOR: fourPos
+def fourPos : List Pos := [1, 2, 3, 4]
+-- ANCHOR_END: fourPos
 
 
-expect info {{{ fourNatsSum }}}
-  #eval fourNats.sumOfContents
-message
-"10"
-end expect
+/-- info:
+10
+-/
+#check_msgs in
+-- ANCHOR: fourNatsSum
+#eval fourNats.sumOfContents
+-- ANCHOR_END: fourNatsSum
 
 
-expect error {{{ fourPosSum }}}
-  #eval fourPos.sumOfContents
-message
-"failed to synthesize
+/-- error:
+failed to synthesize
   Zero Pos
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command."
-end expect
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#check_msgs in
+-- ANCHOR: fourPosSum
+#eval fourPos.sumOfContents
+-- ANCHOR_END: fourPosSum
 
 namespace PointStuff
 
 
-book declaration {{{ PPoint }}}
-  structure PPoint (α : Type) where
-    x : α
-    y : α
-  deriving Repr
-stop book declaration
+-- ANCHOR: PPoint
+structure PPoint (α : Type) where
+  x : α
+  y : α
+deriving Repr
+-- ANCHOR_END: PPoint
 
 
-book declaration {{{ AddPPoint }}}
-  instance [Add α] : Add (PPoint α) where
-    add p1 p2 := { x := p1.x + p2.x, y := p1.y + p2.y }
-stop book declaration
+-- ANCHOR: AddPPoint
+instance [Add α] : Add (PPoint α) where
+  add p1 p2 := { x := p1.x + p2.x, y := p1.y + p2.y }
+-- ANCHOR_END: AddPPoint
 
+example := Add (PPoint Nat)
+example := Add Nat
+
+-- ANCHOR: MulPPoint
 instance [Mul α] : HMul (PPoint α) α (PPoint α) where
   hMul p z := {x := p.x * z, y := p.y * z}
+-- ANCHOR_END: MulPPoint
 
-expect info {{{ HMulPPoint }}}
-  #eval {x := 2.5, y := 3.7 : PPoint Float} * 2.0
-message
- "{ x := 5.000000, y := 7.400000 }"
-end expect
+/-- info:
+{ x := 5.000000, y := 7.400000 }
+-/
+#check_msgs in
+-- ANCHOR: HMulPPoint
+#eval {x := 2.5, y := 3.7 : PPoint Float} * 2.0
+-- ANCHOR_END: HMulPPoint
 
 end PointStuff
 
 
 
-bookExample type {{{ ofNatType }}}
-  @OfNat.ofNat
-  ===>
-  {α : Type} → (n : Nat) → [OfNat α n] → α
-end bookExample
+-- ANCHOR: ofNatType
+example : {α : Type} → (n : Nat) → [OfNat α n] → α := @OfNat.ofNat
+-- ANCHOR_END: ofNatType
 
-bookExample type {{{ addType }}}
-  @Add.add
-  ===>
-  {α : Type} → [Add α] → α → α → α
-end bookExample
+-- ANCHOR: addType
+example : {α : Type} → [Add α] → α → α → α := @Add.add
+-- ANCHOR_END: addType
 
 
 namespace Foo
 
-evaluation steps {{{ minusDesugar }}}
-  x - y
-  ===>
-  HSub.hSub x y
-end evaluation steps
-
-evaluation steps {{{ divDesugar }}}
-  x / y
-  ===>
-  HDiv.hDiv x y
-end evaluation steps
-
-evaluation steps {{{ modDesugar }}}
-  x % y
-  ===>
-  HMod.hMod x y
-end evaluation steps
-
-evaluation steps {{{ powDesugar }}}
-  x ^ y
-  ===>
-  HPow.hPow x y
-end evaluation steps
-
-evaluation steps {{{ ltDesugar }}}
-  x < y
-  ===>
-  LT.lt x y
-end evaluation steps
-
-evaluation steps {{{ leDesugar }}}
-  x ≤ y
-  ===>
-  LE.le x y
-end evaluation steps
-
-evaluation steps {{{ gtDesugar }}}
-  x > y
-  ===>
-  LT.lt y x
-end evaluation steps
-
-evaluation steps {{{ geDesugar }}}
-  x ≥ y
-  ===>
-  LE.le y x
-end evaluation steps
+section
+variable {α β : Type} (x : α) (y : β)
+variable [HSub α β γ] [HDiv α β γ] [HMod α β γ] [HPow α β γ]
 
 
+-- ANCHOR: minusDesugar
+example : x - y = HSub.hSub x y := rfl
+-- ANCHOR_END: minusDesugar
+end
+
+section
+variable {α β : Type} (x : α) (y : β)
+variable [HSub α β γ] [HDiv α β γ] [HMod α β γ] [HPow α β γ]
+
+-- ANCHOR: divDesugar
+example : x / y = HDiv.hDiv x y := rfl
+-- ANCHOR_END: divDesugar
+end
+
+section
+variable {α β : Type} (x : α) (y : β)
+variable [HSub α β γ] [HDiv α β γ] [HMod α β γ] [HPow α β γ]
+
+-- ANCHOR: modDesugar
+example : x % y = HMod.hMod x y := rfl
+-- ANCHOR_END: modDesugar
+end
+
+section
+variable {α β : Type} (x : α) (y : β)
+variable [HSub α β γ] [HDiv α β γ] [HMod α β γ] [HPow α β γ]
+
+-- ANCHOR: powDesugar
+example : x ^ y = HPow.hPow x y := rfl
+-- ANCHOR_END: powDesugar
+end
+section
+variable {α β : Type} (x : α) (y : β)
+variable [HSub α β γ] [HDiv α β γ] [HMod α β γ] [HPow α β γ]
+variable (y : α) [LT α] [LE α]
+
+-- ANCHOR: ltDesugar
+example : (x < y) = LT.lt x y := rfl
+-- ANCHOR_END: ltDesugar
+end
+section
+variable {α β : Type} (x : α) (y : β)
+variable [HSub α β γ] [HDiv α β γ] [HMod α β γ] [HPow α β γ]
+variable (y : α) [LT α] [LE α]
+-- ANCHOR: leDesugar
+example : (x ≤ y) = LE.le x y := rfl
+-- ANCHOR_END: leDesugar
+end
+
+section
+variable {α β : Type} (x : α) (y : β)
+variable [HSub α β γ] [HDiv α β γ] [HMod α β γ] [HPow α β γ]
+variable (y : α) [LT α] [LE α]
+
+-- ANCHOR: gtDesugar
+example : (x > y) = LT.lt y x := by rfl
+-- ANCHOR_END: gtDesugar
+
+end
+
+section
+variable {α β : Type} (x : α) (y : β)
+variable [HSub α β γ] [HDiv α β γ] [HMod α β γ] [HPow α β γ]
+variable (y : α) [LT α] [LE α]
+
+-- ANCHOR: geDesugar
+example : (x ≥ y) = LE.le y x := by rfl
+-- ANCHOR_END: geDesugar
+end
+section
+variable {α β : Type} (x : α) (y : β)
+variable [HSub α β γ] [HDiv α β γ] [HMod α β γ] [HPow α β γ]
+variable (y : α) [LT α] [LE α]
+
+--ANCHOR: ordSugarClasses
+example := [LE, LT]
+--ANCHOR_END: ordSugarClasses
+end
 end Foo
 
 namespace OverloadedInt
 
-axiom x : Int
+variable {α : Type} (x : α) [Neg α]
 
-evaluation steps {{{ negDesugar }}}
-  (- x)
-  ===>
-  Neg.neg x
-end evaluation steps
+
+-- ANCHOR: negDesugar
+example : (- x) = Neg.neg x := rfl
+-- ANCHOR_END: negDesugar
+
 
 end OverloadedInt
 
 namespace OverloadedBits
 
-axiom x : UInt8
-axiom y : UInt8
-
-bookExample type {{{ UInt8 }}}
-  UInt8
-  ===>
-  Type
-end bookExample
-
-bookExample type {{{ UInt16 }}}
-  UInt16
-  ===>
-  Type
-end bookExample
-
-bookExample type {{{ UInt32 }}}
-  UInt32
-  ===>
-  Type
-end bookExample
-
-bookExample type {{{ UInt64 }}}
-  UInt64
-  ===>
-  Type
-end bookExample
-
-bookExample type {{{ USize }}}
-  USize
-  ===>
-  Type
-end bookExample
 
 
-evaluation steps {{{ bAndDesugar }}}
-  x &&& y
-  ===>
-  HAnd.hAnd x y
-end evaluation steps
+-- ANCHOR: UInt8
+example : Type := UInt8
+-- ANCHOR_END: UInt8
 
-evaluation steps {{{ bOrDesugar }}}
-  x ||| y
-  ===>
-  HOr.hOr x y
-end evaluation steps
+-- ANCHOR: UInt16
+example : Type := UInt16
+-- ANCHOR_END: UInt16
 
-evaluation steps {{{ bXorDesugar }}}
-  x ^^^ y
-  ===>
-  HXor.hXor x y
-end evaluation steps
+-- ANCHOR: UInt32
+example : Type := UInt32
+-- ANCHOR_END: UInt32
 
-evaluation steps {{{ complementDesugar }}}
-  ~~~ x
-  ===>
-  Complement.complement x
-end evaluation steps
+-- ANCHOR: UInt64
+example : Type := UInt64
+-- ANCHOR_END: UInt64
 
-evaluation steps {{{ shrDesugar }}}
-  x >>> y
-  ===>
-  HShiftRight.hShiftRight x y
-end evaluation steps
-
-evaluation steps {{{ shlDesugar }}}
-  x <<< y
-  ===>
-  HShiftLeft.hShiftLeft x y
-end evaluation steps
-
-evaluation steps {{{ beqDesugar }}}
-  x == y
-  ===>
-  BEq.beq x y
-end evaluation steps
+-- ANCHOR: USize
+example : Type := USize
+-- ANCHOR_END: USize
 
 
+section
+variable {x: α} {y : β} [HAnd α β γ]
+-- ANCHOR: bAndDesugar
+example : x &&& y = HAnd.hAnd x y := rfl
+-- ANCHOR_END: bAndDesugar
+end
+
+section
+variable {x: α} {y : β} [HOr α β γ]
+-- ANCHOR: bOrDesugar
+example : x ||| y = HOr.hOr x y := rfl
+-- ANCHOR_END: bOrDesugar
+end
+
+section
+variable {x: α} {y : β} [HXor α β γ]
+-- ANCHOR: bXorDesugar
+example : x ^^^ y = HXor.hXor x y := rfl
+-- ANCHOR_END: bXorDesugar
+end
+
+section
+variable {x: α} [Complement α]
+
+-- ANCHOR: complementDesugar
+example : ~~~ x = Complement.complement x := rfl
+-- ANCHOR_END: complementDesugar
+end
+
+section
+variable {x: α} {y : β} [HShiftRight α β γ]
+
+-- ANCHOR: shrDesugar
+example : x >>> y = HShiftRight.hShiftRight x y := rfl
+-- ANCHOR_END: shrDesugar
+end
+
+section
+variable {x: α} {y : β} [HShiftLeft α β γ]
+
+-- ANCHOR: shlDesugar
+example : x <<< y = HShiftLeft.hShiftLeft x y := rfl
+-- ANCHOR_END: shlDesugar
+
+end
+
+section
+variable {x y : α} [BEq α]
+
+-- ANCHOR: beqDesugar
+example : (x == y) = BEq.beq x y := rfl
+-- ANCHOR_END: beqDesugar
+
+end
 
 end OverloadedBits
 
 
-book declaration {{{ addNatPos }}}
-  def addNatPos : Nat → Pos → Pos
-    | 0, p => p
-    | n + 1, p => Pos.succ (addNatPos n p)
+-- ANCHOR: addNatPos
+def addNatPos : Nat → Pos → Pos
+  | 0, p => p
+  | n + 1, p => Pos.succ (addNatPos n p)
 
-  def addPosNat : Pos → Nat → Pos
-    | p, 0 => p
-    | p, n + 1 => Pos.succ (addPosNat p n)
-stop book declaration
-
-
-
-book declaration {{{ haddInsts }}}
-  instance : HAdd Nat Pos Pos where
-    hAdd := addNatPos
-
-  instance : HAdd Pos Nat Pos where
-    hAdd := addPosNat
-stop book declaration
+def addPosNat : Pos → Nat → Pos
+  | p, 0 => p
+  | p, n + 1 => Pos.succ (addPosNat p n)
+-- ANCHOR_END: addNatPos
 
 
-expect info {{{ posNatEx }}}
-  #eval (3 : Pos) + (5 : Nat)
-message
-  "8"
-end expect
 
-expect info {{{ natPosEx }}}
-  #eval (3 : Nat) + (5 : Pos)
-message
-  "8"
-end expect
+-- ANCHOR: haddInsts
+instance : HAdd Nat Pos Pos where
+  hAdd := addNatPos
+
+instance : HAdd Pos Nat Pos where
+  hAdd := addPosNat
+-- ANCHOR_END: haddInsts
+
+
+/-- info:
+8
+-/
+#check_msgs in
+-- ANCHOR: posNatEx
+#eval (3 : Pos) + (5 : Nat)
+-- ANCHOR_END: posNatEx
+
+/-- info:
+8
+-/
+#check_msgs in
+-- ANCHOR: natPosEx
+#eval (3 : Nat) + (5 : Pos)
+-- ANCHOR_END: natPosEx
 
 namespace ProblematicHPlus
 
-book declaration {{{ HPlus }}}
-  class HPlus (α : Type) (β : Type) (γ : Type) where
-    hPlus : α → β → γ
-stop book declaration
+-- ANCHOR: HPlus
+class HPlus (α : Type) (β : Type) (γ : Type) where
+  hPlus : α → β → γ
+-- ANCHOR_END: HPlus
 
 
-book declaration {{{ HPlusInstances }}}
-  instance : HPlus Nat Pos Pos where
-    hPlus := addNatPos
+-- ANCHOR: HPlusInstances
+instance : HPlus Nat Pos Pos where
+  hPlus := addNatPos
 
-  instance : HPlus Pos Nat Pos where
-    hPlus := addPosNat
-stop book declaration
+instance : HPlus Pos Nat Pos where
+  hPlus := addPosNat
+-- ANCHOR_END: HPlusInstances
 
-expect error {{{ hPlusOops }}}
-  -- TODO CommandM snuck in here, find a new example!
-  #eval HPlus.hPlus (3 : Pos) (5 : Nat)
-message
-"failed to synthesize
-  HPlus Pos Nat (Lean.Elab.Command.CommandElabM ?α)
+/--
+error: typeclass instance problem is stuck, it is often due to metavariables
+  ToString ?m.14563
+-/
+#check_msgs in
+-- ANCHOR: hPlusOops
+#eval toString (HPlus.hPlus (3 : Pos) (5 : Nat))
+-- ANCHOR_END: hPlusOops
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command."
-end expect
 
-
-expect info {{{ hPlusLotsaTypes }}}
-  #eval (HPlus.hPlus (3 : Pos) (5 : Nat) : Pos)
-message
-  "8"
-end expect
+/-- info:
+8
+-/
+#check_msgs in
+-- ANCHOR: hPlusLotsaTypes
+#eval (HPlus.hPlus (3 : Pos) (5 : Nat) : Pos)
+-- ANCHOR_END: hPlusLotsaTypes
 
 end ProblematicHPlus
 
@@ -686,10 +810,10 @@ instance [OfNat Even n] : OfNat Even (n + 2) where
 
 namespace BetterHPlus
 
-book declaration {{{ HPlusOut }}}
-  class HPlus (α : Type) (β : Type) (γ : outParam Type) where
-    hPlus : α → β → γ
-stop book declaration
+-- ANCHOR: HPlusOut
+class HPlus (α : Type) (β : Type) (γ : outParam Type) where
+  hPlus : α → β → γ
+-- ANCHOR_END: HPlusOut
 
 instance : HPlus Nat Pos Pos where
   hPlus := addNatPos
@@ -697,213 +821,236 @@ instance : HPlus Nat Pos Pos where
 instance : HPlus Pos Nat Pos where
   hPlus := addPosNat
 
-expect info {{{ hPlusWorks }}}
-  #eval HPlus.hPlus (3 : Pos) (5 : Nat)
-message
-  "8"
-end expect
+/-- info:
+8
+-/
+#check_msgs in
+-- ANCHOR: hPlusWorks
+#eval HPlus.hPlus (3 : Pos) (5 : Nat)
+-- ANCHOR_END: hPlusWorks
 
 
-book declaration {{{ notDefaultAdd }}}
-  instance [Add α] : HPlus α α α where
-    hPlus := Add.add
-stop book declaration
+-- ANCHOR: notDefaultAdd
+instance [Add α] : HPlus α α α where
+  hPlus := Add.add
+-- ANCHOR_END: notDefaultAdd
 
-expect info {{{ hPlusNatNat }}}
-  #eval HPlus.hPlus (3 : Nat) (5 : Nat)
-message
-  "8"
-end expect
-
-
-expect info {{{ plusFiveThree }}}
-  #check HPlus.hPlus (5 : Nat) (3 : Nat)
-message
-  "HPlus.hPlus 5 3 : Nat"
-end expect
-
-expect info {{{ plusFiveMeta }}}
-  #check HPlus.hPlus (5 : Nat)
-message
-"HPlus.hPlus 5 : ?m.6076 → ?m.6078"
-end expect
+/-- info:
+8
+-/
+#check_msgs in
+-- ANCHOR: hPlusNatNat
+#eval HPlus.hPlus (3 : Nat) (5 : Nat)
+-- ANCHOR_END: hPlusNatNat
 
 
-book declaration {{{ defaultAdd }}}
-  @[default_instance]
-  instance [Add α] : HPlus α α α where
-    hPlus := Add.add
-stop book declaration
+/-- info:
+HPlus.hPlus 5 3 : Nat
+-/
+#check_msgs in
+-- ANCHOR: plusFiveThree
+#check HPlus.hPlus (5 : Nat) (3 : Nat)
+-- ANCHOR_END: plusFiveThree
+
+/-- info:
+HPlus.hPlus 5 : ?m.6076 → ?m.6078
+-/
+#check_msgs in
+-- ANCHOR: plusFiveMeta
+#check HPlus.hPlus (5 : Nat)
+-- ANCHOR_END: plusFiveMeta
 
 
-expect info {{{ plusFive }}}
-  #check HPlus.hPlus (5 : Nat)
-message
-  "HPlus.hPlus 5 : Nat → Nat"
-end expect
+-- ANCHOR: defaultAdd
+@[default_instance]
+instance [Add α] : HPlus α α α where
+  hPlus := Add.add
+-- ANCHOR_END: defaultAdd
+
+
+/-- info:
+HPlus.hPlus 5 : Nat → Nat
+-/
+#check_msgs in
+-- ANCHOR: plusFive
+#check HPlus.hPlus (5 : Nat)
+-- ANCHOR_END: plusFive
 
 end BetterHPlus
 
 similar datatypes ProblematicHPlus.HPlus BetterHPlus.HPlus
 
-bookExample type {{{ fiveType }}}
-  5
-  ===>
-  Nat
-end bookExample
+-- ANCHOR: fiveType
+example : Nat := 5
+-- ANCHOR_END: fiveType
 
 
-book declaration {{{ northernTrees }}}
-  def northernTrees : Array String :=
-    #["sloe", "birch", "elm", "oak"]
-stop book declaration
+-- ANCHOR: northernTrees
+def northernTrees : Array String :=
+  #["sloe", "birch", "elm", "oak"]
+-- ANCHOR_END: northernTrees
 
-bookExample {{{ northernTreesSize }}}
-  northernTrees.size
-  ===>
-  4
-end bookExample
+-- ANCHOR: northernTreesSize
+example : northernTrees.size = 4 := rfl
+-- ANCHOR_END: northernTreesSize
 
-bookExample {{{ northernTreesTwo }}}
-  northernTrees[2]
-  ===>
-  "elm"
-end bookExample
+-- ANCHOR: northernTreesTwo
+example : northernTrees[2] = "elm" := rfl
+-- ANCHOR_END: northernTreesTwo
 
 
-expect error {{{ northernTreesEight }}}
-  northernTrees[8]
-message
-"failed to prove index is valid, possible solutions:
+/-- error:
+failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
   - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
-⊢ 8 < northernTrees.size"
-end expect
+⊢ 8 < northernTrees.size
+-/
+#check_msgs in
+-- ANCHOR: northernTreesEight
+-- TODO ensure correct quote in book
+example := northernTrees[8]
+-- ANCHOR_END: northernTreesEight
 
 inductive EvenList (α : Type) : Type where
   | nil : EvenList α
   | cons : α → α → EvenList α → EvenList α
 
 
-book declaration {{{ NonEmptyList }}}
-  structure NonEmptyList (α : Type) : Type where
-    head : α
-    tail : List α
-stop book declaration
+-- ANCHOR: NonEmptyList
+structure NonEmptyList (α : Type) : Type where
+  head : α
+  tail : List α
+-- ANCHOR_END: NonEmptyList
 
 def NonEmptyList.toList (xs : NonEmptyList α) := xs.head :: xs.tail
 
-book declaration {{{ idahoSpiders }}}
-  def idahoSpiders : NonEmptyList String := {
-    head := "Banded Garden Spider",
-    tail := [
-      "Long-legged Sac Spider",
-      "Wolf Spider",
-      "Hobo Spider",
-      "Cat-faced Spider"
-    ]
-  }
-stop book declaration
+-- ANCHOR: coeNope
+example {α : _} := Coe (List α) (NonEmptyList α)
+-- ANCHOR_END: coeNope
 
-bookExample {{{ firstSpider }}}
-  idahoSpiders.head
-   ===>
-  "Banded Garden Spider"
-end bookExample
+-- ANCHOR: idahoSpiders
+def idahoSpiders : NonEmptyList String := {
+  head := "Banded Garden Spider",
+  tail := [
+    "Long-legged Sac Spider",
+    "Wolf Spider",
+    "Hobo Spider",
+    "Cat-faced Spider"
+  ]
+}
+-- ANCHOR_END: idahoSpiders
 
-bookExample {{{ moreSpiders }}}
-  idahoSpiders.tail.length
-  ===>
-  4
-end bookExample
+-- ANCHOR: firstSpider
+example : -- TODO there was a name overlap - check it
+  idahoSpiders.head = "Banded Garden Spider" := rfl
+-- ANCHOR_END: firstSpider
 
-book declaration {{{ NEListGetHuh }}}
-  def NonEmptyList.get? : NonEmptyList α → Nat → Option α
-    | xs, 0 => some xs.head
-    | {head := _, tail := []}, _ + 1 => none
-    | {head := _, tail := h :: t}, n + 1 => get? {head := h, tail := t} n
-stop book declaration
+-- ANCHOR: moreSpiders
+example : idahoSpiders.tail.length = 4 := rfl
+-- ANCHOR_END: moreSpiders
+
+-- ANCHOR: NEListGetHuh
+def NonEmptyList.get? : NonEmptyList α → Nat → Option α
+  | xs, 0 => some xs.head
+  | {head := _, tail := []}, _ + 1 => none
+  | {head := _, tail := h :: t}, n + 1 => get? {head := h, tail := t} n
+-- ANCHOR_END: NEListGetHuh
 
 namespace UseList
-book declaration {{{ NEListGetHuhList }}}
-  def NonEmptyList.get? : NonEmptyList α → Nat → Option α
-    | xs, 0 => some xs.head
-    | xs, n + 1 => xs.tail[n]?
-stop book declaration
+-- ANCHOR: NEListGetHuhList
+def NonEmptyList.get? : NonEmptyList α → Nat → Option α
+  | xs, 0 => some xs.head
+  | xs, n + 1 => xs.tail[n]?
+-- ANCHOR_END: NEListGetHuhList
 end UseList
 
-book declaration {{{ inBoundsNEList }}}
-  abbrev NonEmptyList.inBounds (xs : NonEmptyList α) (i : Nat) : Prop :=
-    i ≤ xs.tail.length
-stop book declaration
+-- ANCHOR: inBoundsNEList
+abbrev NonEmptyList.inBounds (xs : NonEmptyList α) (i : Nat) : Prop :=
+  i ≤ xs.tail.length
+-- ANCHOR_END: inBoundsNEList
 
 
-book declaration {{{ NEListGet }}}
-  def NonEmptyList.get (xs : NonEmptyList α) (i : Nat) (ok : xs.inBounds i) : α :=
-    match i with
-    | 0 => xs.head
-    | n + 1 => xs.tail[n]
-stop book declaration
+-- ANCHOR: NEListGet
+def NonEmptyList.get (xs : NonEmptyList α)
+    (i : Nat) (ok : xs.inBounds i) : α :=
+  match i with
+  | 0 => xs.head
+  | n + 1 => xs.tail[n]
+-- ANCHOR_END: NEListGet
 
 
 
-book declaration {{{ spiderBoundsChecks }}}
+-- ANCHOR: spiderBoundsChecks
 theorem atLeastThreeSpiders : idahoSpiders.inBounds 2 := by decide
 
 theorem notSixSpiders : ¬idahoSpiders.inBounds 5 := by decide
-stop book declaration
+-- ANCHOR_END: spiderBoundsChecks
+
+namespace Foo
+-- ANCHOR: spiderBoundsChecks'
+theorem atLeastThreeSpiders : idahoSpiders.inBounds 2 := by decide
+
+theorem notSixSpiders : ¬(idahoSpiders.inBounds 5) := by decide
+-- ANCHOR_END: spiderBoundsChecks'
+end Foo
 
 namespace Demo
-book declaration {{{ GetElem }}}
-  class GetElem (coll : Type) (idx : Type) (item : outParam Type) (inBounds : outParam (coll → idx → Prop)) where
-    getElem : (c : coll) → (i : idx) → inBounds c i → item
-stop book declaration
+-- ANCHOR: GetElem
+class GetElem
+    (coll : Type)
+    (idx : Type)
+    (item : outParam Type)
+    (inBounds : outParam (coll → idx → Prop)) where
+  getElem : (c : coll) → (i : idx) → inBounds c i → item
+-- ANCHOR_END: GetElem
 end Demo
 
 similar datatypes GetElem Demo.GetElem
 
-book declaration {{{ GetElemNEList }}}
-  instance : GetElem (NonEmptyList α) Nat α NonEmptyList.inBounds where
-    getElem := NonEmptyList.get
-stop book declaration
+-- ANCHOR: GetElemNEList
+instance : GetElem (NonEmptyList α) Nat α NonEmptyList.inBounds where
+  getElem := NonEmptyList.get
+-- ANCHOR_END: GetElemNEList
 
 
-bookExample {{{ firstSpider }}}
-  idahoSpiders[0]
-   ===>
-  "Banded Garden Spider"
-end bookExample
+-- ANCHOR: firstSpiderZero
+example : idahoSpiders[0] = "Banded Garden Spider" := rfl
+-- ANCHOR_END: firstSpiderZero
 
 
-expect error {{{ tenthSpider }}}
-  idahoSpiders[9]
-message
-"failed to prove index is valid, possible solutions:
+/-- error:
+failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
   - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
-⊢ idahoSpiders.inBounds 9"
-end expect
+⊢ idahoSpiders.inBounds 9
+-/
+#check_msgs in
+-- ANCHOR: tenthSpider
+-- TODO ensure correct quote
+example := idahoSpiders[9]
+-- ANCHOR_END: tenthSpider
 
 
 
 
-book declaration {{{ ListPosElem }}}
-  instance : GetElem (List α) Pos α (fun list n => list.length > n.toNat) where
-    getElem (xs : List α) (i : Pos) ok := xs[i.toNat]
-stop book declaration
+-- ANCHOR: ListPosElem
+instance : GetElem (List α) Pos α
+    (fun list n => list.length > n.toNat) where
+  getElem (xs : List α) (i : Pos) ok := xs[i.toNat]
+-- ANCHOR_END: ListPosElem
 
 namespace PointStuff
 
 
-book declaration {{{ PPointBoolGetElem }}}
-  instance : GetElem (PPoint α) Bool α (fun _ _ => True) where
-    getElem (p : PPoint α) (i : Bool) _ :=
-      if not i then p.x else p.y
-stop book declaration
+-- ANCHOR: PPointBoolGetElem
+instance : GetElem (PPoint α) Bool α (fun _ _ => True) where
+  getElem (p : PPoint α) (i : Bool) _ :=
+    if not i then p.x else p.y
+-- ANCHOR_END: PPointBoolGetElem
 
 
 instance : GetElem (PPoint α) Nat α (fun _ n => n < 2) where
@@ -913,62 +1060,61 @@ instance : GetElem (PPoint α) Nat α (fun _ n => n < 2) where
     | 1 => p.y
 end PointStuff
 
-bookExample {{{ boolEqTrue }}}
-  "Octopus" ==  "Cuttlefish"
-  ===>
-  false
-end bookExample
+-- ANCHOR: boolEqTrue
+example : ("Octopus" ==  "Cuttlefish") = false := rfl
+-- ANCHOR_END: boolEqTrue
 
-bookExample {{{ boolEqFalse }}}
-  "Octopodes" ==  "Octo".append "podes"
-  ===>
-  true
-end bookExample
+-- ANCHOR: boolEqFalse
+example : ("Octopodes" ==  "Octo".append "podes") = true := rfl
+-- ANCHOR_END: boolEqFalse
 
-expect error {{{ functionEq }}}
-  (fun (x : Nat) => 1 + x) == (Nat.succ ·)
-message
-"failed to synthesize
+/-- error:
+failed to synthesize
   BEq (Nat → Nat)
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command."
-end expect
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#check_msgs in
+-- ANCHOR: functionEq
+-- TODO quote check
+example := (fun (x : Nat) => 1 + x) == (Nat.succ ·)
+-- ANCHOR_END: functionEq
 
-bookExample type {{{ functionEqProp }}}
-  (fun (x : Nat) => 1 + x) = (Nat.succ ·)
-  ===>
-  Prop
-end bookExample
+-- ANCHOR: functionEqProp
+example : Prop := (fun (x : Nat) => 1 + x) = (Nat.succ ·)
+-- ANCHOR_END: functionEqProp
 
-book declaration {{{ LTPos }}}
-  instance : LT Pos where
-    lt x y := LT.lt x.toNat y.toNat
-stop book declaration
+-- ANCHOR: LTPos
+instance : LT Pos where
+  lt x y := LT.lt x.toNat y.toNat
+-- ANCHOR_END: LTPos
 
-book declaration {{{ LEPos }}}
-  instance : LE Pos where
-    le x y := LE.le x.toNat y.toNat
-stop book declaration
+-- ANCHOR: LEPos
+instance : LE Pos where
+  le x y := LE.le x.toNat y.toNat
+-- ANCHOR_END: LEPos
 
-book declaration {{{ DecLTLEPos }}}
+-- ANCHOR: DecLTLEPos
 instance {x : Pos} {y : Pos} : Decidable (x < y) :=
   inferInstanceAs (Decidable (x.toNat < y.toNat))
 
 instance {x : Pos} {y : Pos} : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.toNat ≤ y.toNat))
-stop book declaration
+-- ANCHOR_END: DecLTLEPos
 
-expect error {{{ LTLEMismatch }}}
-  instance {x : Pos} {y : Pos} : Decidable (x ≤ y) :=
-    inferInstanceAs (Decidable (x.toNat < y.toNat))
-message
-"type mismatch
+/-- error:
+type mismatch
   inferInstanceAs (Decidable (x.toNat < y.toNat))
 has type
   Decidable (x.toNat < y.toNat) : Type
 but is expected to have type
-  Decidable (x ≤ y) : Type"
-end expect
+  Decidable (x ≤ y) : Type
+-/
+#check_msgs in
+-- ANCHOR: LTLEMismatch
+instance {x : Pos} {y : Pos} : Decidable (x ≤ y) :=
+  inferInstanceAs (Decidable (x.toNat < y.toNat))
+-- ANCHOR_END: LTLEMismatch
 
 #eval (5 : Pos) < (3 : Pos)
 
@@ -986,252 +1132,298 @@ structure Response where
 class HTTP (m : Method) where
   doTheWork : (uri : String) → IO Response
 
-expect info {{{ twoLessFour }}}
-  #check 2 < 4
-message
-  "2 < 4 : Prop"
-end expect
+/-- info:
+2 < 4 : Prop
+-/
+#check_msgs in
+-- ANCHOR: twoLessFour
+#check 2 < 4
+-- ANCHOR_END: twoLessFour
 
-expect error {{{ funEqDec }}}
-  if (fun (x : Nat) => 1 + x) = (Nat.succ ·) then "yes" else "no"
-message
-"failed to synthesize
+/-- error:
+failed to synthesize
   Decidable ((fun x => 1 + x) = fun x => x.succ)
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command."
-end expect
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#check_msgs in
+-- ANCHOR: funEqDec
+-- TODO quote check
+example := if (fun (x : Nat) => 1 + x) = (Nat.succ ·) then "yes" else "no"
+-- ANCHOR_END: funEqDec
 
-bookExample : Nat {{{ ifProp }}}
-  if 2 < 4 then 1 else 2
-  ===>
-  1
-end bookExample
+--- ANCHOR: ifProp
+example : (
+if 2 < 4 then 1 else 2
+) = (
+1
+) := rfl
+--- ANCHOR_END: ifProp
 
 namespace Cmp
-book declaration {{{ Ordering }}}
-  inductive Ordering where
-    | lt
-    | eq
-    | gt
-stop book declaration
+-- ANCHOR: Ordering
+inductive Ordering where
+  | lt
+  | eq
+  | gt
+-- ANCHOR_END: Ordering
 end Cmp
 
 similar datatypes Ordering Cmp.Ordering
 
 
-book declaration {{{ OrdPos }}}
-  def Pos.comp : Pos → Pos → Ordering
-    | Pos.one, Pos.one => Ordering.eq
-    | Pos.one, Pos.succ _ => Ordering.lt
-    | Pos.succ _, Pos.one => Ordering.gt
-    | Pos.succ n, Pos.succ k => comp n k
+-- ANCHOR: OrdPos
+def Pos.comp : Pos → Pos → Ordering
+  | Pos.one, Pos.one => Ordering.eq
+  | Pos.one, Pos.succ _ => Ordering.lt
+  | Pos.succ _, Pos.one => Ordering.gt
+  | Pos.succ n, Pos.succ k => comp n k
 
-  instance : Ord Pos where
-    compare := Pos.comp
-stop book declaration
+instance : Ord Pos where
+  compare := Pos.comp
+-- ANCHOR_END: OrdPos
 
 namespace H
 
-book declaration {{{ Hashable }}}
-  class Hashable (α : Type) where
-    hash : α → UInt64
-stop book declaration
+-- ANCHOR: Hashable
+class Hashable (α : Type) where
+  hash : α → UInt64
+-- ANCHOR_END: Hashable
 end H
+
+-- ANCHOR: HashableSpec
+section
+variable {α : Type} (x y : α) [BEq α] [Hashable α]
+example := x == y
+example := hash x == hash y
+example := x ≠ y
+end
+-- ANCHOR_END: HashableSpec
 
 similar datatypes Hashable H.Hashable
 
-bookExample type {{{ mixHash }}}
-  mixHash
-  ===>
-  UInt64 → UInt64 → UInt64
-end bookExample
+-- ANCHOR: mixHash
+example : UInt64 → UInt64 → UInt64 := mixHash
+-- ANCHOR_END: mixHash
 
 
-book declaration {{{ HashablePos }}}
-  def hashPos : Pos → UInt64
-    | Pos.one => 0
-    | Pos.succ n => mixHash 1 (hashPos n)
+-- ANCHOR: HashablePos
+def hashPos : Pos → UInt64
+  | Pos.one => 0
+  | Pos.succ n => mixHash 1 (hashPos n)
 
-  instance : Hashable Pos where
-    hash := hashPos
-stop book declaration
-
-
-book declaration {{{ TreeHash }}}
-  inductive BinTree (α : Type) where
-    | leaf : BinTree α
-    | branch : BinTree α → α → BinTree α → BinTree α
-
-  def eqBinTree [BEq α] : BinTree α → BinTree α → Bool
-    | BinTree.leaf, BinTree.leaf =>
-      true
-    | BinTree.branch l x r, BinTree.branch l2 x2 r2 =>
-      x == x2 && eqBinTree l l2 && eqBinTree r r2
-    | _, _ =>
-      false
-
-  instance [BEq α] : BEq (BinTree α) where
-    beq := eqBinTree
-
-  def hashBinTree [Hashable α] : BinTree α → UInt64
-    | BinTree.leaf =>
-      0
-    | BinTree.branch left x right =>
-      mixHash 1 (mixHash (hashBinTree left) (mixHash (hash x) (hashBinTree right)))
-
-  instance [Hashable α] : Hashable (BinTree α) where
-    hash := hashBinTree
-stop book declaration
-
-book declaration {{{ HashableNonEmptyList }}}
-  instance [Hashable α] : Hashable (NonEmptyList α) where
-    hash xs := mixHash (hash xs.head) (hash xs.tail)
-stop book declaration
+instance : Hashable Pos where
+  hash := hashPos
+-- ANCHOR_END: HashablePos
 
 
+-- ANCHOR: TreeHash
+inductive BinTree (α : Type) where
+  | leaf : BinTree α
+  | branch : BinTree α → α → BinTree α → BinTree α
 
-book declaration {{{ BEqHashableDerive }}}
-  deriving instance BEq, Hashable for Pos
-  deriving instance BEq, Hashable for NonEmptyList
-stop book declaration
+def eqBinTree [BEq α] : BinTree α → BinTree α → Bool
+  | BinTree.leaf, BinTree.leaf =>
+    true
+  | BinTree.branch l x r, BinTree.branch l2 x2 r2 =>
+    x == x2 && eqBinTree l l2 && eqBinTree r r2
+  | _, _ =>
+    false
+
+instance [BEq α] : BEq (BinTree α) where
+  beq := eqBinTree
+
+def hashBinTree [Hashable α] : BinTree α → UInt64
+  | BinTree.leaf =>
+    0
+  | BinTree.branch left x right =>
+    mixHash 1
+      (mixHash (hashBinTree left)
+        (mixHash (hash x)
+          (hashBinTree right)))
+
+instance [Hashable α] : Hashable (BinTree α) where
+  hash := hashBinTree
+-- ANCHOR_END: TreeHash
+
+-- ANCHOR: HashableNonEmptyList
+instance [Hashable α] : Hashable (NonEmptyList α) where
+  hash xs := mixHash (hash xs.head) (hash xs.tail)
+-- ANCHOR_END: HashableNonEmptyList
 
 
-expect error {{{ derivingNotFound }}}
-  deriving instance ToString for NonEmptyList
-message
-"default handlers have not been implemented yet, class: 'ToString' types: [NonEmptyList]"
-end expect
+
+-- ANCHOR: BEqHashableDerive
+deriving instance BEq, Hashable for Pos
+deriving instance BEq, Hashable for NonEmptyList
+-- ANCHOR_END: BEqHashableDerive
+
+
+/-- error:
+default handlers have not been implemented yet, class: 'ToString' types: [NonEmptyList]
+-/
+#check_msgs in
+-- ANCHOR: derivingNotFound
+deriving instance ToString for NonEmptyList
+-- ANCHOR_END: derivingNotFound
 
 namespace A
-book declaration {{{ HAppend }}}
-  class HAppend (α : Type) (β : Type) (γ : outParam Type) where
-    hAppend : α → β → γ
-stop book declaration
+-- ANCHOR: HAppend
+class HAppend (α : Type) (β : Type) (γ : outParam Type) where
+  hAppend : α → β → γ
+-- ANCHOR_END: HAppend
 end A
 
 similar datatypes HAppend A.HAppend
 
 namespace AppendOverloads
 section
-axiom xs : List Nat
-axiom ys : List Nat
-bookExample {{{ desugarHAppend }}}
-  xs ++ ys
-   ===>
-  HAppend.hAppend xs ys
-end bookExample
+variable {α β γ : Type} (xs : α) (ys : β) [HAppend α β γ]
+-- ANCHOR: desugarHAppend
+example : xs ++ ys = HAppend.hAppend xs ys := rfl
+-- ANCHOR_END: desugarHAppend
 end
 end AppendOverloads
 
 
-book declaration {{{ AppendNEList }}}
-  instance : Append (NonEmptyList α) where
-    append xs ys :=
-      { head := xs.head, tail := xs.tail ++ ys.head :: ys.tail }
-stop book declaration
+-- ANCHOR: AppendNEList
+instance : Append (NonEmptyList α) where
+  append xs ys :=
+    { head := xs.head, tail := xs.tail ++ ys.head :: ys.tail }
+-- ANCHOR_END: AppendNEList
 
-expect info {{{ appendSpiders }}}
-  #eval idahoSpiders ++ idahoSpiders
-  message
-  "{ head := \"Banded Garden Spider\",
-  tail := [\"Long-legged Sac Spider\",
-           \"Wolf Spider\",
-           \"Hobo Spider\",
-           \"Cat-faced Spider\",
-           \"Banded Garden Spider\",
-           \"Long-legged Sac Spider\",
-           \"Wolf Spider\",
-           \"Hobo Spider\",
-           \"Cat-faced Spider\"] }"
-end expect
+/-- info:
+{ head := "Banded Garden Spider",
+  tail := ["Long-legged Sac Spider",
+           "Wolf Spider",
+           "Hobo Spider",
+           "Cat-faced Spider",
+           "Banded Garden Spider",
+           "Long-legged Sac Spider",
+           "Wolf Spider",
+           "Hobo Spider",
+           "Cat-faced Spider"] }
+-/
+#check_msgs in
+-- ANCHOR: appendSpiders
+#eval idahoSpiders ++ idahoSpiders
+  -- ANCHOR_END: appendSpiders
 
-book declaration {{{ AppendNEListList }}}
-  instance : HAppend (NonEmptyList α) (List α) (NonEmptyList α) where
-    hAppend xs ys :=
-      { head := xs.head, tail := xs.tail ++ ys }
-stop book declaration
+-- ANCHOR: AppendNEListList
+instance : HAppend (NonEmptyList α) (List α) (NonEmptyList α) where
+  hAppend xs ys :=
+    { head := xs.head, tail := xs.tail ++ ys }
+-- ANCHOR_END: AppendNEListList
 
-expect info {{{ appendSpidersList }}}
-  #eval idahoSpiders ++ ["Trapdoor Spider"]
-  message
-"{ head := \"Banded Garden Spider\",
-  tail := [\"Long-legged Sac Spider\", \"Wolf Spider\", \"Hobo Spider\", \"Cat-faced Spider\", \"Trapdoor Spider\"] }"
-end expect
-
-
-bookExample {{{ mapList }}}
-  Functor.map (· + 5) [1, 2, 3]
-  ===>
-  [6, 7, 8]
-end bookExample
-
-bookExample {{{ mapOption }}}
-  Functor.map toString (some (List.cons 5 List.nil))
-  ===>
-  some "[5]"
-end bookExample
-
-bookExample {{{ mapListList }}}
-  Functor.map List.reverse [[1, 2, 3], [4, 5, 6]]
-  ===>
-  [[3, 2, 1], [6, 5, 4]]
-end bookExample
-
-bookExample {{{ mapInfixList }}}
-  (· + 5) <$> [1, 2, 3]
-  ===>
-  [6, 7, 8]
-end bookExample
-
-bookExample {{{ mapInfixOption }}}
-  toString <$> (some (List.cons 5 List.nil))
-  ===>
-  some "[5]"
-end bookExample
-
-bookExample {{{ mapInfixListList }}}
-  List.reverse <$> [[1, 2, 3], [4, 5, 6]]
-  ===>
-  [[3, 2, 1], [6, 5, 4]]
-end bookExample
+/-- info:
+{ head := "Banded Garden Spider",
+  tail := ["Long-legged Sac Spider", "Wolf Spider", "Hobo Spider", "Cat-faced Spider", "Trapdoor Spider"] }
+-/
+#check_msgs in
+-- ANCHOR: appendSpidersList
+#eval idahoSpiders ++ ["Trapdoor Spider"]
+  -- ANCHOR_END: appendSpidersList
 
 
-book declaration {{{ FunctorNonEmptyList }}}
-  instance : Functor NonEmptyList where
-    map f xs := { head := f xs.head, tail := f <$> xs.tail }
-stop book declaration
+section
+-- ANCHOR: optionFMeta
+variable {α β : Type} (f : α → β)
+example := Option
+example : Functor.map f none = none := rfl
+example : Functor.map f (some x) = some (f x) := rfl
+-- ANCHOR_END: optionFMeta
+end
+
+section
+-- ANCHOR: FunctorLaws
+variable {α β γ : Type} (g : α → β) (f : β → γ) {F : Type → Type} [Functor F] (x : F α)
+example := id <$> x
+open Functor
+example := map (fun y => f (g y)) x
+example := map f (map g x)
+-- ANCHOR_END: FunctorLaws
+end
+
+-- ANCHOR: mapList
+example : Functor.map (· + 5) [1, 2, 3] = [6, 7, 8] := rfl
+-- ANCHOR_END: mapList
+
+-- ANCHOR: mapOption
+example : Functor.map toString (some (List.cons 5 List.nil)) = some "[5]" := rfl
+-- ANCHOR_END: mapOption
+
+-- ANCHOR: mapListList
+example : Functor.map List.reverse [[1, 2, 3], [4, 5, 6]] = [[3, 2, 1], [6, 5, 4]] := rfl
+-- ANCHOR_END: mapListList
+
+-- ANCHOR: mapInfixList
+example : (· + 5) <$> [1, 2, 3] = [6, 7, 8] := rfl
+-- ANCHOR_END: mapInfixList
+
+-- ANCHOR: mapInfixOption
+example : toString <$> (some (List.cons 5 List.nil)) = some "[5]" := rfl
+-- ANCHOR_END: mapInfixOption
+
+-- ANCHOR: mapInfixListList
+example : List.reverse <$> [[1, 2, 3], [4, 5, 6]] = [[3, 2, 1], [6, 5, 4]] := rfl
+-- ANCHOR_END: mapInfixListList
+
+
+-- ANCHOR: FunctorNonEmptyList
+instance : Functor NonEmptyList where
+  map f xs := { head := f xs.head, tail := f <$> xs.tail }
+-- ANCHOR_END: FunctorNonEmptyList
+
+section
+variable {α : Type}
+-- ANCHOR: FunctorNonEmptyListA
+example := NonEmptyList α
+example := NonEmptyList Nat
+-- ANCHOR_END: FunctorNonEmptyListA
+end
 
 namespace PointStuff
 
-book declaration {{{ FunctorPPoint }}}
-  instance : Functor PPoint where
-    map f p := { x := f p.x, y := f p.y }
-stop book declaration
+-- ANCHOR: FunctorPPointBad
+instance : Functor PPoint where
+  map f p := let x := p.x; have := f x; { x := f p.x, y := f p.x }
+
+-- ANCHOR_END: FunctorPPointBad
+
+-- ANCHOR: FunctorPPoint
+instance : Functor PPoint where
+  map f p := { x := f p.x, y := f p.y }
+-- ANCHOR_END: FunctorPPoint
+
+
+
+
+example := NonEmptyList (PPoint Nat)
 end PointStuff
 
-book declaration {{{ concat }}}
-  def concat [Append α] (xs : NonEmptyList α) : α :=
-    let rec catList (start : α) : List α → α
-      | [] => start
-      | (z :: zs) => catList (start ++ z) zs
-    catList xs.head xs.tail
-stop book declaration
+
+
+-- ANCHOR: concat
+def concat [Append α] (xs : NonEmptyList α) : α :=
+  let rec catList (start : α) : List α → α
+    | [] => start
+    | (z :: zs) => catList (start ++ z) zs
+  catList xs.head xs.tail
+-- ANCHOR_END: concat
 
 -- Just a quick test, not used in the book
-bookExample {{{ concatText }}}
- concat idahoSpiders
- ===>
- "Banded Garden SpiderLong-legged Sac SpiderWolf SpiderHobo SpiderCat-faced Spider"
-end bookExample
+-- ANCHOR: concatText
+example : concat idahoSpiders = "Banded Garden SpiderLong-legged Sac SpiderWolf SpiderHobo SpiderCat-faced Spider" := rfl
+-- ANCHOR_END: concatText
 
 namespace FakeFunctor
-book declaration {{{ FunctorDef }}}
-  class Functor (f : Type → Type) where
-    map : {α β : Type} → (α → β) → f α → f β
+-- ANCHOR: FunctorDef
+class Functor (f : Type → Type) where
+  map : {α β : Type} → (α → β) → f α → f β
 
-    mapConst {α β : Type} (x : α) (coll : f β) : f α :=
-      map (fun _ => x) coll
-stop book declaration
+  mapConst {α β : Type} (x : α) (coll : f β) : f α :=
+    map (fun _ => x) coll
+-- ANCHOR_END: FunctorDef
 end FakeFunctor
 similar datatypes FakeFunctor.Functor Functor
 
@@ -1243,50 +1435,49 @@ axiom γ : Type
 axiom f : β → γ
 axiom g : α → β
 
-bookExample {{{ compDef }}}
-  f ∘ g
-  ===>
-  fun y => f (g y)
-end bookExample
+-- ANCHOR: compDef
+example : f ∘ g = fun y => f (g y) := rfl
+-- ANCHOR_END: compDef
 
 end Whatevs
 -- Coercions
 
 
-bookExample type {{{ drop }}}
-  @List.drop
-  ===>
-  {α : Type} → Nat → List α → List α
-end bookExample
+-- ANCHOR: drop
+example : {α : Type} → Nat → List α → List α := @List.drop
+-- ANCHOR_END: drop
 
-expect error {{{ dropPos }}}
-  [1, 2, 3, 4].drop (2 : Pos)
-  message
-"application type mismatch
+/-- error:
+application type mismatch
   List.drop 2
 argument
   2
 has type
   Pos : Type
 but is expected to have type
-  Nat : Type"
-end expect
+  Nat : Type
+-/
+#check_msgs in
+-- ANCHOR: dropPos
+-- TODO quote check
+example := [1, 2, 3, 4].drop (2 : Pos)
+-- ANCHOR_END: dropPos
 
 namespace FakeCoe
-book declaration {{{ Coe }}}
-  class Coe (α : Type) (β : Type) where
-    coe : α → β
-stop book declaration
+-- ANCHOR: Coe
+class Coe (α : Type) (β : Type) where
+  coe : α → β
+-- ANCHOR_END: Coe
 
-book declaration {{{ CoeTail }}}
-  class CoeTail (α : Type) (β : Type) where
-    coe : α → β
-stop book declaration
+-- ANCHOR: CoeTail
+class CoeTail (α : Type) (β : Type) where
+  coe : α → β
+-- ANCHOR_END: CoeTail
 
-book declaration {{{ CoeHead }}}
-  class CoeHead (α : Type) (β : Type) where
-    coe : α → β
-stop book declaration
+-- ANCHOR: CoeHead
+class CoeHead (α : Type) (β : Type) where
+  coe : α → β
+-- ANCHOR_END: CoeHead
 
 end FakeCoe
 
@@ -1296,462 +1487,511 @@ similar datatypes CoeHead FakeCoe.CoeHead
 
 
 
-book declaration {{{ CoeOption }}}
-  instance : Coe α (Option α) where
-    coe x := some x
-stop book declaration
+-- ANCHOR: CoeOption
+instance : Coe α (Option α) where
+  coe x := some x
+-- ANCHOR_END: CoeOption
 
 namespace L
 
 
-book declaration {{{ lastHuh }}}
-  def List.last? : List α → Option α
-    | [] => none
-    | [x] => x
-    | _ :: x :: xs => last? (x :: xs)
-stop book declaration
+-- ANCHOR: lastHuh
+def List.last? : List α → Option α
+  | [] => none
+  | [x] => x
+  | _ :: x :: xs => last? (x :: xs)
+-- ANCHOR_END: lastHuh
 
 end L
 
 
-book declaration {{{ perhapsPerhapsPerhaps }}}
-  def perhapsPerhapsPerhaps : Option (Option (Option String)) :=
-    "Please don't tell me"
-stop book declaration
+-- ANCHOR: perhapsPerhapsPerhaps
+def perhapsPerhapsPerhaps : Option (Option (Option String)) :=
+  "Please don't tell me"
+-- ANCHOR_END: perhapsPerhapsPerhaps
 
 
-
-expect error {{{ ofNatBeforeCoe }}}
-  def perhapsPerhapsPerhapsNat : Option (Option (Option Nat)) :=
-    392
-message
-"failed to synthesize
+discarding
+/-- error:
+failed to synthesize
   OfNat (Option (Option (Option Nat))) 392
 numerals are polymorphic in Lean, but the numeral `392` cannot be used in a context where the expected type is
   Option (Option (Option Nat))
 due to the absence of the instance above
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command."
-end expect
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#check_msgs in
+-- ANCHOR: ofNatBeforeCoe
+def perhapsPerhapsPerhapsNat : Option (Option (Option Nat)) :=
+  392
+-- ANCHOR_END: ofNatBeforeCoe
+stop discarding
 
-
-book declaration {{{ perhapsPerhapsPerhapsNat }}}
-  def perhapsPerhapsPerhapsNat : Option (Option (Option Nat)) :=
-    (392 : Nat)
-stop book declaration
+-- ANCHOR: perhapsPerhapsPerhapsNat
+def perhapsPerhapsPerhapsNat : Option (Option (Option Nat)) :=
+  (392 : Nat)
+-- ANCHOR_END: perhapsPerhapsPerhapsNat
 
 namespace Up
-book declaration {{{ perhapsPerhapsPerhapsNatUp }}}
-  def perhapsPerhapsPerhapsNat : Option (Option (Option Nat)) :=
-    ↑(392 : Nat)
-stop book declaration
+-- ANCHOR: perhapsPerhapsPerhapsNatUp
+def perhapsPerhapsPerhapsNat : Option (Option (Option Nat)) :=
+  ↑(392 : Nat)
+-- ANCHOR_END: perhapsPerhapsPerhapsNatUp
 end Up
 
-book declaration {{{ CoeNEList }}}
-  instance : Coe (NonEmptyList α) (List α) where
-    coe
-      | { head := x, tail := xs } => x :: xs
-stop book declaration
+-- ANCHOR: CoeNEList
+instance : Coe (NonEmptyList α) (List α) where
+  coe
+    | { head := x, tail := xs } => x :: xs
+-- ANCHOR_END: CoeNEList
 
 
 namespace Foo
-book declaration {{{ CoeDep }}}
-  class CoeDep (α : Type) (x : α) (β : Type) where
-    coe : β
-stop book declaration
+-- ANCHOR: CoeDep
+class CoeDep (α : Type) (x : α) (β : Type) where
+  coe : β
+-- ANCHOR_END: CoeDep
 end Foo
 similar datatypes CoeDep Foo.CoeDep
 
-book declaration {{{ CoeDepListNEList }}}
-  instance : CoeDep (List α) (x :: xs) (NonEmptyList α) where
-    coe := { head := x, tail := xs }
-stop book declaration
+-- ANCHOR: CoeDepListNEList
+instance : CoeDep (List α) (x :: xs) (NonEmptyList α) where
+  coe := { head := x, tail := xs }
+-- ANCHOR_END: CoeDepListNEList
 
 /--
 error: type mismatch
   []
 has type
-  List ?m.20732 : Type
+  List ?m.22415 : Type
 but is expected to have type
   NonEmptyList Nat : Type
 -/
-#guard_msgs in
+#check_msgs in
 #eval ([] : NonEmptyList Nat)
 
 /-- info: { head := 1, tail := [2, 3] } -/
 #guard_msgs in
 #eval ([1, 2, 3] : NonEmptyList Nat)
 
-book declaration {{{ JSON }}}
-  inductive JSON where
-    | true : JSON
-    | false : JSON
-    | null : JSON
-    | string : String → JSON
-    | number : Float → JSON
-    | object : List (String × JSON) → JSON
-    | array : List JSON → JSON
-  deriving Repr
-stop book declaration
+-- ANCHOR: JSON
+inductive JSON where
+  | true : JSON
+  | false : JSON
+  | null : JSON
+  | string : String → JSON
+  | number : Float → JSON
+  | object : List (String × JSON) → JSON
+  | array : List JSON → JSON
+deriving Repr
+-- ANCHOR_END: JSON
 
 
 
-expect info {{{ fiveZeros }}}
-  #eval (5 : Float).toString
-message
-"\"5.000000\""
-end expect
+/-- info:
+"5.000000"
+-/
+#check_msgs in
+-- ANCHOR: fiveZeros
+#eval (5 : Float).toString
+-- ANCHOR_END: fiveZeros
 
 
-book declaration {{{ Stringseparate }}}
-  def String.separate (sep : String) (strings : List String) : String :=
-    match strings with
-    | [] => ""
-    | x :: xs => String.join (x :: xs.map (sep ++ ·))
-stop book declaration
-
-
-
-expect info {{{ sep2ex }}}
-  #eval ", ".separate ["1", "2"]
-message
-"\"1, 2\""
-end expect
-
-
-expect info {{{ sep1ex }}}
-  #eval ", ".separate ["1"]
-message
-"\"1\""
-end expect
-
-
-expect info {{{ sep0ex }}}
-  #eval ", ".separate []
-message
-"\"\""
-end expect
-
-book declaration {{{ dropDecimals }}}
-  def dropDecimals (numString : String) : String :=
-    if numString.contains '.' then
-      let noTrailingZeros := numString.dropRightWhile (· == '0')
-      noTrailingZeros.dropRightWhile (· == '.')
-    else numString
-stop book declaration
-
-
-expect info {{{ dropDecimalExample }}}
-  #eval dropDecimals (5 : Float).toString
-message
-"\"5\""
-end expect
-
-expect info {{{ dropDecimalExample2 }}}
-  #eval dropDecimals (5.2 : Float).toString
-message
-"\"5.2\""
-end expect
+-- ANCHOR: Stringseparate
+def String.separate (sep : String) (strings : List String) : String :=
+  match strings with
+  | [] => ""
+  | x :: xs => String.join (x :: xs.map (sep ++ ·))
+-- ANCHOR_END: Stringseparate
 
 
 
-expect info {{{ escapeQuotes }}}
-  #eval Lean.Json.escape "\"Hello!\""
-message
-"\"\\\\\\\"Hello!\\\\\\\"\""
-end expect
+/-- info:
+"1, 2"
+-/
+#check_msgs in
+-- ANCHOR: sep2ex
+#eval ", ".separate ["1", "2"]
+-- ANCHOR_END: sep2ex
 
 
-book declaration {{{ JSONasString }}}
-  partial def JSON.asString (val : JSON) : String :=
-    match val with
-    | true => "true"
-    | false => "false"
-    | null => "null"
-    | string s => "\"" ++ Lean.Json.escape s ++ "\""
-    | number n => dropDecimals n.toString
-    | object members =>
-      let memberToString mem :=
-        "\"" ++ Lean.Json.escape mem.fst ++ "\": " ++ asString mem.snd
-      "{" ++ ", ".separate (members.map memberToString) ++ "}"
-    | array elements =>
-      "[" ++ ", ".separate (elements.map asString) ++ "]"
-stop book declaration
+/-- info:
+"1"
+-/
+#check_msgs in
+-- ANCHOR: sep1ex
+#eval ", ".separate ["1"]
+-- ANCHOR_END: sep1ex
 
-book declaration {{{ Monoid }}}
-  structure Monoid where
-    Carrier : Type
-    neutral : Carrier
-    op : Carrier → Carrier → Carrier
 
-  def natMulMonoid : Monoid :=
-    { Carrier := Nat, neutral := 1, op := (· * ·) }
+/-- info:
+""
+-/
+#check_msgs in
+-- ANCHOR: sep0ex
+#eval ", ".separate []
+-- ANCHOR_END: sep0ex
 
-  def natAddMonoid : Monoid :=
-    { Carrier := Nat, neutral := 0, op := (· + ·) }
+-- ANCHOR: dropDecimals
+def dropDecimals (numString : String) : String :=
+  if numString.contains '.' then
+    let noTrailingZeros := numString.dropRightWhile (· == '0')
+    noTrailingZeros.dropRightWhile (· == '.')
+  else numString
+-- ANCHOR_END: dropDecimals
 
-  def stringMonoid : Monoid :=
-    { Carrier := String, neutral := "", op := String.append }
 
-  def listMonoid (α : Type) : Monoid :=
-    { Carrier := List α, neutral := [], op := List.append }
-stop book declaration
+/-- info:
+"5"
+-/
+#check_msgs in
+-- ANCHOR: dropDecimalExample
+#eval dropDecimals (5 : Float).toString
+-- ANCHOR_END: dropDecimalExample
+
+/-- info:
+"5.2"
+-/
+#check_msgs in
+-- ANCHOR: dropDecimalExample2
+#eval dropDecimals (5.2 : Float).toString
+-- ANCHOR_END: dropDecimalExample2
+
+
+
+/-- info:
+"\\\"Hello!\\\""
+-/
+#check_msgs in
+-- ANCHOR: escapeQuotes
+#eval Lean.Json.escape "\"Hello!\""
+-- ANCHOR_END: escapeQuotes
+
+
+-- ANCHOR: JSONasString
+partial def JSON.asString (val : JSON) : String :=
+  match val with
+  | true => "true"
+  | false => "false"
+  | null => "null"
+  | string s => "\"" ++ Lean.Json.escape s ++ "\""
+  | number n => dropDecimals n.toString
+  | object members =>
+    let memberToString mem :=
+      "\"" ++ Lean.Json.escape mem.fst ++ "\": " ++ asString mem.snd
+    "{" ++ ", ".separate (members.map memberToString) ++ "}"
+  | array elements =>
+    "[" ++ ", ".separate (elements.map asString) ++ "]"
+-- ANCHOR_END: JSONasString
+
+-- ANCHOR: Monoid
+structure Monoid where
+  Carrier : Type
+  neutral : Carrier
+  op : Carrier → Carrier → Carrier
+
+def natMulMonoid : Monoid :=
+  { Carrier := Nat, neutral := 1, op := (· * ·) }
+
+def natAddMonoid : Monoid :=
+  { Carrier := Nat, neutral := 0, op := (· + ·) }
+
+def stringMonoid : Monoid :=
+  { Carrier := String, neutral := "", op := String.append }
+
+def listMonoid (α : Type) : Monoid :=
+  { Carrier := List α, neutral := [], op := List.append }
+-- ANCHOR_END: Monoid
 
 namespace MMM
-book declaration {{{ firstFoldMap }}}
-  def foldMap (M : Monoid) (f : α → M.Carrier) (xs : List α) : M.Carrier :=
-    let rec go (soFar : M.Carrier) : List α → M.Carrier
-      | [] => soFar
-      | y :: ys => go (M.op soFar (f y)) ys
-    go M.neutral xs
-stop book declaration
+-- ANCHOR: firstFoldMap
+def foldMap (M : Monoid) (f : α → M.Carrier) (xs : List α) : M.Carrier :=
+  let rec go (soFar : M.Carrier) : List α → M.Carrier
+    | [] => soFar
+    | y :: ys => go (M.op soFar (f y)) ys
+  go M.neutral xs
+-- ANCHOR_END: firstFoldMap
 end MMM
 
 
-book declaration {{{ CoeMonoid }}}
-  instance : CoeSort Monoid Type where
-    coe m := m.Carrier
-stop book declaration
+-- ANCHOR: CoeMonoid
+instance : CoeSort Monoid Type where
+  coe m := m.Carrier
+-- ANCHOR_END: CoeMonoid
 
 
-book declaration {{{ foldMap }}}
-  def foldMap (M : Monoid) (f : α → M) (xs : List α) : M :=
-    let rec go (soFar : M) : List α → M
-      | [] => soFar
-      | y :: ys => go (M.op soFar (f y)) ys
-    go M.neutral xs
-stop book declaration
+-- ANCHOR: foldMap
+def foldMap (M : Monoid) (f : α → M) (xs : List α) : M :=
+  let rec go (soFar : M) : List α → M
+    | [] => soFar
+    | y :: ys => go (M.op soFar (f y)) ys
+  go M.neutral xs
+-- ANCHOR_END: foldMap
 
-book declaration {{{ CoeBoolProp }}}
-  instance : CoeSort Bool Prop where
-    coe b := b = true
-stop book declaration
+-- ANCHOR: CoeBoolProp
+instance : CoeSort Bool Prop where
+  coe b := b = true
+-- ANCHOR_END: CoeBoolProp
 
 
 namespace U
 
-book declaration {{{ CoeFun }}}
-  class CoeFun (α : Type) (makeFunctionType : outParam (α → Type)) where
-    coe : (x : α) → makeFunctionType x
-stop book declaration
+-- ANCHOR: CoeFun
+class CoeFun (α : Type) (makeFunctionType : outParam (α → Type)) where
+  coe : (x : α) → makeFunctionType x
+-- ANCHOR_END: CoeFun
 
 end U
 similar datatypes CoeFun U.CoeFun
 
 
-book declaration {{{ Adder }}}
-  structure Adder where
-    howMuch : Nat
-stop book declaration
+-- ANCHOR: Adder
+structure Adder where
+  howMuch : Nat
+-- ANCHOR_END: Adder
 
-book declaration {{{ add5 }}}
-  def add5 : Adder := ⟨5⟩
-stop book declaration
+-- ANCHOR: add5
+def add5 : Adder := ⟨5⟩
+-- ANCHOR_END: add5
 
-expect error {{{ add5notfun }}}
-  #eval add5 3
-message
-"function expected at
+/-- error:
+function expected at
   add5
 term has type
-  Adder"
-end expect
+  Adder
+-/
+#check_msgs in
+-- ANCHOR: add5notfun
+#eval add5 3
+-- ANCHOR_END: add5notfun
 
 
-book declaration {{{ CoeFunAdder }}}
-  instance : CoeFun Adder (fun _ => Nat → Nat) where
-    coe a := (· + a.howMuch)
-stop book declaration
+-- ANCHOR: CoeFunAdder
+instance : CoeFun Adder (fun _ => Nat → Nat) where
+  coe a := (· + a.howMuch)
+-- ANCHOR_END: CoeFunAdder
 
 
-expect info {{{ add53 }}}
-  #eval add5 3
-message
-  "8"
-end expect
+/-- info:
+8
+-/
+#check_msgs in
+-- ANCHOR: add53
+#eval add5 3
+-- ANCHOR_END: add53
 
 namespace Ser
 
-book declaration {{{ Serializer }}}
-  structure Serializer where
-    Contents : Type
-    serialize : Contents → JSON
-stop book declaration
+-- ANCHOR: Serializer
+structure Serializer where
+  Contents : Type
+  serialize : Contents → JSON
+-- ANCHOR_END: Serializer
 
 
-book declaration {{{ StrSer }}}
-  def Str : Serializer :=
-    { Contents := String,
-      serialize := JSON.string
-    }
-stop book declaration
+-- ANCHOR: StrSer
+def Str : Serializer :=
+  { Contents := String,
+    serialize := JSON.string
+  }
+-- ANCHOR_END: StrSer
 
 
-book declaration {{{ CoeFunSer }}}
-  instance : CoeFun Serializer (fun s => s.Contents → JSON) where
-    coe s := s.serialize
-stop book declaration
+-- ANCHOR: CoeFunSer
+instance : CoeFun Serializer (fun s => s.Contents → JSON) where
+  coe s := s.serialize
+-- ANCHOR_END: CoeFunSer
 
 
-book declaration {{{ buildResponse }}}
-  def buildResponse (title : String) (R : Serializer) (record : R.Contents) : JSON :=
-    JSON.object [
-      ("title", JSON.string title),
-      ("status", JSON.number 200),
-      ("record", R record)
-    ]
-stop book declaration
-
-
-
-expect info {{{ buildResponseOut }}}
-  #eval buildResponse "Functional Programming in Lean" Str "Programming is fun!"
-message
-"JSON.object
-  [(\"title\", JSON.string \"Functional Programming in Lean\"),
-   (\"status\", JSON.number 200.000000),
-   (\"record\", JSON.string \"Programming is fun!\")]"
-end expect
+-- ANCHOR: buildResponse
+def buildResponse (title : String) (R : Serializer)
+    (record : R.Contents) : JSON :=
+  JSON.object [
+    ("title", JSON.string title),
+    ("status", JSON.number 200),
+    ("record", R record)
+  ]
+-- ANCHOR_END: buildResponse
 
 
 
-expect info {{{ buildResponseStr }}}
-  #eval (buildResponse "Functional Programming in Lean" Str "Programming is fun!").asString
-message
-  "\"{\\\"title\\\": \\\"Functional Programming in Lean\\\", \\\"status\\\": 200, \\\"record\\\": \\\"Programming is fun!\\\"}\""
-end expect
+/-- info:
+JSON.object
+  [("title", JSON.string "Functional Programming in Lean"),
+   ("status", JSON.number 200.000000),
+   ("record", JSON.string "Programming is fun!")]
+-/
+#check_msgs in
+-- ANCHOR: buildResponseOut
+#eval buildResponse "Functional Programming in Lean" Str "Programming is fun!"
+-- ANCHOR_END: buildResponseOut
+
+
+
+/-- info:
+"{\"title\": \"Functional Programming in Lean\", \"status\": 200, \"record\": \"Programming is fun!\"}"
+-/
+#check_msgs in
+-- ANCHOR: buildResponseStr
+#eval (buildResponse "Functional Programming in Lean" Str "Programming is fun!").asString
+-- ANCHOR_END: buildResponseStr
 end Ser
 
 namespace A
-expect error {{{ lastSpiderB }}}
-  def lastSpider :=
-    List.getLast? idahoSpiders
-message
-"application type mismatch
+/-- error:
+application type mismatch
   List.getLast? idahoSpiders
 argument
   idahoSpiders
 has type
   NonEmptyList String : Type
 but is expected to have type
-  List ?m.25493 : Type"
-end expect
+  List ?m.25493 : Type
+-/
+#check_msgs in
+-- ANCHOR: lastSpiderB
+def lastSpider :=
+  List.getLast? idahoSpiders
+-- ANCHOR_END: lastSpiderB
 
-expect error {{{ lastSpiderC }}}
-  def lastSpider : Option String :=
-    idahoSpiders.getLast?
-message
-"invalid field 'getLast?', the environment does not contain 'NonEmptyList.getLast?'
+discarding
+/-- error:
+invalid field 'getLast?', the environment does not contain 'NonEmptyList.getLast?'
   idahoSpiders
 has type
-  NonEmptyList String"
-end expect
+  NonEmptyList String
+-/
+#check_msgs in
+-- ANCHOR: lastSpiderC
+def lastSpider : Option String :=
+  idahoSpiders.getLast?
+-- ANCHOR_END: lastSpiderC
+stop discarding
 
-
-book declaration {{{ lastSpiderA }}}
-  def lastSpider : Option String :=
-    List.getLast? idahoSpiders
-stop book declaration
+-- ANCHOR: lastSpiderA
+def lastSpider : Option String :=
+  List.getLast? idahoSpiders
+-- ANCHOR_END: lastSpiderA
 end A
 
 instance : CoeDep (List α) (x :: xs) (NonEmptyList α) where
   coe := ⟨x, xs⟩
 
 
-book declaration {{{ CoercionCycle }}}
-  inductive A where
-    | a
+-- ANCHOR: CoercionCycle
+inductive A where
+  | a
 
-  inductive B where
-    | b
+inductive B where
+  | b
 
-  instance : Coe A B where
-    coe _ := B.b
+instance : Coe A B where
+  coe _ := B.b
 
-  instance : Coe B A where
-    coe _ := A.a
+instance : Coe B A where
+  coe _ := A.a
 
-  instance : Coe Unit A where
-    coe _ := A.a
+instance : Coe Unit A where
+  coe _ := A.a
 
-  def coercedToB : B := ()
-stop book declaration
+def coercedToB : B := ()
+-- ANCHOR_END: CoercionCycle
 
-book declaration {{{ ReprB }}}
+-- ANCHOR: ReprB
 deriving instance Repr for B
-stop book declaration
+-- ANCHOR_END: ReprB
+example := Repr B
 
 
-expect info {{{ coercedToBEval }}}
-  #eval coercedToB
-message
-"B.b"
-end expect
+/-- info:
+B.b
+-/
+#check_msgs in
+-- ANCHOR: coercedToBEval
+#eval coercedToB
+-- ANCHOR_END: coercedToBEval
 
-book declaration {{{ CoePosNat }}}
-  instance : Coe Pos Nat where
-    coe x := x.toNat
-stop book declaration
+-- ANCHOR: CoePosNat
+instance : Coe Pos Nat where
+  coe x := x.toNat
+-- ANCHOR_END: CoePosNat
 
-book declaration {{{ posInt }}}
-  def oneInt : Int := Pos.one
-stop book declaration
+-- ANCHOR: posInt
+def oneInt : Int := Pos.one
+-- ANCHOR_END: posInt
 
-expect info {{{ dropPosCoe }}}
-  #eval [1, 2, 3, 4].drop (2 : Pos)
-message
-"[3, 4]"
-end expect
+/-- info:
+[3, 4]
+-/
+#check_msgs in
+-- ANCHOR: dropPosCoe
+#eval [1, 2, 3, 4].drop (2 : Pos)
+-- ANCHOR_END: dropPosCoe
 
-expect info {{{ checkDropPosCoe }}}
-  #check [1, 2, 3, 4].drop (2 : Pos)
-message
-  "List.drop (Pos.toNat 2) [1, 2, 3, 4] : List Nat"
-end expect
-
-
-book declaration {{{ trees }}}
-  structure Tree : Type where
-    latinName : String
-    commonNames : List String
-
-  def oak : Tree :=
-    ⟨"Quercus robur", ["common oak", "European oak"]⟩
-
-  def birch : Tree :=
-    { latinName := "Betula pendula",
-      commonNames := ["silver birch", "warty birch"]
-    }
-
-  def sloe : Tree where
-    latinName := "Prunus spinosa"
-    commonNames := ["sloe", "blackthorn"]
-stop book declaration
+/-- info:
+List.drop (Pos.toNat 2) [1, 2, 3, 4] : List Nat
+-/
+#check_msgs in
+-- ANCHOR: checkDropPosCoe
+#check [1, 2, 3, 4].drop (2 : Pos)
+-- ANCHOR_END: checkDropPosCoe
 
 
+-- ANCHOR: trees
+structure Tree : Type where
+  latinName : String
+  commonNames : List String
 
-book declaration {{{ Display }}}
-  class Display (α : Type) where
-    displayName : α → String
+def oak : Tree :=
+  ⟨"Quercus robur", ["common oak", "European oak"]⟩
 
-  instance : Display Tree :=
-    ⟨Tree.latinName⟩
+def birch : Tree :=
+  { latinName := "Betula pendula",
+    commonNames := ["silver birch", "warty birch"]
+  }
 
-  instance : Display Tree :=
-    { displayName := Tree.latinName }
+def sloe : Tree where
+  latinName := "Prunus spinosa"
+  commonNames := ["sloe", "blackthorn"]
+-- ANCHOR_END: trees
 
-  instance : Display Tree where
-    displayName t := t.latinName
-stop book declaration
 
-book declaration {{{ birdExample }}}
-  example : NonEmptyList String :=
-    { head := "Sparrow",
-      tail := ["Duck", "Swan", "Magpie", "Eurasian coot", "Crow"]
-    }
-stop book declaration
 
-book declaration {{{ commAdd }}}
-  example (n : Nat) (k : Nat) : Bool :=
-    n + k == k + n
-stop book declaration
+-- ANCHOR: Display
+class Display (α : Type) where
+  displayName : α → String
+
+instance : Display Tree :=
+  ⟨Tree.latinName⟩
+
+instance : Display Tree :=
+  { displayName := Tree.latinName }
+
+instance : Display Tree where
+  displayName t := t.latinName
+-- ANCHOR_END: Display
+
+-- ANCHOR: birdExample
+example : NonEmptyList String :=
+  { head := "Sparrow",
+    tail := ["Duck", "Swan", "Magpie", "Eurasian coot", "Crow"]
+  }
+-- ANCHOR_END: birdExample
+
+-- ANCHOR: commAdd
+example (n : Nat) (k : Nat) : Bool :=
+  n + k == k + n
+-- ANCHOR_END: commAdd
+
+-- ANCHOR: nats
+example := [0,1,2,3,4,5,6,7,8,9,10]
+-- ANCHOR_END: nats
+
+-- ANCHOR: moreOps
+section
+example := [AndOp, OrOp, Inhabited]
+example := Nat → List Int
+example {α} := HAppend (List α) (NonEmptyList α) (NonEmptyList α)
+end
+-- ANCHOR_END: moreOps

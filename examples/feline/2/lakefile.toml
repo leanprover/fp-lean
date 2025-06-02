@@ -1,0 +1,9 @@
+name = "feline"
+defaultTargets = ["feline"]
+
+[[lean_lib]]
+name = "FelineLib"
+
+[[lean_exe]]
+name = "feline"
+root = "Main"

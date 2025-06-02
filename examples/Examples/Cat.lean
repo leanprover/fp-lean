@@ -1,16 +1,18 @@
-import Examples.Support
+import ExampleSupport
 
 namespace Str
 
-book declaration {{{ Stream }}}
-  structure Stream where
-    flush   : IO Unit
-    read    : USize → IO ByteArray
-    write   : ByteArray → IO Unit
-    getLine : IO String
-    putStr  : String → IO Unit
-    isTty   : BaseIO Bool
-stop book declaration
+
+-- ANCHOR: Stream
+structure Stream where
+  flush   : IO Unit
+  read    : USize → IO ByteArray
+  write   : ByteArray → IO Unit
+  getLine : IO String
+  putStr  : String → IO Unit
+  isTty   : BaseIO Bool
+-- ANCHOR_END: Stream
+
 
 end Str
 
@@ -67,28 +69,28 @@ namespace Improved
 def bufsize : USize := 20 * 1024
 
 
-book declaration {{{ dump }}}
-  partial def dump (stream : IO.FS.Stream) : IO Unit := do
-    let buf ← stream.read bufsize
-    if buf.isEmpty then
-      pure ()
-    else
-      (← IO.getStdout).write buf
-      dump stream
-stop book declaration
+-- ANCHOR: dump
+partial def dump (stream : IO.FS.Stream) : IO Unit := do
+  let buf ← stream.read bufsize
+  if buf.isEmpty then
+    pure ()
+  else
+    (← IO.getStdout).write buf
+    dump stream
+-- ANCHOR_END: dump
 
-book declaration {{{ fileStream }}}
-  def fileStream (filename : System.FilePath) : IO (Option IO.FS.Stream) := do
-    if not (← filename.pathExists) then
-      (← IO.getStderr).putStrLn s!"File not found: {filename}"
-      pure none
-    else
-      let handle ← IO.FS.Handle.mk filename IO.FS.Mode.read
-      pure (some (IO.FS.Stream.ofHandle handle))
-stop book declaration
+-- ANCHOR: fileStream
+def fileStream (filename : System.FilePath) : IO (Option IO.FS.Stream) := do
+  if not (← filename.pathExists) then
+    (← IO.getStderr).putStrLn s!"File not found: {filename}"
+    pure none
+  else
+    let handle ← IO.FS.Handle.mk filename IO.FS.Mode.read
+    pure (some (IO.FS.Stream.ofHandle handle))
+-- ANCHOR_END: fileStream
 
 
-book declaration {{{ process }}}
+-- ANCHOR: process
 def process (exitCode : UInt32) (args : List String) : IO UInt32 := do
   match args with
   | [] => pure exitCode
@@ -102,7 +104,7 @@ def process (exitCode : UInt32) (args : List String) : IO UInt32 := do
     | some stream =>
       dump stream
       process exitCode args
-stop book declaration
+-- ANCHOR_END: process
 
 def main (args : List String) : IO UInt32 :=
   match args with
@@ -135,43 +137,45 @@ example : Original.main = Improved.main := by
 
 
 
-book declaration {{{ getNumA }}}
-  def getNumA : IO Nat := do
-    (← IO.getStdout).putStrLn "A"
-    pure 5
-stop book declaration
+-- ANCHOR: getNumA
+def getNumA : IO Nat := do
+  (← IO.getStdout).putStrLn "A"
+  pure 5
+-- ANCHOR_END: getNumA
 
 
-book declaration {{{ getNumB }}}
-  def getNumB : IO Nat := do
-    (← IO.getStdout).putStrLn "B"
-    pure 7
-stop book declaration
+-- ANCHOR: getNumB
+def getNumB : IO Nat := do
+  (← IO.getStdout).putStrLn "B"
+  pure 7
+-- ANCHOR_END: getNumB
 
-book declaration {{{ getNums }}}
-  def getNums (n : Nat) : IO (Nat × Nat) := do
-    (← IO.getStdout).putStrLn "Nums"
-    pure (n, n+n)
-stop book declaration
+-- ANCHOR: getNums
+def getNums (n : Nat) : IO (Nat × Nat) := do
+  (← IO.getStdout).putStrLn "Nums"
+  pure (n, n+n)
+-- ANCHOR_END: getNums
 
 
-expect error {{{ testEffects }}}
-  def test : IO Unit := do
-    let a : Nat := if (← getNumA) == 5 then 0 else (← getNumB)
-    (← IO.getStdout).putStrLn s!"The answer is {a}"
-message
-"invalid use of `(<- ...)`, must be nested inside a 'do' expression"
-end expect
+/-- error:
+invalid use of `(<- ...)`, must be nested inside a 'do' expression
+-/
+#check_msgs in
+-- ANCHOR: testEffects
+def test : IO Unit := do
+  let a : Nat := if (← getNumA) == 5 then 0 else (← getNumB)
+  (← IO.getStdout).putStrLn s!"The answer is {a}"
+-- ANCHOR_END: testEffects
 
 
 namespace Foo
-book declaration {{{ testEffectsExpanded }}}
-  def test : IO Unit := do
-    let x ← getNumA
-    let y ← getNumB
-    let a : Nat := if x == 5 then 0 else y
-    (← IO.getStdout).putStrLn s!"The answer is {a}"
-stop book declaration
+-- ANCHOR: testEffectsExpanded
+def test : IO Unit := do
+  let x ← getNumA
+  let y ← getNumB
+  let a : Nat := if x == 5 then 0 else y
+  (← IO.getStdout).putStrLn s!"The answer is {a}"
+-- ANCHOR_END: testEffectsExpanded
 end Foo
 
 
@@ -195,7 +199,7 @@ def one : IO Nat := pure 1
 def two : IO Nat := pure 2
 
 namespace HelloName1
-book declaration {{{ helloOne }}}
+-- ANCHOR: helloOne
 -- This version uses only whitespace-sensitive layout
 def main : IO Unit := do
   let stdin ← IO.getStdin
@@ -204,11 +208,11 @@ def main : IO Unit := do
   stdout.putStrLn "How would you like to be addressed?"
   let name := (← stdin.getLine).trim
   stdout.putStrLn s!"Hello, {name}!"
-stop book declaration
+-- ANCHOR_END: helloOne
 end HelloName1
 
 namespace HelloName2
-book declaration {{{ helloTwo }}}
+-- ANCHOR: helloTwo
 -- This version is as explicit as possible
 def main : IO Unit := do {
   let stdin ← IO.getStdin;
@@ -218,11 +222,11 @@ def main : IO Unit := do {
   let name := (← stdin.getLine).trim;
   stdout.putStrLn s!"Hello, {name}!"
 }
-stop book declaration
+-- ANCHOR_END: helloTwo
 end HelloName2
 
 namespace HelloName3
-book declaration {{{ helloThree }}}
+-- ANCHOR: helloThree
 -- This version uses a semicolon to put two actions on the same line
 def main : IO Unit := do
   let stdin ← IO.getStdin; let stdout ← IO.getStdout
@@ -230,7 +234,7 @@ def main : IO Unit := do
   stdout.putStrLn "How would you like to be addressed?"
   let name := (← stdin.getLine).trim
   stdout.putStrLn s!"Hello, {name}!"
-stop book declaration
+-- ANCHOR_END: helloThree
 end HelloName3
 
 open Nat (toFloat)

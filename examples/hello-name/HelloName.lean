@@ -53,3 +53,13 @@ def mainSplit : IO Unit := do
 
 -- Keep checking that they're identical
 example : main = mainSplit := by rfl
+
+example := String.dropRightWhile
+example {α : Type} := IO α
+example : String → IO Unit := IO.println
+example := Bool
+open Unit in
+example : Unit := unit
+example := IO.FS.Stream
+example : IO.FS.Stream → String → IO Unit := IO.FS.Stream.putStrLn
+example : IO.FS.Stream → IO String := IO.FS.Stream.getLine

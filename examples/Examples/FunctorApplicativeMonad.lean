@@ -1,115 +1,135 @@
-import Examples.Support
+import ExampleSupport
 import Examples.Classes
 import Examples.Monads.Class
 
 
-book declaration {{{ MythicalCreature }}}
-  structure MythicalCreature where
-    large : Bool
-  deriving Repr
-stop book declaration
+-- ANCHOR: MythicalCreature
+structure MythicalCreature where
+  large : Bool
+deriving Repr
+-- ANCHOR_END: MythicalCreature
+
+-- ANCHOR: MythicalCreatureMore
+section
+open MythicalCreature
+example := mk
+end
+-- ANCHOR_END: MythicalCreatureMore
 
 
-book declaration {{{ Monster }}}
-  structure Monster extends MythicalCreature where
-    vulnerability : String
-  deriving Repr
-stop book declaration
+-- ANCHOR: Monster
+structure Monster extends MythicalCreature where
+  vulnerability : String
+deriving Repr
+-- ANCHOR_END: Monster
 
 
-expect info {{{ MythicalCreatureMk }}}
-  #check MythicalCreature.mk
-message
-"MythicalCreature.mk (large : Bool) : MythicalCreature"
-end expect
+/-- info:
+MythicalCreature.mk (large : Bool) : MythicalCreature
+-/
+#check_msgs in
+-- ANCHOR: MythicalCreatureMk
+#check MythicalCreature.mk
+-- ANCHOR_END: MythicalCreatureMk
 
-expect info {{{ MythicalCreatureLarge }}}
-  #check MythicalCreature.large
-message
-"MythicalCreature.large (self : MythicalCreature) : Bool"
-end expect
-
-
-expect info {{{ MonsterMk }}}
-  #check Monster.mk
-message
-"Monster.mk (toMythicalCreature : MythicalCreature) (vulnerability : String) : Monster"
-end expect
-
-bookExample type {{{ MonsterToCreature }}}
-  Monster.toMythicalCreature
-  ===>
-  Monster → MythicalCreature
-end bookExample
+/-- info:
+MythicalCreature.large (self : MythicalCreature) : Bool
+-/
+#check_msgs in
+-- ANCHOR: MythicalCreatureLarge
+#check MythicalCreature.large
+-- ANCHOR_END: MythicalCreatureLarge
 
 
-book declaration {{{ Helper }}}
-  structure Helper extends MythicalCreature where
-    assistance : String
-    payment : String
-  deriving Repr
-stop book declaration
+/-- info:
+Monster.mk (toMythicalCreature : MythicalCreature) (vulnerability : String) : Monster
+-/
+#check_msgs in
+-- ANCHOR: MonsterMk
+#check Monster.mk
+-- ANCHOR_END: MonsterMk
+
+-- ANCHOR: MonsterToCreature
+example : Monster → MythicalCreature := Monster.toMythicalCreature
+-- ANCHOR_END: MonsterToCreature
 
 
-book declaration {{{ troll }}}
-  def troll : Monster where
-    large := true
-    vulnerability := "sunlight"
-stop book declaration
-
-expect info {{{ checkTrollCast }}}
-  #check troll.toMythicalCreature
-message
-"troll.toMythicalCreature : MythicalCreature"
-end expect
+-- ANCHOR: Helper
+structure Helper extends MythicalCreature where
+  assistance : String
+  payment : String
+deriving Repr
+-- ANCHOR_END: Helper
 
 
-expect info {{{ evalTrollCast }}}
-  #eval troll.toMythicalCreature
-message
-"{ large := true }"
-end expect
+-- ANCHOR: troll
+def troll : Monster where
+  large := true
+  vulnerability := "sunlight"
+-- ANCHOR_END: troll
+
+/-- info:
+troll.toMythicalCreature : MythicalCreature
+-/
+#check_msgs in
+-- ANCHOR: checkTrollCast
+#check troll.toMythicalCreature
+-- ANCHOR_END: checkTrollCast
+
+
+/-- info:
+{ large := true }
+-/
+#check_msgs in
+-- ANCHOR: evalTrollCast
+#eval troll.toMythicalCreature
+-- ANCHOR_END: evalTrollCast
 
 namespace Blurble
-book declaration {{{ troll2 }}}
-  def troll : Monster := {large := true, vulnerability := "sunlight"}
-stop book declaration
+-- ANCHOR: troll2
+def troll : Monster := {large := true, vulnerability := "sunlight"}
+-- ANCHOR_END: troll2
 end Blurble
 
 
 namespace Foo
-expect error {{{ wrongTroll1 }}}
-  def troll : Monster := ⟨true, "sunlight"⟩
-message
-"application type mismatch
+discarding
+/-- error:
+application type mismatch
   Monster.mk true
 argument
   true
 has type
   Bool : Type
 but is expected to have type
-  MythicalCreature : Type"
-end expect
+  MythicalCreature : Type
+-/
+#check_msgs in
+-- ANCHOR: wrongTroll1
+def troll : Monster := ⟨true, "sunlight"⟩
+-- ANCHOR_END: wrongTroll1
+stop discarding
 
-
-book declaration {{{ troll3 }}}
-  def troll : Monster := ⟨⟨true⟩, "sunlight"⟩
-stop book declaration
+-- ANCHOR: troll3
+def troll : Monster := ⟨⟨true⟩, "sunlight"⟩
+-- ANCHOR_END: troll3
 end Foo
 
 
-expect error {{{ trollLargeNoDot }}}
-  #eval MythicalCreature.large troll
-message
-"application type mismatch
+/-- error:
+application type mismatch
   MythicalCreature.large troll
 argument
   troll
 has type
   Monster : Type
 but is expected to have type
-  MythicalCreature : Type"
-end expect
+  MythicalCreature : Type
+-/
+#check_msgs in
+-- ANCHOR: trollLargeNoDot
+#eval MythicalCreature.large troll
+-- ANCHOR_END: trollLargeNoDot
 
 
 structure Aaa where
@@ -125,214 +145,225 @@ structure Ccc extends Aaa, Bbb where
 #check Monster.toMythicalCreature
 
 
-book declaration {{{ elf }}}
-  def nisse : Helper where
-    large := false
-    assistance := "household tasks"
-    payment := "porridge"
-stop book declaration
+-- ANCHOR: elf
+def nisse : Helper where
+  large := false
+  assistance := "household tasks"
+  payment := "porridge"
+-- ANCHOR_END: elf
 
 
-book declaration {{{ MonstrousAssistant }}}
-  structure MonstrousAssistant extends Monster, Helper where
-  deriving Repr
-stop book declaration
+-- ANCHOR: MonstrousAssistant
+structure MonstrousAssistant extends Monster, Helper where
+deriving Repr
+-- ANCHOR_END: MonstrousAssistant
+
+-- ANCHOR: MonstrousAssistantMore
+example := MonstrousAssistant.toMonster
+example := MonstrousAssistant.toHelper
+example := Hashable
+-- ANCHOR_END: MonstrousAssistantMore
 
 
-expect info {{{ checkMonstrousAssistantMk }}}
-  #check MonstrousAssistant.mk
-message
-"MonstrousAssistant.mk (toMonster : Monster) (assistance payment : String) : MonstrousAssistant"
-end expect
+/-- info:
+MonstrousAssistant.mk (toMonster : Monster) (assistance payment : String) : MonstrousAssistant
+-/
+#check_msgs in
+-- ANCHOR: checkMonstrousAssistantMk
+#check MonstrousAssistant.mk
+-- ANCHOR_END: checkMonstrousAssistantMk
 
 
 
-expect info {{{ checkMonstrousAssistantToHelper }}}
-  #check MonstrousAssistant.toHelper
-message
-"MonstrousAssistant.toHelper (self : MonstrousAssistant) : Helper"
-end expect
+/-- info:
+MonstrousAssistant.toHelper (self : MonstrousAssistant) : Helper
+-/
+#check_msgs in
+-- ANCHOR: checkMonstrousAssistantToHelper
+#check MonstrousAssistant.toHelper
+-- ANCHOR_END: checkMonstrousAssistantToHelper
 
 
-expect info {{{ printMonstrousAssistantToHelper }}}
-  #print MonstrousAssistant.toHelper
-message
-"@[reducible] def MonstrousAssistant.toHelper : MonstrousAssistant → Helper :=
-fun self => { toMythicalCreature := self.toMythicalCreature, assistance := self.assistance, payment := self.payment }"
-end expect
+/-- info:
+@[reducible] def MonstrousAssistant.toHelper : MonstrousAssistant → Helper :=
+fun self => { toMythicalCreature := self.toMythicalCreature, assistance := self.assistance, payment := self.payment }
+-/
+#check_msgs in
+-- ANCHOR: printMonstrousAssistantToHelper
+#print MonstrousAssistant.toHelper
+-- ANCHOR_END: printMonstrousAssistantToHelper
 
-book declaration {{{ domesticatedTroll }}}
-  def domesticatedTroll : MonstrousAssistant where
-    large := true
-    assistance := "heavy labor"
-    payment := "toy goats"
-    vulnerability := "sunlight"
-stop book declaration
+-- ANCHOR: domesticatedTroll
+def domesticatedTroll : MonstrousAssistant where
+  large := true
+  assistance := "heavy labor"
+  payment := "toy goats"
+  vulnerability := "sunlight"
+-- ANCHOR_END: domesticatedTroll
 
-book declaration {{{ SizedCreature }}}
-  inductive Size where
-    | small
-    | medium
-    | large
-  deriving BEq
+-- ANCHOR: SizedCreature
+inductive Size where
+  | small
+  | medium
+  | large
+deriving BEq
 
-  structure SizedCreature extends MythicalCreature where
-    size : Size
-    large := size == Size.large
-stop book declaration
+structure SizedCreature extends MythicalCreature where
+  size : Size
+  large := size == Size.large
+-- ANCHOR_END: SizedCreature
 
-book declaration {{{ nonsenseCreature }}}
-  def nonsenseCreature : SizedCreature where
-    large := false
-    size := .large
-stop book declaration
-
-
-book declaration {{{ sizesMatch }}}
-  abbrev SizesMatch (sc : SizedCreature) : Prop :=
-    sc.large = (sc.size == Size.large)
-stop book declaration
+-- ANCHOR: nonsenseCreature
+def nonsenseCreature : SizedCreature where
+  large := false
+  size := .large
+-- ANCHOR_END: nonsenseCreature
 
 
-book declaration {{{ huldresize }}}
-  def huldre : SizedCreature where
-    size := .medium
-
-  example : SizesMatch huldre := by
-    decide
-stop book declaration
-
-book declaration {{{ small }}}
-  def MythicalCreature.small (c : MythicalCreature) : Bool := !c.large
-stop book declaration
-
-bookExample {{{ smallTroll }}}
-  troll.small
-  ===>
-  false
-end bookExample
+-- ANCHOR: sizesMatch
+abbrev SizesMatch (sc : SizedCreature) : Prop :=
+  sc.large = (sc.size == Size.large)
+-- ANCHOR_END: sizesMatch
 
 
-expect error {{{ smallTrollWrong }}}
-  MythicalCreature.small troll
-message
-"application type mismatch
+-- ANCHOR: huldresize
+def huldre : SizedCreature where
+  size := .medium
+
+example : SizesMatch huldre := by
+  decide
+-- ANCHOR_END: huldresize
+
+-- ANCHOR: small
+def MythicalCreature.small (c : MythicalCreature) : Bool := !c.large
+-- ANCHOR_END: small
+
+-- ANCHOR: smallTroll
+example : (
+troll.small
+) = (
+false
+) := rfl
+-- ANCHOR_END: smallTroll
+
+
+/-- error:
+application type mismatch
   MythicalCreature.small troll
 argument
   troll
 has type
   Monster : Type
 but is expected to have type
-  MythicalCreature : Type"
-end expect
+  MythicalCreature : Type
+-/
+#check_msgs in
+-- ANCHOR: smallTrollWrong
+example := MythicalCreature.small troll
+-- ANCHOR_END: smallTrollWrong
 
 #eval nisse.small
 
 
-expect error {{{ smallElfNoDot }}}
-  #eval MythicalCreature.small nisse
-message
-"application type mismatch
+/-- error:
+application type mismatch
   MythicalCreature.small nisse
 argument
   nisse
 has type
   Helper : Type
 but is expected to have type
-  MythicalCreature : Type"
-end expect
+  MythicalCreature : Type
+-/
+#check_msgs in
+-- ANCHOR: smallElfNoDot
+#eval MythicalCreature.small nisse
+-- ANCHOR_END: smallElfNoDot
 
 namespace VariousTypes
 
-axiom f : Type → Type
-axiom m : Type → Type
-@[instance] axiom instF : Applicative f
-@[instance] axiom instM : Monad m
-axiom α : Type
-axiom β : Type
-axiom E1 : f (α → β)
-axiom E2 : f α
+variable {f : Type → Type}
+variable {m : Type → Type}
+variable [instF : Applicative f]
+variable [instM : Monad m]
+variable {α : Type}
+variable {β : Type}
+variable {E1 : f (α → β)}
+variable {E2 : f α}
 
-bookExample type {{{ pureType }}}
-  pure
-  <===
-  {α : Type} → α → f α
-end bookExample
+-- ANCHOR: pureType
+example : {α : Type} → α → f α := pure
+-- ANCHOR_END: pureType
 
-bookExample type {{{ seqType }}}
-  Seq.seq
-  <===
-  f (α → β) → (Unit → f α) → f β
-end bookExample
+-- ANCHOR: seqType
+example : f (α → β) → (Unit → f α) → f β := Seq.seq
+-- ANCHOR_END: seqType
 
-bookExample {{{ seqSugar }}}
-  E1 <*> E2
-  ===>
-  Seq.seq E1 (fun () => E2)
-end bookExample
+-- ANCHOR: seqSugar
+example : (
+E1 <*> E2
+) = (
+Seq.seq E1 (fun () => E2)
+) := rfl
+-- ANCHOR_END: seqSugar
 
-bookExample type {{{ bindType }}}
-  Bind.bind
-  <===
-  m α → (α → m β) → m β
-end bookExample
+-- ANCHOR: bindType
+section
+open Monad
+example : m α → (α → m β) → m β := bind
+end
+-- ANCHOR_END: bindType
 
 
 end VariousTypes
 
 namespace OwnInstances
 
-book declaration {{{ ApplicativeOption }}}
-  instance : Applicative Option where
-    pure x := .some x
-    seq f x :=
-      match f with
-      | none => none
-      | some g => g <$> x ()
-stop book declaration
+-- ANCHOR: ApplicativeOption
+instance : Applicative Option where
+  pure x := .some x
+  seq f x :=
+    match f with
+    | none => none
+    | some g => g <$> x ()
+-- ANCHOR_END: ApplicativeOption
 
-book declaration {{{ ApplicativeExcept }}}
-  instance : Applicative (Except ε) where
-    pure x := .ok x
-    seq f x :=
-      match f with
-      | .error e => .error e
-      | .ok g => g <$> x ()
-stop book declaration
+-- ANCHOR: ApplicativeExcept
+instance : Applicative (Except ε) where
+  pure x := .ok x
+  seq f x :=
+    match f with
+    | .error e => .error e
+    | .ok g => g <$> x ()
+-- ANCHOR_END: ApplicativeExcept
 
-book declaration {{{ ApplicativeReader }}}
-  instance : Applicative (Reader ρ) where
-    pure x := fun _ => x
-    seq f x :=
-      fun env =>
-        f env (x () env)
-stop book declaration
+-- ANCHOR: ApplicativeReader
+instance : Applicative (Reader ρ) where
+  pure x := fun _ => x
+  seq f x :=
+    fun env =>
+      f env (x () env)
+-- ANCHOR_END: ApplicativeReader
 
-book declaration {{{ ApplicativeId }}}
-  instance : Applicative Id where
-    pure x := x
-    seq f x := f (x ())
-stop book declaration
+-- ANCHOR: ApplicativeId
+instance : Applicative Id where
+  pure x := x
+  seq f x := f (x ())
+-- ANCHOR_END: ApplicativeId
 
 end OwnInstances
 
-bookExample type {{{ somePlus }}}
-  some Plus.plus
-  <===
-  Option (Nat → Nat → Nat)
-end bookExample
+-- ANCHOR: somePlus
+example : Option (Nat → Nat → Nat) := some Plus.plus
+-- ANCHOR_END: somePlus
 
-bookExample type {{{ somePlusFour }}}
-  some Plus.plus <*> some 4
-  <===
-  Option (Nat → Nat)
-end bookExample
+-- ANCHOR: somePlusFour
+example : Option (Nat → Nat) := some Plus.plus <*> some 4
+-- ANCHOR_END: somePlusFour
 
-bookExample type {{{ somePlusFourSeven }}}
-  some Plus.plus <*> some 4 <*> some 7
-  <===
-  Option Nat
-end bookExample
+-- ANCHOR: somePlusFourSeven
+example : Option Nat := some Plus.plus <*> some 4 <*> some 7
+-- ANCHOR_END: somePlusFourSeven
 
 
 
@@ -350,56 +381,66 @@ instance : LawfulFunctor NotApplicative where
 
 
 
-book declaration {{{ Pair }}}
-  structure Pair (α β : Type) : Type where
-    first : α
-    second : β
-stop book declaration
+-- ANCHOR: Pair
+structure Pair (α β : Type) : Type where
+  first : α
+  second : β
+-- ANCHOR_END: Pair
 
-bookExample type {{{ PairType }}}
-  Pair
-  ===>
-  Type → Type → Type
-end bookExample
+-- ANCHOR: PairType
+example : Type → Type → Type := Pair
+-- ANCHOR_END: PairType
 
 
-book declaration {{{ FunctorPair }}}
-  instance : Functor (Pair α) where
-    map f x := ⟨x.first, f x.second⟩
-stop book declaration
+-- ANCHOR: FunctorPair
+instance : Functor (Pair α) where
+  map f x := ⟨x.first, f x.second⟩
+-- ANCHOR_END: FunctorPair
 
 namespace CheckFunctorPair
-axiom α : Type
-axiom β : Type
-axiom γ : Type
-axiom δ : Type
-axiom x : α
-axiom y : β
-axiom f : γ → δ
-axiom g : β → γ
+variable {α : Type}
+variable {β : Type}
+variable {γ : Type}
+variable {δ : Type}
+variable {x : α}
+variable {y : β}
+variable {f : γ → δ}
+variable {g : β → γ}
 
 evaluation steps {{{ checkPairMapId }}}
-  id <$> Pair.mk x y
-  ===>
-  Pair.mk x (id y)
-  ===>
-  Pair.mk x y
+-- ANCHOR: checkPairMapId
+id <$> Pair.mk x y
+===>
+Pair.mk x (id y)
+===>
+Pair.mk x y
+-- ANCHOR_END: checkPairMapId
 end evaluation steps
 
+-- ANCHOR: ApplicativePair
+example := Applicative (Pair α)
+example := Empty
+-- ANCHOR_END: ApplicativePair
+
+
 evaluation steps {{{ checkPairMapComp1 }}}
-  f <$> g <$> Pair.mk x y
-  ===>
-  f <$> Pair.mk x (g y)
-  ===>
-  Pair.mk x (f (g y))
+-- ANCHOR: checkPairMapComp1
+f <$> g <$> Pair.mk x y
+===>
+f <$> Pair.mk x (g y)
+===>
+Pair.mk x (f (g y))
+-- ANCHOR_END: checkPairMapComp1
 end evaluation steps
 
 evaluation steps {{{ checkPairMapComp2 }}}
-  (f ∘ g) <$> Pair.mk x y
-  ===>
-  Pair.mk x ((f ∘ g) y)
-  ===>
-  Pair.mk x (f (g y))
+-- ANCHOR: checkPairMapComp2
+(f ∘ g) <$> Pair.mk x y
+===>
+Pair.mk x ((f ∘ g) y)
+===>
+Pair.mk x (f (g y))
+-- ANCHOR_END: checkPairMapComp2
 end evaluation steps
 
 
@@ -414,58 +455,70 @@ instance : LawfulFunctor (Pair α) where
     cases x
     simp [Function.comp, Functor.map]
 
-
-expect error {{{ Pairpure }}}
-  def Pair.pure (x : β) : Pair α β := _
-message
-"don't know how to synthesize placeholder
+discarding
+/-- error:
+don't know how to synthesize placeholder
 context:
 β α : Type
 x : β
-⊢ Pair α β"
-end expect
+⊢ Pair α β
+-/
+#check_msgs in
+-- ANCHOR: Pairpure
+def Pair.pure (x : β) : Pair α β := _
+-- ANCHOR_END: Pairpure
+stop discarding
 
 
-
-expect error {{{ Pairpure2 }}}
-  def Pair.pure (x : β) : Pair α β := Pair.mk _ x
-message
-"don't know how to synthesize placeholder for argument 'first'
+/-- error:
+don't know how to synthesize placeholder for argument 'first'
 context:
 β α : Type
 x : β
-⊢ α"
-end expect
+⊢ α
+-/
+#check_msgs in
+-- ANCHOR: Pairpure2
+def Pair.pure (x : β) : Pair α β := Pair.mk _ x
+-- ANCHOR_END: Pairpure2
 
 namespace ApplicativeOptionLaws
 
-axiom α : Type
-axiom β : Type
-axiom γ : Type
-axiom δ : Type
+variable {α : Type}
+variable {β : Type}
+variable {γ : Type}
+variable {δ : Type}
 
-axiom x : α
-axiom g : α → β
-axiom f : β → γ
+variable {x : α}
+variable {g : α → β}
+variable {f : β → γ}
 
 evaluation steps {{{ OptionHomomorphism1 }}}
-  some (· ∘ ·) <*> some f <*> some g <*> some x
-  ===>
-  some (f ∘ ·) <*> some g <*> some x
-  ===>
-  some (f ∘ g) <*> some x
-  ===>
-  some ((f ∘ g) x)
-  ===>
-  some (f (g x))
+-- ANCHOR: OptionHomomorphism1
+some (· ∘ ·) <*> some f <*> some g <*> some x
+===>
+some (f ∘ ·) <*> some g <*> some x
+===>
+some (f ∘ g) <*> some x
+===>
+some ((f ∘ g) x)
+===>
+some (f (g x))
+-- ANCHOR_END: OptionHomomorphism1
 end evaluation steps
 
+-- ANCHOR: OptionHomomorphism
+example : some (· ∘ ·) <*> some f <*> some g <*> some x = some f <*> (some g <*> some x) := by rfl
+-- ANCHOR_END: OptionHomomorphism
+
 evaluation steps {{{ OptionHomomorphism2 }}}
-  some f <*> (some g <*> some x)
-  ===>
-  some f <*> (some (g x))
-  ===>
-  some (f (g x))
+-- ANCHOR: OptionHomomorphism2
+some f <*> (some g <*> some x)
+===>
+some f <*> (some (g x))
+===>
+some (f (g x))
+-- ANCHOR_END: OptionHomomorphism2
 end evaluation steps
 
 
@@ -473,304 +526,357 @@ end ApplicativeOptionLaws
 
 namespace ApplicativeOptionLaws2
 
-axiom α : Type
-axiom β : Type
+variable {α : Type}
+variable {β : Type}
 
-axiom x : α
-axiom y : α
-axiom f : α → β
+variable {x : α}
+variable {y : α}
+variable {f : α → β}
 
 evaluation steps {{{ OptionPureSeq }}}
-  some f <*> some x
-  ===>
-  f <$> some x
-  ===>
-  some (f x)
+-- ANCHOR: OptionPureSeq
+some f <*> some x
+===>
+f <$> some x
+===>
+some (f x)
+-- ANCHOR_END: OptionPureSeq
 end evaluation steps
 
+-- ANCHOR: OptionPureSeq2
+example : some (fun g => g x) <*> some f = some (f x) := by rfl
+-- ANCHOR_END: OptionPureSeq2
 
 end ApplicativeOptionLaws2
 
 
+
 namespace ApplicativeToFunctor
 
-book declaration {{{ ApplicativeMap }}}
-  def map [Applicative f] (g : α → β) (x : f α) : f β :=
-    pure g <*> x
-stop book declaration
+-- ANCHOR: ApplicativeMap
+def map [Applicative f] (g : α → β) (x : f α) : f β :=
+  pure g <*> x
+-- ANCHOR_END: ApplicativeMap
 
+-- ANCHOR: names
+example := Prod
+example := Nat
+example := Int
+-- ANCHOR_END: names
 
+-- ANCHOR: ApplicativeExtendsFunctorOne
+class Applicative (f : Type → Type) extends Functor f where
+  pure : α → f α
+  seq : f (α → β) → (Unit → f α) → f β
+  map g x := seq (pure g) (fun () => x)
+-- ANCHOR_END: ApplicativeExtendsFunctorOne
 
-book declaration {{{ ApplicativeExtendsFunctorOne }}}
-  class Applicative (f : Type → Type) extends Functor f where
-    pure : α → f α
-    seq : f (α → β) → (Unit → f α) → f β
-    map g x := seq (pure g) (fun () => x)
-stop book declaration
+variable [_root_.Applicative F] [LawfulApplicative F] {x : F α} {f : β → γ} {g : α → β}
+-- ANCHOR: AppToFunTerms
+example : id <$> x = x := by simp
+example : map (f ∘ g) x = map f (map g x) := by
+  unfold map
+  show pure (f ∘ g) <*> x = pure f <*> (pure g <*> x)
+  suffices pure (· ∘ ·) <*> pure f <*> pure g <*> x = pure f <*> (pure g <*> x) by
+    rw [← this]; congr; simp
+  simp [LawfulApplicative.seq_assoc]
+-- ANCHOR_END: AppToFunTerms
+
 
 end ApplicativeToFunctor
 
 namespace MonadApplicative
 
 
-book declaration {{{ MonadSeq }}}
-  def seq [Monad m] (f : m (α → β)) (x : Unit → m α) : m β := do
-    let g ← f
-    let y ← x ()
-    pure (g y)
-stop book declaration
+-- ANCHOR: MonadSeq
+def seq [Monad m] (f : m (α → β)) (x : Unit → m α) : m β := do
+  let g ← f
+  let y ← x ()
+  pure (g y)
+-- ANCHOR_END: MonadSeq
 
 end MonadApplicative
 
 namespace MonadApplicativeDesugar
-book declaration {{{ MonadSeqDesugar }}}
-  def seq [Monad m] (f : m (α → β)) (x : Unit → m α) : m β := do
-    f >>= fun g =>
-    x () >>= fun y =>
-    pure (g y)
-stop book declaration
+-- ANCHOR: MonadSeqDesugar
+def seq [Monad m] (f : m (α → β)) (x : Unit → m α) : m β := do
+  f >>= fun g =>
+  x () >>= fun y =>
+  pure (g y)
+-- ANCHOR_END: MonadSeqDesugar
 
 end MonadApplicativeDesugar
 
-equational steps {{{ testEq }}}
-  1 + 1
-  ={
-  -- Foo of `plus` and `stuff`
-  }=
-  2
+equational steps  {{{ testEq }}}
+-- ANCHOR: testEq
+1 + 1
+={
+/-- Foo of `plus` and `stuff` -/
+}=
+2
+-- ANCHOR_END: testEq
 stop equational steps
 
 namespace MonadApplicativeProof1
-axiom m : Type → Type
-@[instance] axiom instM : Monad m
-@[instance] axiom instLM : LawfulMonad m
-axiom α : Type
-axiom v : m α
+variable {m : Type → Type}
+variable [instM : Monad m]
+variable [instLM : LawfulMonad m]
+variable {α : Type}
+variable {v : m α}
 
-equational steps {{{ mSeqRespId }}}
-  pure id >>= fun g => v >>= fun y => pure (g y)
-  ={
-  by simp [LawfulMonad.pure_bind]
-  -- `pure` is a left identity of `>>=`
-  }=
-  v >>= fun y => pure (id y)
-  ={
-  -- Reduce the call to `id`
-  }=
-  v >>= fun y => pure y
-  ={
-  -- `fun x => f x` is the same as `f`
-  }=
-  v >>= pure
-  ={
-  -- `pure` is a right identity of `>>=`
-  by simp [LawfulMonad.bind_pure_comp]
-  }=
-  v
+equational steps  {{{ mSeqRespId }}}
+-- ANCHOR: mSeqRespId
+pure id >>= fun g => v >>= fun y => pure (g y)
+={
+/-- `pure` is a left identity of `>>=` -/
+by simp [LawfulMonad.pure_bind]
+}=
+v >>= fun y => pure (id y)
+={
+/-- Reduce the call to `id` -/
+}=
+v >>= fun y => pure y
+={
+/-- `fun x => f x` is the same as `f` -/
+by
+  have {α β } {f : α → β} : (fun x => f x) = (f) := rfl
+  rfl
+}=
+v >>= pure
+={
+/-- `pure` is a right identity of `>>=` -/
+by simp [LawfulMonad.bind_pure_comp]
+}=
+v
+-- ANCHOR_END: mSeqRespId
 stop equational steps
+-- ANCHOR: mSeqRespIdInit
+open MonadApplicativeDesugar
+example : seq (pure id) (fun () => v) = v := by simp [seq]
+example {f : α → β} : (fun x => f x) = f := by rfl
+example :=
+  calc
+  seq (pure id) (fun () => v) = pure id >>= fun g => (fun () => v) () >>= fun y => pure (g y) := by rfl
+  _ = pure id >>= fun g => v >>= fun y => pure (g y) := by rfl
+  _ = v >>= fun y => pure (id y) := by simp
+  _ = v >>= fun y => pure y := by simp only [id_eq, bind_pure]
+  _ = v >>= pure := rfl
+  _ = v := by simp only [bind_pure]
+-- ANCHOR_END: mSeqRespIdInit
 end MonadApplicativeProof1
 
 namespace MonadApplicativeProof2
-axiom m : Type → Type
-@[instance] axiom instM : Monad m
-@[instance] axiom instLM : LawfulMonad m
-axiom α : Type
-axiom β : Type
-axiom γ : Type
-axiom u : m (β → γ)
-axiom v : m (α → β)
-axiom w : m α
+variable {m : Type → Type}
+variable [instM : Monad m]
+variable [instLM : LawfulMonad m]
+variable {α : Type}
+variable {β : Type}
+variable {γ : Type}
+variable {u : m (β → γ)}
+variable {v : m (α → β)}
+variable {w : m α}
+
+set_option pp.rawOnError true
+
 
 open MonadApplicativeDesugar
 equational steps : m γ {{{ mSeqRespComp }}}
-  seq (seq (seq (pure (· ∘ ·)) (fun _ => u))
-        (fun _ => v))
-    (fun _ => w)
-  ={
-  -- Definition of `seq`
-  }=
-  ((pure (· ∘ ·) >>= fun f =>
-     u >>= fun x =>
-     pure (f x)) >>= fun g =>
-    v >>= fun y =>
-    pure (g y)) >>= fun h =>
-   w >>= fun z =>
-   pure (h z)
-  ={
-  by simp only [LawfulMonad.pure_bind]
-  -- `pure` is a left identity of `>>=`
-  }=
-  ((u >>= fun x =>
-     pure (x ∘ ·)) >>= fun g =>
-     v >>= fun y =>
-    pure (g y)) >>= fun h =>
-   w >>= fun z =>
-   pure (h z)
-  ={
-  -- Insertion of parentheses for clarity
-  }=
-  ((u >>= fun x =>
-     pure (x ∘ ·)) >>= (fun g =>
-     v >>= fun y =>
-    pure (g y))) >>= fun h =>
-   w >>= fun z =>
-   pure (h z)
-  ={
-  by simp only [LawfulMonad.bind_assoc]
-  -- Associativity of `>>=`
-  }=
-  (u >>= fun x =>
-    pure (x ∘ ·) >>= fun g =>
-   v  >>= fun y => pure (g y)) >>= fun h =>
-   w >>= fun z =>
-   pure (h z)
-  ={
-  by simp only [LawfulMonad.pure_bind]
-  -- `pure` is a left identity of `>>=`
-  }=
-  (u >>= fun x =>
-    v >>= fun y =>
-    pure (x ∘ y)) >>= fun h =>
-   w >>= fun z =>
-   pure (h z)
-  ={
-  by simp only [LawfulMonad.bind_assoc]
-  -- Associativity of `>>=`
-  }=
-  u >>= fun x =>
+-- ANCHOR: mSeqRespComp
+seq (seq (seq (pure (· ∘ ·)) (fun _ => u))
+      (fun _ => v))
+  (fun _ => w)
+={
+/-- Definition of `seq` -/
+}=
+((pure (· ∘ ·) >>= fun f =>
+   u >>= fun x =>
+   pure (f x)) >>= fun g =>
   v >>= fun y =>
-  pure (x ∘ y) >>= fun h =>
-  w >>= fun z =>
-  pure (h z)
-  ={
-  by simp [bind_pure_comp]; rfl
-  -- `pure` is a left identity of `>>=`
-  }=
-  u >>= fun x =>
+  pure (g y)) >>= fun h =>
+ w >>= fun z =>
+ pure (h z)
+={
+/-- `pure` is a left identity of `>>=` -/
+by simp only [LawfulMonad.pure_bind]
+}=
+((u >>= fun x =>
+   pure (x ∘ ·)) >>= fun g =>
+   v >>= fun y =>
+  pure (g y)) >>= fun h =>
+ w >>= fun z =>
+ pure (h z)
+={
+/-- Insertion of parentheses for clarity -/
+}=
+((u >>= fun x =>
+   pure (x ∘ ·)) >>= (fun g =>
+   v >>= fun y =>
+  pure (g y))) >>= fun h =>
+ w >>= fun z =>
+ pure (h z)
+={
+/-- Associativity of `>>=` -/
+by simp only [LawfulMonad.bind_assoc]
+}=
+(u >>= fun x =>
+  pure (x ∘ ·) >>= fun g =>
+ v  >>= fun y => pure (g y)) >>= fun h =>
+ w >>= fun z =>
+ pure (h z)
+={
+/-- `pure` is a left identity of `>>=` -/
+by simp only [LawfulMonad.pure_bind]
+}=
+(u >>= fun x =>
   v >>= fun y =>
-  w >>= fun z =>
-  pure ((x ∘ y) z)
-  ={
-  -- Definition of function composition
-  }=
-  u >>= fun x =>
-  v >>= fun y =>
-  w >>= fun z =>
-  pure (x (y z))
-  ={
-  -- Time to start moving backwards!
-  -- `pure` is a left identity of `>>=`
-    by simp [LawfulMonad.pure_bind]
-  }=
-  u >>= fun x =>
-  v >>= fun y =>
-  w >>= fun z =>
-  pure (y z) >>= fun q =>
-  pure (x q)
-  ={
-  by simp [LawfulMonad.bind_assoc]
-  -- Associativity of `>>=`
-  }=
-  u >>= fun x =>
-  v >>= fun y =>
-   (w >>= fun p =>
-    pure (y p)) >>= fun q =>
-   pure (x q)
-  ={
-  by simp [LawfulMonad.bind_assoc]
-  -- Associativity of `>>=`
-  }=
-  u >>= fun x =>
-   (v >>= fun y =>
-    w >>= fun q =>
-    pure (y q)) >>= fun z =>
-   pure (x z)
-  ={
-  -- This includes the definition of `seq`
-  }=
-  u >>= fun x =>
-  seq v (fun () => w) >>= fun q =>
-  pure (x q)
-  ={
-  -- This also includes the definition of `seq`
-  }=
-  seq u (fun () => seq v (fun () => w))
+  pure (x ∘ y)) >>= fun h =>
+ w >>= fun z =>
+ pure (h z)
+={
+/-- Associativity of `>>=` -/
+by simp only [LawfulMonad.bind_assoc]
+}=
+u >>= fun x =>
+v >>= fun y =>
+pure (x ∘ y) >>= fun h =>
+w >>= fun z =>
+pure (h z)
+={
+/-- `pure` is a left identity of `>>=` -/
+by simp [bind_pure_comp]; rfl
+}=
+u >>= fun x =>
+v >>= fun y =>
+w >>= fun z =>
+pure ((x ∘ y) z)
+={
+/-- Definition of function composition -/
+}=
+u >>= fun x =>
+v >>= fun y =>
+w >>= fun z =>
+pure (x (y z))
+={
+/--
+Time to start moving backwards!
+`pure` is a left identity of `>>=`
+-/
+by simp [LawfulMonad.pure_bind]
+}=
+u >>= fun x =>
+v >>= fun y =>
+w >>= fun z =>
+pure (y z) >>= fun q =>
+pure (x q)
+={
+/-- Associativity of `>>=` -/
+by simp [LawfulMonad.bind_assoc]
+}=
+u >>= fun x =>
+v >>= fun y =>
+ (w >>= fun p =>
+  pure (y p)) >>= fun q =>
+ pure (x q)
+={
+/-- Associativity of `>>=` -/
+by simp [LawfulMonad.bind_assoc]
+}=
+u >>= fun x =>
+ (v >>= fun y =>
+  w >>= fun q =>
+  pure (y q)) >>= fun z =>
+ pure (x z)
+={
+/-- This includes the definition of `seq` -/
+}=
+u >>= fun x =>
+seq v (fun () => w) >>= fun q =>
+pure (x q)
+={
+/-- This also includes the definition of `seq` -/
+}=
+seq u (fun () => seq v (fun () => w))
+-- ANCHOR_END: mSeqRespComp
 stop equational steps
 
 end MonadApplicativeProof2
 
 namespace MonadApplicativeProof3
-axiom m : Type → Type
-@[instance] axiom instM : Monad m
-@[instance] axiom instLM : LawfulMonad m
-axiom α : Type
-axiom β : Type
-axiom f : α → β
-axiom x : α
+variable {m : Type → Type}
+variable [instM : Monad m]
+variable [instLM : LawfulMonad m]
+variable {α : Type}
+variable {β : Type}
+variable {f : α → β}
+variable {x : α}
 
 open MonadApplicativeDesugar
 equational steps : m β {{{ mSeqPureNoOp }}}
-  seq (pure f) (fun () => pure x)
-  ={
-  -- Replacing `seq` with its definition
-  }=
-  pure f >>= fun g =>
-  pure x >>= fun y =>
-  pure (g y)
-  ={
-  -- `pure` is a left identity of `>>=`
-  by simp [LawfulMonad.pure_bind]
-  }=
-  pure f >>= fun g =>
-  pure (g x)
-  ={
-  -- `pure` is a left identity of `>>=`
-  by simp [LawfulMonad.pure_bind]
-  }=
-  pure (f x)
+-- ANCHOR: mSeqPureNoOp
+seq (pure f) (fun () => pure x)
+={
+/-- Replacing `seq` with its definition -/
+}=
+pure f >>= fun g =>
+pure x >>= fun y =>
+pure (g y)
+={
+/-- `pure` is a left identity of `>>=` -/
+by simp [LawfulMonad.pure_bind]
+}=
+pure f >>= fun g =>
+pure (g x)
+={
+/-- `pure` is a left identity of `>>=` -/
+by simp [LawfulMonad.pure_bind]
+}=
+pure (f x)
+-- ANCHOR_END: mSeqPureNoOp
 stop equational steps
 end MonadApplicativeProof3
 
 namespace MonadApplicativeProof4
-axiom m : Type → Type
-@[instance] axiom instM : Monad m
-@[instance] axiom instLM : LawfulMonad m
-axiom α : Type
-axiom β : Type
-axiom u : m (α → β)
-axiom x : α
+variable {m : Type → Type}
+variable [instM : Monad m]
+variable [instLM : LawfulMonad m]
+variable {α : Type}
+variable {β : Type}
+variable {u : m (α → β)}
+variable {x : α}
 
 open MonadApplicativeDesugar
 equational steps : m β {{{ mSeqPureNoOrder }}}
-  seq u (fun () => pure x)
-  ={
-  -- Definition of `seq`
-  }=
-  u >>= fun f =>
-  pure x >>= fun y =>
-  pure (f y)
-  ={
-  -- `pure` is a left identity of `>>=`
-  by simp [LawfulMonad.pure_bind]
-  }=
-  u >>= fun f =>
-  pure (f x)
-  ={
-  -- Clever replacement of one expression by an equivalent one that makes the rule match
-  }=
-  u >>= fun f =>
-  pure ((fun g => g x) f)
-  ={
-  -- `pure` is a left identity of `>>=`
-  by simp [LawfulMonad.pure_bind]
-  }=
-  pure (fun g => g x) >>= fun h =>
-  u >>= fun f =>
-  pure (h f)
-  ={
-  -- Definition of `seq`
-  }=
-  seq (pure (fun f => f x)) (fun () => u)
+-- ANCHOR: mSeqPureNoOrder
+seq u (fun () => pure x)
+={
+/-- Definition of `seq` -/
+}=
+u >>= fun f =>
+pure x >>= fun y =>
+pure (f y)
+={
+/-- `pure` is a left identity of `>>=` -/
+by simp [LawfulMonad.pure_bind]
+}=
+u >>= fun f =>
+pure (f x)
+={
+/-- Clever replacement of one expression by an equivalent one that makes the rule match -/
+}=
+u >>= fun f =>
+pure ((fun g => g x) f)
+={
+/-- `pure` is a left identity of `>>=` -/
+by simp [LawfulMonad.pure_bind]
+}=
+pure (fun g => g x) >>= fun h =>
+u >>= fun f =>
+pure (h f)
+={
+/-- Definition of `seq` -/
+}=
+seq (pure (fun f => f x)) (fun () => u)
+-- ANCHOR_END: mSeqPureNoOrder
 stop equational steps
 
 end MonadApplicativeProof4
@@ -778,14 +884,14 @@ end MonadApplicativeProof4
 namespace FakeMonad
 
 
-book declaration {{{ MonadExtends }}}
-  class Monad (m : Type → Type) extends Applicative m where
-    bind : m α → (α → m β) → m β
-    seq f x :=
-      bind f fun g =>
-      bind (x ()) fun y =>
-      pure (g y)
-stop book declaration
+-- ANCHOR: MonadExtends
+class Monad (m : Type → Type) extends Applicative m where
+  bind : m α → (α → m β) → m β
+  seq f x :=
+    bind f fun g =>
+    bind (x ()) fun y =>
+    pure (g y)
+-- ANCHOR_END: MonadExtends
 
 end FakeMonad
 
@@ -801,32 +907,32 @@ theorem NonEmptyList.append_assoc (xs ys zs : NonEmptyList α) : (xs ++ ys) ++ z
         simp
 
 
-book declaration {{{ Validate }}}
-  inductive Validate (ε α : Type) : Type where
-    | ok : α → Validate ε α
-    | errors : NonEmptyList ε → Validate ε α
-stop book declaration
+-- ANCHOR: Validate
+inductive Validate (ε α : Type) : Type where
+  | ok : α → Validate ε α
+  | errors : NonEmptyList ε → Validate ε α
+-- ANCHOR_END: Validate
 
 
-book declaration {{{ FunctorValidate }}}
-  instance : Functor (Validate ε) where
-    map f
-     | .ok x => .ok (f x)
-     | .errors errs => .errors errs
-stop book declaration
+-- ANCHOR: FunctorValidate
+instance : Functor (Validate ε) where
+  map f
+   | .ok x => .ok (f x)
+   | .errors errs => .errors errs
+-- ANCHOR_END: FunctorValidate
 
 
-book declaration {{{ ApplicativeValidate }}}
-  instance : Applicative (Validate ε) where
-    pure := .ok
-    seq f x :=
-      match f with
-      | .ok g => g <$> (x ())
-      | .errors errs =>
-        match x () with
-        | .ok _ => .errors errs
-        | .errors errs' => .errors (errs ++ errs')
-stop book declaration
+-- ANCHOR: ApplicativeValidate
+instance : Applicative (Validate ε) where
+  pure := .ok
+  seq f x :=
+    match f with
+    | .ok g => g <$> (x ())
+    | .errors errs =>
+      match x () with
+      | .ok _ => .errors errs
+      | .errors errs' => .errors (errs ++ errs')
+-- ANCHOR_END: ApplicativeValidate
 
 instance : LawfulApplicative (Validate ε) where
   map_pure g x := by
@@ -861,492 +967,638 @@ theorem v_bind_pure (x : Validate ε α) : x >>= pure = x := by
 
 
 
-expect error {{{ unlawful }}}
-  instance : LawfulMonad (Validate ε) where
-    bind_pure_comp f x := by
-      cases x <;> simp [Functor.map, bind, pure]
-    bind_map f x := by
-      cases f <;> cases x <;>
-      simp [Functor.map, bind, Seq.seq]
-    pure_bind x f := by
-      simp [bind, pure]
-    bind_assoc x f g := by
-      cases x <;>
-      simp [bind]
-message
-"unsolved goals
+/-- error:
+unsolved goals
 case errors.errors
 ε α✝ β✝ : Type
 a✝¹ a✝ : NonEmptyList ε
-⊢ a✝¹ = a✝¹ ++ a✝"
-end expect
+⊢ a✝¹ = a✝¹ ++ a✝
+-/
+#check_msgs in
+-- ANCHOR: unlawful
+instance : LawfulMonad (Validate ε) where
+  bind_pure_comp f x := by
+    cases x <;> simp [Functor.map, bind, pure]
+  bind_map f x := by
+    cases f <;> cases x <;>
+    simp [Functor.map, bind, Seq.seq]
+  pure_bind x f := by
+    simp [bind, pure]
+  bind_assoc x f g := by
+    cases x <;>
+    simp [bind]
+-- ANCHOR_END: unlawful
 
-book declaration {{{ ValidateAndThen }}}
-  def Validate.andThen (val : Validate ε α) (next : α → Validate ε β) : Validate ε β :=
-    match val with
-    | .errors errs => .errors errs
-    | .ok x => next x
-stop book declaration
+-- ANCHOR: ValidateAndThen
+def Validate.andThen (val : Validate ε α)
+    (next : α → Validate ε β) : Validate ε β :=
+  match val with
+  | .errors errs => .errors errs
+  | .ok x => next x
+-- ANCHOR_END: ValidateAndThen
 
 
 
-book declaration {{{ RawInput }}}
-  structure RawInput where
-    name : String
-    birthYear : String
-stop book declaration
+-- ANCHOR: RawInput
+structure RawInput where
+  name : String
+  birthYear : String
+-- ANCHOR_END: RawInput
 
 namespace SubtypeDemo
-book declaration {{{ Subtype }}}
-  structure Subtype {α : Type} (p : α → Prop) where
-    val : α
-    property : p val
-stop book declaration
+-- ANCHOR: Subtype
+structure Subtype {α : Type} (p : α → Prop) where
+  val : α
+  property : p val
+-- ANCHOR_END: Subtype
 
-axiom α : Type
-axiom p : α → Prop
+variable {α : Type}
+variable {p : α → Prop}
 
-bookExample {{{ subtypeSugar }}}
-  _root_.Subtype p
-  ===>
-  {x : α // p x}
-end bookExample
+example := Subtype p
 
-bookExample {{{ subtypeSugar2 }}}
-  _root_.Subtype p
-  ===>
-  {x // p x}
-end bookExample
+example := GetElem
+
+-- ANCHOR: subtypeSugar
+example : (
+_root_.Subtype p
+) = (
+{x : α // p x}
+) := rfl
+-- ANCHOR_END: subtypeSugar
+
+-- ANCHOR: subtypeSugar2
+example : (
+_root_.Subtype p
+) = (
+{x // p x}
+) := rfl
+-- ANCHOR_END: subtypeSugar2
 
 end SubtypeDemo
 
 
 namespace FastPos
-book declaration {{{ FastPos }}}
-  def FastPos : Type := {x : Nat // x > 0}
-stop book declaration
+-- ANCHOR: FastPos
+def FastPos : Type := {x : Nat // x > 0}
+-- ANCHOR_END: FastPos
 
 
-book declaration {{{ one }}}
-  def one : FastPos := ⟨1, by decide⟩
-stop book declaration
+-- ANCHOR: one
+def one : FastPos := ⟨1, by decide⟩
+-- ANCHOR_END: one
+
+-- ANCHOR: onep
+example := 1 > 0
+-- ANCHOR_END: onep
 
 
-book declaration {{{ OfNatFastPos }}}
-  instance : OfNat FastPos (n + 1) where
-    ofNat := ⟨n + 1, by simp⟩
-stop book declaration
+section
+variable {n : Nat}
+-- ANCHOR: OfNatFastPos
+instance : OfNat FastPos (n + 1) where
+  ofNat := ⟨n + 1, by simp⟩
+-- ANCHOR_END: OfNatFastPos
+
+-- ANCHOR: OfNatFastPosp
+example := n + 1 > 0
+-- ANCHOR_END: OfNatFastPosp
+end
 
 def seven : FastPos := 7
 
+-- ANCHOR: NatFastPosRemarks
+section
+variable {α} (p : α → Prop)
+example := {x : α // p x}
+end
+-- ANCHOR_END: NatFastPosRemarks
 
-book declaration {{{ NatFastPos }}}
-  def Nat.asFastPos? (n : Nat) : Option FastPos :=
-    if h : n > 0 then
-      some ⟨n, h⟩
-    else none
-stop book declaration
+-- ANCHOR: NatFastPos
+def Nat.asFastPos? (n : Nat) : Option FastPos :=
+  if h : n > 0 then
+    some ⟨n, h⟩
+  else none
+-- ANCHOR_END: NatFastPos
 
 
 end FastPos
 
-book declaration {{{ CheckedInput }}}
-  structure CheckedInput (thisYear : Nat) : Type where
-    name : {n : String // n ≠ ""}
-    birthYear : {y : Nat // y > 1900 ∧ y ≤ thisYear}
-stop book declaration
+-- ANCHOR: CheckedInput
+structure CheckedInput (thisYear : Nat) : Type where
+  name : {n : String // n ≠ ""}
+  birthYear : {y : Nat // y > 1900 ∧ y ≤ thisYear}
+-- ANCHOR_END: CheckedInput
+
+-- ANCHOR: CheckedInputEx
+example := CheckedInput 2019
+example := CheckedInput 2020
+example := (String.toNat? : String → Option Nat)
+example := String.trim
+-- ANCHOR_END: CheckedInputEx
+
+-- ANCHOR: Field
+def Field := String
+-- ANCHOR_END: Field
 
 
-book declaration {{{ Field }}}
-  def Field := String
-stop book declaration
+-- ANCHOR: reportError
+def reportError (f : Field) (msg : String) : Validate (Field × String) α :=
+  .errors { head := (f, msg), tail := [] }
+-- ANCHOR_END: reportError
+
+-- ANCHOR: checkName
+def checkName (name : String) :
+    Validate (Field × String) {n : String // n ≠ ""} :=
+  if h : name = "" then
+    reportError "name" "Required"
+  else pure ⟨name, h⟩
+-- ANCHOR_END: checkName
 
 
-book declaration {{{ reportError }}}
-  def reportError (f : Field) (msg : String) : Validate (Field × String) α :=
-    .errors { head := (f, msg), tail := [] }
-stop book declaration
+-- ANCHOR: checkYearIsNat
+def checkYearIsNat (year : String) : Validate (Field × String) Nat :=
+  match year.trim.toNat? with
+  | none => reportError "birth year" "Must be digits"
+  | some n => pure n
+-- ANCHOR_END: checkYearIsNat
 
-book declaration {{{ checkName }}}
-  def checkName (name : String) : Validate (Field × String) {n : String // n ≠ ""} :=
-    if h : name = "" then
-      reportError "name" "Required"
-    else pure ⟨name, h⟩
-stop book declaration
-
-
-book declaration {{{ checkYearIsNat }}}
-  def checkYearIsNat (year : String) : Validate (Field × String) Nat :=
-    match year.trim.toNat? with
-    | none => reportError "birth year" "Must be digits"
-    | some n => pure n
-stop book declaration
-
-book declaration {{{ checkBirthYear }}}
-  def checkBirthYear (thisYear year : Nat) : Validate (Field × String) {y : Nat // y > 1900 ∧ y ≤ thisYear} :=
-    if h : year > 1900 then
-      if h' : year ≤ thisYear then
-        pure ⟨year, by simp [*]⟩
-      else reportError "birth year" s!"Must be no later than {thisYear}"
-    else reportError "birth year" "Must be after 1900"
-stop book declaration
+-- ANCHOR: checkBirthYear
+def checkBirthYear (thisYear year : Nat) :
+    Validate (Field × String) {y : Nat // y > 1900 ∧ y ≤ thisYear} :=
+  if h : year > 1900 then
+    if h' : year ≤ thisYear then
+      pure ⟨year, by simp [*]⟩
+    else reportError "birth year" s!"Must be no later than {thisYear}"
+  else reportError "birth year" "Must be after 1900"
+-- ANCHOR_END: checkBirthYear
 
 
-book declaration {{{ checkInput }}}
-  def checkInput (year : Nat) (input : RawInput) : Validate (Field × String) (CheckedInput year) :=
-    pure CheckedInput.mk <*>
-      checkName input.name <*>
-      (checkYearIsNat input.birthYear).andThen fun birthYearAsNat =>
-        checkBirthYear year birthYearAsNat
-stop book declaration
+-- ANCHOR: checkInput
+def checkInput (year : Nat) (input : RawInput) :
+    Validate (Field × String) (CheckedInput year) :=
+  pure CheckedInput.mk <*>
+    checkName input.name <*>
+    (checkYearIsNat input.birthYear).andThen fun birthYearAsNat =>
+      checkBirthYear year birthYearAsNat
+-- ANCHOR_END: checkInput
 
 deriving instance Repr for NonEmptyList
 deriving instance Repr for Validate
 deriving instance Repr for CheckedInput
 
 
-expect info {{{ checkDavid1984 }}}
-  #eval checkInput 2023 {name := "David", birthYear := "1984"}
-message
-"Validate.ok { name := \"David\", birthYear := 1984 }"
-end expect
+/-- info:
+Validate.ok { name := "David", birthYear := 1984 }
+-/
+#check_msgs in
+-- ANCHOR: checkDavid1984
+#eval checkInput 2023 {name := "David", birthYear := "1984"}
+-- ANCHOR_END: checkDavid1984
 
 
-expect info {{{ checkBlank2045 }}}
-  #eval checkInput 2023 {name := "", birthYear := "2045"}
-message
-"Validate.errors { head := (\"name\", \"Required\"), tail := [(\"birth year\", \"Must be no later than 2023\")] }"
-end expect
+/-- info:
+Validate.errors { head := ("name", "Required"), tail := [("birth year", "Must be no later than 2023")] }
+-/
+#check_msgs in
+-- ANCHOR: checkBlank2045
+#eval checkInput 2023 {name := "", birthYear := "2045"}
+-- ANCHOR_END: checkBlank2045
 
-expect info {{{ checkDavidSyzygy }}}
-  #eval checkInput 2023 {name := "David", birthYear := "syzygy"}
-message
-"Validate.errors { head := (\"birth year\", \"Must be digits\"), tail := [] }"
-end expect
+/-- info:
+Validate.errors { head := ("birth year", "Must be digits"), tail := [] }
+-/
+#check_msgs in
+-- ANCHOR: checkDavidSyzygy
+#eval checkInput 2023 {name := "David", birthYear := "syzygy"}
+-- ANCHOR_END: checkDavidSyzygy
 
 namespace SeqCounterexample
 
 
-book declaration {{{ counterexample }}}
-  def notFun : Validate String (Nat → String) :=
-    .errors { head := "First error", tail := [] }
+-- ANCHOR: counterexample
+def notFun : Validate String (Nat → String) :=
+  .errors { head := "First error", tail := [] }
 
-  def notArg : Validate String Nat :=
-    .errors { head := "Second error", tail := [] }
-stop book declaration
+def notArg : Validate String Nat :=
+  .errors { head := "Second error", tail := [] }
+-- ANCHOR_END: counterexample
 
 evaluation steps : Validate String String {{{ realSeq }}}
-  notFun <*> notArg
-  ===>
-  match notFun with
-  | .ok g => g <$> notArg
-  | .errors errs =>
-    match notArg with
-    | .ok _ => .errors errs
-    | .errors errs' => .errors (errs ++ errs')
-  ===>
+-- ANCHOR: realSeq
+notFun <*> notArg
+===>
+match notFun with
+| .ok g => g <$> notArg
+| .errors errs =>
   match notArg with
-  | .ok _ => .errors { head := "First error", tail := [] }
-  | .errors errs' => .errors ({ head := "First error", tail := [] } ++ errs')
-  ===>
-  .errors ({ head := "First error", tail := [] } ++ { head := "Second error", tail := []})
-  ===>
-  .errors { head := "First error", tail := ["Second error"]}
+  | .ok _ => .errors errs
+  | .errors errs' => .errors (errs ++ errs')
+===>
+match notArg with
+| .ok _ =>
+  .errors { head := "First error", tail := [] }
+| .errors errs' =>
+  .errors ({ head := "First error", tail := [] } ++ errs')
+===>
+.errors
+  ({ head := "First error", tail := [] } ++
+   { head := "Second error", tail := []})
+===>
+.errors {
+  head := "First error",
+  tail := ["Second error"]
+}
+-- ANCHOR_END: realSeq
 end evaluation steps
 
 
 
 open MonadApplicative in
 evaluation steps : Validate String String {{{ fakeSeq }}}
-  seq notFun (fun () => notArg)
-  ===>
-  notFun.andThen fun g =>
-  notArg.andThen fun y =>
-  pure (g y)
-  ===>
-  match notFun with
-  | .errors errs => .errors errs
-  | .ok val =>
-    (fun g =>
-      notArg.andThen fun y =>
-      pure (g y)) val
-  ===>
-  .errors { head := "First error", tail := [] }
+-- ANCHOR: fakeSeq
+seq notFun (fun () => notArg)
+===>
+notFun.andThen fun g =>
+notArg.andThen fun y =>
+pure (g y)
+===>
+match notFun with
+| .errors errs => .errors errs
+| .ok val =>
+  (fun g =>
+    notArg.andThen fun y =>
+    pure (g y)) val
+===>
+.errors { head := "First error", tail := [] }
+-- ANCHOR_END: fakeSeq
 end evaluation steps
 
 
 end SeqCounterexample
 
 
-book declaration {{{ LegacyCheckedInput }}}
-  abbrev NonEmptyString := {s : String // s ≠ ""}
+-- ANCHOR: LegacyCheckedInput
+abbrev NonEmptyString := {s : String // s ≠ ""}
 
-  inductive LegacyCheckedInput where
-    | humanBefore1970 :
-      (birthYear : {y : Nat // y > 999 ∧ y < 1970}) →
-      String →
-      LegacyCheckedInput
-    | humanAfter1970 :
-      (birthYear : {y : Nat // y > 1970}) →
-      NonEmptyString →
-      LegacyCheckedInput
-    | company :
-      NonEmptyString →
-      LegacyCheckedInput
-  deriving Repr
-stop book declaration
+inductive LegacyCheckedInput where
+  | humanBefore1970 :
+    (birthYear : {y : Nat // y > 999 ∧ y < 1970}) →
+    String →
+    LegacyCheckedInput
+  | humanAfter1970 :
+    (birthYear : {y : Nat // y > 1970}) →
+    NonEmptyString →
+    LegacyCheckedInput
+  | company :
+    NonEmptyString →
+    LegacyCheckedInput
+deriving Repr
+-- ANCHOR_END: LegacyCheckedInput
 
+-- ANCHOR: names1
+example := @LegacyCheckedInput.company
+-- ANCHOR_END: names1
 
-book declaration {{{ ValidateorElse }}}
-  def Validate.orElse (a : Validate ε α) (b : Unit → Validate ε α) : Validate ε α :=
-    match a with
+-- ANCHOR: ValidateorElse
+def Validate.orElse
+    (a : Validate ε α)
+    (b : Unit → Validate ε α) :
+    Validate ε α :=
+  match a with
+  | .ok x => .ok x
+  | .errors errs1 =>
+    match b () with
     | .ok x => .ok x
-    | .errors errs1 =>
-      match b () with
-      | .ok x => .ok x
-      | .errors errs2 => .errors (errs1 ++ errs2)
-stop book declaration
+    | .errors errs2 => .errors (errs1 ++ errs2)
+-- ANCHOR_END: ValidateorElse
 
 namespace FakeOrElse
 
 
-book declaration {{{ OrElse }}}
-  class OrElse (α : Type) where
-    orElse : α → (Unit → α) → α
-stop book declaration
+-- ANCHOR: OrElse
+class OrElse (α : Type) where
+  orElse : α → (Unit → α) → α
+-- ANCHOR_END: OrElse
 end FakeOrElse
 
 namespace SugaryOrElse
 
-axiom α : Type
-@[instance] axiom inst : OrElse α
-axiom E1 : α
-axiom E2 : α
+variable {α : Type}
+variable [inst : OrElse α]
+variable {E1 : α}
+variable {E2 : α}
 
-bookExample {{{ OrElseSugar }}}
-  E1 <|> E2
-  ===>
-  OrElse.orElse E1 (fun () => E2)
-end bookExample
+-- ANCHOR: OrElseSugar
+example : (
+E1 <|> E2
+) = (
+OrElse.orElse E1 (fun () => E2)
+) := rfl
+-- ANCHOR_END: OrElseSugar
 
 
 end SugaryOrElse
 
-book declaration {{{ OrElseValidate }}}
-  instance : OrElse (Validate ε α) where
-    orElse := Validate.orElse
-stop book declaration
+-- ANCHOR: OrElseValidate
+instance : OrElse (Validate ε α) where
+  orElse := Validate.orElse
+-- ANCHOR_END: OrElseValidate
 
 
-book declaration {{{ checkThat }}}
-  def checkThat (condition : Bool) (field : Field) (msg : String) : Validate (Field × String) Unit :=
-    if condition then pure () else reportError field msg
-stop book declaration
+-- ANCHOR: checkThat
+def checkThat (condition : Bool)
+    (field : Field) (msg : String) :
+    Validate (Field × String) Unit :=
+  if condition then pure () else reportError field msg
+-- ANCHOR_END: checkThat
 
 
 namespace Provisional
 
-book declaration {{{ checkCompanyProv }}}
-  def checkCompany (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
-    pure (fun () name => .company name) <*>
-      checkThat (input.birthYear == "FIRM") "birth year" "FIRM if a company" <*>
-      checkName input.name
-stop book declaration
+-- ANCHOR: checkCompanyProv
+def checkCompany (input : RawInput) :
+    Validate (Field × String) LegacyCheckedInput :=
+  pure (fun () name => .company name) <*>
+    checkThat (input.birthYear == "FIRM")
+      "birth year" "FIRM if a company" <*>
+    checkName input.name
+-- ANCHOR_END: checkCompanyProv
 
 end Provisional
 
 namespace SeqRightSugar
 
-axiom f : Type → Type
-axiom α : Type
-axiom β : Type
-@[instance] axiom inst : SeqRight f
-axiom E1 : f α
-axiom E2 : f β
+variable {f : Type → Type} {α β : Type} [SeqRight f] {E1 : f α} {E2 : f β}
 
-bookExample {{{ seqRightSugar }}}
-  E1 *> E2
-  ===>
-  SeqRight.seqRight E1 (fun () => E2)
-end bookExample
+-- ANCHOR: seqRightSugar
+example : (
+E1 *> E2
+) = (
+SeqRight.seqRight E1 (fun () => E2)
+) := rfl
+-- ANCHOR_END: seqRightSugar
 
-bookExample type {{{ seqRightType }}}
-  SeqRight.seqRight
-  <===
-  f α → (Unit → f β) → f β
-end bookExample
+-- ANCHOR: seqRightType
+example : f α → (Unit → f β) → f β := SeqRight.seqRight
+-- ANCHOR_END: seqRightType
 
 end SeqRightSugar
 
 namespace FakeSeqRight
 
 
-book declaration {{{ ClassSeqRight }}}
-  class SeqRight (f : Type → Type) where
-    seqRight : f α → (Unit → f β) → f β
-stop book declaration
+-- ANCHOR: ClassSeqRight
+class SeqRight (f : Type → Type) where
+  seqRight : f α → (Unit → f β) → f β
+-- ANCHOR_END: ClassSeqRight
 
 end FakeSeqRight
 
 namespace Provisional2
 
-book declaration {{{ checkCompanyProv2 }}}
-  def checkCompany (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
-    checkThat (input.birthYear == "FIRM") "birth year" "FIRM if a company" *>
-    pure .company <*> checkName input.name
-stop book declaration
+-- ANCHOR: checkCompanyProv2
+def checkCompany (input : RawInput) :
+    Validate (Field × String) LegacyCheckedInput :=
+  checkThat (input.birthYear == "FIRM")
+    "birth year" "FIRM if a company" *>
+  pure .company <*> checkName input.name
+-- ANCHOR_END: checkCompanyProv2
 
 end Provisional2
 
 
-book declaration {{{ checkCompany }}}
-  def checkCompany (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
-    checkThat (input.birthYear == "FIRM") "birth year" "FIRM if a company" *>
-    .company <$> checkName input.name
-stop book declaration
+-- ANCHOR: checkCompany
+def checkCompany (input : RawInput) :
+    Validate (Field × String) LegacyCheckedInput :=
+  checkThat (input.birthYear == "FIRM")
+    "birth year" "FIRM if a company" *>
+  .company <$> checkName input.name
+-- ANCHOR_END: checkCompany
 
 
-book declaration {{{ checkSubtype }}}
-  def checkSubtype {α : Type} (v : α) (p : α → Prop) [Decidable (p v)] (err : ε) : Validate ε {x : α // p x} :=
-    if h : p v then
-      pure ⟨v, h⟩
-    else
-      .errors { head := err, tail := [] }
-stop book declaration
+-- ANCHOR: checkSubtype
+def checkSubtype {α : Type} (v : α) (p : α → Prop) [Decidable (p v)]
+    (err : ε) : Validate ε {x : α // p x} :=
+  if h : p v then
+    pure ⟨v, h⟩
+  else
+    .errors { head := err, tail := [] }
+-- ANCHOR_END: checkSubtype
 
 
-book declaration {{{ checkHumanAfter1970 }}}
-  def checkHumanAfter1970 (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
-    (checkYearIsNat input.birthYear).andThen fun y =>
-      .humanAfter1970 <$>
-        checkSubtype y (· > 1970) ("birth year", "greater than 1970") <*>
-        checkName input.name
-stop book declaration
+-- ANCHOR: checkHumanAfter1970
+def checkHumanAfter1970 (input : RawInput) :
+    Validate (Field × String) LegacyCheckedInput :=
+  (checkYearIsNat input.birthYear).andThen fun y =>
+    .humanAfter1970 <$>
+      checkSubtype y (· > 1970)
+        ("birth year", "greater than 1970") <*>
+      checkName input.name
+-- ANCHOR_END: checkHumanAfter1970
 
 
-book declaration {{{ checkHumanBefore1970 }}}
-  def checkHumanBefore1970 (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
-    (checkYearIsNat input.birthYear).andThen fun y =>
-      .humanBefore1970 <$>
-        checkSubtype y (fun x => x > 999 ∧ x < 1970) ("birth year", "less than 1970") <*>
-        pure input.name
-stop book declaration
+-- ANCHOR: checkHumanBefore1970
+def checkHumanBefore1970 (input : RawInput) :
+    Validate (Field × String) LegacyCheckedInput :=
+  (checkYearIsNat input.birthYear).andThen fun y =>
+    .humanBefore1970 <$>
+      checkSubtype y (fun x => x > 999 ∧ x < 1970)
+        ("birth year", "less than 1970") <*>
+      pure input.name
+-- ANCHOR_END: checkHumanBefore1970
 
 
-book declaration {{{ checkLegacyInput }}}
-  def checkLegacyInput (input : RawInput) : Validate (Field × String) LegacyCheckedInput :=
-    checkCompany input <|> checkHumanBefore1970 input <|> checkHumanAfter1970 input
-stop book declaration
+-- ANCHOR: checkLegacyInput
+def checkLegacyInput (input : RawInput) :
+    Validate (Field × String) LegacyCheckedInput :=
+  checkCompany input <|>
+  checkHumanBefore1970 input <|>
+  checkHumanAfter1970 input
+-- ANCHOR_END: checkLegacyInput
 
 
-expect info {{{ trollGroomers }}}
-  #eval checkLegacyInput ⟨"Johnny's Troll Groomers", "FIRM"⟩
-message
-"Validate.ok (LegacyCheckedInput.company \"Johnny's Troll Groomers\")"
-end expect
+/-- info:
+Validate.ok (LegacyCheckedInput.company "Johnny's Troll Groomers")
+-/
+#check_msgs in
+-- ANCHOR: trollGroomers
+#eval checkLegacyInput ⟨"Johnny's Troll Groomers", "FIRM"⟩
+-- ANCHOR_END: trollGroomers
 
-expect info {{{ johnny }}}
-  #eval checkLegacyInput ⟨"Johnny", "1963"⟩
-message
-"Validate.ok (LegacyCheckedInput.humanBefore1970 1963 \"Johnny\")"
-end expect
+/-- info:
+Validate.ok (LegacyCheckedInput.humanBefore1970 1963 "Johnny")
+-/
+#check_msgs in
+-- ANCHOR: johnny
+#eval checkLegacyInput ⟨"Johnny", "1963"⟩
+-- ANCHOR_END: johnny
 
-expect info {{{ johnnyAnon }}}
-  #eval checkLegacyInput ⟨"", "1963"⟩
-message
-"Validate.ok (LegacyCheckedInput.humanBefore1970 1963 \"\")"
-end expect
+/-- info:
+Validate.ok (LegacyCheckedInput.humanBefore1970 1963 "")
+-/
+#check_msgs in
+-- ANCHOR: johnnyAnon
+#eval checkLegacyInput ⟨"", "1963"⟩
+-- ANCHOR_END: johnnyAnon
 
 
-expect info {{{ allFailures }}}
-  #eval checkLegacyInput ⟨"", "1970"⟩
-message
-"Validate.errors
-  { head := (\"birth year\", \"FIRM if a company\"),
-    tail := [(\"name\", \"Required\"),
-             (\"birth year\", \"less than 1970\"),
-             (\"birth year\", \"greater than 1970\"),
-             (\"name\", \"Required\")] }"
-end expect
+/-- info:
+Validate.errors
+  { head := ("birth year", "FIRM if a company"),
+    tail := [("name", "Required"),
+             ("birth year", "less than 1970"),
+             ("birth year", "greater than 1970"),
+             ("name", "Required")] }
+-/
+#check_msgs in
+-- ANCHOR: allFailures
+#eval checkLegacyInput ⟨"", "1970"⟩
+-- ANCHOR_END: allFailures
 
-book declaration {{{ TreeError }}}
-  inductive TreeError where
-    | field : Field → String → TreeError
-    | path : String → TreeError → TreeError
-    | both : TreeError → TreeError → TreeError
+-- ANCHOR: TreeError
+inductive TreeError where
+  | field : Field → String → TreeError
+  | path : String → TreeError → TreeError
+  | both : TreeError → TreeError → TreeError
 
-  instance : Append TreeError where
-    append := .both
-stop book declaration
+instance : Append TreeError where
+  append := .both
+-- ANCHOR_END: TreeError
 
 
 namespace FakeAlternative
 
 
 
-book declaration {{{ FakeAlternative }}}
-  class Alternative (f : Type → Type) extends Applicative f where
-    failure : f α
-    orElse : f α → (Unit → f α) → f α
-stop book declaration
+-- ANCHOR: FakeAlternative
+class Alternative (f : Type → Type) extends Applicative f where
+  failure : f α
+  orElse : f α → (Unit → f α) → f α
+-- ANCHOR_END: FakeAlternative
 
 
-book declaration {{{ AltOrElse }}}
-  instance [Alternative f] : OrElse (f α) where
-    orElse := Alternative.orElse
-stop book declaration
+-- ANCHOR: AltOrElse
+instance [Alternative f] : OrElse (f α) where
+  orElse := Alternative.orElse
+-- ANCHOR_END: AltOrElse
 end FakeAlternative
 
 
-book declaration {{{ AlternativeOption }}}
-  instance : Alternative Option where
-    failure := none
-    orElse
-      | some x, _ => some x
-      | none, y => y ()
-stop book declaration
+-- ANCHOR: AlternativeOption
+instance : Alternative Option where
+  failure := none
+  orElse
+    | some x, _ => some x
+    | none, y => y ()
+-- ANCHOR_END: AlternativeOption
 
-book declaration {{{ AlternativeMany }}}
-  def Many.orElse : Many α → (Unit → Many α) → Many α
-    | .none, ys => ys ()
-    | .more x xs, ys => .more x (fun () => orElse (xs ()) ys)
+-- ANCHOR: AlternativeMany
+def Many.orElse : Many α → (Unit → Many α) → Many α
+  | .none, ys => ys ()
+  | .more x xs, ys => .more x (fun () => orElse (xs ()) ys)
 
-  instance : Alternative Many where
-    failure := .none
-    orElse := Many.orElse
-stop book declaration
+instance : Alternative Many where
+  failure := .none
+  orElse := Many.orElse
+-- ANCHOR_END: AlternativeMany
 
 namespace Guard
 
 
-book declaration {{{ guard }}}
-  def guard [Alternative f] (p : Prop) [Decidable p] : f Unit :=
-    if p then
-      pure ()
-    else failure
-stop book declaration
+-- ANCHOR: guard
+def guard [Alternative f] (p : Prop) [Decidable p] : f Unit :=
+  if p then
+    pure ()
+  else failure
+-- ANCHOR_END: guard
 
 
-book declaration {{{ evenDivisors }}}
-  def Many.countdown : Nat → Many Nat
-    | 0 => .none
-    | n + 1 => .more n (fun () => countdown n)
+-- ANCHOR: evenDivisors
+def Many.countdown : Nat → Many Nat
+  | 0 => .none
+  | n + 1 => .more n (fun () => countdown n)
 
-  def evenDivisors (n : Nat) : Many Nat := do
-    let k ← Many.countdown (n + 1)
-    guard (k % 2 = 0)
-    guard (n % k = 0)
-    pure k
-stop book declaration
+def evenDivisors (n : Nat) : Many Nat := do
+  let k ← Many.countdown (n + 1)
+  guard (k % 2 = 0)
+  guard (n % k = 0)
+  pure k
+-- ANCHOR_END: evenDivisors
 
 
-expect info {{{ evenDivisors20 }}}
-  #eval (evenDivisors 20).takeAll
-message
-"[20, 10, 4, 2]"
-end expect
+/-- info:
+[20, 10, 4, 2]
+-/
+#check_msgs in
+-- ANCHOR: evenDivisors20
+#eval (evenDivisors 20).takeAll
+-- ANCHOR_END: evenDivisors20
 
 end Guard
 
+-- ANCHOR: FunctorNames
+section
+example := Functor
+example := @Functor.map
+example := @Functor.mapConst
+open Functor
+example := @map
+end
+-- ANCHOR_END: FunctorNames
 
-#print Applicative
+-- ANCHOR: ApplicativeNames
+section
+example := Applicative
+end
+-- ANCHOR_END: ApplicativeNames
+
+
+-- ANCHOR: ApplicativeLaws
+section
+example := Functor
+example := Monad
+variable {α β γ : Type u} {F : Type u → Type v} [Applicative F] {v : F α} {u : F (β → γ)} {w : F α}
+example := pure id <*> v = v
+variable {γ : Type u} {v : F (α → β)}
+example := pure (· ∘ ·) <*> u <*> v <*> w = u <*> (v <*> w)
+variable (x : α) (f : α → β)
+example := @Eq (F β) (pure f <*> pure x) (pure (f x))
+variable (u : F (α → β))
+example := u <*> pure x = pure (fun f => f x) <*> u
+end
+
+section
+variable (f : α → β) [Applicative F] (E : F α)
+example := pure f <*> E = f <$> E
+example := @Functor.map
+end
+-- ANCHOR_END: ApplicativeLaws
+
+-- ANCHOR: misc
+section
+example := @Validate.errors
+def Validate.mapErrors : Validate ε α → (ε → ε') → Validate ε' α
+  | .ok v, _ => .ok v
+  | .errors ⟨x, xs⟩, f => .errors ⟨f x, xs.map f⟩
+def report : TreeError → String
+  | _ => "TODO (exercise)"
+variable {α ε}
+example := [Add α, HAdd α α α]
+example := Append ε
+end
+-- ANCHOR_END: misc
+
+-- ANCHOR: ApplicativeOptionLaws1
+section
+variable {v : Option α}
+example : some id <*> v = v := by simp [Seq.seq]
+example : id <$> v = v := by simp
+-- ANCHOR_END: ApplicativeOptionLaws1
+-- ANCHOR: ApplicativeOptionLaws2
+variable {α β γ : Type _} {w : Option α} {v : Option (α → β)} {u : Option (β → γ)}
+example : some (· ∘ ·) <*> u <*> v <*> w = u <*> (v <*> w) := by
+  simp [Seq.seq, Option.map]
+  cases u <;> cases v <;> cases w <;> simp
+end
+-- ANCHOR_END: ApplicativeOptionLaws2

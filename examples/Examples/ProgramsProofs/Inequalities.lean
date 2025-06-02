@@ -1,40 +1,40 @@
-import Examples.Support
+import ExampleSupport
+
+-- ANCHOR: various
+example := Nat.succ
+example := @List.length
+section
+variable {A B : Prop}
+example : Prop := A ∧ B
+example := And A B
+end
+-- ANCHOR_END: various
 
 
-
-book declaration {{{ merge }}}
-  def merge [Ord α] (xs : List α) (ys : List α) : List α :=
-    match xs, ys with
-    | [], _ => ys
-    | _, [] => xs
-    | x'::xs', y'::ys' =>
-      match Ord.compare x' y' with
-      | .lt | .eq => x' :: merge xs' (y' :: ys')
-      | .gt => y' :: merge (x'::xs') ys'
-stop book declaration
-
-
-book declaration {{{ splitList }}}
-  def splitList (lst : List α) : (List α × List α) :=
-    match lst with
-    | [] => ([], [])
-    | x :: xs =>
-      let (a, b) := splitList xs
-      (x :: b, a)
-stop book declaration
+-- ANCHOR: merge
+def merge [Ord α] (xs : List α) (ys : List α) : List α :=
+  match xs, ys with
+  | [], _ => ys
+  | _, [] => xs
+  | x'::xs', y'::ys' =>
+    match Ord.compare x' y' with
+    | .lt | .eq => x' :: merge xs' (y' :: ys')
+    | .gt => y' :: merge (x'::xs') ys'
+-- ANCHOR_END: merge
 
 
-expect error {{{ mergeSortNoTerm }}}
-  def mergeSort [Ord α] (xs : List α) : List α :=
-    if h : xs.length < 2 then
-      match xs with
-      | [] => []
-      | [x] => [x]
-    else
-      let halves := splitList xs
-      merge (mergeSort halves.fst) (mergeSort halves.snd)
-message
-"fail to show termination for
+-- ANCHOR: splitList
+def splitList (lst : List α) : (List α × List α) :=
+  match lst with
+  | [] => ([], [])
+  | x :: xs =>
+    let (a, b) := splitList xs
+    (x :: b, a)
+-- ANCHOR_END: splitList
+
+discarding
+/-- error:
+fail to show termination for
   mergeSort
 with errors
 failed to infer structural recursion:
@@ -55,23 +55,24 @@ failed to prove termination, possible solutions:
 xs : List α
 h : ¬xs.length < 2
 halves : List α × List α := splitList xs
-⊢ sizeOf (splitList xs).fst < sizeOf xs"
-end expect
+⊢ sizeOf (splitList xs).fst < sizeOf xs
+-/
+#check_msgs in
+-- ANCHOR: mergeSortNoTerm
+def mergeSort [Ord α] (xs : List α) : List α :=
+  if h : xs.length < 2 then
+    match xs with
+    | [] => []
+    | [x] => [x]
+  else
+    let halves := splitList xs
+    merge (mergeSort halves.fst) (mergeSort halves.snd)
+-- ANCHOR_END: mergeSortNoTerm
+stop discarding
 
-
-
-expect error {{{ mergeSortGottaProveIt }}}
-  def mergeSort [Ord α] (xs : List α) : List α :=
-    if h : xs.length < 2 then
-      match xs with
-      | [] => []
-      | [x] => [x]
-    else
-      let halves := splitList xs
-      merge (mergeSort halves.fst) (mergeSort halves.snd)
-  termination_by xs.length
-message
-"failed to prove termination, possible solutions:
+discarding
+/-- error:
+failed to prove termination, possible solutions:
   - Use `have`-expressions to prove the remaining goals
   - Use `termination_by` to specify a different well-founded relation
   - Use `decreasing_by` to specify your own tactic for discharging this kind of goal
@@ -79,138 +80,186 @@ message
 xs : List α
 h : ¬xs.length < 2
 halves : List α × List α := splitList xs
-⊢ (splitList xs).fst.length < xs.length"
-end expect
+⊢ (splitList xs).fst.length < xs.length
+-/
+#check_msgs in
+-- ANCHOR: mergeSortGottaProveIt
+def mergeSort [Ord α] (xs : List α) : List α :=
+  if h : xs.length < 2 then
+    match xs with
+    | [] => []
+    | [x] => [x]
+  else
+    let halves := splitList xs
+    merge (mergeSort halves.fst) (mergeSort halves.snd)
+termination_by xs.length
+-- ANCHOR_END: mergeSortGottaProveIt
+stop discarding
 
-bookExample {{{ splitListEmpty }}}
-  splitList []
-  ===>
-  ([], [])
-end bookExample
+-- ANCHOR: splitListEmpty
+example : (
+splitList []
+: (List α × List α)
+) = (
+([], [])
+) := rfl
+-- ANCHOR_END: splitListEmpty
 
-bookExample {{{ splitListOne }}}
-  splitList ["basalt"]
-  ===>
-  (["basalt"], [])
-end bookExample
+-- ANCHOR: splitListOne
+example : (
+splitList ["basalt"]
+) = (
+(["basalt"], [])
+) := rfl
+-- ANCHOR_END: splitListOne
 
-bookExample {{{ splitListTwo }}}
-  splitList ["basalt", "granite"]
-  ===>
-  (["basalt"], ["granite"])
-end bookExample
+-- ANCHOR: splitListTwo
+example : (
+splitList ["basalt", "granite"]
+) = (
+(["basalt"], ["granite"])
+) := rfl
+-- ANCHOR_END: splitListTwo
 
 
-expect error {{{ splitList_shorter_le0 }}}
-  theorem splitList_shorter_le (lst : List α) :
-      (splitList lst).fst.length ≤ lst.length ∧
-        (splitList lst).snd.length ≤ lst.length := by
-    skip
-message
-"unsolved goals
+
+--ANCHOR: splitList_shorter_bad_ty
+example : ∀(lst : List α), (splitList lst).fst.length < lst.length ∧ (splitList lst).snd.length < lst.length := sorry
+--ANCHOR_END: splitList_shorter_bad_ty
+
+discarding
+/-- error:
+unsolved goals
 α : Type u_1
 lst : List α
-⊢ (splitList lst).fst.length ≤ lst.length ∧ (splitList lst).snd.length ≤ lst.length"
-end expect
+⊢ (splitList lst).fst.length ≤ lst.length ∧ (splitList lst).snd.length ≤ lst.length
+-/
+#check_msgs in
+-- ANCHOR: splitList_shorter_le0
+theorem splitList_shorter_le (lst : List α) :
+    (splitList lst).fst.length ≤ lst.length ∧
+      (splitList lst).snd.length ≤ lst.length := by
+  skip
+-- ANCHOR_END: splitList_shorter_le0
 
+stop discarding
 
-
-expect error {{{ splitList_shorter_le1a }}}
-  theorem splitList_shorter_le (lst : List α) :
-      (splitList lst).fst.length ≤ lst.length ∧
-        (splitList lst).snd.length ≤ lst.length := by
-    induction lst with
-    | nil => skip
-    | cons x xs ih => skip
-message
-"unsolved goals
+discarding
+/--
+error: unsolved goals
 case nil
 α : Type u_1
-⊢ (splitList []).fst.length ≤ [].length ∧ (splitList []).snd.length ≤ [].length"
-end expect
-
-expect error {{{ splitList_shorter_le1b }}}
-  theorem splitList_shorter_le (lst : List α) :
-      (splitList lst).fst.length ≤ lst.length ∧
-        (splitList lst).snd.length ≤ lst.length := by
-    induction lst with
-    | nil => skip
-    | cons x xs ih => skip
-message
-"unsolved goals
+⊢ (splitList []).fst.length ≤ [].length ∧ (splitList []).snd.length ≤ [].length
+---
+error: unsolved goals
 case cons
 α : Type u_1
 x : α
 xs : List α
 ih : (splitList xs).fst.length ≤ xs.length ∧ (splitList xs).snd.length ≤ xs.length
-⊢ (splitList (x :: xs)).fst.length ≤ (x :: xs).length ∧ (splitList (x :: xs)).snd.length ≤ (x :: xs).length"
-end expect
+⊢ (splitList (x :: xs)).fst.length ≤ (x :: xs).length ∧ (splitList (x :: xs)).snd.length ≤ (x :: xs).length
+-/
+#check_msgs in
+-- ANCHOR: splitList_shorter_le1a
+theorem splitList_shorter_le (lst : List α) :
+    (splitList lst).fst.length ≤ lst.length ∧
+      (splitList lst).snd.length ≤ lst.length := by
+  induction lst with
+  | nil => skip
+  | cons x xs ih => skip
+-- ANCHOR_END: splitList_shorter_le1a
+stop discarding
 
-
-expect error {{{ splitList_shorter_le2 }}}
-  theorem splitList_shorter_le (lst : List α) :
-      (splitList lst).fst.length ≤ lst.length ∧
-        (splitList lst).snd.length ≤ lst.length := by
-    induction lst with
-    | nil => simp [splitList]
-    | cons x xs ih =>
-      simp [splitList]
-message
-"unsolved goals
+discarding
+/--
+error: unsolved goals
+case nil
+α : Type u_1
+⊢ (splitList []).fst.length ≤ [].length ∧ (splitList []).snd.length ≤ [].length
+---
+error: unsolved goals
 case cons
 α : Type u_1
 x : α
 xs : List α
 ih : (splitList xs).fst.length ≤ xs.length ∧ (splitList xs).snd.length ≤ xs.length
-⊢ (splitList xs).snd.length ≤ xs.length ∧ (splitList xs).fst.length ≤ xs.length + 1"
-end expect
+⊢ (splitList (x :: xs)).fst.length ≤ (x :: xs).length ∧ (splitList (x :: xs)).snd.length ≤ (x :: xs).length
+-/
+#check_msgs in
+-- ANCHOR: splitList_shorter_le1b
+theorem splitList_shorter_le (lst : List α) :
+    (splitList lst).fst.length ≤ lst.length ∧
+      (splitList lst).snd.length ≤ lst.length := by
+  induction lst with
+  | nil => skip
+  | cons x xs ih => skip
+-- ANCHOR_END: splitList_shorter_le1b
+stop discarding
 
+discarding
+/-- error:
+unsolved goals
+case cons
+α : Type u_1
+x : α
+xs : List α
+ih : (splitList xs).fst.length ≤ xs.length ∧ (splitList xs).snd.length ≤ xs.length
+⊢ (splitList xs).snd.length ≤ xs.length ∧ (splitList xs).fst.length ≤ xs.length + 1
+-/
+#check_msgs in
+-- ANCHOR: splitList_shorter_le2
+theorem splitList_shorter_le (lst : List α) :
+    (splitList lst).fst.length ≤ lst.length ∧
+      (splitList lst).snd.length ≤ lst.length := by
+  induction lst with
+  | nil => simp [splitList]
+  | cons x xs ih =>
+    simp [splitList]
+-- ANCHOR_END: splitList_shorter_le2
+stop discarding
 
 namespace AndDef
 
-book declaration {{{ And }}}
-  structure And (a b : Prop) : Prop where
-    intro ::
-    left : a
-    right : b
-stop book declaration
+-- ANCHOR: And
+structure And (a b : Prop) : Prop where
+  intro ::
+  left : a
+  right : b
+-- ANCHOR_END: And
 
+-- ANCHOR: AndUse
+variable {A B : Prop}
+example : A → B → And A B := And.intro
+-- ANCHOR_END: AndUse
 end AndDef
 
-
-expect error {{{ splitList_shorter_le3 }}}
-  theorem splitList_shorter_le (lst : List α) :
-      (splitList lst).fst.length ≤ lst.length ∧
-        (splitList lst).snd.length ≤ lst.length := by
-    induction lst with
-    | nil => simp [splitList]
-    | cons x xs ih =>
-      simp [splitList]
-      cases ih
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 case cons.intro
 α : Type u_1
 x : α
 xs : List α
 left✝ : (splitList xs).fst.length ≤ xs.length
 right✝ : (splitList xs).snd.length ≤ xs.length
-⊢ (splitList xs).snd.length ≤ xs.length ∧ (splitList xs).fst.length ≤ xs.length + 1"
-end expect
+⊢ (splitList xs).snd.length ≤ xs.length ∧ (splitList xs).fst.length ≤ xs.length + 1
+-/
+#check_msgs in
+-- ANCHOR: splitList_shorter_le3
+theorem splitList_shorter_le (lst : List α) :
+    (splitList lst).fst.length ≤ lst.length ∧
+      (splitList lst).snd.length ≤ lst.length := by
+  induction lst with
+  | nil => simp [splitList]
+  | cons x xs ih =>
+    simp [splitList]
+    cases ih
+-- ANCHOR_END: splitList_shorter_le3
+stop discarding
 
-
-expect error {{{ splitList_shorter_le4 }}}
-  theorem splitList_shorter_le (lst : List α) :
-      (splitList lst).fst.length ≤ lst.length ∧
-        (splitList lst).snd.length ≤ lst.length := by
-    induction lst with
-    | nil => simp [splitList]
-    | cons x xs ih =>
-      simp [splitList]
-      cases ih
-      constructor
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 case cons.intro.left
 α : Type u_1
 x : α
@@ -225,373 +274,502 @@ x : α
 xs : List α
 left✝ : (splitList xs).fst.length ≤ xs.length
 right✝ : (splitList xs).snd.length ≤ xs.length
-⊢ (splitList xs).fst.length ≤ xs.length + 1"
-end expect
+⊢ (splitList xs).fst.length ≤ xs.length + 1
+-/
+#check_msgs in
+-- ANCHOR: splitList_shorter_le4
+theorem splitList_shorter_le (lst : List α) :
+    (splitList lst).fst.length ≤ lst.length ∧
+      (splitList lst).snd.length ≤ lst.length := by
+  induction lst with
+  | nil => simp [splitList]
+  | cons x xs ih =>
+    simp [splitList]
+    cases ih
+    constructor
+-- ANCHOR_END: splitList_shorter_le4
+stop discarding
 
-expect error {{{ splitList_shorter_le5 }}}
-  theorem splitList_shorter_le (lst : List α) :
-      (splitList lst).fst.length ≤ lst.length ∧
-        (splitList lst).snd.length ≤ lst.length := by
-    induction lst with
-    | nil => simp [splitList]
-    | cons x xs ih =>
-      simp [splitList]
-      cases ih
-      constructor
-      case left => assumption
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 case cons.intro.right
 α : Type u_1
 x : α
 xs : List α
 left✝ : (splitList xs).fst.length ≤ xs.length
 right✝ : (splitList xs).snd.length ≤ xs.length
-⊢ (splitList xs).fst.length ≤ xs.length + 1"
-end expect
+⊢ (splitList xs).fst.length ≤ xs.length + 1
+-/
+#check_msgs in
+-- ANCHOR: splitList_shorter_le5
+theorem splitList_shorter_le (lst : List α) :
+    (splitList lst).fst.length ≤ lst.length ∧
+      (splitList lst).snd.length ≤ lst.length := by
+  induction lst with
+  | nil => simp [splitList]
+  | cons x xs ih =>
+    simp [splitList]
+    cases ih
+    constructor
+    case left => assumption
+-- ANCHOR_END: splitList_shorter_le5
+stop discarding
 
 namespace Extras
 
-expect error {{{ le_succ_of_le0 }}}
-  theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
-    skip
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 n m : Nat
-⊢ n ≤ m → n ≤ m + 1"
-end expect
+⊢ n ≤ m → n ≤ m + 1
+-/
+#check_msgs in
+-- ANCHOR: le_succ_of_le0
+theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
+  skip
+-- ANCHOR_END: le_succ_of_le0
+-- ANCHOR: le_succ_of_le_statement
+example : ∀(n m : Nat), n ≤ m → n ≤ m + 1 := @Nat.le_succ_of_le
+-- ANCHOR_END: le_succ_of_le_statement
+stop discarding
 
-expect error {{{ le_succ_of_le1 }}}
-  theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
-    intro h
-message
-"unsolved goals
+-- ANCHOR: Nat.le_ctors
+section
+open Nat.le
+example := @step
+example := @refl
+end
+-- ANCHOR_END: Nat.le_ctors
+
+-- ANCHOR: Nat.lt_imp
+example {n m : Nat} : n + 1 < m + 1 → n < m := by simp
+-- ANCHOR_END: Nat.lt_imp
+
+discarding
+/-- error:
+unsolved goals
 n m : Nat
 h : n ≤ m
-⊢ n ≤ m + 1"
-end expect
+⊢ n ≤ m + 1
+-/
+#check_msgs in
+-- ANCHOR: le_succ_of_le1
+theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
+  intro h
+-- ANCHOR_END: le_succ_of_le1
+stop discarding
 
-expect error {{{ le_succ_of_le2a }}}
-  theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
-    intro h
-    induction h with
-    | refl => skip
-    | step _ ih => skip
-message
-"unsolved goals
+discarding
+/--
+error: unsolved goals
 case refl
 n m : Nat
-⊢ n ≤ n + 1"
-end expect
-
-expect error {{{ le_succ_of_le2b }}}
-  theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
-    intro h
-    induction h with
-    | refl => skip
-    | step _ ih => skip
-message
-"unsolved goals
+⊢ n ≤ n + 1
+---
+error: unsolved goals
 case step
 n m m✝ : Nat
 a✝ : n.le m✝
 ih : n ≤ m✝ + 1
-⊢ n ≤ m✝.succ + 1"
-end expect
+⊢ n ≤ m✝.succ + 1
+-/
+#check_msgs in
+-- ANCHOR: le_succ_of_le2a
+theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
+  intro h
+  induction h with
+  | refl => skip
+  | step _ ih => skip
+-- ANCHOR_END: le_succ_of_le2a
+stop discarding
 
-expect error {{{ le_succ_of_le3 }}}
-  theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
-    intro h
-    induction h with
-    | refl => constructor
-    | step _ ih => skip
-message
-"unsolved goals
+discarding
+/--
+error: unsolved goals
+case refl
+n m : Nat
+⊢ n ≤ n + 1
+---
+error: unsolved goals
+case step
+n m m✝ : Nat
+a✝ : n.le m✝
+ih : n ≤ m✝ + 1
+⊢ n ≤ m✝.succ + 1
+-/
+#check_msgs in
+-- ANCHOR: le_succ_of_le2b
+theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
+  intro h
+  induction h with
+  | refl => skip
+  | step _ ih => skip
+-- ANCHOR_END: le_succ_of_le2b
+stop discarding
+
+discarding
+/--
+error: unsolved goals
 case refl.a
 n m : Nat
-⊢ n.le n"
-end expect
-
-expect error {{{ le_succ_of_le4 }}}
-  theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
-    intro h
-    induction h with
-    | refl => constructor; constructor
-    | step _ ih => skip
-message
-"unsolved goals
+⊢ n.le n
+---
+error: unsolved goals
 case step
 n m m✝ : Nat
 a✝ : n.le m✝
 ih : n ≤ m✝ + 1
-⊢ n ≤ m✝.succ + 1"
-end expect
+⊢ n ≤ m✝.succ + 1
+-/
+#check_msgs in
+-- ANCHOR: le_succ_of_le3
+theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
+  intro h
+  induction h with
+  | refl => constructor
+  | step _ ih => skip
+-- ANCHOR_END: le_succ_of_le3
+stop discarding
 
-expect error {{{ le_succ_of_le5 }}}
-  theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
-    intro h
-    induction h with
-    | refl => constructor; constructor
-    | step _ ih => constructor
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
+case step
+n m m✝ : Nat
+a✝ : n.le m✝
+ih : n ≤ m✝ + 1
+⊢ n ≤ m✝.succ + 1
+-/
+#check_msgs in
+-- ANCHOR: le_succ_of_le4
+theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
+  intro h
+  induction h with
+  | refl => constructor; constructor
+  | step _ ih => skip
+-- ANCHOR_END: le_succ_of_le4
+stop discarding
+
+discarding
+/-- error:
+unsolved goals
 case step.a
 n m m✝ : Nat
 a✝ : n.le m✝
 ih : n ≤ m✝ + 1
-⊢ n.le (m✝ + 1)"
-end expect
+⊢ n.le (m✝ + 1)
+-/
+#check_msgs in
+-- ANCHOR: le_succ_of_le5
+theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
+  intro h
+  induction h with
+  | refl => constructor; constructor
+  | step _ ih => constructor
+-- ANCHOR_END: le_succ_of_le5
+stop discarding
 
-book declaration {{{ le_succ_of_le }}}
-  theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
-    intro h
-    induction h with
-    | refl => constructor; constructor
-    | step => constructor; assumption
-stop book declaration
+-- ANCHOR: le_succ_of_le
+theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
+  intro h
+  induction h with
+  | refl => constructor; constructor
+  | step => constructor; assumption
+-- ANCHOR_END: le_succ_of_le
 
 namespace Apply
-book declaration {{{ le_succ_of_le_apply }}}
-  theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
-    intro h
-    induction h with
-    | refl => apply Nat.le.step; exact Nat.le.refl
-    | step _ ih => apply Nat.le.step; exact ih
-stop book declaration
+-- ANCHOR: le_succ_of_le_apply
+theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
+  intro h
+  induction h with
+  | refl => apply Nat.le.step; exact Nat.le.refl
+  | step _ ih => apply Nat.le.step; exact ih
+-- ANCHOR_END: le_succ_of_le_apply
 end Apply
 
 namespace Golf
-book declaration {{{ le_succ_of_le_golf }}}
-  theorem Nat.le_succ_of_le (h : n ≤ m) : n ≤ m + 1:= by
-    induction h <;> repeat (first | constructor | assumption)
-stop book declaration
+-- ANCHOR: le_succ_of_le_golf
+theorem Nat.le_succ_of_le (h : n ≤ m) : n ≤ m + 1:= by
+  induction h <;> repeat (first | constructor | assumption)
+-- ANCHOR_END: le_succ_of_le_golf
 end Golf
 
 namespace Golf'
-book declaration {{{ le_succ_of_le_omega }}}
-  theorem Nat.le_succ_of_le (h : n ≤ m) : n ≤ m + 1:= by
-    omega
-stop book declaration
+-- ANCHOR: le_succ_of_le_omega
+theorem Nat.le_succ_of_le (h : n ≤ m) : n ≤ m + 1:= by
+  omega
+-- ANCHOR_END: le_succ_of_le_omega
 end Golf'
 
 namespace NoTac
 
-book declaration {{{ le_succ_of_le_recursive }}}
-  theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1
-    | .refl => .step .refl
-    | .step h => .step (Nat.le_succ_of_le h)
-stop book declaration
+-- ANCHOR: le_succ_of_le_recursive
+theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1
+  | .refl => .step .refl
+  | .step h => .step (Nat.le_succ_of_le h)
+-- ANCHOR_END: le_succ_of_le_recursive
 end NoTac
 end Extras
 
-book declaration {{{ splitList_shorter_le }}}
-  theorem splitList_shorter_le (lst : List α) :
-      (splitList lst).fst.length ≤ lst.length ∧ (splitList lst).snd.length ≤ lst.length := by
-    induction lst with
-    | nil => simp [splitList]
-    | cons x xs ih =>
-      simp [splitList]
-      cases ih
-      constructor
-      case left => assumption
-      case right =>
-        apply Nat.le_succ_of_le
-        assumption
-stop book declaration
+-- ANCHOR: splitList_shorter_le
+theorem splitList_shorter_le (lst : List α) :
+    (splitList lst).fst.length ≤ lst.length ∧
+      (splitList lst).snd.length ≤ lst.length := by
+  induction lst with
+  | nil => simp [splitList]
+  | cons x xs ih =>
+    simp [splitList]
+    cases ih
+    constructor
+    case left => assumption
+    case right =>
+      apply Nat.le_succ_of_le
+      assumption
+-- ANCHOR_END: splitList_shorter_le
 
-
-expect error {{{ splitList_shorter_start }}}
-  theorem splitList_shorter (lst : List α) (_ : lst.length ≥ 2) :
-      (splitList lst).fst.length < lst.length ∧
-        (splitList lst).snd.length < lst.length := by
-    skip
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 α : Type u_1
 lst : List α
 x✝ : lst.length ≥ 2
-⊢ (splitList lst).fst.length < lst.length ∧ (splitList lst).snd.length < lst.length"
-end expect
+⊢ (splitList lst).fst.length < lst.length ∧ (splitList lst).snd.length < lst.length
+-/
+#check_msgs in
+-- ANCHOR: splitList_shorter_start
+theorem splitList_shorter (lst : List α) (_ : lst.length ≥ 2) :
+    (splitList lst).fst.length < lst.length ∧
+      (splitList lst).snd.length < lst.length := by
+  skip
+-- ANCHOR_END: splitList_shorter_start
+stop discarding
 
-
-expect error {{{ splitList_shorter_1 }}}
-  theorem splitList_shorter (lst : List α) (_ : lst.length ≥ 2) :
-      (splitList lst).fst.length < lst.length ∧
-        (splitList lst).snd.length < lst.length := by
-    match lst with
-    | x :: y :: xs =>
-      skip
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 α : Type u_1
 lst : List α
 x y : α
 xs : List α
 x✝ : (x :: y :: xs).length ≥ 2
 ⊢ (splitList (x :: y :: xs)).fst.length < (x :: y :: xs).length ∧
-    (splitList (x :: y :: xs)).snd.length < (x :: y :: xs).length"
-end expect
+    (splitList (x :: y :: xs)).snd.length < (x :: y :: xs).length
+-/
+#check_msgs in
+-- ANCHOR: splitList_shorter_1
+theorem splitList_shorter (lst : List α) (_ : lst.length ≥ 2) :
+    (splitList lst).fst.length < lst.length ∧
+      (splitList lst).snd.length < lst.length := by
+  match lst with
+  | x :: y :: xs =>
+    skip
+-- ANCHOR_END: splitList_shorter_1
+stop discarding
 
-
-expect error {{{ splitList_shorter_2 }}}
-  theorem splitList_shorter (lst : List α) (_ : lst.length ≥ 2) :
-      (splitList lst).fst.length < lst.length ∧
-        (splitList lst).snd.length < lst.length := by
-    match lst with
-    | x :: y :: xs =>
-      simp [splitList]
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 α : Type u_1
 lst : List α
 x y : α
 xs : List α
 x✝ : (x :: y :: xs).length ≥ 2
-⊢ (splitList xs).fst.length < xs.length + 1 ∧ (splitList xs).snd.length < xs.length + 1"
-end expect
+⊢ (splitList xs).fst.length < xs.length + 1 ∧ (splitList xs).snd.length < xs.length + 1
+-/
+#check_msgs in
+-- ANCHOR: splitList_shorter_2
+theorem splitList_shorter (lst : List α) (_ : lst.length ≥ 2) :
+    (splitList lst).fst.length < lst.length ∧
+      (splitList lst).snd.length < lst.length := by
+  match lst with
+  | x :: y :: xs =>
+    simp [splitList]
+-- ANCHOR_END: splitList_shorter_2
+stop discarding
 
-
-expect error {{{ splitList_shorter_2b }}}
-  theorem splitList_shorter (lst : List α) (_ : lst.length ≥ 2) :
-      (splitList lst).fst.length < lst.length ∧
-        (splitList lst).snd.length < lst.length := by
-    match lst with
-    | x :: y :: xs =>
-      simp +arith [splitList]
-message
-"unsolved goals
+discarding
+/-- error:
+unsolved goals
 α : Type u_1
 lst : List α
 x y : α
 xs : List α
 x✝ : (x :: y :: xs).length ≥ 2
-⊢ (splitList xs).fst.length ≤ xs.length ∧ (splitList xs).snd.length ≤ xs.length"
-end expect
+⊢ (splitList xs).fst.length ≤ xs.length ∧ (splitList xs).snd.length ≤ xs.length
+-/
+#check_msgs in
+-- ANCHOR: splitList_shorter_2b
+theorem splitList_shorter (lst : List α) (_ : lst.length ≥ 2) :
+    (splitList lst).fst.length < lst.length ∧
+      (splitList lst).snd.length < lst.length := by
+  match lst with
+  | x :: y :: xs =>
+    simp +arith [splitList]
+-- ANCHOR_END: splitList_shorter_2b
+stop discarding
+
+-- ANCHOR: splitList_shorter
+theorem splitList_shorter (lst : List α) (_ : lst.length ≥ 2) :
+    (splitList lst).fst.length < lst.length ∧
+      (splitList lst).snd.length < lst.length := by
+  match lst with
+  | x :: y :: xs =>
+    simp +arith [splitList]
+    apply splitList_shorter_le
+-- ANCHOR_END: splitList_shorter
 
 
-book declaration {{{ splitList_shorter }}}
-  theorem splitList_shorter (lst : List α) (_ : lst.length ≥ 2) :
-      (splitList lst).fst.length < lst.length ∧
-        (splitList lst).snd.length < lst.length := by
-    match lst with
-    | x :: y :: xs =>
-      simp +arith [splitList]
-      apply splitList_shorter_le
-stop book declaration
+-- ANCHOR: splitList_shorter_sides
+theorem splitList_shorter_fst (lst : List α) (h : lst.length ≥ 2) :
+    (splitList lst).fst.length < lst.length :=
+  splitList_shorter lst h |>.left
 
+theorem splitList_shorter_snd (lst : List α) (h : lst.length ≥ 2) :
+    (splitList lst).snd.length < lst.length :=
+  splitList_shorter lst h |>.right
+-- ANCHOR_END: splitList_shorter_sides
 
-book declaration {{{ splitList_shorter_sides }}}
-  theorem splitList_shorter_fst (lst : List α) (h : lst.length ≥ 2) :
-      (splitList lst).fst.length < lst.length :=
-    splitList_shorter lst h |>.left
+discarding
+/--
+warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
+-/
+#check_msgs in
+--ANCHOR: mergeSortSorry
+def mergeSort [Ord α] (xs : List α) : List α :=
+  if h : xs.length < 2 then
+    match xs with
+    | [] => []
+    | [x] => [x]
+  else
+    let halves := splitList xs
+    have : halves.fst.length < xs.length := by
+      sorry
+    have : halves.snd.length < xs.length := by
+      sorry
+    merge (mergeSort halves.fst) (mergeSort halves.snd)
+termination_by xs.length
+--ANCHOR_END: mergeSortSorry
+stop discarding
 
-  theorem splitList_shorter_snd (lst : List α) (h : lst.length ≥ 2) :
-      (splitList lst).snd.length < lst.length :=
-    splitList_shorter lst h |>.right
-stop book declaration
-
-
-
-expect warning {{{ mergeSortSorry }}}
-  def mergeSort [Ord α] (xs : List α) : List α :=
-    if h : xs.length < 2 then
-      match xs with
-      | [] => []
-      | [x] => [x]
-    else
-      let halves := splitList xs
-      have : halves.fst.length < xs.length := by
-        sorry
-      have : halves.snd.length < xs.length := by
-        sorry
-      merge (mergeSort halves.fst) (mergeSort halves.snd)
-  termination_by xs.length
-message
-"declaration uses 'sorry'"
-end expect
-
-
-expect error {{{ mergeSortNeedsGte }}}
-  def mergeSort [Ord α] (xs : List α) : List α :=
-    if h : xs.length < 2 then
-      match xs with
-      | [] => []
-      | [x] => [x]
-    else
-      let halves := splitList xs
-      have : halves.fst.length < xs.length := by
-        apply splitList_shorter_fst
-      have : halves.snd.length < xs.length := by
-        apply splitList_shorter_snd
-      merge (mergeSort halves.fst) (mergeSort halves.snd)
-  termination_by xs.length
-message
-"unsolved goals
+discarding
+/--
+error: unsolved goals
 case h
-α : Type ?u.31067
+α : Type ?u.43884
 inst✝ : Ord α
 xs : List α
 h : ¬xs.length < 2
 halves : List α × List α := splitList xs
-⊢ xs.length ≥ 2"
-end expect
+⊢ xs.length ≥ 2
+---
+error: unsolved goals
+case h
+α : Type ?u.43884
+inst✝ : Ord α
+xs : List α
+h : ¬xs.length < 2
+halves : List α × List α := splitList xs
+this : halves.fst.length < xs.length
+⊢ xs.length ≥ 2
+-/
+#check_msgs in
+-- ANCHOR: mergeSortNeedsGte
+def mergeSort [Ord α] (xs : List α) : List α :=
+  if h : xs.length < 2 then
+    match xs with
+    | [] => []
+    | [x] => [x]
+  else
+    let halves := splitList xs
+    have : halves.fst.length < xs.length := by
+      apply splitList_shorter_fst
+    have : halves.snd.length < xs.length := by
+      apply splitList_shorter_snd
+    merge (mergeSort halves.fst) (mergeSort halves.snd)
+termination_by xs.length
+-- ANCHOR_END: mergeSortNeedsGte
+stop discarding
+
+discarding
+/--
+warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
+-/
+#check_msgs in
+-- ANCHOR: mergeSortGteStarted
+def mergeSort [Ord α] (xs : List α) : List α :=
+  if h : xs.length < 2 then
+    match xs with
+    | [] => []
+    | [x] => [x]
+  else
+    let halves := splitList xs
+    have : xs.length ≥ 2 := by sorry
+    have : halves.fst.length < xs.length := by
+      apply splitList_shorter_fst
+      assumption
+    have : halves.snd.length < xs.length := by
+      apply splitList_shorter_snd
+      assumption
+    merge (mergeSort halves.fst) (mergeSort halves.snd)
+termination_by xs.length
+-- ANCHOR_END: mergeSortGteStarted
+stop discarding
 
 
-expect warning {{{ mergeSortGteStarted }}}
-  def mergeSort [Ord α] (xs : List α) : List α :=
-    if h : xs.length < 2 then
-      match xs with
-      | [] => []
-      | [x] => [x]
-    else
-      let halves := splitList xs
-      have : xs.length ≥ 2 := by sorry
-      have : halves.fst.length < xs.length := by
-        apply splitList_shorter_fst
-        assumption
-      have : halves.snd.length < xs.length := by
-        apply splitList_shorter_snd
-        assumption
-      merge (mergeSort halves.fst) (mergeSort halves.snd)
-  termination_by xs.length
-message
-"declaration uses 'sorry'"
-end expect
+-- ANCHOR: mergeSort
+def mergeSort [Ord α] (xs : List α) : List α :=
+  if h : xs.length < 2 then
+    match xs with
+    | [] => []
+    | [x] => [x]
+  else
+    let halves := splitList xs
+    have : xs.length ≥ 2 := by
+      omega
+    have : halves.fst.length < xs.length := by
+      apply splitList_shorter_fst
+      assumption
+    have : halves.snd.length < xs.length := by
+      apply splitList_shorter_snd
+      assumption
+    merge (mergeSort halves.fst) (mergeSort halves.snd)
+termination_by xs.length
+-- ANCHOR_END: mergeSort
 
 
-book declaration {{{ mergeSort }}}
-  def mergeSort [Ord α] (xs : List α) : List α :=
-    if h : xs.length < 2 then
-      match xs with
-      | [] => []
-      | [x] => [x]
-    else
-      let halves := splitList xs
-      have : xs.length ≥ 2 := by
-        omega
-      have : halves.fst.length < xs.length := by
-        apply splitList_shorter_fst
-        assumption
-      have : halves.snd.length < xs.length := by
-        apply splitList_shorter_snd
-        assumption
-      merge (mergeSort halves.fst) (mergeSort halves.snd)
-  termination_by xs.length
-stop book declaration
+/-- info:
+["geode", "limestone", "mica", "soapstone"]
+-/
+#check_msgs in
+-- ANCHOR: mergeSortRocks
+#eval mergeSort ["soapstone", "geode", "mica", "limestone"]
+-- ANCHOR_END: mergeSortRocks
 
 
-expect info {{{ mergeSortRocks }}}
-  #eval mergeSort ["soapstone", "geode", "mica", "limestone"]
-message
-"[\"geode\", \"limestone\", \"mica\", \"soapstone\"]"
-end expect
-
-
-expect info {{{ mergeSortNumbers }}}
-  #eval mergeSort [5, 3, 22, 15]
-message
-"[3, 5, 15, 22]"
-end expect
+/-- info:
+[3, 5, 15, 22]
+-/
+#check_msgs in
+-- ANCHOR: mergeSortNumbers
+#eval mergeSort [5, 3, 22, 15]
+-- ANCHOR_END: mergeSortNumbers
 
 
 theorem zero_lt_succ : 0 < Nat.succ n := by

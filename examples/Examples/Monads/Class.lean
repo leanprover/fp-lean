@@ -1,158 +1,205 @@
-import Examples.Support
+import ExampleSupport
 import Examples.Monads
 import Examples.Monads.Many
 
+set_option linter.unusedVariables false
+
+-- ANCHOR: Names
+example := Option
+example := IO
+section
+variable (ε : Type)
+example := Except ε
+
+variable {α : Type}
+example := Option α
+example := Except String α
+example := @Functor.map
+end
+-- ANCHOR_END: Names
+
 namespace Class
-book declaration {{{ FakeMonad }}}
-  class Monad (m : Type → Type) where
-    pure : α → m α
-    bind : m α → (α → m β) → m β
-stop book declaration
+variable {α β : Type} {m : Type → Type}
+-- ANCHOR: FakeMonad
+class Monad (m : Type → Type) where
+  pure : α → m α
+  bind : m α → (α → m β) → m β
+-- ANCHOR_END: FakeMonad
 end Class
 
 
-book declaration {{{ MonadOptionExcept }}}
-  instance : Monad Option where
-    pure x := some x
-    bind opt next :=
-      match opt with
-      | none => none
-      | some x => next x
+-- ANCHOR: MonadOptionExcept
+instance : Monad Option where
+  pure x := some x
+  bind opt next :=
+    match opt with
+    | none => none
+    | some x => next x
 
-  instance : Monad (Except ε) where
-    pure x := Except.ok x
-    bind attempt next :=
-      match attempt with
-      | Except.error e => Except.error e
-      | Except.ok x => next x
-stop book declaration
+instance : Monad (Except ε) where
+  pure x := Except.ok x
+  bind attempt next :=
+    match attempt with
+    | Except.error e => Except.error e
+    | Except.ok x => next x
+-- ANCHOR_END: MonadOptionExcept
+section
+variable {α : Type} {m : Type → Type}
+-- ANCHOR: firstThirdFifthSeventhMonad
+def firstThirdFifthSeventh [Monad m] (lookup : List α → Nat → m α)
+    (xs : List α) : m (α × α × α × α) :=
+  lookup xs 0 >>= fun first =>
+  lookup xs 2 >>= fun third =>
+  lookup xs 4 >>= fun fifth =>
+  lookup xs 6 >>= fun seventh =>
+  pure (first, third, fifth, seventh)
+-- ANCHOR_END: firstThirdFifthSeventhMonad
+end
 
-book declaration {{{ firstThirdFifthSeventhMonad }}}
-  def firstThirdFifthSeventh [Monad m] (lookup : List α → Nat → m α) (xs : List α) : m (α × α × α × α) :=
-    lookup xs 0 >>= fun first =>
-    lookup xs 2 >>= fun third =>
-    lookup xs 4 >>= fun fifth =>
-    lookup xs 6 >>= fun seventh =>
-    pure (first, third, fifth, seventh)
-stop book declaration
+-- ANCHOR: animals
+def slowMammals : List String :=
+  ["Three-toed sloth", "Slow loris"]
 
+def fastBirds : List String := [
+  "Peregrine falcon",
+  "Saker falcon",
+  "Golden eagle",
+  "Gray-headed albatross",
+  "Spur-winged goose",
+  "Swift",
+  "Anna's hummingbird"
+]
+-- ANCHOR_END: animals
 
-book declaration {{{ animals }}}
-  def slowMammals : List String :=
-    ["Three-toed sloth", "Slow loris"]
+/-- info:
+none
+-/
+#check_msgs in
+-- ANCHOR: noneSlow
+#eval firstThirdFifthSeventh (fun xs i => xs[i]?) slowMammals
+-- ANCHOR_END: noneSlow
 
-  def fastBirds : List String := [
-    "Peregrine falcon",
-    "Saker falcon",
-    "Golden eagle",
-    "Gray-headed albatross",
-    "Spur-winged goose",
-    "Swift",
-    "Anna's hummingbird"
-  ]
-stop book declaration
-
-expect info {{{ noneSlow }}}
-  #eval firstThirdFifthSeventh (fun xs i => xs[i]?) slowMammals
-message
-  "none"
-end expect
-
-expect info {{{ someFast }}}
-  #eval firstThirdFifthSeventh (fun xs i => xs[i]?) fastBirds
-message
-  "some (\"Peregrine falcon\", \"Golden eagle\", \"Spur-winged goose\", \"Anna's hummingbird\")"
-end expect
+/-- info:
+some ("Peregrine falcon", "Golden eagle", "Spur-winged goose", "Anna's hummingbird")
+-/
+#check_msgs in
+-- ANCHOR: someFast
+#eval firstThirdFifthSeventh (fun xs i => xs[i]?) fastBirds
+-- ANCHOR_END: someFast
 
 namespace Errs
 
-book declaration {{{ getOrExcept }}}
-  def getOrExcept (xs : List α) (i : Nat) : Except String α :=
-    match xs[i]? with
-    | none => Except.error s!"Index {i} not found (maximum is {xs.length - 1})"
-    | some x => Except.ok x
-stop book declaration
+-- ANCHOR: getOrExcept
+def getOrExcept (xs : List α) (i : Nat) : Except String α :=
+  match xs[i]? with
+  | none =>
+    Except.error s!"Index {i} not found (maximum is {xs.length - 1})"
+  | some x =>
+    Except.ok x
+-- ANCHOR_END: getOrExcept
 
 
-expect info {{{ errorSlow }}}
-  #eval firstThirdFifthSeventh getOrExcept slowMammals
-message
-  "Except.error \"Index 2 not found (maximum is 1)\""
-end expect
+/-- info:
+Except.error "Index 2 not found (maximum is 1)"
+-/
+#check_msgs in
+-- ANCHOR: errorSlow
+#eval firstThirdFifthSeventh getOrExcept slowMammals
+-- ANCHOR_END: errorSlow
 
 
-expect info {{{ okFast }}}
-  #eval firstThirdFifthSeventh getOrExcept fastBirds
-message
-  "Except.ok (\"Peregrine falcon\", \"Golden eagle\", \"Spur-winged goose\", \"Anna's hummingbird\")"
-end expect
+/-- info:
+Except.ok ("Peregrine falcon", "Golden eagle", "Spur-winged goose", "Anna's hummingbird")
+-/
+#check_msgs in
+-- ANCHOR: okFast
+#eval firstThirdFifthSeventh getOrExcept fastBirds
+-- ANCHOR_END: okFast
 end Errs
 
 
 namespace IdentMonad
 
 
-book declaration {{{ IdMonad }}}
-  def Id (t : Type) : Type := t
+-- ANCHOR: IdMonad
+def Id (t : Type) : Type := t
 
-  instance : Monad Id where
-    pure x := x
-    bind x f := f x
-stop book declaration
+instance : Monad Id where
+  pure x := x
+  bind x f := f x
+-- ANCHOR_END: IdMonad
 
 end IdentMonad
 
+-- ANCHOR: IdMore
+
+example : Id α = α := rfl
+example : (α → Id α) = (α → α) := rfl
+example : (α → (α → Id β) → Id β) = (α → (α → β) → β) := rfl
+
+-- ANCHOR_END: IdMore
+
 
 namespace MyListStuff
+variable {α β : Type} {m : Type → Type}
 
 
-
-book declaration {{{ mapM }}}
-  def mapM [Monad m] (f : α → m β) : List α → m (List β)
-    | [] => pure []
-    | x :: xs =>
-      f x >>= fun hd =>
-      mapM f xs >>= fun tl =>
-      pure (hd :: tl)
-stop book declaration
+-- ANCHOR: mapM
+def mapM [Monad m] (f : α → m β) : List α → m (List β)
+  | [] => pure []
+  | x :: xs =>
+    f x >>= fun hd =>
+    mapM f xs >>= fun tl =>
+    pure (hd :: tl)
+-- ANCHOR_END: mapM
 
 open Monads.State (State get set)
 
-book declaration {{{ StateMonad }}}
-  instance : Monad (State σ) where
-    pure x := fun s => (s, x)
-    bind first next :=
-      fun s =>
-        let (s', x) := first s
-        next x s'
-stop book declaration
+-- ANCHOR: StateEx
+section
+variable {σ α : Type}
+example := State σ α
+example := Type → Type
+
+example : State σ σ := get
+example : σ → State σ Unit := set
+
+end
+-- ANCHOR_END: StateEx
+
+-- ANCHOR: StateMonad
+instance : Monad (State σ) where
+  pure x := fun s => (s, x)
+  bind first next :=
+    fun s =>
+      let (s', x) := first s
+      next x s'
+-- ANCHOR_END: StateMonad
 
 
-book declaration {{{ increment }}}
-  def increment (howMuch : Int) : State Int Int :=
-    get >>= fun i =>
-    set (i + howMuch) >>= fun () =>
-    pure i
-stop book declaration
+-- ANCHOR: increment
+def increment (howMuch : Int) : State Int Int :=
+  get >>= fun i =>
+  set (i + howMuch) >>= fun () =>
+  pure i
+-- ANCHOR_END: increment
 
-bookExample type {{{ mapMincrement }}}
-  mapM increment
-  ===>
-  List Int → State Int (List Int)
-end bookExample
+-- ANCHOR: mapMincrement
+example : List Int → State Int (List Int) := mapM increment
+-- ANCHOR_END: mapMincrement
 
-bookExample type {{{ mapMincrement2 }}}
-  mapM increment
-  ===>
-  List Int → Int → (Int × List Int)
-end bookExample
+-- ANCHOR: mapMincrement2
+example : List Int → Int → (Int × List Int) := mapM increment
+-- ANCHOR_END: mapMincrement2
 
 
-expect info {{{ mapMincrementOut }}}
-  #eval mapM increment [1, 2, 3, 4, 5] 0
-message
-  "(15, [0, 1, 3, 6, 10])"
-end expect
+/-- info:
+(15, [0, 1, 3, 6, 10])
+-/
+#check_msgs in
+-- ANCHOR: mapMincrementOut
+#eval mapM increment [1, 2, 3, 4, 5] 0
+-- ANCHOR_END: mapMincrementOut
 
 -- TODO fix error about unknown universe levels here
 -- evaluation steps : (State Int (List Int) : Type) {{{ mapMincrOutSteps }}}
@@ -195,225 +242,246 @@ end expect
 open Monads.Writer (WithLog save isEven)
 
 
-book declaration {{{ MonadWriter }}}
-  instance : Monad (WithLog logged) where
-    pure x := {log := [], val := x}
-    bind result next :=
-      let {log := thisOut, val := thisRes} := result
-      let {log := nextOut, val := nextRes} := next thisRes
-      {log := thisOut ++ nextOut, val := nextRes}
-stop book declaration
+-- ANCHOR: MonadWriter
+instance : Monad (WithLog logged) where
+  pure x := {log := [], val := x}
+  bind result next :=
+    let {log := thisOut, val := thisRes} := result
+    let {log := nextOut, val := nextRes} := next thisRes
+    {log := thisOut ++ nextOut, val := nextRes}
+-- ANCHOR_END: MonadWriter
 
 
-book declaration {{{ saveIfEven }}}
-  def saveIfEven (i : Int) : WithLog Int Int :=
-    (if isEven i then
-      save i
-     else pure ()) >>= fun () =>
-    pure i
-stop book declaration
+-- ANCHOR: saveIfEven
+def saveIfEven (i : Int) : WithLog Int Int :=
+  (if isEven i then
+    save i
+   else pure ()) >>= fun () =>
+  pure i
+-- ANCHOR_END: saveIfEven
 
 
-expect info {{{ mapMsaveIfEven }}}
-  #eval mapM saveIfEven [1, 2, 3, 4, 5]
-message
-  "{ log := [2, 4], val := [1, 2, 3, 4, 5] }"
-end expect
+/-- info:
+{ log := [2, 4], val := [1, 2, 3, 4, 5] }
+-/
+#check_msgs in
+-- ANCHOR: mapMsaveIfEven
+#eval mapM saveIfEven [1, 2, 3, 4, 5]
+-- ANCHOR_END: mapMsaveIfEven
 
-expect info {{{ mapMId }}}
-  #eval mapM (m := Id) (· + 1) [1, 2, 3, 4, 5]
-message
-  "[2, 3, 4, 5, 6]"
-end expect
+/-- info:
+[2, 3, 4, 5, 6]
+-/
+#check_msgs in
+-- ANCHOR: mapMId
+#eval mapM (m := Id) (· + 1) [1, 2, 3, 4, 5]
+-- ANCHOR_END: mapMId
 
 
 
-expect error {{{ mapMIdNoHint }}}
-  #eval mapM (· + 1) [1, 2, 3, 4, 5]
-message
-"failed to synthesize
+/-- error:
+failed to synthesize
   HAdd Nat Nat (?m.4319 ?m.4321)
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command."
-end expect
+Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#check_msgs in
+-- ANCHOR: mapMIdNoHint
+#eval mapM (· + 1) [1, 2, 3, 4, 5]
+-- ANCHOR_END: mapMIdNoHint
 
 
-expect error {{{ mapMIdId }}}
-  -- TODO added type annotation - check
-  #eval mapM (fun (x : Nat) => x) [1, 2, 3, 4, 5]
-message
-"typeclass instance problem is stuck, it is often due to metavariables
-  Monad ?m.4319"
-end expect
+/-- error:
+typeclass instance problem is stuck, it is often due to metavariables
+  Monad ?m.4319
+-/
+#check_msgs in
+-- ANCHOR: mapMIdId
+#eval mapM (fun (x : Nat) => x) [1, 2, 3, 4, 5]
+-- ANCHOR_END: mapMIdId
 
 end MyListStuff
 
 
 
-book declaration {{{ ExprArith }}}
-  inductive Expr (op : Type) where
-    | const : Int → Expr op
-    | prim : op → Expr op → Expr op → Expr op
+-- ANCHOR: ExprArith
+inductive Expr (op : Type) where
+  | const : Int → Expr op
+  | prim : op → Expr op → Expr op → Expr op
 
 
-  inductive Arith where
-    | plus
-    | minus
-    | times
-    | div
-stop book declaration
+inductive Arith where
+  | plus
+  | minus
+  | times
+  | div
+-- ANCHOR_END: ExprArith
 
-book declaration {{{ twoPlusThree }}}
-  open Expr in
-  open Arith in
-  def twoPlusThree : Expr Arith :=
-    prim plus (const 2) (const 3)
-stop book declaration
+-- ANCHOR: twoPlusThree
+open Expr in
+open Arith in
+def twoPlusThree : Expr Arith :=
+  prim plus (const 2) (const 3)
+-- ANCHOR_END: twoPlusThree
 
 
-book declaration {{{ exampleArithExpr }}}
-  open Expr in
-  open Arith in
-  def fourteenDivided : Expr Arith :=
-    prim div (const 14) (prim minus (const 45) (prim times (const 5) (const 9)))
-stop book declaration
+-- ANCHOR: exampleArithExpr
+open Expr in
+open Arith in
+def fourteenDivided : Expr Arith :=
+  prim div (const 14)
+    (prim minus (const 45)
+      (prim times (const 5)
+        (const 9)))
+-- ANCHOR_END: exampleArithExpr
 
 namespace One
-book declaration {{{ evaluateOptionCommingled }}}
-  def evaluateOption : Expr Arith → Option Int
-    | Expr.const i => pure i
-    | Expr.prim p e1 e2 =>
-      evaluateOption e1 >>= fun v1 =>
-      evaluateOption e2 >>= fun v2 =>
-      match p with
-      | Arith.plus => pure (v1 + v2)
-      | Arith.minus => pure (v1 - v2)
-      | Arith.times => pure (v1 * v2)
-      | Arith.div => if v2 == 0 then none else pure (v1 / v2)
-stop book declaration
+-- ANCHOR: evaluateOptionCommingled
+def evaluateOption : Expr Arith → Option Int
+  | Expr.const i => pure i
+  | Expr.prim p e1 e2 =>
+    evaluateOption e1 >>= fun v1 =>
+    evaluateOption e2 >>= fun v2 =>
+    match p with
+    | Arith.plus => pure (v1 + v2)
+    | Arith.minus => pure (v1 - v2)
+    | Arith.times => pure (v1 * v2)
+    | Arith.div => if v2 == 0 then none else pure (v1 / v2)
+-- ANCHOR_END: evaluateOptionCommingled
 end One
 
 namespace Two
 
-book declaration {{{ evaluateOptionSplit }}}
-  def applyPrim : Arith → Int → Int → Option Int
-    | Arith.plus, x, y => pure (x + y)
-    | Arith.minus, x, y => pure (x - y)
-    | Arith.times, x, y => pure (x * y)
-    | Arith.div, x, y => if y == 0 then none else pure (x / y)
+-- ANCHOR: evaluateOptionSplit
+def applyPrim : Arith → Int → Int → Option Int
+  | Arith.plus, x, y => pure (x + y)
+  | Arith.minus, x, y => pure (x - y)
+  | Arith.times, x, y => pure (x * y)
+  | Arith.div, x, y => if y == 0 then none else pure (x / y)
 
-  def evaluateOption : Expr Arith → Option Int
-    | Expr.const i => pure i
-    | Expr.prim p e1 e2 =>
-      evaluateOption e1 >>= fun v1 =>
-      evaluateOption e2 >>= fun v2 =>
-      applyPrim p v1 v2
-stop book declaration
+def evaluateOption : Expr Arith → Option Int
+  | Expr.const i => pure i
+  | Expr.prim p e1 e2 =>
+    evaluateOption e1 >>= fun v1 =>
+    evaluateOption e2 >>= fun v2 =>
+    applyPrim p v1 v2
+-- ANCHOR_END: evaluateOptionSplit
 
 
-expect info {{{ fourteenDivOption }}}
-  #eval evaluateOption fourteenDivided
-message
-"none"
-end expect
+/-- info:
+none
+-/
+#check_msgs in
+-- ANCHOR: fourteenDivOption
+#eval evaluateOption fourteenDivided
+-- ANCHOR_END: fourteenDivOption
 
 end Two
 
 
 namespace Three
 
-book declaration {{{ evaluateExcept }}}
-  def applyPrim : Arith → Int → Int → Except String Int
-    | Arith.plus, x, y => pure (x + y)
-    | Arith.minus, x, y => pure (x - y)
-    | Arith.times, x, y => pure (x * y)
-    | Arith.div, x, y =>
-      if y == 0 then
-        Except.error s!"Tried to divide {x} by zero"
-      else pure (x / y)
+-- ANCHOR: evaluateExcept
+def applyPrim : Arith → Int → Int → Except String Int
+  | Arith.plus, x, y => pure (x + y)
+  | Arith.minus, x, y => pure (x - y)
+  | Arith.times, x, y => pure (x * y)
+  | Arith.div, x, y =>
+    if y == 0 then
+      Except.error s!"Tried to divide {x} by zero"
+    else pure (x / y)
 
-
-  def evaluateExcept : Expr Arith → Except String Int
-    | Expr.const i => pure i
-    | Expr.prim p e1 e2 =>
-      evaluateExcept e1 >>= fun v1 =>
-      evaluateExcept e2 >>= fun v2 =>
-      applyPrim p v1 v2
-stop book declaration
+def evaluateExcept : Expr Arith → Except String Int
+  | Expr.const i => pure i
+  | Expr.prim p e1 e2 =>
+    evaluateExcept e1 >>= fun v1 =>
+    evaluateExcept e2 >>= fun v2 =>
+    applyPrim p v1 v2
+-- ANCHOR_END: evaluateExcept
 
 end Three
 
 namespace Four
 
 
-book declaration {{{ evaluateM }}}
-  def applyPrimOption : Arith → Int → Int → Option Int
-    | Arith.plus, x, y => pure (x + y)
-    | Arith.minus, x, y => pure (x - y)
-    | Arith.times, x, y => pure (x * y)
-    | Arith.div, x, y =>
-      if y == 0 then
-        none
-      else pure (x / y)
+-- ANCHOR: evaluateM
+def applyPrimOption : Arith → Int → Int → Option Int
+  | Arith.plus, x, y => pure (x + y)
+  | Arith.minus, x, y => pure (x - y)
+  | Arith.times, x, y => pure (x * y)
+  | Arith.div, x, y =>
+    if y == 0 then
+      none
+    else pure (x / y)
 
-  def applyPrimExcept : Arith → Int → Int → Except String Int
-    | Arith.plus, x, y => pure (x + y)
-    | Arith.minus, x, y => pure (x - y)
-    | Arith.times, x, y => pure (x * y)
-    | Arith.div, x, y =>
-      if y == 0 then
-        Except.error s!"Tried to divide {x} by zero"
-      else pure (x / y)
+def applyPrimExcept : Arith → Int → Int → Except String Int
+  | Arith.plus, x, y => pure (x + y)
+  | Arith.minus, x, y => pure (x - y)
+  | Arith.times, x, y => pure (x * y)
+  | Arith.div, x, y =>
+    if y == 0 then
+      Except.error s!"Tried to divide {x} by zero"
+    else pure (x / y)
 
-  def evaluateM [Monad m] (applyPrim : Arith → Int → Int → m Int): Expr Arith → m Int
-    | Expr.const i => pure i
-    | Expr.prim p e1 e2 =>
-      evaluateM applyPrim e1 >>= fun v1 =>
-      evaluateM applyPrim e2 >>= fun v2 =>
-      applyPrim p v1 v2
-stop book declaration
+def evaluateM [Monad m]
+    (applyPrim : Arith → Int → Int → m Int) :
+    Expr Arith → m Int
+  | Expr.const i => pure i
+  | Expr.prim p e1 e2 =>
+    evaluateM applyPrim e1 >>= fun v1 =>
+    evaluateM applyPrim e2 >>= fun v2 =>
+    applyPrim p v1 v2
+-- ANCHOR_END: evaluateM
 
-expect info {{{ evaluateMOption }}}
-  #eval evaluateM applyPrimOption fourteenDivided
-message
-"none"
-end expect
+/-- info:
+none
+-/
+#check_msgs in
+-- ANCHOR: evaluateMOption
+#eval evaluateM applyPrimOption fourteenDivided
+-- ANCHOR_END: evaluateMOption
 
 
-expect info {{{ evaluateMExcept }}}
-  #eval evaluateM applyPrimExcept fourteenDivided
-message
-"Except.error \"Tried to divide 14 by zero\""
-end expect
+/-- info:
+Except.error "Tried to divide 14 by zero"
+-/
+#check_msgs in
+-- ANCHOR: evaluateMExcept
+#eval evaluateM applyPrimExcept fourteenDivided
+-- ANCHOR_END: evaluateMExcept
 
 
 end Four
 
 namespace FourPointFive
-book declaration {{{ evaluateMRefactored }}}
-  def applyDivOption (x : Int) (y : Int) : Option Int :=
-      if y == 0 then
-        none
-      else pure (x / y)
+-- ANCHOR: evaluateMRefactored
+def applyDivOption (x : Int) (y : Int) : Option Int :=
+    if y == 0 then
+      none
+    else pure (x / y)
 
-  def applyDivExcept (x : Int) (y : Int) : Except String Int :=
-      if y == 0 then
-        Except.error s!"Tried to divide {x} by zero"
-      else pure (x / y)
+def applyDivExcept (x : Int) (y : Int) : Except String Int :=
+    if y == 0 then
+      Except.error s!"Tried to divide {x} by zero"
+    else pure (x / y)
 
-  def applyPrim [Monad m] (applyDiv : Int → Int → m Int) : Arith → Int → Int → m Int
-    | Arith.plus, x, y => pure (x + y)
-    | Arith.minus, x, y => pure (x - y)
-    | Arith.times, x, y => pure (x * y)
-    | Arith.div, x, y => applyDiv x y
+def applyPrim [Monad m]
+    (applyDiv : Int → Int → m Int) :
+    Arith → Int → Int → m Int
+  | Arith.plus, x, y => pure (x + y)
+  | Arith.minus, x, y => pure (x - y)
+  | Arith.times, x, y => pure (x * y)
+  | Arith.div, x, y => applyDiv x y
 
-  def evaluateM [Monad m] (applyDiv : Int → Int → m Int): Expr Arith → m Int
-    | Expr.const i => pure i
-    | Expr.prim p e1 e2 =>
-      evaluateM applyDiv e1 >>= fun v1 =>
-      evaluateM applyDiv e2 >>= fun v2 =>
-      applyPrim applyDiv p v1 v2
-stop book declaration
+def evaluateM [Monad m]
+    (applyDiv : Int → Int → m Int) :
+    Expr Arith → m Int
+  | Expr.const i => pure i
+  | Expr.prim p e1 e2 =>
+    evaluateM applyDiv e1 >>= fun v1 =>
+    evaluateM applyDiv e2 >>= fun v2 =>
+    applyPrim applyDiv p v1 v2
+-- ANCHOR_END: evaluateMRefactored
 
 end FourPointFive
 
@@ -434,282 +502,384 @@ example : Four.evaluateM Four.applyPrimExcept = FourPointFive.evaluateM FourPoin
     rfl
 
 
-book declaration {{{ PrimCanFail }}}
-  inductive Prim (special : Type) where
-    | plus
-    | minus
-    | times
-    | other : special → Prim special
+-- ANCHOR: PrimCanFail
+inductive Prim (special : Type) where
+  | plus
+  | minus
+  | times
+  | other : special → Prim special
 
-  inductive CanFail where
-    | div
-stop book declaration
-
-
-
-book declaration {{{ evaluateMMorePoly }}}
-  def divOption : CanFail → Int → Int → Option Int
-    | CanFail.div, x, y => if y == 0 then none else pure (x / y)
-
-  def divExcept : CanFail → Int → Int → Except String Int
-    | CanFail.div, x, y =>
-      if y == 0 then
-        Except.error s!"Tried to divide {x} by zero"
-      else pure (x / y)
-
-  def applyPrim [Monad m] (applySpecial : special → Int → Int → m Int) : Prim special → Int → Int → m Int
-    | Prim.plus, x, y => pure (x + y)
-    | Prim.minus, x, y => pure (x - y)
-    | Prim.times, x, y => pure (x * y)
-    | Prim.other op, x, y => applySpecial op x y
-
-  def evaluateM [Monad m] (applySpecial : special → Int → Int → m Int): Expr (Prim special) → m Int
-    | Expr.const i => pure i
-    | Expr.prim p e1 e2 =>
-      evaluateM applySpecial e1 >>= fun v1 =>
-      evaluateM applySpecial e2 >>= fun v2 =>
-      applyPrim applySpecial p v1 v2
-stop book declaration
+inductive CanFail where
+  | div
+-- ANCHOR_END: PrimCanFail
 
 
-book declaration {{{ applyEmpty }}}
-  def applyEmpty [Monad m] (op : Empty) (_ : Int) (_ : Int) : m Int :=
-    nomatch op
-stop book declaration
+
+-- ANCHOR: evaluateMMorePoly
+def divOption : CanFail → Int → Int → Option Int
+  | CanFail.div, x, y => if y == 0 then none else pure (x / y)
+
+def divExcept : CanFail → Int → Int → Except String Int
+  | CanFail.div, x, y =>
+    if y == 0 then
+      Except.error s!"Tried to divide {x} by zero"
+    else pure (x / y)
+
+def applyPrim [Monad m]
+    (applySpecial : special → Int → Int → m Int) :
+    Prim special → Int → Int → m Int
+  | Prim.plus, x, y => pure (x + y)
+  | Prim.minus, x, y => pure (x - y)
+  | Prim.times, x, y => pure (x * y)
+  | Prim.other op, x, y => applySpecial op x y
+
+def evaluateM [Monad m]
+    (applySpecial : special → Int → Int → m Int) :
+    Expr (Prim special) → m Int
+  | Expr.const i => pure i
+  | Expr.prim p e1 e2 =>
+    evaluateM applySpecial e1 >>= fun v1 =>
+    evaluateM applySpecial e2 >>= fun v2 =>
+    applyPrim applySpecial p v1 v2
+-- ANCHOR_END: evaluateMMorePoly
 
 
-expect info {{{ evalId }}}
-  open Expr Prim in
-  #eval evaluateM (m := Id) applyEmpty (prim plus (const 5) (const (-14)))
-message
-"-9"
-end expect
+-- ANCHOR: applyEmpty
+def applyEmpty [Monad m] (op : Empty) (_ : Int) (_ : Int) : m Int :=
+  nomatch op
+-- ANCHOR_END: applyEmpty
 
-book declaration {{{ NeedsSearch }}}
-  inductive NeedsSearch
-    | div
-    | choose
 
-  def applySearch : NeedsSearch → Int → Int → Many Int
-    | NeedsSearch.choose, x, y =>
-      Many.fromList [x, y]
-    | NeedsSearch.div, x, y =>
-      if y == 0 then
-        Many.none
-      else Many.one (x / y)
-stop book declaration
+-- ANCHOR: nomatch
+section
+variable {E : Empty}
+example : α := nomatch E
+end
+-- ANCHOR_END: nomatch
+
+-- ANCHOR: etc
+example := @List.cons
+example := @List.lookup
+-- ANCHOR_END: etc
+
+/-- info:
+-9
+-/
+#check_msgs in
+-- ANCHOR: evalId
+open Expr Prim in
+#eval evaluateM (m := Id) applyEmpty (prim plus (const 5) (const (-14)))
+-- ANCHOR_END: evalId
+
+-- ANCHOR: NeedsSearch
+inductive NeedsSearch
+  | div
+  | choose
+
+def applySearch : NeedsSearch → Int → Int → Many Int
+  | NeedsSearch.choose, x, y =>
+    Many.fromList [x, y]
+  | NeedsSearch.div, x, y =>
+    if y == 0 then
+      Many.none
+    else Many.one (x / y)
+-- ANCHOR_END: NeedsSearch
 
 section
 
-book declaration {{{ opening }}}
-  open Expr Prim NeedsSearch
-stop book declaration
+-- ANCHOR: opening
+open Expr Prim NeedsSearch
+-- ANCHOR_END: opening
 
 
-expect info {{{ searchA }}}
-  #eval (evaluateM applySearch (prim plus (const 1) (prim (other choose) (const 2) (const 5)))).takeAll
-message
-"[3, 6]"
-end expect
+/-- info:
+[3, 6]
+-/
+#check_msgs in
+-- ANCHOR: searchA
+#eval
+  (evaluateM applySearch
+    (prim plus (const 1)
+      (prim (other choose) (const 2)
+        (const 5)))).takeAll
+-- ANCHOR_END: searchA
 
 
-expect info {{{ searchB }}}
-  #eval (evaluateM applySearch (prim plus (const 1) (prim (other div) (const 2) (const 0)))).takeAll
-message
-"[]"
-end expect
+/-- info:
+[]
+-/
+#check_msgs in
+-- ANCHOR: searchB
+#eval
+  (evaluateM applySearch
+    (prim plus (const 1)
+      (prim (other div) (const 2)
+        (const 0)))).takeAll
+-- ANCHOR_END: searchB
 
 
-expect info {{{ searchC }}}
-  #eval (evaluateM applySearch (prim (other div) (const 90) (prim plus (prim (other choose) (const (-5)) (const 5)) (const 5)))).takeAll
-message
-  "[9]"
-end expect
+/-- info:
+[9]
+-/
+#check_msgs in
+-- ANCHOR: searchC
+#eval
+  (evaluateM applySearch
+    (prim (other div) (const 90)
+      (prim plus (prim (other choose) (const (-5)) (const 5))
+        (const 5)))).takeAll
+-- ANCHOR_END: searchC
 
 end
 
+-- ANCHOR: MonadContract
+section
+example := [BEq, Hashable]
+variable {m} [Monad m] [LawfulMonad m]
+variable {v : α} {f : α → m β}
+example : bind (pure v) f = f v := by simp
+variable {v : m α}
+-- ANCHOR: MonadContract2
+example : bind v pure = v := by simp
+example : bind (bind v f) g = bind v (fun x => bind (f x) g) := by simp
+end
+-- ANCHOR_END: MonadContract2
+-- ANCHOR_END: MonadContract
 
 
-book declaration {{{ Reader }}}
-  def Reader (ρ : Type) (α : Type) : Type := ρ → α
+-- ANCHOR: Reader
+def Reader (ρ : Type) (α : Type) : Type := ρ → α
 
-  def read : Reader ρ ρ := fun env => env
-stop book declaration
+def read : Reader ρ ρ := fun env => env
+-- ANCHOR_END: Reader
 
 namespace Temp
 
-
-expect error {{{ readerbind0 }}}
-  def Reader.bind {ρ : Type} {α : Type} {β : Type}
-    (result : ρ → α) (next : α → ρ → β) : ρ → β :=
-    _
-message
-"don't know how to synthesize placeholder
+discarding
+/-- error:
+don't know how to synthesize placeholder
 context:
 ρ α β : Type
 result : ρ → α
 next : α → ρ → β
-⊢ ρ → β"
-end expect
+⊢ ρ → β
+-/
+#check_msgs in
+-- ANCHOR: readerbind0
+def Reader.bind {ρ : Type} {α : Type} {β : Type}
+  (result : ρ → α) (next : α → ρ → β) : ρ → β :=
+  _
+-- ANCHOR_END: readerbind0
+stop discarding
 
-expect error {{{ readerbind1 }}}
-  def Reader.bind {ρ : Type} {α : Type} {β : Type}
-    (result : ρ → α) (next : α → ρ → β) : ρ → β :=
-    fun env => _
-message
-"don't know how to synthesize placeholder
-context:
-ρ α β : Type
-result : ρ → α
-next : α → ρ → β
-env : ρ
-⊢ β"
-end expect
-
-expect error {{{ readerbind2a }}}
-  def Reader.bind {ρ : Type} {α : Type} {β : Type}
-    (result : ρ → α) (next : α → ρ → β) : ρ → β :=
-    fun env => next _ _
-message
-"don't know how to synthesize placeholder
+discarding
+/-- error:
+don't know how to synthesize placeholder
 context:
 ρ α β : Type
 result : ρ → α
 next : α → ρ → β
 env : ρ
-⊢ α"
-end expect
+⊢ β
+-/
+#check_msgs in
+-- ANCHOR: readerbind1
+def Reader.bind {ρ : Type} {α : Type} {β : Type}
+  (result : ρ → α) (next : α → ρ → β) : ρ → β :=
+  fun env => _
+-- ANCHOR_END: readerbind1
+stop discarding
 
-
-expect error {{{ readerbind2b }}}
-  def Reader.bind {ρ : Type} {α : Type} {β : Type}
-    (result : ρ → α) (next : α → ρ → β) : ρ → β :=
-    fun env => next _ _
-message
-"don't know how to synthesize placeholder
+discarding
+/--
+error: don't know how to synthesize placeholder
 context:
 ρ α β : Type
 result : ρ → α
 next : α → ρ → β
 env : ρ
-⊢ ρ"
-end expect
-
-
-expect error {{{ readerbind3 }}}
-  def Reader.bind {ρ : Type} {α : Type} {β : Type}
-    (result : ρ → α) (next : α → ρ → β) : ρ → β :=
-    fun env => next (result _) _
-message
-"don't know how to synthesize placeholder
+⊢ ρ
+---
+error: don't know how to synthesize placeholder
 context:
 ρ α β : Type
 result : ρ → α
 next : α → ρ → β
 env : ρ
-⊢ ρ"
-end expect
+⊢ α
+-/
+#check_msgs in
+-- ANCHOR: readerbind2a
+def Reader.bind {ρ : Type} {α : Type} {β : Type}
+  (result : ρ → α) (next : α → ρ → β) : ρ → β :=
+  fun env => next _ _
+-- ANCHOR_END: readerbind2a
+stop discarding
 
+discarding
+/--
+error: don't know how to synthesize placeholder
+context:
+ρ α β : Type
+result : ρ → α
+next : α → ρ → β
+env : ρ
+⊢ ρ
+---
+error: don't know how to synthesize placeholder
+context:
+ρ α β : Type
+result : ρ → α
+next : α → ρ → β
+env : ρ
+⊢ α
+-/
+#check_msgs in
+-- ANCHOR: readerbind2b
+def Reader.bind {ρ : Type} {α : Type} {β : Type}
+  (result : ρ → α) (next : α → ρ → β) : ρ → β :=
+  fun env => next _ _
+-- ANCHOR_END: readerbind2b
+stop discarding
 
-book declaration {{{ readerbind4 }}}
-  def Reader.bind {ρ : Type} {α : Type} {β : Type}
-    (result : ρ → α) (next : α → ρ → β) : ρ → β :=
-    fun env => next (result env) env
-stop book declaration
+discarding
+/--
+error: don't know how to synthesize placeholder
+context:
+ρ α β : Type
+result : ρ → α
+next : α → ρ → β
+env : ρ
+⊢ ρ
+---
+error: don't know how to synthesize placeholder
+context:
+ρ α β : Type
+result : ρ → α
+next : α → ρ → β
+env : ρ
+⊢ ρ
+-/
+#check_msgs in
+-- ANCHOR: readerbind3
+def Reader.bind {ρ : Type} {α : Type} {β : Type}
+  (result : ρ → α) (next : α → ρ → β) : ρ → β :=
+  fun env => next (result _) _
+-- ANCHOR_END: readerbind3
+stop discarding
+
+-- ANCHOR: readerbind4
+def Reader.bind {ρ : Type} {α : Type} {β : Type}
+  (result : ρ → α) (next : α → ρ → β) : ρ → β :=
+  fun env => next (result env) env
+-- ANCHOR_END: readerbind4
 
 end Temp
 
 
-book declaration {{{ Readerbind }}}
-  def Reader.bind (result : Reader ρ α) (next : α → Reader ρ β) : Reader ρ β :=
-    fun env => next (result env) env
-stop book declaration
+-- ANCHOR: Readerbind
+def Reader.bind
+    (result : Reader ρ α)
+    (next : α → Reader ρ β) : Reader ρ β :=
+  fun env => next (result env) env
+-- ANCHOR_END: Readerbind
 
 namespace TTT
-axiom α : Type
-axiom β : Type
-axiom ρ : Type
-bookExample type {{{ readerBindType }}}
-  Reader.bind
-  ===>
-  Reader ρ α → (α → Reader ρ β) → Reader ρ β
-end bookExample
-bookExample {{{ readerBindTypeEval }}}
-  Reader ρ α → (α → Reader ρ β) → Reader ρ β
-  ===>
-  (ρ → α) → (α → ρ → β) → ρ → β
-end bookExample
+variable (α : Type)
+variable (β : Type)
+variable (ρ : Type)
+-- ANCHOR: readerBindType
+example : Reader ρ α → (α → Reader ρ β) → Reader ρ β := Reader.bind
+-- ANCHOR_END: readerBindType
+-- ANCHOR: readerBindTypeEval
+example : (Reader ρ α → (α → Reader ρ β) → Reader ρ β) = ((ρ → α) → (α → ρ → β) → (ρ → β)) := by rfl
+-- ANCHOR_END: readerBindTypeEval
 
 
 end TTT
 
-book declaration {{{ ReaderPure }}}
-  def Reader.pure (x : α) : Reader ρ α := fun _ => x
-stop book declaration
+-- ANCHOR: ReaderPure
+def Reader.pure (x : α) : Reader ρ α := fun _ => x
+-- ANCHOR_END: ReaderPure
 
+
+-- ANCHOR: eta
+section
+variable (f : α → β)
+example : (fun x => f x) = f := rfl
+end
+-- ANCHOR_END: eta
 
 namespace MonadLaws
-axiom α : Type
-axiom ρ : Type
-axiom β : Type
-axiom γ : Type
-axiom v : α
-axiom r : Reader ρ α
-axiom f : α → Reader ρ β
-axiom g : β → Reader ρ γ
+variable (α : Type)
+variable (ρ : Type)
+variable (β : Type)
+variable (γ : Type)
+variable (v : α)
+variable (r : Reader ρ α)
+variable (f : α → Reader ρ β)
+variable (g : β → Reader ρ γ)
 
 evaluation steps {{{ ReaderMonad1 }}}
-  Reader.bind (Reader.pure v) f
-  ===>
-  fun env => f ((Reader.pure v) env) env
-  ===>
-  fun env => f ((fun _ => v) env) env
-  ===>
-  fun env => f v env
-  ===>
-  f v
+-- ANCHOR: ReaderMonad1
+Reader.bind (Reader.pure v) f
+===>
+fun env => f ((Reader.pure v) env) env
+===>
+fun env => f ((fun _ => v) env) env
+===>
+fun env => f v env
+===>
+f v
+-- ANCHOR_END: ReaderMonad1
 end evaluation steps
 
 evaluation steps {{{ ReaderMonad2 }}}
-  Reader.bind r Reader.pure
-  ===>
-  fun env => Reader.pure (r env) env
-  ===>
-  fun env => (fun _ => (r env)) env
-  ===>
-  fun env => r env
+-- ANCHOR: ReaderMonad2
+Reader.bind r Reader.pure
+===>
+fun env => Reader.pure (r env) env
+===>
+fun env => (fun _ => (r env)) env
+===>
+fun env => r env
+-- ANCHOR_END: ReaderMonad2
 end evaluation steps
 
 evaluation steps {{{ ReaderMonad3a }}}
-  Reader.bind (Reader.bind r f) g
-  ===>
-  fun env => g ((Reader.bind r f) env) env
-  ===>
-  fun env => g ((fun env' => f (r env') env') env) env
-  ===>
-  fun env => g (f (r env) env) env
+-- ANCHOR: ReaderMonad3a
+Reader.bind (Reader.bind r f) g
+===>
+fun env => g ((Reader.bind r f) env) env
+===>
+fun env => g ((fun env' => f (r env') env') env) env
+===>
+fun env => g (f (r env) env) env
+-- ANCHOR_END: ReaderMonad3a
 end evaluation steps
 
 evaluation steps {{{ ReaderMonad3b }}}
-  Reader.bind r (fun x => Reader.bind (f x) g)
-  ===>
-  Reader.bind r (fun x => fun env => g (f x env) env)
-  ===>
-  fun env => (fun x => fun env' => g (f x env') env') (r env) env
-  ===>
-  fun env => (fun env' => g (f (r env) env') env') env
-  ===>
-  fun env => g (f (r env) env) env
+-- ANCHOR: ReaderMonad3b
+Reader.bind r (fun x => Reader.bind (f x) g)
+===>
+Reader.bind r (fun x => fun env => g (f x env) env)
+===>
+fun env => (fun x => fun env' => g (f x env') env') (r env) env
+===>
+fun env => (fun env' => g (f (r env) env') env') env
+===>
+fun env => g (f (r env) env) env
+-- ANCHOR_END: ReaderMonad3b
 end evaluation steps
 
 
 end MonadLaws
 
-book declaration {{{ MonadReaderInst }}}
-  instance : Monad (Reader ρ) where
-    pure x := fun _ => x
-    bind x f := fun env => f (x env) env
-stop book declaration
+-- ANCHOR: MonadReaderInst
+instance : Monad (Reader ρ) where
+  pure x := fun _ => x
+  bind x f := fun env => f (x env) env
+-- ANCHOR_END: MonadReaderInst
 
 instance : LawfulMonad (Reader ρ) where
   map_const := by
@@ -733,33 +903,40 @@ instance : LawfulMonad (Reader ρ) where
 
 
 
-book declaration {{{ Env }}}
-  abbrev Env : Type := List (String × (Int → Int → Int))
-stop book declaration
+-- ANCHOR: Env
+abbrev Env : Type := List (String × (Int → Int → Int))
+-- ANCHOR_END: Env
 
 
-book declaration {{{ applyPrimReader }}}
-  def applyPrimReader (op : String) (x : Int) (y : Int) : Reader Env Int :=
-    read >>= fun env =>
-    match env.lookup op with
-    | none => pure 0
-    | some f => pure (f x y)
-stop book declaration
+-- ANCHOR: applyPrimReader
+def applyPrimReader (op : String) (x : Int) (y : Int) : Reader Env Int :=
+  read >>= fun env =>
+  match env.lookup op with
+  | none => pure 0
+  | some f => pure (f x y)
+-- ANCHOR_END: applyPrimReader
 
 
-book declaration {{{ exampleEnv }}}
-  def exampleEnv : Env := [("max", max), ("mod", (· % ·))]
-stop book declaration
+-- ANCHOR: exampleEnv
+def exampleEnv : Env := [("max", max), ("mod", (· % ·))]
+-- ANCHOR_END: exampleEnv
 
-expect info {{{ readerEval }}}
-  open Expr Prim in
-  #eval evaluateM applyPrimReader (prim (other "max") (prim plus (const 5) (const 4)) (prim times (const 3) (const 2))) exampleEnv
-message
-"9"
-end expect
+/-- info:
+9
+-/
+#check_msgs in
+-- ANCHOR: readerEval
+open Expr Prim in
+#eval
+  evaluateM applyPrimReader
+    (prim (other "max") (prim plus (const 5) (const 4))
+      (prim times (const 3)
+        (const 2)))
+    exampleEnv
+-- ANCHOR_END: readerEval
 
 namespace Exercises
-
+---ANCHOR: ex1
 def BinTree.mapM [Monad m] (f : α → m β) : BinTree α → m (BinTree β)
   | .leaf => pure .leaf
   | .branch l x r =>
@@ -767,16 +944,16 @@ def BinTree.mapM [Monad m] (f : α → m β) : BinTree α → m (BinTree β)
     f x >>= fun x' =>
     mapM f r >>= fun r' =>
     pure (BinTree.branch l' x' r')
-
+---ANCHOR_END: ex1
 namespace Busted
 
 
 set_option linter.unusedVariables false in
-book declaration {{{ badOptionMonad }}}
-  instance : Monad Option where
-    pure x := some x
-    bind opt next := none
-stop book declaration
+-- ANCHOR: badOptionMonad
+instance : Monad Option where
+  pure x := some x
+  bind opt next := none
+-- ANCHOR_END: badOptionMonad
 
 end Busted
 
@@ -791,42 +968,50 @@ instance : Monad (WithLog logged) where
     {log := thisOut ++ nextOut, val := nextRes}
 
 
-book declaration {{{ ReprInstances }}}
+-- ANCHOR: ReprInstances
 deriving instance Repr for WithLog
 deriving instance Repr for Empty
 deriving instance Repr for Prim
-stop book declaration
+-- ANCHOR_END: ReprInstances
 
-book declaration {{{ ToTrace }}}
-  inductive ToTrace (α : Type) : Type where
-    | trace : α → ToTrace α
-stop book declaration
+-- ANCHOR: ToTrace
+inductive ToTrace (α : Type) : Type where
+  | trace : α → ToTrace α
+-- ANCHOR_END: ToTrace
 
 def applyTraced : ToTrace (Prim Empty) → Int → Int → WithLog (Prim Empty × Int × Int) Int
   | ToTrace.trace op, x, y =>
     save (op, x, y) >>= fun () =>
     applyPrim applyEmpty op x y
 
-bookExample type {{{ applyTracedType }}}
-  applyTraced
-  ===>
-  ToTrace (Prim Empty) → Int → Int → WithLog (Prim Empty × Int × Int) Int
-end bookExample
+-- ANCHOR: applyTracedType
+example : ToTrace (Prim Empty) → Int → Int → WithLog (Prim Empty × Int × Int) Int := applyTraced
+-- ANCHOR_END: applyTracedType
+--ANCHOR: ToTraceExpr
+example := Expr (Prim (ToTrace (Prim Empty)))
+--ANCHOR_END: ToTraceExpr
 
 
+/-- info:
+{ log := [(Prim.plus, 1, 2), (Prim.minus, 3, 4), (Prim.times, 3, -1)], val := -3 }
+-/
+#check_msgs in
+-- ANCHOR: evalTraced
+open Expr Prim ToTrace in
+#eval
+  evaluateM applyTraced
+    (prim (other (trace times))
+      (prim (other (trace plus)) (const 1)
+        (const 2))
+      (prim (other (trace minus)) (const 3)
+        (const 4)))
+-- ANCHOR_END: evalTraced
 
-expect info {{{ evalTraced }}}
-  open Expr Prim ToTrace in
-  #eval evaluateM applyTraced (prim (other (trace times)) (prim (other (trace plus)) (const 1) (const 2)) (prim (other (trace minus)) (const 3) (const 4)))
-message
-"{ log := [(Prim.plus, 1, 2), (Prim.minus, 3, 4), (Prim.times, 3, -1)], val := -3 }"
-end expect
-
-book declaration {{{ ReaderFail }}}
+-- ANCHOR: ReaderFail
 def ReaderOption (ρ : Type) (α : Type) : Type := ρ → Option α
 
 def ReaderExcept (ε : Type) (ρ : Type) (α : Type) : Type := ρ → Except ε α
-stop book declaration
+-- ANCHOR_END: ReaderFail
 
 
 
