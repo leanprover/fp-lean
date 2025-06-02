@@ -5,7 +5,7 @@
    "type": "git",
    "subDir": null,
    "scope": "",
-   "rev": "a8af964951a36571535b28d387198cff909b515d",
+   "rev": "136f897aa927cacc71a396479a296f5228673135",
    "name": "verso",
    "manifestFile": "lake-manifest.json",
    "inputRev": "nightly-testing",

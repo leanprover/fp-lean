@@ -432,7 +432,7 @@ def moduleEvalStep : RoleExpander
 
     else
       let ok := steps.mapIdx fun i s => ({suggestion := toString i, postInfo? := some s.toString})
-      let h ← MessageData.hint "Use a step in the range 0–{steps.size}" (some {ref:=step.syntax, suggestions := ok})
+      let h ← MessageData.hint "Use a step in the range 0–{steps.size}" ok (ref? := some step.syntax)
       logErrorAt step.syntax m!"Step not found - only {steps.size} are available{h}"
       return #[← ``(sorryAx _ true)]
 
@@ -480,7 +480,7 @@ def moduleEvalStepBlock : CodeBlockExpander
         return #[← ``(Block.other (Block.lean $(quote step)) #[])]
       else
         let ok := steps.mapIdx fun i s => ({suggestion := toString i, postInfo? := some s.toString})
-        let h ← MessageData.hint "Use a step in the range 0–{steps.size}" (some {ref:=step.syntax, suggestions := ok})
+        let h ← MessageData.hint "Use a step in the range 0–{steps.size}" ok (ref? := some step.syntax)
         logErrorAt step.syntax m!"Step not found - only {steps.size} are available{h}"
         return #[← ``(sorryAx _ true)]
 
@@ -840,7 +840,7 @@ deriving instance Repr for MessageSeverity
 
 private def severityHint (wanted : String) (stx : Syntax) : DocElabM MessageData := do
   if stx.getHeadInfo matches .original .. then
-    MessageData.hint m!"Use '{wanted}'" (some {ref := stx, suggestions := #[wanted]})
+    MessageData.hint m!"Use '{wanted}'" #[wanted] (ref? := some stx)
   else pure m!""
 
 open Lean.Meta.Hint in
@@ -870,7 +870,7 @@ def moduleOutText : RoleExpander
         }
         let h ←
           if suggs.isEmpty then pure m!""
-          else MessageData.hint "Use one of these." (some {ref := ref, suggestions := suggs})
+          else MessageData.hint "Use one of these." suggs (ref? := some ref)
 
         let err :=
           m!"Expected one of:{indentD (m!"\n".joinSep <| infos.toList.map (·.2.1))}" ++

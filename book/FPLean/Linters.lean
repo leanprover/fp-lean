@@ -28,7 +28,7 @@ def quotes : Linter where
       let strLit :=
         Syntax.mkStrLit (String.singleton (text.source.get pos))
           (info := .original {str := text.source, startPos := pos, stopPos := pos} pos {str := text.source, startPos := stop, stopPos := stop} stop)
-        let h ← liftTermElabM <| MessageData.hint m!"Replace with Unicode" (some {ref := strLit, suggestions := #[{suggestion := replacement}]})
+        let h ← liftTermElabM <| MessageData.hint m!"Replace with Unicode" #[{suggestion := replacement}] (ref? := strLit)
         logLint linter strLit (m!"Use {what} ('{replacement}')" ++ h)
 
     discard <| stx.replaceM fun
