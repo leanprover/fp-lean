@@ -5,7 +5,7 @@ defaultTargets = ["fp-lean"]
 [[require]]
 name = "verso"
 git = "https://github.com/leanprover/verso.git"
-rev = "nightly-testing"
+rev = "main"
 
 [leanOptions]
 weak.verso.examples.suggest = true
