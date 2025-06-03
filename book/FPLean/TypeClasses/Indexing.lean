@@ -135,7 +135,7 @@ tag := "overloading-indexing"
 %%%
 
 Indexing notation for a collection type can be overloaded by defining an instance of the {anchorName GetElem}`GetElem` type class.
-For the sake of flexiblity, {anchorName GetElem}`GetElem` has four parameters:
+For the sake of flexibility, {anchorName GetElem}`GetElem` has four parameters:
  * The type of the collection
  * The type of the index
  * The type of elements that are extracted from the collection
