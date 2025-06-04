@@ -45,7 +45,7 @@ When an instance is a default instance, then it will be chosen as a fallback whe
 Most infix operators in Lean are overridden with a type class.
 For instance, the addition operator corresponds to a type class called {moduleName}`Add`.
 Most of these operators have a corresponding heterogeneous version, in which the two arguments need not have the same type.
-These heterogenous operators are overloaded using a version of the class whose name starts with {lit}`H`, such as {moduleName}`HAdd`.
+These heterogeneous operators are overloaded using a version of the class whose name starts with {lit}`H`, such as {moduleName}`HAdd`.
 
 Indexing syntax is overloaded using a type class called {moduleName}`GetElem`, which involves proofs.
 {moduleName}`GetElem` has two output parameters, which are the type of elements to be extracted from the collection and a function that can be used to determine what counts as evidence that the index value is in bounds for the collection.

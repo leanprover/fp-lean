@@ -26,7 +26,7 @@ def inlineCSharp : RoleExpander
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
     let `(inline|code($code)) := code
-      | throwErrorAt code "Exected code"
+      | throwErrorAt code "Expected code"
     return #[← ``(Inline.code $(quote code.getString))]
 
 @[code_block_expander Kotlin]
@@ -40,7 +40,7 @@ def inlineKotlin : RoleExpander
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
     let `(inline|code($code)) := code
-      | throwErrorAt code "Exected code"
+      | throwErrorAt code "Expected code"
     return #[← ``(Inline.code $(quote code.getString))]
 
 @[code_block_expander cpp]
@@ -54,7 +54,7 @@ def inlineCpp : RoleExpander
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
     let `(inline|code($code)) := code
-      | throwErrorAt code "Exected code"
+      | throwErrorAt code "Expected code"
     return #[← ``(Inline.code $(quote code.getString))]
 
 
@@ -69,7 +69,7 @@ def inlineTypescript : RoleExpander
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
     let `(inline|code($code)) := code
-      | throwErrorAt code "Exected code"
+      | throwErrorAt code "Expected code"
     return #[← ``(Inline.code $(quote code.getString))]
 
 @[role_expander c]
@@ -78,7 +78,7 @@ def c : RoleExpander
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
     let `(inline|code($code)) := code
-      | throwErrorAt code "Exected code"
+      | throwErrorAt code "Expected code"
     return #[← ``(Inline.code $(quote code.getString))]
 
 @[role_expander java]
@@ -87,7 +87,7 @@ def java : RoleExpander
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
     let `(inline|code($code)) := code
-      | throwErrorAt code "Exected code"
+      | throwErrorAt code "Expected code"
     return #[← ``(Inline.code $(quote code.getString))]
 
 @[role_expander rust]
@@ -96,7 +96,7 @@ def rust : RoleExpander
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
     let `(inline|code($code)) := code
-      | throwErrorAt code "Exected code"
+      | throwErrorAt code "Expected code"
     return #[← ``(Inline.code $(quote code.getString))]
 
 @[code_block_expander python]
@@ -110,7 +110,7 @@ def inlinePython : RoleExpander
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
     let `(inline|code($code)) := code
-      | throwErrorAt code "Exected code"
+      | throwErrorAt code "Expected code"
     return #[← ``(Inline.code $(quote code.getString))]
 
 @[code_block_expander fsharp]
@@ -124,7 +124,7 @@ def fsharpInline : RoleExpander
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
     let `(inline|code($code)) := code
-      | throwErrorAt code "Exected code"
+      | throwErrorAt code "Expected code"
     return #[← ``(Inline.code $(quote code.getString))]
 
 
