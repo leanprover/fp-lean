@@ -90,7 +90,7 @@ def main (args : List String) : IO UInt32 := do
     dirTree config (← IO.currentDir)
     pure 0
   | none =>
-    IO.eprintln s!"Didn't understand argument(s) {" ".separate args}\n"
+    IO.eprintln s!"Didn't understand argument(s) {" ".intercalate args}\n"
     IO.eprintln usage
     pure 1
 ```
@@ -278,7 +278,7 @@ def main (args : List String) : IO UInt32 := do
       (dirTree (← IO.currentDir)).run config
       pure 0
     | none =>
-      IO.eprintln s!"Didn't understand argument(s) {" ".separate args}\n"
+      IO.eprintln s!"Didn't understand argument(s) {" ".intercalate args}\n"
       IO.eprintln usage
       pure 1
 ```
