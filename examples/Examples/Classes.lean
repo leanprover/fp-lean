@@ -6,6 +6,7 @@ set_option guard_msgs.diff true
 -- ANCHOR: chapterIntro
 example := Add
 example := Nat
+example := Int
 example := [HAnd, HOr, HXor, HShiftRight, HShiftLeft]
 example := [Complement]
 example := [And, Or]
@@ -20,11 +21,17 @@ example := Unit.unit
 example := Float.toString
 example := @List.map
 example {α β : _} := Coe α β
+example := (Prop, Type)
 section
 open System
 example := FilePath
 end
 -- ANCHOR_END: chapterIntro
+
+-- ANCHOR: types
+example : Bool := true
+
+-- ANCHOR_END: types
 
 -- ANCHOR: arrVsList
 section
@@ -99,7 +106,9 @@ Additional diagnostic information may be available using the `set_option diagnos
 #eval plus 5.2 917.25861
 -- ANCHOR_END: plusFloatFail
 
+-- ANCHOR: PlusFloat
 example := Plus Float
+-- ANCHOR_END: PlusFloat
 
 -- ANCHOR: Nat.zero
 section
@@ -114,9 +123,11 @@ inductive Pos : Type where
   | succ : Pos → Pos
 -- ANCHOR_END: Pos
 
+-- ANCHOR: PosStuff
 example := Option Pos
 example := Zero Pos
 example := Nat.zero
+-- ANCHOR_END: PosStuff
 
 discarding
 /-- error:
@@ -512,8 +523,10 @@ instance [Add α] : Add (PPoint α) where
   add p1 p2 := { x := p1.x + p2.x, y := p1.y + p2.y }
 -- ANCHOR_END: AddPPoint
 
+-- ANCHOR: AddPPointNat
 example := Add (PPoint Nat)
 example := Add Nat
+-- ANCHOR_END: AddPPointNat
 
 -- ANCHOR: MulPPoint
 instance [Mul α] : HMul (PPoint α) α (PPoint α) where
@@ -1397,9 +1410,12 @@ instance : Functor PPoint where
 
 
 
-
+-- ANCHOR: NEPP
 example := NonEmptyList (PPoint Nat)
+-- ANCHOR_END: NEPP
+
 end PointStuff
+
 
 
 
@@ -1901,7 +1917,9 @@ def coercedToB : B := ()
 -- ANCHOR: ReprB
 deriving instance Repr for B
 -- ANCHOR_END: ReprB
+-- ANCHOR: ReprBTm
 example := Repr B
+-- ANCHOR_END: ReprBTm
 
 
 /-- info:

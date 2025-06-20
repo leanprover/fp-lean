@@ -3,7 +3,6 @@ import Lean.Data.NameMap
 import VersoManual
 import FPLean.Examples.Commands
 import FPLean.Examples.OtherLanguages
-import FPLean.Linters
 
 open Lean (NameMap MessageSeverity)
 
@@ -385,6 +384,8 @@ private def quoteCode (str : String) : String := Id.run do
   let delim := String.mk (List.replicate n '`')
   return delim ++ str ++ delim
 
+
+
 @[role_expander moduleEvalStep]
 def moduleEvalStep : RoleExpander
   | args, inls => do
@@ -392,6 +393,7 @@ def moduleEvalStep : RoleExpander
     let code? ← oneCodeStr? inls
 
     let modStr := moduleName.getId.toString
+
     let items ← loadModuleContent modStr
     let highlighted := Highlighted.seq (items.map (·.code))
 

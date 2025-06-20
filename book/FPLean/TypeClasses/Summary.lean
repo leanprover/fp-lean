@@ -8,7 +8,6 @@ open FPLean
 
 set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.Classes"
-set_option verso.externalExamples.suppressedNamespaces "Extra Foo Argh NatLits AltPos PointStuff OverloadedInt OverloadedBits ProblematicHPlus BetterHPlus UseList Demo Cmp H A AppendOverloads FakeFunctor Whatevs FakeCoe L Up MMM U Ser"
 
 
 set_option pp.rawOnError true
@@ -37,7 +36,7 @@ Lean will not begin searching for an instance until all input parameters are no 
 Parameters to a type class need not be types—they may also be ordinary values.
 The {moduleName}`OfNat` type class, used to overload natural number literals, takes the overloaded {moduleName}`Nat` itself as a parameter, which allows instances to restrict the allowed numbers.
 
-Instances may be marked with a {moduleTerm}`@[default_instance]` attribute.
+Instances may be marked with a {anchorTerm defaultAdd}`@[default_instance]` attribute.
 When an instance is a default instance, then it will be chosen as a fallback when Lean would otherwise fail to find an instance due to the presence of metavariables in the type.
 
 # Type Classes for Common Syntax

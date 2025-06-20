@@ -100,13 +100,13 @@ List.drop (Pos.toNat 2) [1, 2, 3, 4] : List Nat
 # Chaining Coercions
 
 When searching for coercions, Lean will attempt to assemble a coercion out of a chain of smaller coercions.
-For example, there is already a coercion from {moduleName}`Nat` to {moduleName}`Int`.
-Because of that instance, combined with the {moduleTerm}`Coe Pos Nat` instance, the following code is accepted:
+For example, there is already a coercion from {anchorName chapterIntro}`Nat` to {anchorName chapterIntro}`Int`.
+Because of that instance, combined with the {anchorTerm CoePosNat}`Coe Pos Nat` instance, the following code is accepted:
 
 ```anchor posInt
 def oneInt : Int := Pos.one
 ```
-This definition uses two coercions: from {moduleName}`Pos` to {moduleName}`Nat`, and then from {moduleName}`Nat` to {moduleName}`Int`.
+This definition uses two coercions: from {anchorTerm CoePosNat}`Pos` to {anchorTerm CoePosNat}`Nat`, and then from {anchorTerm CoePosNat}`Nat` to {anchorTerm chapterIntro}`Int`.
 
 The Lean compiler does not get stuck in the presence of circular coercions.
 For example, even if two types {anchorName CoercionCycle}`A` and {anchorName CoercionCycle}`B` can be coerced to one another, their mutual coercions can be used to find a path:
@@ -130,7 +130,7 @@ instance : Coe Unit A where
 def coercedToB : B := ()
 ```
 Remember: the double parentheses {anchorTerm CoercionCycle}`()` is short for the constructor {anchorName chapterIntro}`Unit.unit`.
-After deriving a {moduleTerm}`Repr B` instance with {anchorTerm ReprB}`deriving instance Repr for B`,
+After deriving a {anchorTerm ReprBTm}`Repr B` instance with {anchorTerm ReprB}`deriving instance Repr for B`,
 ```anchor coercedToBEval
 #eval coercedToB
 ```
@@ -268,9 +268,9 @@ Even though a monoid consists of three separate pieces of information, it is com
 Instead of saying “Let A be a monoid and let _x_ and _y_ be elements of its carrier set”, it is common to say “Let _A_ be a monoid and let _x_ and _y_ be elements of _A_”.
 This practice can be encoded in Lean by defining a new kind of coercion, from the monoid to its carrier set.
 
-The {moduleName}`CoeSort` class is just like the {moduleName}`Coe` class, with the exception that the target of the coercion must be a _sort_, namely {moduleTerm}`Type` or {moduleTerm}`Prop`.
-The term _sort_ in Lean refers to these types that classify other types—{anchorTerm Coe}`Type` classifies types that themselves classify data, and {moduleTerm}`Prop` classifies propositions that themselves classify evidence of their truth.
-Just as {moduleName}`Coe` is checked when a type mismatch occurs, {moduleName}`CoeSort` is used when something other than a sort is provided in a context where a sort would be expected.
+The {anchorName CoeMonoid}`CoeSort` class is just like the {anchorName CoePosNat}`Coe` class, with the exception that the target of the coercion must be a _sort_, namely {anchorTerm chapterIntro}`Type` or {anchorTerm chapterIntro}`Prop`.
+The term _sort_ in Lean refers to these types that classify other types—{anchorTerm Coe}`Type` classifies types that themselves classify data, and {anchorTerm chapterIntro}`Prop` classifies propositions that themselves classify evidence of their truth.
+Just as {anchorName CoePosNat}`Coe` is checked when a type mismatch occurs, {anchorName CoeMonoid}`CoeSort` is used when something other than a sort is provided in a context where a sort would be expected.
 
 The coercion from a monoid into its carrier set extracts the carrier:
 
@@ -288,16 +288,16 @@ def foldMap (M : Monoid) (f : α → M) (xs : List α) : M :=
   go M.neutral xs
 ```
 
-Another useful example of {moduleName}`CoeSort` is used to bridge the gap between {moduleName}`Bool` and {moduleTerm}`Prop`.
-As discussed in {ref "equality-and-ordering"}[the section on ordering and equality], Lean's {kw}`if` expression expects the condition to be a decidable proposition rather than a {moduleName}`Bool`.
+Another useful example of {anchorName CoeMonoid}`CoeSort` is used to bridge the gap between {anchorName types}`Bool` and {anchorTerm chapterIntro}`Prop`.
+As discussed in {ref "equality-and-ordering"}[the section on ordering and equality], Lean's {kw}`if` expression expects the condition to be a decidable proposition rather than a {anchorName types}`Bool`.
 Programs typically need to be able to branch based on Boolean values, however.
-Rather than have two kinds of {kw}`if` expression, the Lean standard library defines a coercion from {moduleName}`Bool` to the proposition that the {moduleName}`Bool` in question is equal to {moduleName}`true`:
+Rather than have two kinds of {kw}`if` expression, the Lean standard library defines a coercion from {anchorName types}`Bool` to the proposition that the {anchorName types}`Bool` in question is equal to {anchorName types}`true`:
 
 ```anchor CoeBoolProp
 instance : CoeSort Bool Prop where
   coe b := b = true
 ```
-In this case, the sort in question is {moduleTerm}`Prop` rather than {moduleTerm}`Type`.
+In this case, the sort in question is {anchorTerm chapterIntro}`Prop` rather than {anchorTerm chapterIntro}`Type`.
 
 # Coercing to Functions
 
@@ -374,7 +374,7 @@ structure Serializer where
   Contents : Type
   serialize : Contents → JSON
 ```
-A serializer for strings need only wrap the provided string in the {moduleName}`JSON.string` constructor:
+A serializer for strings need only wrap the provided string in the {anchorName StrSer}`JSON.string` constructor:
 
 ```anchor StrSer
 def Str : Serializer :=
@@ -417,7 +417,7 @@ JSON.object
 ## Aside: JSON as a String
 
 It can be a bit difficult to understand JSON when encoded as Lean objects.
-To help make sure that the serialized response was what was expected, it can be convenient to write a simple converter from {anchorName JSON}`JSON` to {moduleName}`String`.
+To help make sure that the serialized response was what was expected, it can be convenient to write a simple converter from {anchorName JSON}`JSON` to {anchorName dropDecimals}`String`.
 The first step is to simplify the display of numbers.
 {anchorName JSON}`JSON` doesn't distinguish between integers and floating point numbers, and the type {anchorName JSON}`Float` is used to represent both.
 In Lean, {anchorName chapterIntro}`Float.toString` includes a number of trailing zeros:
@@ -448,10 +448,10 @@ def String.separate (sep : String) (strings : List String) : String :=
 ```
 This function is useful to account for comma-separated elements in JSON arrays and objects.
 {anchorTerm sep2ex}`", ".separate ["1", "2"]` yields {anchorInfo sep2ex}`"1, 2"`, {anchorTerm sep1ex}`", ".separate ["1"]` yields {anchorInfo sep1ex}`"1"`, and {anchorTerm sep0ex}`", ".separate []` yields {anchorInfo sep0ex}`""`.
-In the Lean standard library, this function is called {moduleName}`String.intercalate`.
+In the Lean standard library, this function is called {anchorName chapterIntro}`String.intercalate`.
 
-Finally, a string escaping procedure is needed for JSON strings, so that the Lean string containing {moduleTerm}`"Hello!"` can be output as {anchorTerm escapeQuotes}`"\"Hello!\""`.
-Fortunately, the Lean compiler contains an internal function for escaping JSON strings already, called {moduleName}`Lean.Json.escape`.
+Finally, a string escaping procedure is needed for JSON strings, so that the Lean string containing {anchorTerm chapterIntro}`"Hello!"` can be output as {anchorTerm escapeQuotes}`"\"Hello!\""`.
+Fortunately, the Lean compiler contains an internal function for escaping JSON strings already, called {anchorName escapeQuotes}`Lean.Json.escape`.
 To access this function, add {lit}`import Lean` to the beginning of your file.
 
 The function that emits a string from a {anchorName JSONasString}`JSON` value is declared {kw}`partial` because Lean cannot see that it terminates.

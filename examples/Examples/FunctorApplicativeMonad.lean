@@ -1015,9 +1015,12 @@ structure Subtype {α : Type} (p : α → Prop) where
 variable {α : Type}
 variable {p : α → Prop}
 
+-- ANCHOR: subtypeSugarIn
 example := Subtype p
+-- ANCHOR_END: subtypeSugarIn
 
 example := GetElem
+
 
 -- ANCHOR: subtypeSugar
 example : (

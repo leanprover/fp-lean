@@ -184,7 +184,7 @@ A _predicate_ is a logical statement with a variable in it that can be replaced 
 In the case of {anchorName Subtype}`Subtype`, the predicate slices out some subset of the values of {anchorName Subtype}`α` for which the predicate holds.
 The structure's two fields are, respectively, a value from {anchorName Subtype}`α` and evidence that the value satisfies the predicate {anchorName Subtype}`p`.
 Lean has special syntax for {anchorName Subtype}`Subtype`.
-If {anchorName Subtype}`p` has type {anchorTerm Subtype}`α → Prop`, then the type {moduleTerm}`Subtype p` can also be written {anchorTerm subtypeSugar}`{x : α // p x}`, or even {anchorTerm subtypeSugar2}`{x // p x}` when the type {anchorName Subtype}`α` can be inferred automatically.
+If {anchorName Subtype}`p` has type {anchorTerm Subtype}`α → Prop`, then the type {anchorTerm subtypeSugarIn}`Subtype p` can also be written {anchorTerm subtypeSugar}`{x : α // p x}`, or even {anchorTerm subtypeSugar2}`{x // p x}` when the type {anchorName Subtype}`α` can be inferred automatically.
 
 {ref "positive-numbers"}[Representing positive numbers as inductive types] is clear and easy to program with.
 However, it has a key disadvantage.
@@ -312,7 +312,7 @@ def checkName (name : String) :
 In the {kw}`then` branch, {anchorName checkName}`h` is bound to evidence that {anchorTerm checkName}`name = ""`, while it is bound to evidence that {lit}`¬name = ""` in the {kw}`else` branch.
 
 It's certainly the case that some validation errors make other checks impossible.
-For example, it makes no sense to check whether the birth year field is greater than 1900 if a confused user wrote the word {moduleTerm}`"syzygy"` instead of a number.
+For example, it makes no sense to check whether the birth year field is greater than 1900 if a confused user wrote the word {anchorTerm checkDavidSyzygy}`"syzygy"` instead of a number.
 Checking the allowed range of the number is only meaningful after ensuring that the field in fact contains a number.
 This can be expressed using the function {anchorName ValidateAndThen (show := andThen)}`Validate.andThen`:
 

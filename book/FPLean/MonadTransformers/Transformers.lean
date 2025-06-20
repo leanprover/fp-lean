@@ -8,7 +8,6 @@ open FPLean
 
 set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.MonadTransformers.Defs"
-set_option verso.externalExamples.suppressedNamespaces "DirTree"
 
 #doc (Manual) "A Monad Construction Kit" =>
 

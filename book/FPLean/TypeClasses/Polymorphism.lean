@@ -11,6 +11,8 @@ set_option verso.exampleModule "Examples.Classes"
 
 set_option pp.rawOnError true
 
+
+
 #doc (Manual) "Type Classes and Polymorphism" =>
 %%%
 tag := "tc-polymorphism"
@@ -43,8 +45,8 @@ To understand the signature of a function, this feature can be suppressed with a
 @IO.println : {α : Type u_1} → [inst : ToString α] → α → IO Unit
 ```
 In this output, the instance itself has been given the name {lit}`inst`.
-Additionally, there is a {lit}`u_1` after {moduleTerm}`Type`, which uses a feature of Lean that has not yet been introduced.
-For now, ignore these parameters to {moduleTerm}`Type`.
+Additionally, there is a {lit}`u_1` after {lit}`Type`, which uses a feature of Lean that has not yet been introduced.
+For now, ignore these parameters to {lit}`Type`.
 
 # Defining Polymorphic Functions with Instance Implicits
 
@@ -128,7 +130,7 @@ It then performs a further search for the {anchorTerm AddPPoint}`Add α` instanc
 
 The instance values that are constructed in this way are values of the type class's structure type.
 A successful recursive instance search results in a structure value that has a reference to another structure value.
-An instance of {moduleTerm}`Add (PPoint Nat)` contains a reference to the instance of {moduleTerm}`Add Nat` that was found.
+An instance of {anchorTerm AddPPointNat}`Add (PPoint Nat)` contains a reference to the instance of {anchorTerm AddPPointNat}`Add Nat` that was found.
 
 This recursive search process means that type classes offer significantly more power than plain overloaded functions.
 A library of polymorphic instances is a set of code building blocks that the compiler will assemble on its own, given nothing but the desired type.

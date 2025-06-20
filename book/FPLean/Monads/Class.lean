@@ -8,7 +8,6 @@ open FPLean
 
 set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.Monads.Class"
-set_option verso.externalExamples.suppressedNamespaces "Class Errs IdentMonad MyListStuff One Two Three Four FourPointFive Temp TTT MonadLaws Exercises Busted"
 
 #doc (Manual) "The Monad Type Class" =>
 

@@ -10,8 +10,6 @@ set_option verso.exampleProject "../examples"
 
 set_option verso.exampleModule "Examples.Props"
 
-set_option verso.externalExamples.suppressedNamespaces "Foo Connectives"
-
 set_option pp.rawOnError true
 
 #doc (Manual) "Interlude: Propositions, Proofs, and Indexing" =>

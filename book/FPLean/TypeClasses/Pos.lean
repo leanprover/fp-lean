@@ -20,7 +20,7 @@ In some applications, only positive numbers make sense.
 For example, compilers and interpreters typically use one-indexed line and column numbers for source positions, and a datatype that represents only non-empty lists will never report a length of zero.
 Rather than relying on natural numbers, and littering the code with assertions that the number is not zero, it can be useful to design a datatype that represents only positive numbers.
 
-One way to represent positive numbers is very similar to {moduleTerm}`Nat`, except with {anchorTerm Pos}`one` as the base case instead of {anchorTerm Nat.zero}`zero`:
+One way to represent positive numbers is very similar to {anchorTerm chapterIntro}`Nat`, except with {anchorTerm Pos}`one` as the base case instead of {anchorTerm Nat.zero}`zero`:
 
 ```anchor Pos
 inductive Pos : Type where
@@ -80,7 +80,7 @@ Objects are interacted with via their methods.
 In Lean, the term “method” refers to an operation that has been declared to be overloadable, with no special connection to objects or values or private fields.
 
 One way to overload addition is to define a type class named {anchorName Plus}`Plus`, with an addition method named {anchorName Plus}`plus`.
-Once an instance of {anchorTerm Plus}`Plus` for {moduleTerm}`Nat` has been defined, it becomes possible to add two {moduleTerm}`Nat`s using {anchorName plusNatFiveThree}`Plus.plus`:
+Once an instance of {anchorTerm Plus}`Plus` for {anchorTerm chapterIntro}`Nat` has been defined, it becomes possible to add two {anchorTerm chapterIntro}`Nat`s using {anchorName plusNatFiveThree}`Plus.plus`:
 ```anchor plusNatFiveThree
 #eval Plus.plus 5 3
 ```
@@ -127,7 +127,7 @@ open Plus (plus)
 8
 ```
 
-Defining an addition function for {anchorName PlusPos}`Pos` and an instance of {anchorTerm PlusPos}`Plus Pos` allows {anchorName PlusPos}`plus` to be used to add both {anchorName PlusPos}`Pos` and {moduleTerm}`Nat` values:
+Defining an addition function for {anchorName PlusPos}`Pos` and an instance of {anchorTerm PlusPos}`Plus Pos` allows {anchorName PlusPos}`plus` to be used to add both {anchorName PlusPos}`Pos` and {anchorTerm chapterIntro}`Nat` values:
 
 ```anchor PlusPos
 def Pos.plus : Pos → Pos → Pos
@@ -140,7 +140,7 @@ instance : Plus Pos where
 def fourteen : Pos := plus seven seven
 ```
 
-Because there is not yet an instance of {moduleTerm}`Plus Float`, attempting to add two floating-point numbers with {anchorName plusFloatFail}`plus` fails with a familiar message:
+Because there is not yet an instance of {anchorTerm PlusFloat}`Plus Float`, attempting to add two floating-point numbers with {anchorName plusFloatFail}`plus` fails with a familiar message:
 ```anchor plusFloatFail
 #eval plus 5.2 917.25861
 ```
@@ -159,7 +159,7 @@ tag := "overloaded-addition"
 
 Lean's built-in addition operator is syntactic sugar for a type class called {anchorName chapterIntro}`HAdd`, which flexibly allows the arguments to addition to have different types.
 {anchorName chapterIntro}`HAdd` is short for _heterogeneous addition_.
-For example, an {anchorName chapterIntro}`HAdd` instance can be written to allow a {moduleName}`Nat` to be added to a {anchorName fiveZeros}`Float`, resulting in a new {anchorName fiveZeros}`Float`.
+For example, an {anchorName chapterIntro}`HAdd` instance can be written to allow a {anchorName chapterIntro}`Nat` to be added to a {anchorName fiveZeros}`Float`, resulting in a new {anchorName fiveZeros}`Float`.
 When a programmer writes {anchorTerm plusDesugar}`x + y`, it is interpreted as meaning {anchorTerm plusDesugar}`HAdd.hAdd x y`.
 
 While an understanding of the full generality of {anchorName chapterIntro}`HAdd` relies on features that are discussed in {ref "out-params"}[another section in this chapter], there is a simpler type class called {anchorName AddPos}`Add` that does not allow the types of the arguments to be mixed.
@@ -205,8 +205,8 @@ results in informative, yet overwhelming, output:
 "There are Pos.succ (Pos.succ (Pos.succ (Pos.succ (Pos.succ (Pos.succ Pos.one)))))"
 ```
 
-On the other hand, every positive number has a corresponding {moduleTerm}`Nat`.
-Converting it to a {moduleTerm}`Nat` and then using the {moduleTerm}`ToString Nat` instance (that is, the overloading of {anchorName UglyToStringPos}`ToString` for {moduleTerm}`Nat`) is a quick way to generate much shorter output:
+On the other hand, every positive number has a corresponding {anchorTerm chapterIntro}`Nat`.
+Converting it to a {anchorTerm chapterIntro}`Nat` and then using the {anchorTerm chapterIntro}`ToString Nat` instance (that is, the overloading of {anchorName UglyToStringPos}`ToString` for {anchorTerm chapterIntro}`Nat`) is a quick way to generate much shorter output:
 
 ```anchor posToNat
 def Pos.toNat : Pos → Nat
@@ -230,9 +230,9 @@ Additionally, if a type has a {anchorName UglyToStringPos}`ToString` instance, t
 
 For multiplication, there is a type class called {anchorName MulPPoint}`HMul` that allows mixed argument types, just like {anchorName chapterIntro}`HAdd`.
 Just as {anchorTerm plusDesugar}`x + y` is interpreted as {anchorTerm plusDesugar}[`HAdd.hAdd x y`], {anchorTerm timesDesugar}`x * y` is interpreted as {anchorTerm timesDesugar}`HMul.hMul x y`.
-For the common case of multiplication of two arguments with the same type, a {moduleTerm}`Mul` instance suffices.
+For the common case of multiplication of two arguments with the same type, a {anchorName PosMul}`Mul` instance suffices.
 
-An instance of {moduleTerm}`Mul` allows ordinary multiplication syntax to be used with {moduleTerm}`Pos`:
+An instance of {anchorTerm PosMul}`Mul` allows ordinary multiplication syntax to be used with {anchorName PosMul}`Pos`:
 
 ```anchor PosMul
 def Pos.mul : Pos → Pos → Pos
@@ -258,37 +258,37 @@ tag := "literal-numbers"
 %%%
 
 It is quite inconvenient to write out a sequence of constructors for positive numbers.
-One way to work around the problem would be to provide a function to convert a {moduleTerm}`Nat` into a {anchorName Pos}`Pos`.
+One way to work around the problem would be to provide a function to convert a {anchorTerm chapterIntro}`Nat` into a {anchorName Pos}`Pos`.
 However, this approach has downsides.
-First off, because {moduleTerm}`Pos` cannot represent {anchorTerm nats}`0`, the resulting function would either convert a {moduleTerm}`Nat` to a bigger number, or it would return {moduleTerm}`Option Pos`.
+First off, because {anchorName PosMul}`Pos` cannot represent {anchorTerm nats}`0`, the resulting function would either convert a {anchorTerm chapterIntro}`Nat` to a bigger number, or it would return {anchorTerm PosStuff}`Option Pos`.
 Neither is particularly convenient for users.
-Secondly, the need to call the function explicitly would make programs that use positive numbers much less convenient to write than programs that use {moduleTerm}`Nat`.
+Secondly, the need to call the function explicitly would make programs that use positive numbers much less convenient to write than programs that use {anchorTerm chapterIntro}`Nat`.
 Having a trade-off between precise types and convenient APIs means that the precise types become less useful.
 
-There are two type classes that are used to overload numeric literals: {moduleName}`Zero` and {moduleName}`OfNat`.
-Because many types have values that are naturally written with {anchorTerm nats}`0`, the {moduleName}`Zero` class allow these specific values to be overridden.
+There are two type classes that are used to overload numeric literals: {anchorName Zero}`Zero` and {anchorName OfNat}`OfNat`.
+Because many types have values that are naturally written with {anchorTerm nats}`0`, the {anchorName Zero}`Zero` class allow these specific values to be overridden.
 It is defined as follows:
 
 ```anchor Zero
 class Zero (α : Type) where
   zero : α
 ```
-Because {anchorTerm nats}`0` is not a positive number, there should be no instance of {moduleTerm}`Zero Pos`.
+Because {anchorTerm nats}`0` is not a positive number, there should be no instance of {anchorTerm PosStuff}`Zero Pos`.
 
-In Lean, natural number literals are interpreted using a type class called {moduleName}`OfNat`:
+In Lean, natural number literals are interpreted using a type class called {anchorName OfNat}`OfNat`:
 
 ```anchor OfNat
 class OfNat (α : Type) (_ : Nat) where
   ofNat : α
 ```
-This type class takes two arguments: {anchorTerm OfNat}`α` is the type for which a natural number is overloaded, and the unnamed {moduleTerm}`Nat` argument is the actual literal number that was encountered in the program.
+This type class takes two arguments: {anchorTerm OfNat}`α` is the type for which a natural number is overloaded, and the unnamed {anchorTerm chapterIntro}`Nat` argument is the actual literal number that was encountered in the program.
 The method {anchorName OfNat}`ofNat` is then used as the value of the numeric literal.
-Because the class contains the {moduleTerm}`Nat` argument, it becomes possible to define only instances for those values where the number makes sense.
+Because the class contains the {anchorTerm chapterIntro}`Nat` argument, it becomes possible to define only instances for those values where the number makes sense.
 
 {anchorTerm OfNat}`OfNat` demonstrates that the arguments to type classes do not need to be types.
 Because types in Lean are first-class participants in the language that can be passed as arguments to functions and given definitions with {kw}`def` and {kw}`abbrev`, there is no barrier that prevents non-type arguments in positions where a less-flexible language could not permit them.
 This flexibility allows overloaded operations to be provided for particular values as well as particular types.
-Additionally, it allows the Lean standard library to arrange for there to be a {moduleTerm}`Zero α` instance whenever there's an {moduleTerm}`OfNat α 0` instance, and vice versa.
+Additionally, it allows the Lean standard library to arrange for there to be a {anchorTerm ListSumZ}`Zero α` instance whenever there's an {anchorTerm ListSum}`OfNat α 0` instance, and vice versa.
 
 A sum type that represents natural numbers less than four can be defined as follows:
 
@@ -342,10 +342,10 @@ due to the absence of the instance above
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 
-For {moduleTerm}`Pos`, the {anchorTerm OfNat}`OfNat` instance should work for _any_ {moduleTerm}`Nat` other than {moduleTerm}`Nat.zero`.
+For {anchorName PosMul}`Pos`, the {anchorTerm OfNat}`OfNat` instance should work for _any_ {anchorTerm chapterIntro}`Nat` other than {anchorName PosStuff}`Nat.zero`.
 Another way to phrase this is to say that for all natural numbers {anchorTerm posrec}`n`, the instance should work for {anchorTerm posrec}`n + 1`.
 Just as names like {anchorTerm posrec}`α` automatically become implicit arguments to functions that Lean fills out on its own, instances can take automatic implicit arguments.
-In this instance, the argument {anchorTerm OfNatPos}`n` stands for any {moduleTerm}`Nat`, and the instance is defined for a {moduleTerm}`Nat` that's one greater:
+In this instance, the argument {anchorTerm OfNatPos}`n` stands for any {anchorTerm chapterIntro}`Nat`, and the instance is defined for a {anchorTerm chapterIntro}`Nat` that's one greater:
 
 ```anchor OfNatPos
 instance : OfNat Pos (n + 1) where
@@ -355,7 +355,7 @@ instance : OfNat Pos (n + 1) where
       | k + 1 => Pos.succ (natPlusOne k)
     natPlusOne n
 ```
-Because {anchorTerm OfNatPos}`n` stands for a {moduleTerm}`Nat` that's one less than what the user wrote, the helper function {anchorName OfNatPos}`natPlusOne` returns a {anchorName OfNatPos}`Pos` that's one greater than its argument.
+Because {anchorTerm OfNatPos}`n` stands for a {anchorTerm chapterIntro}`Nat` that's one less than what the user wrote, the helper function {anchorName OfNatPos}`natPlusOne` returns a {anchorName OfNatPos}`Pos` that's one greater than its argument.
 This makes it possible to use natural number literals for positive numbers, but not for zero:
 
 ```anchor eight
@@ -378,8 +378,8 @@ Additional diagnostic information may be available using the `set_option diagnos
 
 ## Another Representation
 
-An alternative way to represent a positive number is as the successor of some {moduleTerm}`Nat`.
-Replace the definition of {moduleName}`Pos` with a structure whose constructor is named {anchorName AltPos}`succ` that contains a {moduleTerm}`Nat`:
+An alternative way to represent a positive number is as the successor of some {anchorTerm chapterIntro}`Nat`.
+Replace the definition of {anchorName PosStuff}`Pos` with a structure whose constructor is named {anchorName AltPos}`succ` that contains a {anchorTerm chapterIntro}`Nat`:
 
 ```anchor AltPos
 structure Pos where

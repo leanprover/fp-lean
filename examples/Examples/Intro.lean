@@ -991,20 +991,20 @@ error: fail to show termination for
   div
 with errors
 failed to infer structural recursion:
-Cannot use parameter n:
-  failed to eliminate recursive application
-    div (n - k) k
+Not considering parameter k of div:
+  it is unchanged in the recursive calls
 Cannot use parameter k:
   failed to eliminate recursive application
     div (n - k) k
 
 
-Could not find a decreasing measure.
-The basic measures relate at each recursive call as follows:
-(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
-              n k
-1) 1014:17-30 ≤ =
-Please use `termination_by` to specify a decreasing measure.
+failed to prove termination, possible solutions:
+  - Use `have`-expressions to prove the remaining goals
+  - Use `termination_by` to specify a different well-founded relation
+  - Use `decreasing_by` to specify your own tactic for discharging this kind of goal
+k n : Nat
+h✝ : ¬n < k
+⊢ n - k < n
 -/
 #check_msgs in
 -- ANCHOR: div
@@ -1652,6 +1652,7 @@ example : Exhausts (Bool ⊕ Empty) [Sum.inl true, Sum.inl false] := by
   | inr y => cases y
 
 
+discarding
 /-- error:
 invalid universe level in constructor 'MyType.ctor', parameter 'α' has type
   Type
@@ -1665,8 +1666,9 @@ which is not less than or equal to the inductive type's resulting universe level
 inductive MyType : Type where
   | ctor : (α : Type) → α → MyType
 -- ANCHOR_END: TypeInType
+stop discarding
 
-
+discarding
 /-- error:
 (kernel) arg #1 of 'MyType.ctor' has a non positive occurrence of the datatypes being declared
 -/
@@ -1675,12 +1677,14 @@ inductive MyType : Type where
 inductive MyType : Type where
   | ctor : (MyType → Int) → MyType
 -- ANCHOR_END: Positivity
+stop discarding
 
 #eval if let Option.some x := Option.some 5 then x else 55
 
 section
 open SubVerso.Examples
 
+discarding
 /-- error:
 type expected, got
   (MyType : Type → Type)
@@ -1690,7 +1694,7 @@ type expected, got
 inductive MyType (α : Type) : Type where
   | ctor : α → MyType
 -- ANCHOR_END: MissingTypeArg
-
+stop discarding
 
 
 -- ANCHOR: MyTypeDef
@@ -1752,7 +1756,7 @@ Could not find a decreasing measure.
 The basic measures relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
               xs ys
-1) 1763:28-46  ?  ?
+1) 1767:28-46  ?  ?
 Please use `termination_by` to specify a decreasing measure.
 -/
 #check_msgs in

@@ -1,6 +1,5 @@
 import VersoManual
 import FPLean.Examples
-import FPLean.Linters
 
 open Verso.Genre Manual
 open Verso Code External
