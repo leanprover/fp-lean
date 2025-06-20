@@ -49,6 +49,7 @@ target buildExamples (pkg) : Unit := do
           cwd := examplePath,
           env := lakeVars.map (·, none)
         }
+        IO.FS.createDirAll pkg.buildDir
         IO.FS.writeFile (pkg.buildDir / "examples-built") (list ++ "--- Output ---\n" ++ out)
 
 target syncBuildExamples : Unit := do
