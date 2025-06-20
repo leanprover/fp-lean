@@ -1,0 +1,9 @@
+{"version": 0,
+ "sources":
+ {"manual":
+  {"updated": "2025-06-19:18:30:28.702872000",
+   "updateFrequency": "manual",
+   "shortName": "ref",
+   "root": "https://lean-lang.org/doc/reference/4.19.0/",
+   "longName": "Lean Language Reference"}},
+ "outputDir": ".verso"}
