@@ -49,7 +49,7 @@ def first (xs : List α) : Option α :=
 :::
 
 :::paragraph
-The result must be an {moduleName}`Option` because empty lists have no first entry.
+The result must be an {anchorName first}`Option` because empty lists have no first entry.
 Extracting the first and third entries requires a check that each is not {moduleName}`none`:
 
 ```anchor firstThird
@@ -202,7 +202,7 @@ Callers are expected to handle both errors and successes, which makes the type v
 :::
 
 :::paragraph
-Similarly to {moduleName}`Option`, {anchorName Except}`Except` can be used to indicate a failure to find an entry in a list.
+Similarly to {anchorName first}`Option`, {anchorName Except}`Except` can be used to indicate a failure to find an entry in a list.
 In this case, the error type is a {moduleName}`String`:
 
 ```anchor getExcept
@@ -292,7 +292,7 @@ def andThen (attempt : Except e α) (next : α → Except e β) : Except e β :=
   | Except.error msg => Except.error msg
   | Except.ok x => next x
 ```
-Just as with {moduleName}`Option`, this version of {anchorName andThenExcept}`andThen` allows a more concise definition of {anchorName firstThirdAndThenExcept}`firstThird'`:
+Just as with {anchorName first}`Option`, this version of {anchorName andThenExcept}`andThen` allows a more concise definition of {anchorName firstThirdAndThenExcept}`firstThird'`:
 
 ```anchor firstThirdAndThenExcept
 def firstThird' (xs : List α) : Except String (α × α) :=
@@ -303,7 +303,7 @@ def firstThird' (xs : List α) : Except String (α × α) :=
 :::
 
 :::paragraph
-In both the {moduleName}`Option` and {anchorName andThenExcept}`Except` case, there are two repeating patterns: there is the checking of intermediate results at each step, which has been factored out into {anchorName andThenExcept}`andThen`, and there is the final successful result, which is {moduleName}`some` or {anchorName andThenExcept}`Except.ok`, respectively.
+In both the {anchorName first}`Option` and {anchorName andThenExcept}`Except` case, there are two repeating patterns: there is the checking of intermediate results at each step, which has been factored out into {anchorName andThenExcept}`andThen`, and there is the final successful result, which is {moduleName}`some` or {anchorName andThenExcept}`Except.ok`, respectively.
 For the sake of convenience, success can be factored out into a helper called {anchorName okExcept}`ok`:
 
 ```anchor okExcept
@@ -325,7 +325,7 @@ def get (xs : List α) (i : Nat) : Except String α :=
 :::
 
 :::paragraph
-After adding the infix declaration for {anchorName andThenExceptInfix}`andThen`, {anchorName firstThirdInfixExcept}`firstThird` can be just as concise as the version that returns an {moduleName}`Option`:
+After adding the infix declaration for {anchorName andThenExceptInfix}`andThen`, {anchorName firstThirdInfixExcept}`firstThird` can be just as concise as the version that returns an {anchorName first}`Option`:
 
 ```anchor andThenExceptInfix
 infixl:55 " ~~> " => andThen
@@ -570,7 +570,7 @@ def number (t : BinTree α) : BinTree (Nat × α) :=
       (i, BinTree.branch numberedLeft (k, x) numberedRight)
   (helper 0 t).snd
 ```
-This code, like the {moduleName}`none`-propagating {moduleName}`Option` code, the {anchorName exceptNames show:=error}`Except.error`-propagating {anchorName exceptNames}`Except` code, and the log-accumulating {moduleName}`WithLog` code, commingles two concerns: propagating the value of the counter, and actually traversing the tree to find the result.
+This code, like the {moduleName}`none`-propagating {anchorName first}`Option` code, the {anchorName exceptNames show:=error}`Except.error`-propagating {anchorName exceptNames}`Except` code, and the log-accumulating {moduleName}`WithLog` code, commingles two concerns: propagating the value of the counter, and actually traversing the tree to find the result.
 Just as in those cases, an {anchorName andThenState}`andThen` helper can be defined to propagate state from one step of a computation to another.
 The first step is to give a name to the pattern of taking an input state as an argument and returning an output state together with a value:
 
@@ -636,7 +636,7 @@ Because {anchorName State}`State` simulates only a single local variable, {ancho
 ## Monads: A Functional Design Pattern
 
 Each of these examples has consisted of:
- * A polymorphic type, such as {moduleName}`Option`, {moduleTerm}`Except ε`, {moduleTerm}`WithLog logged`, or {moduleTerm}`State σ`
+ * A polymorphic type, such as {anchorName first}`Option`, {anchorTerm okExcept}`Except ε`, {anchorTerm save}`WithLog α`, or {anchorTerm andThenState}`State σ`
  * An operator {lit}`andThen` that takes care of some repetitive aspect of sequencing programs that have this type
  * An operator {lit}`ok` that is (in some sense) the most boring way to use the type
  * A collection of other operations, such as {moduleName}`none`, {anchorName failExcept}`fail`, {anchorName save}`save`, and {anchorName get}`get`, that name ways of using the type
@@ -644,7 +644,7 @@ Each of these examples has consisted of:
 This style of API is called a {deftech}_monad_.
 While the idea of monads is derived from a branch of mathematics called category theory, no understanding of category theory is needed in order to use them for programming.
 The key idea of monads is that each monad encodes a particular kind of side effect using the tools provided by the pure functional language Lean.
-For example, {moduleName}`Option` represents programs that can fail by returning {moduleName}`none`, {moduleName}`Except` represents programs that can throw exceptions, {moduleName}`WithLog` represents programs that accumulate a log while running, and {anchorName State}`State` represents programs with a single mutable variable.
+For example, {anchorName first}`Option` represents programs that can fail by returning {moduleName}`none`, {moduleName}`Except` represents programs that can throw exceptions, {moduleName}`WithLog` represents programs that accumulate a log while running, and {anchorName State}`State` represents programs with a single mutable variable.
 
 {include 1 FPLean.Monads.Class}
 
