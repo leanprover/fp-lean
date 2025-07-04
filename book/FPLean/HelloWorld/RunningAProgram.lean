@@ -22,9 +22,9 @@ tag := "running-a-program"
 The simplest way to run a Lean program is to use the {lit}`--run` option to the Lean executable.
 Create a file called {lit}`Hello.lean` and enter the following contents:
 
-````module (module:=Hello)
+```module (module:=Hello)
 def main : IO Unit := IO.println "Hello, world!"
-````
+```
 :::
 
 :::paragraph

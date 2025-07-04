@@ -20,14 +20,14 @@ def OptionT (m : Type u → Type v) (α : Type u) : Type v :=
 -- ANCHOR_END: OptionTdef
 
 /--
-error: application type mismatch
+error: Application type mismatch: In the application
   pure (some x)
-argument
+the argument
   some x
 has type
-  Option α✝ : Type ?u.25
+  Option α✝ : Type ?u.78
 but is expected to have type
-  α✝ : Type ?u.25
+  α✝ : Type ?u.78
 ---
 error: failed to synthesize
   Pure (OptionT m)
@@ -37,9 +37,9 @@ Additional diagnostic information may be available using the `set_option diagnos
 error: type mismatch
   none
 has type
-  Option ?m.444 : Type ?u.443
+  Option ?m.561 : Type ?u.560
 but is expected to have type
-  α✝ : Type ?u.25
+  α✝ : Type ?u.78
 ---
 error: failed to synthesize
   Bind (OptionT m)

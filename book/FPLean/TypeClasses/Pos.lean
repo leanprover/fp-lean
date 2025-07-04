@@ -265,7 +265,7 @@ Neither is particularly convenient for users.
 Secondly, the need to call the function explicitly would make programs that use positive numbers much less convenient to write than programs that use {anchorTerm chapterIntro}`Nat`.
 Having a trade-off between precise types and convenient APIs means that the precise types become less useful.
 
-There are two type classes that are used to overload numeric literals: {anchorName Zero}`Zero` and {anchorName OfNat}`OfNat`.
+There are three type classes that are used to overload numeric literals: {anchorName Zero}`Zero`, {anchorName One}`One`, and {anchorName OfNat}`OfNat`.
 Because many types have values that are naturally written with {anchorTerm nats}`0`, the {anchorName Zero}`Zero` class allow these specific values to be overridden.
 It is defined as follows:
 
@@ -274,6 +274,25 @@ class Zero (α : Type) where
   zero : α
 ```
 Because {anchorTerm nats}`0` is not a positive number, there should be no instance of {anchorTerm PosStuff}`Zero Pos`.
+
+Similarly, many types have values that are naturally written with {anchorTerm nats}`1`.
+The {anchorName One}`One` class allows these to be overridden:
+```anchor One
+class One (α : Type) where
+  one : α
+```
+An instance of {anchorTerm OnePos}`One Pos` makes perfect sense:
+```anchor OnePos
+instance : One Pos where
+  one := Pos.one
+```
+With this instance, {anchorTerm onePos}`1` can be used for {anchorTerm OnePos}`Pos.one`:
+```anchor onePos
+#eval (1 : Pos)
+```
+```anchorInfo onePos
+1
+```
 
 In Lean, natural number literals are interpreted using a type class called {anchorName OfNat}`OfNat`:
 
@@ -289,6 +308,7 @@ Because the class contains the {anchorTerm chapterIntro}`Nat` argument, it becom
 Because types in Lean are first-class participants in the language that can be passed as arguments to functions and given definitions with {kw}`def` and {kw}`abbrev`, there is no barrier that prevents non-type arguments in positions where a less-flexible language could not permit them.
 This flexibility allows overloaded operations to be provided for particular values as well as particular types.
 Additionally, it allows the Lean standard library to arrange for there to be a {anchorTerm ListSumZ}`Zero α` instance whenever there's an {anchorTerm ListSum}`OfNat α 0` instance, and vice versa.
+Similarly, an instance of {anchorTerm OneExamples}`One α` implies an instance of {anchorTerm OneExamples}`OfNat α 1`, just as an instance of {anchorTerm OneExamples}`OfNat α 1` implies an instance of {anchorTerm OneExamples}`One α`.
 
 A sum type that represents natural numbers less than four can be defined as follows:
 

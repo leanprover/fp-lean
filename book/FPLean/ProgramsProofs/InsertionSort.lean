@@ -265,7 +265,7 @@ Because it typically doesn't matter _how_ a statement was proved, but only _that
 Additionally, each new goal has an assumption that indicates which branch led to that goal, named {lit}`heq✝` in this case:
 ```anchorError insert_sorted_size_eq_1
 unsolved goals
-case succ.h_1
+case h_1
 α : Type u_1
 inst✝ : Ord α
 arr : Array α
@@ -277,7 +277,7 @@ x✝ : Ordering
 heq✝ : compare arr[j'] arr[j' + 1] = Ordering.lt
 ⊢ arr.size = arr.size
 
-case succ.h_2
+case h_2
 α : Type u_1
 inst✝ : Ord α
 arr : Array α
@@ -289,7 +289,7 @@ x✝ : Ordering
 heq✝ : compare arr[j'] arr[j' + 1] = Ordering.eq
 ⊢ arr.size = arr.size
 
-case succ.h_3
+case h_3
 α : Type u_1
 inst✝ : Ord α
 arr : Array α
@@ -315,7 +315,7 @@ theorem insert_sorted_size_eq [Ord α] (arr : Array α) (i : Fin arr.size) :
 ```
 ```anchorError insert_sorted_size_eq_2
 unsolved goals
-case succ.h_3
+case h_3
 α : Type u_1
 inst✝ : Ord α
 arr : Array α
@@ -349,11 +349,11 @@ theorem insert_sorted_size_eq [Ord α] (arr : Array α) (i : Fin arr.size) :
 In the resulting goal, {anchorName insert_sorted_size_eq_3}`arr` is now part of a “for all” statement in the inductive hypothesis:
 ```anchorError insert_sorted_size_eq_3
 unsolved goals
-case succ.h_3
+case h_3
 α : Type u_1
 inst✝ : Ord α
 j' : Nat
-ih : ∀ (arr : Array α), Fin arr.size → ∀ (isLt : j' < arr.size), (insertSorted arr ⟨j', isLt⟩).size = arr.size
+ih : ∀ (arr : Array α) (i : Fin arr.size) (isLt : j' < arr.size), (insertSorted arr ⟨j', isLt⟩).size = arr.size
 arr : Array α
 i : Fin arr.size
 isLt : j' + 1 < arr.size
@@ -500,7 +500,7 @@ theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
 ```
 ```anchorError insert_sorted_size_eq_redo_4
 unsolved goals
-case succ.h_1
+case h_1
 α : Type u_1
 inst✝ : Ord α
 len i' : Nat
@@ -512,7 +512,7 @@ x✝ : Ordering
 heq✝ : compare arr[i'] arr[i' + 1] = Ordering.lt
 ⊢ arr.size = len
 
-case succ.h_2
+case h_2
 α : Type u_1
 inst✝ : Ord α
 len i' : Nat
@@ -524,7 +524,7 @@ x✝ : Ordering
 heq✝ : compare arr[i'] arr[i' + 1] = Ordering.eq
 ⊢ arr.size = len
 
-case succ.h_3
+case h_3
 α : Type u_1
 inst✝ : Ord α
 len i' : Nat
@@ -552,7 +552,7 @@ theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
 ```
 ```anchorError insert_sorted_size_eq_redo_5
 unsolved goals
-case succ.h_3
+case h_3
 α : Type u_1
 inst✝ : Ord α
 len i' : Nat

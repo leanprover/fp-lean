@@ -89,9 +89,9 @@ However, the anonymous angle-bracket notation that delegates to the underlying c
 def troll : Monster := ⟨true, "sunlight"⟩
 ```
 ```anchorError wrongTroll1
-application type mismatch
+Application type mismatch: In the application
   Monster.mk true
-argument
+the argument
   true
 has type
   Bool : Type
@@ -112,9 +112,9 @@ However, this only occurs when using dot notation, and applying the field lookup
 #eval MythicalCreature.large troll
 ```
 ```anchorError trollLargeNoDot
-application type mismatch
+Application type mismatch: In the application
   MythicalCreature.large troll
-argument
+the argument
   troll
 has type
   Monster : Type
@@ -129,9 +129,9 @@ def MythicalCreature.small (c : MythicalCreature) : Bool := !c.large
 ```
 Evaluating {anchorTerm smallTroll}`troll.small` yields {anchorTerm smallTroll}`false`, while attempting to evaluate {anchorTerm smallTrollWrong}`MythicalCreature.small troll` results in:
 ```anchorError smallTrollWrong
-application type mismatch
+Application type mismatch: In the application
   MythicalCreature.small troll
-argument
+the argument
   troll
 has type
   Monster : Type

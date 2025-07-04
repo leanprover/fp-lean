@@ -119,7 +119,7 @@ theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
   | succ n ih lots of names => skip
 ```
 ```anchorError plusR_ind_zero_left_3
-too many variable names provided at alternative 'succ', #5 provided, but #2 expected
+Too many variable names provided at alternative 'succ': 5 provided, but 2 expected
 ```
 
 Focusing on the base case, the {kw}`rfl` tactic works just as well inside of the {kw}`induction` tactic as it does in a recursive function:

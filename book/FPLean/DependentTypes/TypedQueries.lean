@@ -770,11 +770,9 @@ On the other hand, the text of the error message is quite difficult to act on:
 ```anchorError QueryOops1
 unsolved goals
 case a.a.a.a.a.a.a
-mountains : Query (List.map (fun c => { name := "mountain" ++ "." ++ c.name, contains := c.contains }) peak) :=
-  prefixWith "mountain" (table mountainDiary)
-waterfalls : Query (List.map (fun c => { name := "waterfall" ++ "." ++ c.name, contains := c.contains }) waterfall) :=
-  prefixWith "waterfall" (table waterfallDiary)
-⊢ HasCol (List.map (fun c => { name := "waterfall" ++ "." ++ c.name, contains := c.contains }) []) "location" ?m.60305
+mountains : Query (List.map (fun c => { name := "mountain" ++ "." ++ c.name, contains := c.contains }) peak) := ⋯
+waterfalls : Query (List.map (fun c => { name := "waterfall" ++ "." ++ c.name, contains := c.contains }) waterfall) := ⋯
+⊢ HasCol (List.map (fun c => { name := "waterfall" ++ "." ++ c.name, contains := c.contains }) []) "location" ?m.62066
 ```
 
 Similarly, forgetting to add prefixes to the names of the two tables results in an error on {kw}`by decide`, which should provide evidence that the schemas are in fact disjoint;

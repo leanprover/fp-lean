@@ -205,15 +205,15 @@ def Vect.replicate (n : Nat) (x : α) : Vect α n :=
 stop discarding
 
 discarding
-/-- error:
-application type mismatch
+/--
+error: Application type mismatch: In the application
   cons x (cons x (replicate k x))
-argument
+the argument
   cons x (replicate k x)
 has type
-  Vect α (k + 1) : Type ?u.1578
+  Vect α (k + 1) : Type ?u.2998
 but is expected to have type
-  Vect α k : Type ?u.1578
+  Vect α k : Type ?u.2998
 -/
 #check_msgs in
 -- ANCHOR: replicateOops
@@ -294,8 +294,8 @@ example := Nat.succ Nat.zero
 namespace Other
 
 
-/-- error:
-missing cases:
+/--
+error: Missing cases:
 (List.cons _ _), []
 [], (List.cons _ _)
 -/

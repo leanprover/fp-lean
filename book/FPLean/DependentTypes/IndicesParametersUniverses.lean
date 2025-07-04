@@ -74,10 +74,14 @@ inductive WithParameterBeforeColonDifferentNames (α : Type u) : Type u where
   | test2 : β → WithParameterBeforeColonDifferentNames β
 ```
 ```anchorError WithParameterBeforeColonDifferentNames
-inductive datatype parameter mismatch
+Mismatched inductive type parameter in
+  WithParameterBeforeColonDifferentNames β
+The provided argument
   β
-expected
+is not definitionally equal to the expected parameter
   α
+
+Note: The value of parameter 'α' must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
 ```
 Similarly, attempting to name an index results in an error:
 ```anchor WithNamedIndex
@@ -86,10 +90,14 @@ inductive WithNamedIndex (α : Type u) : Type (u + 1) where
   | test2 : WithNamedIndex α → WithNamedIndex α → WithNamedIndex (α × α)
 ```
 ```anchorError WithNamedIndex
-inductive datatype parameter mismatch
+Mismatched inductive type parameter in
+  WithNamedIndex (α × α)
+The provided argument
   α × α
-expected
+is not definitionally equal to the expected parameter
   α
+
+Note: The value of parameter 'α' must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
 ```
 
 Using an appropriate universe level and placing the index after the colon results in a declaration that is acceptable:
@@ -124,10 +132,14 @@ inductive NatParam (n : Nat) : Nat → Type u where
   | five : NatParam 4 5
 ```
 ```anchorError NatParamFour
-inductive datatype parameter mismatch
+Mismatched inductive type parameter in
+  NatParam 4 5
+The provided argument
   4
-expected
+is not definitionally equal to the expected parameter
   n
+
+Note: The value of parameter 'n' must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
 ```
 Using the {anchorName NatParam}`n` as suggested causes the declaration to be accepted:
 

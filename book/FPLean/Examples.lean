@@ -153,7 +153,7 @@ block_extension Block.leanEvalSteps (steps : Array Highlighted) where
   toTeX := none
   extraCss := [highlightingStyle, evalStepsStyle]
   extraJs := [highlightingJs]
-  extraJsFiles := [("popper.js", popper), ("tippy.js", tippy)]
+  extraJsFiles := [{filename := "popper.js", contents := popper}, {filename := "tippy.js", contents := tippy}]
   extraCssFiles := [("tippy-border.css", tippy.border.css)]
   toHtml :=
     open Verso.Output.Html in
@@ -253,7 +253,7 @@ block_extension Block.leanOutput (severity : MessageSeverity) (message : String)
         pure <| .seq #[← go b, .raw "\n"]
   extraCss := [highlightingStyle]
   extraJs := [highlightingJs]
-  extraJsFiles := [("popper.js", popper), ("tippy.js", tippy)]
+  extraJsFiles := [{filename := "popper.js", contents := popper}, {filename := "tippy.js", contents := tippy}]
   extraCssFiles := [("tippy-border.css", tippy.border.css)]
   toHtml :=
     open Verso.Output.Html in
@@ -274,7 +274,7 @@ def kw : RoleExpander
     ArgParse.done.run args
     let kw ← oneCodeStr inls
     let hl : Highlighted := .token ⟨.keyword none none none, kw.getString⟩ -- TODO kw xref
-    return #[← ``(Inline.other (Inline.lean $(quote hl)) #[Inline.code $(quote kw.getString)])]
+    return #[← ``(Inline.other (Inline.lean $(quote hl) {}) #[Inline.code $(quote kw.getString)])]
 
 structure OutputInlineConfig where
   module : Ident
@@ -347,7 +347,9 @@ def splitHighlighted (p : String → Bool) (hl : Highlighted) : Array Highlighte
         current := .empty
       else
         current := current ++ this
-    | some this@(.text ..) :: hs | some this@(.point ..) :: hs =>
+    | some this@(.text ..) :: hs
+    | some this@(.unparsed ..) :: hs
+    | some this@(.point ..) :: hs =>
       todo := hs
       current := current ++ this
     | some (.span msgs x) :: hs =>
@@ -389,7 +391,7 @@ private def quoteCode (str : String) : String := Id.run do
 @[role_expander moduleEvalStep]
 def moduleEvalStep : RoleExpander
   | args, inls => do
-    let {module := moduleName, anchor?, step} ← parseThe EvalStepContext args
+    let {module := moduleName, anchor?, step, showProofStates := _} ← parseThe EvalStepContext args
     let code? ← oneCodeStr? inls
 
     let modStr := moduleName.getId.toString
@@ -420,7 +422,7 @@ def moduleEvalStep : RoleExpander
     if let some step := steps[step.val]? then
       if let some code := code? then
         _ ← ExpectString.expectString "step" code step.toString.trim
-        return #[← ``(Inline.other (Inline.lean $(quote step)) #[])]
+        return #[← ``(Inline.other (Inline.lean $(quote step) {}) #[])]
       else
         let stepStr := step.toString
         Lean.logError m!"No expected term provided for `{stepStr}`."
@@ -472,14 +474,14 @@ where
 @[code_block_expander moduleEvalStep]
 def moduleEvalStepBlock : CodeBlockExpander
   | args, code => do
-    let {module := moduleName, anchor?, step} ← parseThe EvalStepContext args
+    let {module := moduleName, anchor?, step, showProofStates := _} ← parseThe EvalStepContext args
 
     withAnchored moduleName anchor? fun fragment => do
       let steps := splitHighlighted (· == "===>") fragment
 
       if let some step := steps[step.val]? then
         _ ← ExpectString.expectString "step" code (withNl step.toString.trim)
-        return #[← ``(Block.other (Block.lean $(quote step)) #[])]
+        return #[← ``(Block.other (Block.lean $(quote step) {}) #[])]
       else
         let ok := steps.mapIdx fun i s => ({suggestion := toString i, postInfo? := some s.toString})
         let h ← MessageData.hint "Use a step in the range 0–{steps.size}" ok (ref? := some step.syntax)
@@ -494,7 +496,7 @@ macro_rules
 @[code_block_expander moduleEvalSteps]
 def moduleEvalSteps : CodeBlockExpander
   | args, str => do
-    let {module := moduleName, anchor?} ← parseThe CodeContext args
+    let {module := moduleName, anchor?, showProofStates := _} ← parseThe CodeContext args
 
     withAnchored moduleName anchor? fun fragment => do
       _ ← ExpectString.expectString "steps" str fragment.toString
@@ -511,7 +513,7 @@ macro_rules
 @[code_block_expander moduleEqSteps]
 def moduleEqSteps : CodeBlockExpander
   | args, str => do
-    let {module := moduleName, anchor?} ← parseThe CodeContext args
+    let {module := moduleName, anchor?, showProofStates := _} ← parseThe CodeContext args
 
     withAnchored moduleName anchor? fun fragment => do
       _ ← ExpectString.expectString "steps" str fragment.toString
@@ -529,7 +531,7 @@ def moduleEqSteps : CodeBlockExpander
               | .code c =>
                 let code := String.join c.toList
                 if let some hl := hl.matchingExpr? code <|> fragment.matchingExpr? code then
-                   out := out.push (← ``(Inline.other (Inline.lean $(quote hl)) #[]))
+                   out := out.push (← ``(Inline.other (Inline.lean $(quote hl) {}) #[]))
                 else
                   logWarning m!"Failed to match `{code}` in `{hl.toString}`"
                   out := out.push  (← ``(Inline.code $(quote code)))
@@ -537,7 +539,7 @@ def moduleEqSteps : CodeBlockExpander
             ``(Block.other Block.leanEqReason #[Block.para #[$(out),*] ])
           else
             ``(Block.other Block.leanEqReason #[Block.para #[Inline.text $(quote txt) ] ])
-        else ``(ExternalCode.leanBlock $(quote hl))
+        else ``(ExternalCode.leanBlock $(quote hl) {})
       let steps : Array Term := steps.map quote
       return #[← ``(Block.other Block.leanEqSteps #[$steps,*])]
 
@@ -851,7 +853,7 @@ def moduleOutText : RoleExpander
   | args, inls => withTraceNode `Elab.Verso (fun _ => pure m!"moduleOutText") <| do
     let str? ← oneCodeStr? inls
 
-    let {module := moduleName, anchor?, severity} ← parseThe MessageContext args
+    let {module := moduleName, anchor?, severity, showProofStates := _} ← parseThe MessageContext args
 
     withAnchored moduleName anchor? fun hl => do
       let infos := allInfo hl

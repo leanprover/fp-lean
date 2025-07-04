@@ -42,10 +42,9 @@ To understand the signature of a function, this feature can be suppressed with a
 #check @IO.println
 ```
 ```anchorInfo printlnNoMetas
-@IO.println : {α : Type u_1} → [inst : ToString α] → α → IO Unit
+@IO.println : {α : Type u_1} → [ToString α] → α → IO Unit
 ```
-In this output, the instance itself has been given the name {lit}`inst`.
-Additionally, there is a {lit}`u_1` after {lit}`Type`, which uses a feature of Lean that has not yet been introduced.
+There is a {lit}`u_1` after {lit}`Type`, which uses a feature of Lean that has not yet been introduced.
 For now, ignore these parameters to {lit}`Type`.
 
 # Defining Polymorphic Functions with Instance Implicits

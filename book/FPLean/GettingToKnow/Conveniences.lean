@@ -268,7 +268,7 @@ def unzip pairs :=
 leads to a message about the {kw}`match` expression:
 
 ```anchorError unzipNoTypesAtAll
-invalid match-expression, pattern contains metavariables
+Invalid match expression: This pattern contains metavariables:
   []
 ```
 
@@ -439,7 +439,7 @@ def halve : Nat → Nat
 ```
 
 ```anchorError halveFlippedPat
-invalid patterns, `n` is an explicit pattern variable, but it only occurs in positions that are inaccessible to pattern matching
+Invalid pattern(s): `n` is an explicit pattern variable, but it only occurs in positions that are inaccessible to pattern matching:
   .(Nat.add 2 n)
 ```
 

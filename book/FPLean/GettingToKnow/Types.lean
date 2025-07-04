@@ -86,9 +86,9 @@ When a program can't be given a type, an error is returned from both {kw}`#check
 outputs
 
 ```anchorError stringAppendList
-application type mismatch
+Application type mismatch: In the application
   String.append ["hello", " "]
-argument
+the argument
   ["hello", " "]
 has type
   List String : Type

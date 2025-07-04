@@ -581,11 +581,9 @@ waterfalls : Query (List.map (fun c => { name := "waterfall" ++ "." ++ c.name, c
 ---
 error: unsolved goals
 case a.a.a.a.a.a.a
-mountains : Query (List.map (fun c => { name := "mountain" ++ "." ++ c.name, contains := c.contains }) peak) :=
-  prefixWith "mountain" (table mountainDiary)
-waterfalls : Query (List.map (fun c => { name := "waterfall" ++ "." ++ c.name, contains := c.contains }) waterfall) :=
-  prefixWith "waterfall" (table waterfallDiary)
-⊢ HasCol (List.map (fun c => { name := "waterfall" ++ "." ++ c.name, contains := c.contains }) []) "location" ?m.60305
+mountains : Query (List.map (fun c => { name := "mountain" ++ "." ++ c.name, contains := c.contains }) peak) := ⋯
+waterfalls : Query (List.map (fun c => { name := "waterfall" ++ "." ++ c.name, contains := c.contains }) waterfall) := ⋯
+⊢ HasCol (List.map (fun c => { name := "waterfall" ++ "." ++ c.name, contains := c.contains }) []) "location" ?m.62066
 -/
 #check_msgs in
 -- ANCHOR: QueryOops1
@@ -606,25 +604,25 @@ is false
 ---
 error: unsolved goals
 case a.a.a.a.a.a.a
-mountains : Query peak := table mountainDiary
-waterfalls : Query waterfall := table waterfallDiary
-⊢ HasCol [] "mountain.location" ?m.61429
+mountains : Query peak := ⋯
+waterfalls : Query waterfall := ⋯
+⊢ HasCol [] "mountain.location" ?m.63414
 ---
 error: unsolved goals
 case a.a.a.a.a.a.a
-mountains : Query peak := table mountainDiary
-waterfalls : Query waterfall := table waterfallDiary
-⊢ HasCol [] "waterfall.location" ?m.61429
+mountains : Query peak := ⋯
+waterfalls : Query waterfall := ⋯
+⊢ HasCol [] "waterfall.location" ?m.63414
 ---
 error: unsolved goals
 case a.a.a.a.a.a.a.a
-mountains : Query peak := table mountainDiary
-waterfalls : Query waterfall := table waterfallDiary
+mountains : Query peak := ⋯
+waterfalls : Query waterfall := ⋯
 ⊢ HasCol [] "mountain.name" DBType.string
 
 case a
-mountains : Query peak := table mountainDiary
-waterfalls : Query waterfall := table waterfallDiary
+mountains : Query peak := ⋯
+waterfalls : Query waterfall := ⋯
 ⊢ Subschema [{ name := "waterfall.name", contains := DBType.string }] (peak ++ waterfall)
 -/
 #check_msgs in

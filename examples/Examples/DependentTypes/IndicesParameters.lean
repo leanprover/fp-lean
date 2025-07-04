@@ -34,11 +34,15 @@ inductive WithParameterAfterColonDifferentNames : Type u → Type u where
 -- ANCHOR_END: WithParameterAfterColonDifferentNames
 
 
-/-- error:
-inductive datatype parameter mismatch
+/--
+error: Mismatched inductive type parameter in
+  WithParameterBeforeColonDifferentNames β
+The provided argument
   β
-expected
+is not definitionally equal to the expected parameter
   α
+
+Note: The value of parameter 'α' must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
 -/
 #check_msgs in
 -- ANCHOR: WithParameterBeforeColonDifferentNames
@@ -47,11 +51,15 @@ inductive WithParameterBeforeColonDifferentNames (α : Type u) : Type u where
   | test2 : β → WithParameterBeforeColonDifferentNames β
 -- ANCHOR_END: WithParameterBeforeColonDifferentNames
 
-/-- error:
-inductive datatype parameter mismatch
+/--
+error: Mismatched inductive type parameter in
+  WithNamedIndex (α × α)
+The provided argument
   α × α
-expected
+is not definitionally equal to the expected parameter
   α
+
+Note: The value of parameter 'α' must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
 -/
 #check_msgs in
 -- ANCHOR: WithNamedIndex
@@ -83,11 +91,15 @@ inductive ParamAfterIndex : Nat → Type u → Type u where
 -- ANCHOR_END: ParamAfterIndex
 
 
-/-- error:
-inductive datatype parameter mismatch
+/--
+error: Mismatched inductive type parameter in
+  NatParam 4 5
+The provided argument
   4
-expected
+is not definitionally equal to the expected parameter
   n
+
+Note: The value of parameter 'n' must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
 -/
 #check_msgs in
 -- ANCHOR: NatParamFour

@@ -270,7 +270,7 @@ seq u (fun () => seq v (fun () => w))
 
 
 To check that sequencing pure operations is a no-op:
-````anchorEqSteps mSeqPureNoOp
+```anchorEqSteps mSeqPureNoOp
 seq (pure f) (fun () => pure x)
 ={
 /-- Replacing `seq` with its definition -/
@@ -289,7 +289,7 @@ pure (g x)
 by simp [LawfulMonad.pure_bind]
 }=
 pure (f x)
-````
+```
 
 
 And finally, to check that the ordering of pure operations doesn't matter:
