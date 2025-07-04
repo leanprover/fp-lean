@@ -88,9 +88,9 @@ def myListOfNat : MyList Type :=
   .cons Nat .nil
 ```
 ```anchorError myListNat1Err
-application type mismatch
+Application type mismatch: In the application
   MyList Type
-argument
+the argument
   Type
 has type
   Type 1 : Type 2
@@ -195,9 +195,9 @@ However, it requires that both arguments be in the same universe:
 def stringOrType : Sum String Type := .inr Nat
 ```
 ```anchorError stringOrTypeLevels
-application type mismatch
+Application type mismatch: In the application
   Sum String Type
-argument
+the argument
   Type
 has type
   Type 1 : Type 2

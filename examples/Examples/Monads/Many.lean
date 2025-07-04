@@ -238,11 +238,6 @@ instance : LawfulMonad Many where
         simp [SeqRight.seqRight, Many.bind] at ih
         rw [ih]
         simp [Seq.seq, Function.const, Functor.map, Many.bind, Function.comp, Many.one, Many.union]
-        conv =>
-          rhs
-          congr
-          . apply Many_bind_one
-          . rfl
 
   pure_seq g xs := by
     simp [Functor.map, Seq.seq, pure]

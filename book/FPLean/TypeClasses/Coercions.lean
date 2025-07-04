@@ -58,9 +58,9 @@ Applying {anchorName drop}`List.drop` to a {moduleName}`Pos`, however, leads to 
 [1, 2, 3, 4].drop (2 : Pos)
 ```
 ```anchorError dropPos
-application type mismatch
+Application type mismatch: In the application
   List.drop 2
-argument
+the argument
   2
 has type
   Pos : Type
@@ -526,14 +526,14 @@ def lastSpider :=
   List.getLast? idahoSpiders
 ```
 ```anchorError lastSpiderB
-application type mismatch
+Application type mismatch: In the application
   List.getLast? idahoSpiders
-argument
+the argument
   idahoSpiders
 has type
   NonEmptyList String : Type
 but is expected to have type
-  List ?m.50381 : Type
+  List ?m.56328 : Type
 ```
 More generally, when a coercion is not applied for some reason, the user receives the original type error, which can make it difficult to debug chains of coercions.
 

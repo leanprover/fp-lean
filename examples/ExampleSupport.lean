@@ -308,9 +308,9 @@ def elabCheckMsgs : CommandElab
     let mut toPassthrough : MessageLog := .empty
     for msg in msgs.toList do
       match specFn msg with
-      | .check       => toCheck := toCheck.add msg
-      | .drop        => pure ()
-      | .passthrough => toPassthrough := toPassthrough.add msg
+      | .check => toCheck := toCheck.add msg
+      | .drop => pure ()
+      | .pass => toPassthrough := toPassthrough.add msg
     let strings ← toCheck.toList.mapM (messageToStringWithoutPos ·)
     let strings := ordering.apply strings
     let res := "---\n".intercalate strings |>.trim
@@ -577,8 +577,8 @@ elab_rules : command
     open Lean.Environment in
     open Lean in do
       let e := (<- get).env
-      let t1 := C1.getId
-      let t2 := C2.getId
+      let t1 ← runTermElabM fun _ => realizeGlobalConstNoOverloadWithInfo C1
+      let t2 ← runTermElabM fun _ => realizeGlobalConstNoOverloadWithInfo C2
       let i1 <- match (e.find? t1).get! with
       | ConstantInfo.inductInfo i => pure i
       | _ => throwErrorAt C1 "Not an inductive type: {t1}"

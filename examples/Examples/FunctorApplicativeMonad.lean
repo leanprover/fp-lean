@@ -94,10 +94,10 @@ end Blurble
 
 namespace Foo
 discarding
-/-- error:
-application type mismatch
+/--
+error: Application type mismatch: In the application
   Monster.mk true
-argument
+the argument
   true
 has type
   Bool : Type
@@ -116,10 +116,10 @@ def troll : Monster := ⟨⟨true⟩, "sunlight"⟩
 end Foo
 
 
-/-- error:
-application type mismatch
+/--
+error: Application type mismatch: In the application
   MythicalCreature.large troll
-argument
+the argument
   troll
 has type
   Monster : Type
@@ -247,10 +247,10 @@ false
 -- ANCHOR_END: smallTroll
 
 
-/-- error:
-application type mismatch
+/--
+error: Application type mismatch: In the application
   MythicalCreature.small troll
-argument
+the argument
   troll
 has type
   Monster : Type
@@ -265,10 +265,10 @@ example := MythicalCreature.small troll
 #eval nisse.small
 
 
-/-- error:
-application type mismatch
+/--
+error: Application type mismatch: In the application
   MythicalCreature.small nisse
-argument
+the argument
   nisse
 has type
   Helper : Type

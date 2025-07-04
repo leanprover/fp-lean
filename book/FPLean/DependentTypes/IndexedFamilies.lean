@@ -188,14 +188,14 @@ def Vect.replicate (n : Nat) (x : α) : Vect α n :=
   | k + 1 => .cons x (.cons x (replicate k x))
 ```
 ```anchorError replicateOops
-application type mismatch
+Application type mismatch: In the application
   cons x (cons x (replicate k x))
-argument
+the argument
   cons x (replicate k x)
 has type
-  Vect α (k + 1) : Type ?u.2817
+  Vect α (k + 1) : Type ?u.2998
 but is expected to have type
-  Vect α k : Type ?u.2817
+  Vect α k : Type ?u.2998
 ```
 
 
@@ -258,7 +258,7 @@ def List.zip : List α → List β → List (α × β)
   | x :: xs, y :: ys => (x, y) :: zip xs ys
 ```
 ```anchorError zipMissing
-missing cases:
+Missing cases:
 (List.cons _ _), []
 [], (List.cons _ _)
 ```

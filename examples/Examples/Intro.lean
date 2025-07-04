@@ -133,9 +133,9 @@ example : (
 
 
 /--
-error: application type mismatch
+error: Application type mismatch: In the application
   String.append ["hello", " "]
-argument
+the argument
   ["hello", " "]
 has type
   List String : Type
@@ -208,9 +208,9 @@ example : Nat -> Nat := add1
 -- ANCHOR_END: add1_7
 
 /--
-error: application type mismatch
+error: Application type mismatch: In the application
   add1 "seven"
-argument
+the argument
   "seven"
 has type
   String : Type
@@ -1939,7 +1939,7 @@ namespace ReallyNoTypes
 open SubVerso.Examples
 
 /--
-error: failed to infer definition type
+error: failed to infer type of `id`
 ---
 error: failed to infer binder type
 -/
@@ -1948,8 +1948,8 @@ error: failed to infer binder type
 def id x := x
 -- ANCHOR_END: identNoTypes
 
-/-- error:
-invalid match-expression, pattern contains metavariables
+/--
+error: Invalid match expression: This pattern contains metavariables:
   []
 -/
 #check_msgs in
@@ -2023,8 +2023,8 @@ example : Explicit.halve = halve := by
   fun_induction halve x <;> simp [halve, Explicit.halve, *]
 
 namespace Oops
-/-- error:
-invalid patterns, `n` is an explicit pattern variable, but it only occurs in positions that are inaccessible to pattern matching
+/--
+error: Invalid pattern(s): `n` is an explicit pattern variable, but it only occurs in positions that are inaccessible to pattern matching:
   .(Nat.add 2 n)
 -/
 #check_msgs in

@@ -91,10 +91,10 @@ example : Type → Type := MyList
 -- ANCHOR_END: MyList1Type
 
 
-/-- error:
-application type mismatch
+/--
+error: Application type mismatch: In the application
   MyList Type
-argument
+the argument
   Type
 has type
   Type 1 : Type 2
@@ -222,10 +222,10 @@ def stringOrNat : Sum String Nat := .inl "hello"
 def typeOrType : Sum Type Type := .inr Nat
 -- ANCHOR_END: SumPoly
 
-/-- error:
-application type mismatch
+/--
+error: Application type mismatch: In the application
   Sum String Type
-argument
+the argument
   Type
 has type
   Type 1 : Type 2

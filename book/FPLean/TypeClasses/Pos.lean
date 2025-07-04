@@ -265,7 +265,7 @@ Neither is particularly convenient for users.
 Secondly, the need to call the function explicitly would make programs that use positive numbers much less convenient to write than programs that use {anchorTerm chapterIntro}`Nat`.
 Having a trade-off between precise types and convenient APIs means that the precise types become less useful.
 
-There are two type classes that are used to overload numeric literals: {anchorName Zero}`Zero` and {anchorName OfNat}`OfNat`.
+There are three type classes that are used to overload numeric literals: {anchorName Zero}`Zero`, {anchorName One}`One`, and {anchorName OfNat}`OfNat`.
 Because many types have values that are naturally written with {anchorTerm nats}`0`, the {anchorName Zero}`Zero` class allow these specific values to be overridden.
 It is defined as follows:
 
@@ -274,6 +274,25 @@ class Zero (α : Type) where
   zero : α
 ```
 Because {anchorTerm nats}`0` is not a positive number, there should be no instance of {anchorTerm PosStuff}`Zero Pos`.
+
+Similarly, many types have values that are naturally written with {anchorTerm nats}`1`.
+The {anchorName One}`One` class allows these to be overridden:
+```anchor One
+class One (α : Type) where
+  one : α
+```
+An instance of {anchorTerm OnePos}`One Pos` makes perfect sense:
+```anchor OnePos
+instance : One Pos where
+  one := Pos.one
+```
+With this instance, {anchorTerm onePos}`1` can be used for {anchorTerm OnePos}`Pos.one`:
+```anchor onePos
+#eval (1 : Pos)
+```
+```anchorInfo onePos
+1
+```
 
 In Lean, natural number literals are interpreted using a type class called {anchorName OfNat}`OfNat`:
 

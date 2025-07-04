@@ -83,15 +83,16 @@ Cannot use parameter xs:
     mergeSort halves.fst
 
 
-failed to prove termination, possible solutions:
-  - Use `have`-expressions to prove the remaining goals
-  - Use `termination_by` to specify a different well-founded relation
-  - Use `decreasing_by` to specify your own tactic for discharging this kind of goal
-α : Type u_1
-xs : List α
-h : ¬xs.length < 2
-halves : List α × List α := splitList xs
-⊢ sizeOf (splitList xs).fst < sizeOf xs
+Could not find a decreasing measure.
+The basic measures relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+            xs #1
+1) 70:11-31  ?  ?
+2) 70:34-54  _  _
+
+#1: xs.length
+
+Please use `termination_by` to specify a decreasing measure.
 ```
 The reason it terminates is that {anchorName mergeSortNoTerm}`splitList` always returns lists that are shorter than its input, at least when applied to lists that contain at least two elements.
 Thus, the length of {anchorTerm mergeSortNoTerm}`halves.fst` and {anchorTerm mergeSortNoTerm}`halves.snd` are less than the length of {anchorName mergeSortNoTerm}`xs`.
@@ -629,11 +630,11 @@ Both proofs fail, because {anchorName mergeSortNeedsGte}`splitList_shorter_fst` 
 ```anchorError mergeSortNeedsGte
 unsolved goals
 case h
-α : Type ?u.54766
+α : Type ?u.80367
 inst✝ : Ord α
 xs : List α
 h : ¬xs.length < 2
-halves : List α × List α := splitList xs
+halves : List α × List α := ⋯
 ⊢ xs.length ≥ 2
 ```
 To check that this will be enough to complete the proof, add it using {lit}`sorry` and check for errors:

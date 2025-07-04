@@ -325,14 +325,13 @@ class Zero (α : Type) where
   zero : α
 -- ANCHOR_END: Zero
 
-/-- error:
-unknown identifier 'One'
--/
-#check_msgs in
--- ANCHOR: updateMe
--- To make sure this gets update next Lean release
-#check One
--- ANCHOR_END: updateMe
+-- ANCHOR: One
+class One (α : Type) where
+  one : α
+-- ANCHOR_END: One
+
+-- Test that One works with OfNat _ 1
+example [_root_.One α] : α := 1
 
 -- ANCHOR: OfNat
 class OfNat (α : Type) (_ : Nat) where
@@ -341,6 +340,7 @@ class OfNat (α : Type) (_ : Nat) where
 
 end NatLits
 similar datatypes Zero NatLits.Zero
+similar datatypes One NatLits.One
 similar datatypes OfNat NatLits.OfNat
 
 
@@ -399,6 +399,16 @@ Additional diagnostic information may be available using the `set_option diagnos
 #eval (4 : LT4)
 -- ANCHOR_END: LT4four
 
+-- ANCHOR: OnePos
+instance : One Pos where
+  one := Pos.one
+-- ANCHOR_END: OnePos
+
+/-- info: 1 -/
+#check_msgs in
+-- ANCHOR: onePos
+#eval (1 : Pos)
+-- ANCHOR_END: onePos
 
 
 -- ANCHOR: OfNatPos
@@ -454,9 +464,7 @@ IO.println : ?m.2620 → IO Unit
 #check (IO.println)
 -- ANCHOR_END: printlnMetas
 
-/-- info:
-@IO.println : {α : Type u_1} → [inst : ToString α] → α → IO Unit
--/
+/-- info: @IO.println : {α : Type u_1} → [ToString α] → α → IO Unit -/
 #check_msgs in
 -- ANCHOR: printlnNoMetas
 #check @IO.println
@@ -1463,10 +1471,10 @@ end Whatevs
 example : {α : Type} → Nat → List α → List α := @List.drop
 -- ANCHOR_END: drop
 
-/-- error:
-application type mismatch
+/--
+error: Application type mismatch: In the application
   List.drop 2
-argument
+the argument
   2
 has type
   Pos : Type
@@ -1855,15 +1863,15 @@ JSON.object
 end Ser
 
 namespace A
-/-- error:
-application type mismatch
+/--
+error: Application type mismatch: In the application
   List.getLast? idahoSpiders
-argument
+the argument
   idahoSpiders
 has type
   NonEmptyList String : Type
 but is expected to have type
-  List ?m.25493 : Type
+  List ?m.56120 : Type
 -/
 #check_msgs in
 -- ANCHOR: lastSpiderB

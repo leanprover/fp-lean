@@ -33,8 +33,8 @@ def splitList (lst : List α) : (List α × List α) :=
 -- ANCHOR_END: splitList
 
 discarding
-/-- error:
-fail to show termination for
+/--
+error: fail to show termination for
   mergeSort
 with errors
 failed to infer structural recursion:
@@ -47,15 +47,16 @@ Cannot use parameter xs:
     mergeSort halves.fst
 
 
-failed to prove termination, possible solutions:
-  - Use `have`-expressions to prove the remaining goals
-  - Use `termination_by` to specify a different well-founded relation
-  - Use `decreasing_by` to specify your own tactic for discharging this kind of goal
-α : Type u_1
-xs : List α
-h : ¬xs.length < 2
-halves : List α × List α := splitList xs
-⊢ sizeOf (splitList xs).fst < sizeOf xs
+Could not find a decreasing measure.
+The basic measures relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+            xs #1
+1) 70:11-31  ?  ?
+2) 70:34-54  _  _
+
+#1: xs.length
+
+Please use `termination_by` to specify a decreasing measure.
 -/
 #check_msgs in
 -- ANCHOR: mergeSortNoTerm
@@ -643,6 +644,10 @@ warning: declaration uses 'sorry'
 warning: declaration uses 'sorry'
 ---
 warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
 -/
 #check_msgs in
 --ANCHOR: mergeSortSorry
@@ -666,20 +671,20 @@ discarding
 /--
 error: unsolved goals
 case h
-α : Type ?u.43884
+α : Type ?u.72443
 inst✝ : Ord α
 xs : List α
 h : ¬xs.length < 2
-halves : List α × List α := splitList xs
+halves : List α × List α := ⋯
 ⊢ xs.length ≥ 2
 ---
 error: unsolved goals
 case h
-α : Type ?u.43884
+α : Type ?u.72443
 inst✝ : Ord α
 xs : List α
 h : ¬xs.length < 2
-halves : List α × List α := splitList xs
+halves : List α × List α := ⋯
 this : halves.fst.length < xs.length
 ⊢ xs.length ≥ 2
 -/
@@ -703,6 +708,8 @@ stop discarding
 
 discarding
 /--
+warning: declaration uses 'sorry'
+---
 warning: declaration uses 'sorry'
 ---
 warning: declaration uses 'sorry'

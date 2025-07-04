@@ -96,14 +96,14 @@ instance [Monad m] : Monad (OptionT m) where
 ```
 The error message shows a cryptic type mismatch:
 ```anchorError firstMonadOptionT
-application type mismatch
+Application type mismatch: In the application
   pure (some x)
-argument
+the argument
   some x
 has type
-  Option α✝ : Type ?u.25
+  Option α✝ : Type ?u.78
 but is expected to have type
-  α✝ : Type ?u.25
+  α✝ : Type ?u.78
 ```
 The problem here is that Lean is selecting the wrong {anchorName firstMonadOptionT}`Monad` instance for the surrounding use of {anchorName firstMonadOptionT}`pure`.
 Similar errors occur for the definition of {anchorName firstMonadOptionT}`bind`.
