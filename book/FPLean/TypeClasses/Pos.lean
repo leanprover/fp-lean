@@ -308,6 +308,7 @@ Because the class contains the {anchorTerm chapterIntro}`Nat` argument, it becom
 Because types in Lean are first-class participants in the language that can be passed as arguments to functions and given definitions with {kw}`def` and {kw}`abbrev`, there is no barrier that prevents non-type arguments in positions where a less-flexible language could not permit them.
 This flexibility allows overloaded operations to be provided for particular values as well as particular types.
 Additionally, it allows the Lean standard library to arrange for there to be a {anchorTerm ListSumZ}`Zero α` instance whenever there's an {anchorTerm ListSum}`OfNat α 0` instance, and vice versa.
+Similarly, an instance of {anchorTerm OneExamples}`One α` implies an instance of {anchorTerm OneExamples}`OfNat α 1`, just as an instance of {anchorTerm OneExamples}`OfNat α 1` implies an instance of {anchorTerm OneExamples}`One α`.
 
 A sum type that represents natural numbers less than four can be defined as follows:
 

@@ -330,8 +330,18 @@ class One (α : Type) where
   one : α
 -- ANCHOR_END: One
 
+-- ANCHOR: OneExamples
+example {α : Type} := [One α, OfNat α 1]
+-- ANCHOR_END: OneExamples
+
 -- Test that One works with OfNat _ 1
 example [_root_.One α] : α := 1
+
+-- Test the other ways around
+example [_root_.OfNat α 1] : _root_.One α := inferInstance
+
+example [_root_.OfNat α 0] : _root_.Zero α := inferInstance
+
 
 -- ANCHOR: OfNat
 class OfNat (α : Type) (_ : Nat) where
