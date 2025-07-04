@@ -8,7 +8,6 @@ open FPLean
 
 set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.MonadTransformers.Do"
-set_option verso.externalExamples.suppressedNamespaces "ForMIO"
 
 
 #doc (Manual) "More do Features" =>

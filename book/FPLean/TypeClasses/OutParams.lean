@@ -33,9 +33,9 @@ These functions allow natural numbers to be added to positive numbers, but they 
 
 # Heterogeneous Overloadings
 
-As mentioned in the section on {ref "overloaded-addition"}[overloaded addition], Lean provides a type class called {moduleName}`HAdd` for overloading addition heterogeneously.
-The {moduleName}`HAdd` class takes three type parameters: the two argument types and the return type.
-Instances of {moduleTerm}`HAdd Nat Pos Pos` and {moduleTerm}`HAdd Pos Nat Pos` allow ordinary addition notation to be used to mix the types:
+As mentioned in the section on {ref "overloaded-addition"}[overloaded addition], Lean provides a type class called {anchorName chapterIntro}`HAdd` for overloading addition heterogeneously.
+The {anchorName chapterIntro}`HAdd` class takes three type parameters: the two argument types and the return type.
+Instances of {anchorTerm haddInsts}`HAdd Nat Pos Pos` and {anchorTerm haddInsts}`HAdd Pos Nat Pos` allow ordinary addition notation to be used to mix the types:
 
 ```anchor haddInsts
 instance : HAdd Nat Pos Pos where
@@ -59,7 +59,7 @@ Given the above two instances, the following examples work:
 ```
 
 :::paragraph
-The definition of the {moduleName}`HAdd` type class is very much like the following definition of {moduleName}`HPlus` with the corresponding instances:
+The definition of the {anchorName chapterIntro}`HAdd` type class is very much like the following definition of {moduleName}`HPlus` with the corresponding instances:
 
 ```anchor HPlus
 class HPlus (α : Type) (β : Type) (γ : Type) where
@@ -73,7 +73,7 @@ instance : HPlus Nat Pos Pos where
 instance : HPlus Pos Nat Pos where
   hPlus := addPosNat
 ```
-However, instances of {moduleName}`HPlus` are significantly less useful than instances of {moduleName}`HAdd`.
+However, instances of {moduleName}`HPlus` are significantly less useful than instances of {anchorName chapterIntro}`HAdd`.
 When attempting to use these instances with {kw}`#eval`, an error occurs:
 ```anchor hPlusOops
 #eval toString (HPlus.hPlus (3 : Pos) (5 : Nat))
@@ -88,8 +88,8 @@ This happens because there is a metavariable in the type, and Lean has no way to
 As discussed in {ref "polymorphism"}[the initial description of polymorphism], metavariables represent unknown parts of a program that could not be inferred.
 When an expression is written following {kw}`#eval`, Lean attempts to determine its type automatically.
 In this case, it could not.
-Because the third type parameter for {moduleName}`HPlus` was unknown, Lean couldn't carry out type class instance search, but instance search is the only way that Lean could determine the expression's type.
-That is, the {moduleTerm}`HPlus Pos Nat Pos` instance can only apply if the expression should have type {moduleName}`Pos`, but there's nothing in the program other than the instance itself to indicate that it should have this type.
+Because the third type parameter for {anchorName HPlusInstances}`HPlus` was unknown, Lean couldn't carry out type class instance search, but instance search is the only way that Lean could determine the expression's type.
+That is, the {anchorTerm HPlusInstances}`HPlus Pos Nat Pos` instance can only apply if the expression should have type {moduleName}`Pos`, but there's nothing in the program other than the instance itself to indicate that it should have this type.
 
 One solution to the problem is to ensure that all three types are available by adding a type annotation to the whole expression:
 ```anchor hPlusLotsaTypes

@@ -721,20 +721,20 @@ fail to show termination for
   div
 with errors
 failed to infer structural recursion:
-Cannot use parameter n:
-  failed to eliminate recursive application
-    div (n - k) k
+Not considering parameter k of div:
+  it is unchanged in the recursive calls
 Cannot use parameter k:
   failed to eliminate recursive application
     div (n - k) k
 
 
-Could not find a decreasing measure.
-The basic measures relate at each recursive call as follows:
-(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
-           n k
-1) 30:8-21 ≤ =
-Please use `termination_by` to specify a decreasing measure.
+failed to prove termination, possible solutions:
+  - Use `have`-expressions to prove the remaining goals
+  - Use `termination_by` to specify a different well-founded relation
+  - Use `decreasing_by` to specify your own tactic for discharging this kind of goal
+k n : Nat
+h✝ : ¬n < k
+⊢ n - k < n
 ```
 
 That's a good thing, because it doesn't!

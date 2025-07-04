@@ -102,7 +102,7 @@ The following bitwise operators are overloaded:
 
 :::
 
-Because the names {moduleName}`And` and {moduleName}`Or` are already taken as the names of logical connectives, the homogeneous versions of {moduleName}`HAnd` and {moduleName}`HOr` are called {anchorName moreOps}`AndOp` and {moduleTerm}`OrOp` rather than {moduleName}`And` and {moduleName}`Or`.
+Because the names {anchorName chapterIntro}`And` and {anchorName chapterIntro}`Or` are already taken as the names of logical connectives, the homogeneous versions of {anchorName chapterIntro}`HAnd` and {anchorName chapterIntro}`HOr` are called {anchorName moreOps}`AndOp` and {anchorName moreOps}`OrOp` rather than {anchorName chapterIntro}`And` and {anchorName chapterIntro}`Or`.
 
 # Equality and Ordering
 %%%
@@ -129,7 +129,7 @@ As this message indicates, {lit}`==` is overloaded using a type class.
 The expression {anchorTerm beqDesugar}`x == y` is actually shorthand for {anchorTerm beqDesugar}`BEq.beq x y`.
 
 Propositional equality is a mathematical statement rather than an invocation of a program.
-Because propositions are like types that describe evidence for some statement, propositional equality has more in common with types like {moduleName}`String` and {moduleTerm}`Nat → List Int` than it does with Boolean equality.
+Because propositions are like types that describe evidence for some statement, propositional equality has more in common with types like {anchorName readFile}`String` and {anchorTerm moreOps}`Nat → List Int` than it does with Boolean equality.
 This means that it can't automatically be checked.
 However, the equality of any two expressions can be stated in Lean, so long as they have the same type.
 The statement {anchorTerm functionEqProp}`(fun (x : Nat) => 1 + x) = (Nat.succ ·)` is a perfectly reasonable statement.
@@ -451,9 +451,9 @@ In this case, {anchorName FunctorPPoint}`f` has been applied to both {anchorName
 :::
 
 Even when the type contained in a functor is itself a functor, mapping a function only goes down one layer.
-That is, when using  {anchorName FunctorPPoint}`map` on a {moduleTerm}`NonEmptyList (PPoint Nat)`, the function being mapped should take {moduleTerm}`PPoint Nat` as its argument rather than {moduleName}`Nat`.
+That is, when using  {anchorName FunctorPPoint}`map` on a {anchorTerm NEPP}`NonEmptyList (PPoint Nat)`, the function being mapped should take {anchorTerm NEPP}`PPoint Nat` as its argument rather than {moduleName}`Nat`.
 
-The definition of the {moduleName}`Functor` class uses one more language feature that has not yet been discussed: default method definitions.
+The definition of the {anchorName FunctorLaws`Functor` class uses one more language feature that has not yet been discussed: default method definitions.
 Normally, a class will specify some minimal set of overloadable operations that make sense together, and then use polymorphic functions with instance implicit arguments that build on the overloaded operations to provide a larger library of features.
 For example, the function {anchorName concat}`concat` can concatenate any non-empty list whose entries are appendable:
 
@@ -483,7 +483,7 @@ class Functor (f : Type → Type) where
     map (fun _ => x) coll
 ```
 
-Just as a {moduleName}`Hashable` instance that doesn't respect {moduleName}`BEq` is buggy, a {moduleName}`Functor` instance that moves around the data as it maps the function is also buggy.
+Just as a {anchorName HashableSpec}`Hashable` instance that doesn't respect {moduleName}`BEq` is buggy, a {moduleName}`Functor` instance that moves around the data as it maps the function is also buggy.
 For example, a buggy {moduleName}`Functor` instance for {moduleName}`List` might throw away its argument and always return the empty list, or it might reverse the list.
 A bad {moduleName}`Functor` instance for {moduleName}`PPoint` might place {anchorTerm FunctorPPointBad}`f x` in both the {anchorName FunctorPPointBad}`x` and the {anchorName FunctorPPointBad}`y` fields, or swap them.
 Specifically, {anchorName FunctorDef}`Functor` instances should follow two rules:
@@ -506,11 +506,11 @@ results in the following error:
 ```anchorError derivingNotFound
 default handlers have not been implemented yet, class: 'ToString' types: [NonEmptyList]
 ```
-Invoking {moduleTerm}`deriving instance` causes Lean to consult an internal table of code generators for type class instances.
+Invoking {anchorTerm derivingNotFound}`deriving instance` causes Lean to consult an internal table of code generators for type class instances.
 If the code generator is found, then it is invoked on the provided type to create the instance.
 This message, however, means that no code generator was found for {anchorName derivingNotFound}`ToString`.
 
 # Exercises
 
- * Write an instance of {moduleTerm}`HAppend (List α) (NonEmptyList α) (NonEmptyList α)` and test it.
- * Implement a {moduleName}`Functor` instance for the binary tree datatype.
+ * Write an instance of {anchorTerm moreOps}`HAppend (List α) (NonEmptyList α) (NonEmptyList α)` and test it.
+ * Implement a {anchorTerm FunctorLaws}`Functor` instance for the binary tree datatype.
