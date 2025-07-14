@@ -422,7 +422,7 @@ def halve : Nat → Nat
 ```
 
 Behind the scenes, both definitions are completely equivalent.
-Remember: {anchorTerm halve}`halven + 1` is equivalent to {anchorTerm halveParens}`(halve n) + 1`, not {anchorTerm halveParens}`halve (n + 1)`.
+Remember: {anchorTerm halve}`halve n + 1` is equivalent to {anchorTerm halveParens}`(halve n) + 1`, not {anchorTerm halveParens}`halve (n + 1)`.
 
 :::
 
