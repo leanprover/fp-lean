@@ -2,6 +2,11 @@ import ExampleSupport
 
 def String.separate := String.intercalate
 
+-- ANCHOR: compareEntries'
+def dirLT (e1 : IO.FS.DirEntry) (e2 : IO.FS.DirEntry) : Bool :=
+  e1.fileName < e2.fileName
+-- ANCHOR_END: compareEntries'
+
 namespace DirTree
 
 -- ANCHOR: names
@@ -87,11 +92,6 @@ def showDirName (cfg : Config) (dir : String) : IO Unit := do
   IO.println (cfg.dirName dir)
 -- ANCHOR_END: OldShowFile
 
--- ANCHOR: compareEntries'
-def dirLT (e1 : IO.FS.DirEntry) (e2 :IO.FS.DirEntry) : Bool :=
-  e1.fileName < e2.fileName
--- ANCHOR_END: compareEntries'
-
 -- ANCHOR: OldDirTree
 partial def dirTree (cfg : Config) (path : System.FilePath) : IO Unit := do
   match ← toEntry path with
@@ -167,12 +167,6 @@ def showFileName (file : String) : ConfigIO Unit := do
 def showDirName (dir : String) : ConfigIO Unit := do
   runIO (IO.println ((← currentConfig).dirName dir))
 -- ANCHOR_END: MedShowFileDir
-
-
--- ANCHOR: compareEntries
-def dirLT (e1 : IO.FS.DirEntry) (e2 :IO.FS.DirEntry) : Bool :=
-  e1.fileName < e2.fileName
--- ANCHOR_END: compareEntries
 
 -- ANCHOR: MedDirTree
 partial def dirTree (path : System.FilePath) : ConfigIO Unit := do
@@ -287,11 +281,6 @@ instance : MonadWithReader ρ (ReaderT ρ m) where
   withReader change action :=
     fun cfg => action (change cfg)
 -- ANCHOR_END: ReaderTWithReader
-
--- ANCHOR: compareEntries''
-def dirLT (e1 : IO.FS.DirEntry) (e2 :IO.FS.DirEntry) : Bool :=
-  e1.fileName < e2.fileName
--- ANCHOR_END: compareEntries''
 
 -- ANCHOR: readerTDirTree
 partial def dirTree (path : System.FilePath) : ConfigIO Unit := do
