@@ -1,7 +1,7 @@
 {"version": 0,
  "sources":
  {"manual":
-  {"updated": "2025-07-04:21:08:44.622280000",
+  {"updated": "2025-07-23:21:57:27.915192000",
    "updateFrequency": "manual",
    "shortName": "ref",
    "root": "https://lean-lang.org/doc/reference/4.19.0/",

@@ -140,9 +140,9 @@ The call to {anchorName OldDirTree}`toEntry` is a {ref "nested-actions"}[nested 
 When the filename doesn't correspond to an entry in the tree (e.g. because it is {lit}`..`), {anchorName OldDirTree}`dirTree` does nothing.
 When the filename points to an ordinary file, {anchorName OldDirTree}`dirTree` calls a helper to show it with the current configuration.
 When the filename points to a directory, it is shown with a helper, and then its contents are recursively shown in a new configuration in which the prefix has been extended to account for being in a new directory.
-The contents of the directory are sorted in order to make the output deterministic, compared according to {anchorName compareEntries}`dirLT`
-```anchor compareEntries
-def dirLT (e1 : IO.FS.DirEntry) (e2 :IO.FS.DirEntry) : Bool :=
+The contents of the directory are sorted in order to make the output deterministic, compared according to {anchorName compareEntries'}`dirLT`.
+```anchor compareEntries'
+def dirLT (e1 : IO.FS.DirEntry) (e2 : IO.FS.DirEntry) : Bool :=
   e1.fileName < e2.fileName
 ```
 

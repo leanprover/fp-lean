@@ -164,7 +164,11 @@ block_extension Block.leanEvalSteps (steps : Array Highlighted) where
         pure .empty
       | .ok (steps : Array Highlighted) =>
         let i := steps.map (·.indentation) |>.toList |>.min? |>.getD 0
-        return {{<div class="eval-steps">{{← steps.mapM (·.deIndent i |>.blockHtml "examples")}}</div>}}
+        return {{
+          <div class="eval-steps">
+            {{← steps.mapM (·.deIndent i |>.blockHtml "examples" (g := Verso.Genre.Manual))}}
+          </div>
+        }}
 
 block_extension Block.leanEqReason where
   traverse _ _ _ := pure none
@@ -391,7 +395,7 @@ private def quoteCode (str : String) : String := Id.run do
 @[role_expander moduleEvalStep]
 def moduleEvalStep : RoleExpander
   | args, inls => do
-    let {module := moduleName, anchor?, step, showProofStates := _} ← parseThe EvalStepContext args
+    let {module := moduleName, anchor?, step, showProofStates := _, defSite := _} ← parseThe EvalStepContext args
     let code? ← oneCodeStr? inls
 
     let modStr := moduleName.getId.toString
@@ -474,7 +478,7 @@ where
 @[code_block_expander moduleEvalStep]
 def moduleEvalStepBlock : CodeBlockExpander
   | args, code => do
-    let {module := moduleName, anchor?, step, showProofStates := _} ← parseThe EvalStepContext args
+    let {module := moduleName, anchor?, step, showProofStates := _, defSite := _} ← parseThe EvalStepContext args
 
     withAnchored moduleName anchor? fun fragment => do
       let steps := splitHighlighted (· == "===>") fragment
@@ -496,7 +500,7 @@ macro_rules
 @[code_block_expander moduleEvalSteps]
 def moduleEvalSteps : CodeBlockExpander
   | args, str => do
-    let {module := moduleName, anchor?, showProofStates := _} ← parseThe CodeContext args
+    let {module := moduleName, anchor?, showProofStates := _, defSite := _} ← parseThe CodeContext args
 
     withAnchored moduleName anchor? fun fragment => do
       _ ← ExpectString.expectString "steps" str fragment.toString
@@ -513,7 +517,7 @@ macro_rules
 @[code_block_expander moduleEqSteps]
 def moduleEqSteps : CodeBlockExpander
   | args, str => do
-    let {module := moduleName, anchor?, showProofStates := _} ← parseThe CodeContext args
+    let {module := moduleName, anchor?, showProofStates := _, defSite := _} ← parseThe CodeContext args
 
     withAnchored moduleName anchor? fun fragment => do
       _ ← ExpectString.expectString "steps" str fragment.toString
@@ -853,7 +857,7 @@ def moduleOutText : RoleExpander
   | args, inls => withTraceNode `Elab.Verso (fun _ => pure m!"moduleOutText") <| do
     let str? ← oneCodeStr? inls
 
-    let {module := moduleName, anchor?, severity, showProofStates := _} ← parseThe MessageContext args
+    let {module := moduleName, anchor?, severity, showProofStates := _, defSite := _} ← parseThe MessageContext args
 
     withAnchored moduleName anchor? fun hl => do
       let infos := allInfo hl
