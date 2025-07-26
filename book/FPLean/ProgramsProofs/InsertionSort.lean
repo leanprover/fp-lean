@@ -244,10 +244,10 @@ j' : Nat
 ih : ∀ (isLt : j' < arr.size), (insertSorted arr ⟨j', isLt⟩).size = arr.size
 isLt : j' + 1 < arr.size
 ⊢ (match compare arr[j'] arr[j' + 1] with
-      | Ordering.lt => arr
-      | Ordering.eq => arr
-      | Ordering.gt => insertSorted (arr.swap j' (j' + 1) ⋯ ⋯) ⟨j', ⋯⟩).size =
-    arr.size
+    | Ordering.lt => arr
+    | Ordering.eq => arr
+    | Ordering.gt => insertSorted (arr.swap j' (j' + 1) ⋯ ⋯) ⟨j', ⋯⟩).size =
+  arr.size
 ```
 When faced with a goal that includes {kw}`if` or {kw}`match`, the {anchorTerm insert_sorted_size_eq_1}`split` tactic (not to be confused with the {anchorName splitList (module := Examples.ProgramsProofs.Inequalities)}`splitList` function used in the definition of merge sort) replaces the goal with one new goal for each path of control flow:
 ```anchor insert_sorted_size_eq_1
@@ -478,10 +478,10 @@ arr : Array α
 isLt : i' + 1 < arr.size
 hLen : arr.size = len
 ⊢ (match compare arr[i'] arr[i' + 1] with
-      | Ordering.lt => arr
-      | Ordering.eq => arr
-      | Ordering.gt => insertSorted (arr.swap i' (i' + 1) ⋯ ⋯) ⟨i', ⋯⟩).size =
-    len
+    | Ordering.lt => arr
+    | Ordering.eq => arr
+    | Ordering.gt => insertSorted (arr.swap i' (i' + 1) ⋯ ⋯) ⟨i', ⋯⟩).size =
+  len
 ```
 Using the {anchorTerm insert_sorted_size_eq_redo_4}`split` tactic results in one goal for each pattern.
 Once again, the first two goals result from branches without recursive calls, so the induction hypothesis is not necessary:

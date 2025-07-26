@@ -337,9 +337,9 @@ example : Subschema [⟨"location", .string⟩] peak := by
 unsolved goals
 case a.a
 ⊢ HasCol
-    [{ name := "location", contains := DBType.string }, { name := "elevation", contains := DBType.int },
-      { name := "lastVisited", contains := DBType.int }]
-    "location" DBType.string
+  [{ name := "location", contains := DBType.string }, { name := "elevation", contains := DBType.int },
+    { name := "lastVisited", contains := DBType.int }]
+  "location" DBType.string
 
 case a
 ⊢ Subschema [] peak
