@@ -301,11 +301,11 @@ end
 
 private inductive SplitCtxF where
   | tactics : Array (Highlighted.Goal Highlighted) → Nat → Nat → SplitCtxF
-  | span : Array (Highlighted.Span.Kind × String) → SplitCtxF
+  | span : Array Highlighted.Message → SplitCtxF
 
 private def SplitCtxF.wrap (hl : Highlighted) : SplitCtxF → Highlighted
   | .tactics g s e => .tactics g s e hl
-  | .span xs => .span xs hl
+  | .span xs => .span (xs.map (fun m => (m.1, m.2))) hl
 
 private structure SplitCtx where
   contents : Array (Highlighted × SplitCtxF) := #[]
@@ -358,7 +358,7 @@ def splitHighlighted (p : String → Bool) (hl : Highlighted) : Array Highlighte
       current := current ++ this
     | some (.span msgs x) :: hs =>
       todo := some x :: none :: hs
-      ctx := ctx.push current (.span msgs)
+      ctx := ctx.push current (.span <| msgs.map fun x => ⟨x.1, x.2⟩)
       current := .empty
     | some (.tactics gs b e x) :: hs =>
       todo := some x :: none :: hs
@@ -862,38 +862,39 @@ def moduleOutText : RoleExpander
     withAnchored moduleName anchor? fun hl => do
       let infos := allInfo hl
       if let some str := str? then
-        for (sev, msg, _) in infos do
-          if messagesMatch msg str.getString then
-            if sev == severity.1 then
-              return #[← ``(Inline.text $(quote msg))]
+        for (msg, _) in infos do
+          if messagesMatch msg.toString str.getString then
+            if msg.severity.toSeverity == severity.1 then
+              return #[← ``(Inline.text $(quote msg.toString))]
             else
-              let wanted ← severityName sev
+              let wanted ← severityName msg.severity.toSeverity
               throwError "Mismatched severity. Expected '{repr severity.1}', got '{wanted}'.{← severityHint wanted severity.2}"
 
         let ref :=
           if let `(inline|role{ $_ $_* }[ $x ]) := (← getRef) then x.raw else str
 
-        let suggs : Array Suggestion := infos.map fun (_sev, msg, _) => {
-          suggestion := quoteCode msg.trim
+        let suggs : Array Suggestion := infos.map fun (msg, _) => {
+          suggestion := quoteCode msg.toString.trim
         }
         let h ←
           if suggs.isEmpty then pure m!""
           else MessageData.hint "Use one of these." suggs (ref? := some ref)
 
         let err :=
-          m!"Expected one of:{indentD (m!"\n".joinSep <| infos.toList.map (·.2.1))}" ++
+          m!"Expected one of:{indentD (m!"\n".joinSep <| infos.toList.map (·.1.toString))}" ++
           m!"\nbut got:{indentD str.getString}\n" ++ h
         logErrorAt str err
       else
-        let err := m!"Expected one of:{indentD (m!"\n".joinSep <| infos.toList.map (·.2.1))}"
+        let err := m!"Expected one of:{indentD (m!"\n".joinSep <| infos.toList.map (·.1.toString))}"
         Lean.logError m!"No expected term provided. {err}"
         if let `(inline|role{$_ $_*} [%$tok1 $contents* ]%$tok2) := (← getRef) then
           let stx :=
             if tok1.getHeadInfo matches .original .. && tok2.getHeadInfo matches .original .. then
               mkNullNode #[tok1, tok2]
             else mkNullNode contents
-          for (_, msg, _) in infos do
-            Suggestion.saveSuggestion stx (quoteCode <| ExpectString.abbreviateString msg.trim) (quoteCode msg.trim)
+          for (msg, _) in infos do
+            let msg := msg.toString.trim
+            Suggestion.saveSuggestion stx (quoteCode <| ExpectString.abbreviateString msg) (quoteCode msg)
 
       return #[← ``(sorryAx _ true)]
 

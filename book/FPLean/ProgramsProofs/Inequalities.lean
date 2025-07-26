@@ -512,7 +512,7 @@ x y : α
 xs : List α
 x✝ : (x :: y :: xs).length ≥ 2
 ⊢ (splitList (x :: y :: xs)).fst.length < (x :: y :: xs).length ∧
-    (splitList (x :: y :: xs)).snd.length < (x :: y :: xs).length
+  (splitList (x :: y :: xs)).snd.length < (x :: y :: xs).length
 ```
 Simplifying using {anchorName splitList}`splitList` removes {anchorName splitList_shorter_2}`x` and {anchorName splitList_shorter_2}`y`, resulting in the computed lengths of lists each gaining a {anchorTerm le_succ_of_le}`+ 1`:
 ```anchor splitList_shorter_2
