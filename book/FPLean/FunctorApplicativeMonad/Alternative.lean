@@ -221,8 +221,8 @@ Validate.errors
 # The {lit}`Alternative` Class
 
 Many types support a notion of failure and recovery.
-The `Many` monad from the section on {"nondeterministic-search"}[evaluating arithmetic expressions in a variety of monads] is one such type, as is `Option`.
-Both support failure without providing a reason (unlike, say, `Except` and `Validate`, which require some indication of what went wrong).
+The {anchorName AlternativeMany}`Many` monad from the section on {ref "nondeterministic-search"}[evaluating arithmetic expressions in a variety of monads] is one such type, as is {anchorName AlternativeOption}`Option`.
+Both support failure without providing a reason (unlike, say, {anchorName ApplicativeExcept}`Except` and {anchorName Validate}`Validate`, which require some indication of what went wrong).
 
 The {anchorName FakeAlternative}`Alternative` class describes applicative functors that have additional operators for failure and recovery:
 

@@ -453,7 +453,7 @@ In this case, {anchorName FunctorPPoint}`f` has been applied to both {anchorName
 Even when the type contained in a functor is itself a functor, mapping a function only goes down one layer.
 That is, when using  {anchorName FunctorPPoint}`map` on a {anchorTerm NEPP}`NonEmptyList (PPoint Nat)`, the function being mapped should take {anchorTerm NEPP}`PPoint Nat` as its argument rather than {moduleName}`Nat`.
 
-The definition of the {anchorName FunctorLaws`Functor` class uses one more language feature that has not yet been discussed: default method definitions.
+The definition of the {anchorName FunctorLaws}`Functor` class uses one more language feature that has not yet been discussed: default method definitions.
 Normally, a class will specify some minimal set of overloadable operations that make sense together, and then use polymorphic functions with instance implicit arguments that build on the overloaded operations to provide a larger library of features.
 For example, the function {anchorName concat}`concat` can concatenate any non-empty list whose entries are appendable:
 
