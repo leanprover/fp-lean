@@ -772,7 +772,7 @@ termination_by n
 Prove the following theorems:
 
  * For all natural numbers $`n`, $`0 < n + 1`.
- * For all natural numbers $`n`, $`0 \\leq n`.
+ * For all natural numbers $`n`, $`0 \leq n`.
  * For all natural numbers $`n` and $`k`, $`(n + 1) - (k + 1) = n - k`
  * For all natural numbers $`n` and $`k`, if $`k < n` then $`n \neq 0`
  * For all natural numbers $`n`, $`n - n = 0`
