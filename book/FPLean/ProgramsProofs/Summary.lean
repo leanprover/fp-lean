@@ -33,7 +33,7 @@ Reference counting is also used in Python, PHP, and Swift.
 
 When asked to allocate a fresh object, Lean's run-time system is able to recycle existing objects whose reference counts are falling to zero.
 Additionally, array operations such as {anchorName names}`Array.set` and {anchorName names}`Array.swap` will mutate an array if its reference count is one, rather than allocating a modified copy.
-If {anchorName names}`Array.swap`names}`Array.swap` holds the only reference to an array, then no other part of the program can tell that it was mutated rather than copied.
+If {anchorName names}`Array.swap` holds the only reference to an array, then no other part of the program can tell that it was mutated rather than copied.
 
 Writing efficient code in Lean requires the use of tail recursion and being careful to ensure that large arrays are used uniquely.
 While tail calls can be identified by inspecting the function's definition, understanding whether a value is referred to uniquely may require reading the whole program.

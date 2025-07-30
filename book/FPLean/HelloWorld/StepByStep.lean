@@ -80,7 +80,7 @@ The next statement in the block is {anchor line4}`let input ← stdin.getLine`.
 {moduleTerm}`IO.FS.Stream.getLine` has type {moduleTerm}`IO.FS.Stream → IO String`, which means that it is a function from a stream to an {moduleTerm}`IO` action that will return a string.
 Once again, this is an example of accessor notation.
 This {moduleTerm}`IO` action is executed, and the program waits until the user has typed a complete line of input.
-Assume the user writes {lit}“`David`”.
+Assume the user writes “{lit}`David`”.
 The resulting line ({lit}`"David\n"`) is associated with {anchorTerm block5}`input`, where the escape sequence {lit}`\n` denotes the newline character.
 
 ```anchor block5

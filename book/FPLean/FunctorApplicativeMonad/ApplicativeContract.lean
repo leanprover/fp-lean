@@ -119,7 +119,7 @@ Using the fact that {anchorName mSeqRespIdInit}`pure` is a left identity of {anc
 Because {anchorTerm mSeqRespIdInit}`fun x => f x` is the same as {anchorName mSeqRespIdInit}`f`, this is the same as {anchorTerm mSeqRespIdInit}`v >>= pure`, and the fact that {anchorName mSeqRespIdInit}`pure` is a right identity of {anchorTerm mSeqRespIdInit}`>>=` can be used to get {anchorName mSeqRespIdInit}`v`.
 
 This kind of informal reasoning can be made easier to read with a bit of reformatting.
-In the following chart, read “EXPR1 ={ REASON }= EXPR2” as “EXPR1 is the same as EXPR2 because REASON”:
+In the following chart, read “{lit}`EXPR1 ={ REASON }= EXPR2`” as “{lit}`EXPR1` is the same as {lit}`EXPR2` because {lit}`REASON`”:
 
 ```anchorEqSteps mSeqRespId
 pure id >>= fun g => v >>= fun y => pure (g y)
