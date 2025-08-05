@@ -857,15 +857,19 @@ def moduleOutText : RoleExpander
   | args, inls => withTraceNode `Elab.Verso (fun _ => pure m!"moduleOutText") <| do
     let str? ← oneCodeStr? inls
 
-    let {module := moduleName, anchor?, severity, showProofStates := _, defSite := _} ← parseThe MessageContext args
+    let {module := moduleName, anchor?, severity, showProofStates := _, defSite := _, expandTraces, onlyTrace} ← parseThe MessageContext args
+    if onlyTrace.isSome then throwError "Unsupported option: `onlyTrace`"
 
     withAnchored moduleName anchor? fun hl => do
       let infos := allInfo hl
       if let some str := str? then
+        let mut strings := #[]
         for (msg, _) in infos do
-          if messagesMatch msg.toString str.getString then
+          let s := msg.toString (expandTraces := expandTraces)
+          strings := strings.push s
+          if messagesMatch s str.getString then
             if msg.severity.toSeverity == severity.1 then
-              return #[← ``(Inline.text $(quote msg.toString))]
+              return #[← ``(Inline.text $(quote s))]
             else
               let wanted ← severityName msg.severity.toSeverity
               throwError "Mismatched severity. Expected '{repr severity.1}', got '{wanted}'.{← severityHint wanted severity.2}"
@@ -873,8 +877,8 @@ def moduleOutText : RoleExpander
         let ref :=
           if let `(inline|role{ $_ $_* }[ $x ]) := (← getRef) then x.raw else str
 
-        let suggs : Array Suggestion := infos.map fun (msg, _) => {
-          suggestion := quoteCode msg.toString.trim
+        let suggs : Array Suggestion := strings.map fun msg => {
+          suggestion := quoteCode msg.trim
         }
         let h ←
           if suggs.isEmpty then pure m!""
