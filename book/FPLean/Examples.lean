@@ -123,14 +123,10 @@ block_extension Block.creativeCommons where
         </a>"."
       }}
 
-@[block_role_expander creativeCommons]
-def creativeCommons : BlockRoleExpander
-  | args, #[] => do
-    ArgParse.done.run args
-    return #[← ``(Block.other (Block.creativeCommons) #[])]
-  | args, blocks => do
-    ArgParse.done.run args
-    throwErrorAt (mkNullNode blocks) m!"Unexpected argument"
+@[block_command]
+def creativeCommons : BlockCommandOf Unit
+  | () => do
+    ``(Block.other (Block.creativeCommons) #[])
 
 def evalStepsStyle := r#"
 div.paragraph > .eval-steps:not(:first-child), div.paragraph > .eval-steps:not(:first-child) > * {
@@ -663,7 +659,10 @@ structure CommandBlockConfig extends CommandConfig where
   command : StrLit
   prompt : Option StrLit := none
 
-def CommandBlockConfig.parse [Monad m] [MonadError m] [MonadLiftT CoreM m] : ArgParse m CommandBlockConfig :=
+section
+variable [Monad m] [MonadError m] [MonadLiftT CoreM m]
+
+def CommandBlockConfig.parse  : ArgParse m CommandBlockConfig :=
   (fun container dir command «show» prompt viaShell => {container, dir, command, «show», prompt, viaShell}) <$>
     .positional `container .ident <*>
     .positional `dir .strLit <*>
@@ -672,25 +671,27 @@ def CommandBlockConfig.parse [Monad m] [MonadError m] [MonadLiftT CoreM m] : Arg
     .named `prompt .strLit true <*>
     .namedD `shell .bool false
 
-@[block_role_expander command]
-def commandBlock : BlockRoleExpander
-  | args, blks => do
-    unless blks.isEmpty do
-      throwErrorAt (mkNullNode blks) "Expected no blocks"
-    let { container, dir, command, «show», prompt, viaShell } ← CommandBlockConfig.parse.run args
+instance : FromArgs CommandBlockConfig m where
+  fromArgs := CommandBlockConfig.parse
+
+end
+
+@[block_command command]
+def commandBlock : BlockCommandOf CommandBlockConfig
+  | { container, dir, command, «show», prompt, viaShell } => do
     let output ← Commands.command container dir.getString command (viaShell := viaShell)
     unless output.stdout.isEmpty do
       logSilentInfo <| "Stdout:\n" ++ output.stdout
     unless output.stderr.isEmpty do
       logSilentInfo <| "Stderr:\n" ++ output.stderr
     let out := «show».getD command |>.getString
-    return #[← ``(Block.other (Block.shellCommand $(quote out) $(quote <| prompt.map (·.getString))) #[Block.code $(quote out)])]
+    ``(Block.other (Block.shellCommand $(quote out) $(quote <| prompt.map (·.getString))) #[Block.code $(quote out)])
 
 instance : Coe StrLit (TSyntax `argument) where
   coe stx := ⟨mkNode ``Verso.Syntax.anon #[mkNode ``Verso.Syntax.arg_str #[stx.raw]]⟩
 
 macro_rules
-  | `(block|```command $args* | $s```) => `(block|block_role{command $args* $s})
+  | `(block|```command $args* | $s```) => `(block|command{command $args* $s})
 
 @[role_expander commandOut]
 def commandOut : RoleExpander
