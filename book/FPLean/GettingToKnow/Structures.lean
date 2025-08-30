@@ -385,10 +385,10 @@ That is, {anchorTerm originx}`#eval origin.x` and {anchorTerm originx1}`#eval Po
 
 
 Accessor dot notation is usable with more than just structure fields.
-It can also be used for functions that take any number of arguments.
+It can also be used to call functions defined for a type with any number of arguments.
 More generally, accessor notation has the form {lit}`TARGET.f ARG1 ARG2 ...`.
-If {lit}`TARGET` has type {lit}`T`, the function named {lit}`T.f` is called.
-{lit}`TARGET` becomes its leftmost argument of type {lit}`T`, which is often but not always the first one, and {lit}`ARG1 ARG2 ...` are provided in order as the remaining arguments.
+If, {lit}`TARGET` is a value of some type {lit}`T`, and there is a function defined for this type, `T.f`, Lean automatically calls it.
+The value {lit}`TARGET` is passed as the function’s leftmost argument of type {lit}`T` (which is often but not always the first one), while {lit}`ARG1`, {lit}`ARG2`, etc. fill in the remaining parameters without any re-ordering.
 For instance, {anchorName stringAppend}`String.append` can be invoked from a string with accessor notation, even though {anchorName Inline}`String` is not a structure with an {anchorName stringAppendDot}`append` field.
 
 ```anchorTerm stringAppendDot
@@ -399,16 +399,22 @@ For instance, {anchorName stringAppend}`String.append` can be invoked from a str
 "one string and another"
 ```
 
-In that example, {lit}`TARGET` represents {anchorTerm stringAppendDot}`"one string"` and {lit}`ARG1` represents {anchorTerm stringAppendDot}`" and another"`.
+In that example, {anchorTerm stringAppendDot}`"one string"` is the {lit}`TARGET` of type {anchorName Inline}`String`, and {anchorTerm stringAppendDot}`" and another"` is {lit}`ARG1`.
+Knowing {anchorName stringAppend}`String.append` is of type {lit}`String → String → String`, Lean rewrites this call as:
 
-The function {anchorName modifyBoth}`Point.modifyBoth` (that is, {anchorName modifyBothTest}`modifyBoth` defined in the {lit}`Point` namespace) applies a function to both fields in a {anchorName Point}`Point`:
+```anchorTerm stringAppendDot
+#eval String.append "one string" " and another"
+```
+
+To emphasize how TARGET is moved, the function below, {anchorName modifyBoth}`Point.modifyBoth` (that is, {anchorName modifyBothTest}`modifyBoth` defined in the {lit}`Point` namespace) applies a given function to both fields in a {anchorName Point}`Point`.
+Notice how the {anchorName Point}`Point` argument comes after the function argument:
 
 ```anchor modifyBoth
 def Point.modifyBoth (f : Float → Float) (p : Point) : Point :=
   { x := f p.x, y := f p.y }
 ```
 
-Even though the {anchorName Point}`Point` argument comes after the function argument, it can be used with dot notation as well:
+Calling it via the dot notation still work, because the target of the accessor notation is used as the first argument in which the type matches, not necessarily the first one.
 
 ```anchorTerm modifyBothTest
 #eval fourAndThree.modifyBoth Float.floor
@@ -418,8 +424,7 @@ Even though the {anchorName Point}`Point` argument comes after the function argu
 { x := 4.000000, y := 3.000000 }
 ```
 
-In this case, {lit}`TARGET` represents {anchorName fourAndThree}`fourAndThree`, while {lit}`ARG1` is {anchorName modifyBothTest}`Float.floor`.
-This is because the target of the accessor notation is used as the first argument in which the type matches, not necessarily the first argument.
+{anchorName fourAndThree}`fourAndThree` is the {lit}`TARGET` placed in the second argument of the function, while {anchorName modifyBothTest}`Float.floor` is {lit}`ARG1`, placed in the first.
 
 # Exercises
 
