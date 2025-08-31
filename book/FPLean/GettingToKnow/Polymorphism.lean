@@ -471,7 +471,7 @@ The error messages provide a useful clue.
 Both error messages refer to the _same_ metavariable for the missing implicit argument, which means that once you specify the type for either {anchorName fragments}`List.head?` or {anchorName fragments}`List.nil` the other is resolved automatically.
 Seeing the _same_ metavariable in multiple places is a sign that those unknowns share a single solution, and it often points to where extra type information needs to be supplied.
 
-{lit}`@` is a notation used to make implicit argument explicit, which lean use to print the error message with arguments that could remain hidden from the developer :
+Moreover, {lit}`@` is a notation used to make implicit argument explicit, which lean use to print the error message with arguments that could remain hidden from the developer :
 
 ```anchor headHuhAt
 #check @List.headd? Nat [4]
@@ -486,6 +486,11 @@ Is equivalent to :
 ```anchor headHuhAtTwo
 [4].headd? : Option Nat
 ```
+
+And, {lit}`_root_` is the top-level namespace, technically it's not a namespace and instead a prefix that the parser/elaborator specifically looks for when resolving names.
+When a name starts with _root_, Lean looks for a declaration whose name is exactly what comes after _root_, ignoring aliases (names due to open or export).
+When you're defining something, if the name doesn't start with _root_, it uses the current namespace as a prefix to get the name being defined, and if it does start with _root_ it just removes _root_ to get the name.
+Namespaces will be introduced in the {ref "Can we refer to the Namespace paragraph directly here ?"}[next chapter]
 
 :::
 
