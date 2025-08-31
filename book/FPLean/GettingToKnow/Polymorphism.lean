@@ -593,6 +593,7 @@ def howManyDogs (pets : List PetName) : Nat :=
 
 Function calls are evaluated before infix operators, so {anchorTerm howManyDogsAdd}`howManyDogs morePets + 1` is the same as {anchorTerm howManyDogsAdd}`(howManyDogs morePets) + 1`.
 As expected, {anchor dogCount}`#eval howManyDogs animals` yields {anchorInfo dogCount}`3`.
+Infix operators and precedences values will be explained in {ref "Refer to modad -> Infix Operators"}[Infix operator]
 :::
 
 ## {anchorName Unit}`Unit`
