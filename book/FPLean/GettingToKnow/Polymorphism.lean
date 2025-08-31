@@ -480,14 +480,14 @@ tag := "prod"
 
 The {anchorName Prod}`Prod` structure, short for “Product”, is a generic way of joining two values together.
 For instance, a {anchorTerm fragments}`Prod Nat String` contains a {anchorName fragments}`Nat` and a {anchorName fragments}`String` in a {anchorName Prod}`Prod` structure.
-Using {anchorTerm fragments}`Prod Nat Nat` would be the same as using our {anchorTerm natPoint}`PPoint Nat`.
-Many applications are best served by defining their own structures, even for simple cases like {anchorName Point}`Point`, because using domain terminology can make it easier to read the code.
+Using {anchorTerm fragments}`Prod Nat Nat` would computally be the same as using our {anchorTerm natPoint}`PPoint Nat`.
+However, many applications are best served by defining their own structures, even for simple cases like {anchorName Point}`Point`, because using domain terminology can make it easier to read the code.
 Additionally, defining structure types helps catch more errors by assigning different types to different domain concepts, even if they are of a similar body, preventing them from being mixed up.
 {anchorName fragments}`Prod` is very much like C#'s tuples, the {Kotlin}`Pair` and {Kotlin}`Triple` types in Kotlin, and {cpp}`tuple` in C++.
 
 On the other hand, there are some cases where it is not worth the overhead of defining a new type.
-Additionally, some libraries are sufficiently generic that there is no more specific concept than “pair”.
-Finally, the standard library contains a variety of convenience functions that make it easier to work with the built-in pair type.
+Additionally, a standard library can contains a variety of convenience functions that make it easier to work with the built-in pair type of the language.
+Finally, some libraries are sufficiently generic that there is no more specific concept than “pair”.
 
 :::paragraph
 The structure {anchorName Prod}`Prod` is defined with two type arguments:
@@ -503,7 +503,7 @@ structure Prod (α : Type) (β : Type) : Type where
 :::paragraph
 Lists are used so frequently that there is special syntax to make them more readable ({lit}`[a, b, c]`, {lit}`::`, etc).
 For the same reason, both the product type and its constructor have special syntax.
-The type {anchorTerm ProdSugar}`Prod α β` is typically written {anchorTerm ProdSugar}`α × β`, mirroring the usual notation for a Cartesian product of sets.
+The type {anchorTerm ProdSugar}`Prod α β` is typically written {anchorTerm ProdSugar}`α × β`, mirroring the usual notation for a [Cartesian product](https://en.wikipedia.org/wiki/Cartesian_product) of sets.
 Similarly, the usual [mathematical notation](https://en.wikipedia.org/wiki/Ordered_pair) for pairs is available for {anchorName ProdSugar}`Prod`.
 Meaning, instead of writing:
 
