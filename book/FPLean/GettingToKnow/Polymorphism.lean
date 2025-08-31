@@ -501,7 +501,7 @@ structure Prod (α : Type) (β : Type) : Type where
 :::
 
 :::paragraph
-Lists are used so frequently that there is special syntax to make them more readable ({lit}`[]` and {lit}`::`).
+Lists are used so frequently that there is special syntax to make them more readable ({lit}`[a, b, c]`, {lit}`::`, etc).
 For the same reason, both the product type and its constructor have special syntax.
 The type {anchorTerm ProdSugar}`Prod α β` is typically written {anchorTerm ProdSugar}`α × β`, mirroring the usual notation for a Cartesian product of sets.
 Similarly, the usual [mathematical notation](https://en.wikipedia.org/wiki/Ordered_pair) for pairs is available for {anchorName ProdSugar}`Prod`.
