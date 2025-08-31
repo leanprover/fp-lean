@@ -501,6 +501,7 @@ structure Prod (α : Type) (β : Type) : Type where
 :::
 
 :::paragraph
+These names are abbreviations for "first" and "second".
 Lists are used so frequently that there is special syntax to make them more readable ({lit}`[a, b, c]`, {lit}`::`, etc).
 For the same reason, both the product type and its constructor have special syntax.
 The type {anchorTerm ProdSugar}`Prod α β` is typically written {anchorTerm ProdSugar}`α × β`, mirroring the usual notation for a [Cartesian product](https://en.wikipedia.org/wiki/Cartesian_product) of sets.
