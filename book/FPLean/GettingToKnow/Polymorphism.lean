@@ -444,11 +444,9 @@ context:
 
 :::paragraph
 This is because Lean was unable to fully determine the expression's type.
-In particular, it could neither find the implicit type argument to {anchorName fragments}`List.head?`, nor the implicit type argument to {anchorName fragments}`List.nil`.
-In Lean's output, {lit}`?m.XYZ` represents a part of a program that could not be inferred.
-These unknown parts are called _metavariables_, and they occur in some error messages.
-In order to evaluate an expression, Lean needs to be able to find its type, and the type was unavailable because the empty list does not have any entries from which the type can be found.
-Explicitly providing a type allows Lean to proceed:
+In particular, it could neither infer the implicit type argument to {anchorName fragments}`List.head?`, nor {anchorName fragments}`List.nil`.
+In order to evaluate an expression, Lean must know its type. Here, the type is unavailable because the empty list does not contain any entries from which the type can be inferred.
+Explicitly providing a type to the function {anchorName fragments}`List.head?` allows Lean to proceed:
 
 ```anchor headNone
 #eval [].head? (α := Int)
@@ -458,7 +456,7 @@ Explicitly providing a type allows Lean to proceed:
 none
 ```
 
-The type can also be provided with a type annotation:
+The type can also be provided with a type annotation for the value {anchorName fragments}`List.nil`:
 
 ```anchor headNoneTwo
 #eval ([] : List Int).head?
@@ -469,7 +467,9 @@ none
 ```
 
 The error messages provide a useful clue.
-Both messages use the _same_ metavariable to describe the missing implicit argument, which means that Lean has determined that the two missing pieces will share a solution, even though it was unable to determine the actual value of the solution.
+{lit}`?m.XYZ` are _metavariables_, Lean creates them as placeholder for missing values until they can be resolved.
+Both error messages refer to the _same_ metavariable for the missing implicit argument, which means that once you specify the type for either {anchorName fragments}`List.head?` or {anchorName fragments}`List.nil` the other is resolved automatically.
+Seeing the _same_ metavariable in multiple places is a sign that those unknowns share a single solution, and it often points to where extra type information needs to be supplied.
 
 :::
 
