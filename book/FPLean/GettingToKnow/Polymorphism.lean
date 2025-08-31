@@ -471,6 +471,22 @@ The error messages provide a useful clue.
 Both error messages refer to the _same_ metavariable for the missing implicit argument, which means that once you specify the type for either {anchorName fragments}`List.head?` or {anchorName fragments}`List.nil` the other is resolved automatically.
 Seeing the _same_ metavariable in multiple places is a sign that those unknowns share a single solution, and it often points to where extra type information needs to be supplied.
 
+{lit}`@` is a notation used to make implicit argument explicit, which lean use to print the error message with arguments that could remain hidden from the developer :
+
+```anchor headHuhAt
+#check @List.headd? Nat [4]
+```
+```anchor headHuhAt
+[4].headd? : Option Nat
+```
+Is equivalent to :
+```anchor headHuhAtTwo
+#check List.headd? [4]
+```
+```anchor headHuhAtTwo
+[4].headd? : Option Nat
+```
+
 :::
 
 ## {lit}`Prod`
