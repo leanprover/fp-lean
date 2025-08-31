@@ -476,14 +476,14 @@ Moreover, {lit}`@` is a notation used to make implicit argument explicit, which 
 ```anchor headHuhAt
 #check @List.head? Nat [4]
 ```
-```anchor headHuhAt
+```anchorInfo headHuhAt
 [4].head? : Option Nat
 ```
 Is equivalent to :
 ```anchor headHuhAtTwo
 #check List.head? [4]
 ```
-```anchor headHuhAtTwo
+```anchorInfo headHuhAtTwo
 [4].head? : Option Nat
 ```
 
