@@ -623,9 +623,19 @@ inductive ArithExpr (ann : Type) : Type where
   | times : ann → ArithExpr ann → ArithExpr ann → ArithExpr ann
 ```
 
-The type argument {anchorName ArithExpr}`ann` stands for annotations, and each constructor is annotated.
-Expressions coming from a parser might be annotated with source locations, so a return type of {anchorTerm ArithExprEx}`ArithExpr SourcePos` ensures that the parser put a {anchorName ArithExprEx}`SourcePos` at each subexpression.
-Expressions that don't come from the parser, however, will not have source locations, so their type can be {anchorTerm ArithExprEx}`ArithExpr Unit`.
+The type argument {anchorName ArithExpr}`ann` stands for annotations, and each constructor having it is therefore _annotated_.
+An anotation can be anything useful, expressions coming from a parser might be annotated with source locations (a line and column number from a source code file), so a return type of {anchorTerm ArithExprEx}`ArithExpr SourcePos` ensures that the parser put a {anchorName ArithExprEx}`SourcePos` at each subexpression, allowing access to the location of each in a hypothetical source code for different reasons.
+
+Expressions that don't come from the parser, however, may not have source locations, so their type can be {anchorTerm ArithExprEx}`ArithExpr Unit`:
+
+```anchor ArithExprVal
+def toEval := (ArithExpr.times () (ArithExpr.int () 2) (ArithExpr.int () 3))
+#check toEval
+```
+```anchorInfo ArithExprVal
+toEval : ArithExpr Unit
+```
+Unit's constructor can be written as empty parentheses: {anchorTerm unitParens}`() : Unit`.
 
 :::
 
@@ -633,7 +643,6 @@ Additionally, because all Lean functions have arguments, zero-argument functions
 In a return position, the {anchorName ArithExprEx}`Unit` type is similar to {CSharp}`void` in languages derived from C.
 In the C family, a function that returns {CSharp}`void` will return control to its caller, but it will not return any interesting value.
 By being an intentionally uninteresting value, {anchorName ArithExprEx}`Unit` allows this to be expressed without requiring a special-purpose {CSharp}`void` feature in the type system.
-Unit's constructor can be written as empty parentheses: {anchorTerm unitParens}`() : Unit`.
 
 ## {lit}`Empty`
 
