@@ -474,20 +474,20 @@ Seeing the _same_ metavariable in multiple places is a sign that those unknowns 
 Moreover, {lit}`@` is a notation used to make implicit argument explicit, which lean use to print the error message with arguments that could remain hidden from the developer :
 
 ```anchor headHuhAt
-#check @List.headd? Nat [4]
+#check @List.head? Nat [4]
 ```
 ```anchor headHuhAt
-[4].headd? : Option Nat
+[4].head? : Option Nat
 ```
 Is equivalent to :
 ```anchor headHuhAtTwo
-#check List.headd? [4]
+#check List.head? [4]
 ```
 ```anchor headHuhAtTwo
-[4].headd? : Option Nat
+[4].head? : Option Nat
 ```
 
-And, {lit}`_root_` is the top-level namespace, technically it's not a namespace and instead a prefix that the parser/elaborator specifically looks for when resolving names.
+And, {lit}`_root_` is the top-level, _root_, namespace, technically it's not a namespace and instead a prefix that the parser/elaborator specifically looks for when resolving names.
 When a name starts with _root_, Lean looks for a declaration whose name is exactly what comes after _root_, ignoring aliases (names due to open or export).
 When you're defining something, if the name doesn't start with _root_, it uses the current namespace as a prefix to get the name being defined, and if it does start with _root_ it just removes _root_ to get the name.
 Namespaces will be introduced in the {ref "Can we refer to the Namespace paragraph directly here ?"}[next chapter]
