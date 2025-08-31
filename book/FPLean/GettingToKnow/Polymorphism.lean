@@ -663,7 +663,20 @@ These terms are related to sums and products used in ordinary arithmetic.
 The relationship is easiest to see when the types involved contain a finite number of values.
 If {anchorName SumProd}`α` and {anchorName SumProd}`β` are types that contain $`n` and $`k` distinct values, respectively, then {anchorTerm SumProd}`α ⊕ β` contains $`n + k` distinct values and {anchorTerm SumProd}`α × β` contains $`n \times k` distinct values.
 For instance, {anchorName fragments}`Bool` has two values: {anchorName BoolNames}`true` and {anchorName BoolNames}`false`, and {anchorName Unit}`Unit` has one value: {anchorName BooloUnit}`Unit.unit`.
-The product {anchorTerm fragments}`Bool × Unit` has the two values {anchorTerm BoolxUnit}`(true, Unit.unit)` and {anchorTerm BoolxUnit}`(false, Unit.unit)`, and the sum {anchorTerm fragments}`Bool ⊕ Unit` has the three values {anchorTerm BooloUnit}`Sum.inl true`, {anchorTerm BooloUnit}`Sum.inl false`, and {anchorTerm BooloUnit}`Sum.inr Unit.unit`.
+The product {anchorTerm fragments}`Bool × Unit` can have the two values {anchorTerm BoolxUnit}`(true, Unit.unit)` and {anchorTerm BoolxUnit}`(false, Unit.unit)`, and the sum {anchorTerm fragments}`Bool ⊕ Unit` can have the three values {anchorTerm BooloUnit}`Sum.inl true`, {anchorTerm BooloUnit}`Sum.inl false`, and {anchorTerm BooloUnit}`Sum.inr Unit.unit`:
+
+```anchor SumType
+def SumType := Bool ⊕ Unit
+def one : SumType := Sum.inr Unit.unit
+def two : SumType := Sum.inl true
+def three: SumType:= Sum.inl false
+```
+
+```anchor ProdType
+def ProdType := Bool × Unit
+def one : ProdType:= (false, Unit.unit)
+def two : ProdType:= (true, Unit.unit)
+```
 Similarly, $`2 \times 1 = 2`, and $`2 + 1 = 3`.
 
 # Messages You May Meet
