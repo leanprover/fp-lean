@@ -23,7 +23,7 @@ def config : Config where
     "/static/fonts/source-sans/source-sans-3.css",
     "/static/fonts/noto-sans-mono/noto-sans-mono.css"
   ]
-  extraHead := #[plausible],
+  extraHead := #[plausible]
   logo := some "/static/lean_logo.svg"
   sourceLink := some "https://github.com/leanprover/fp-lean"
   issueLink := some "https://github.com/leanprover/fp-lean/issues"
