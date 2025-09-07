@@ -117,14 +117,14 @@ Functions like {anchorName maximum3Type}`maximum` that appear to take more than 
 This new function takes the next argument, and the process continues until no more arguments are expected.
 This can be seen by providing one argument to a multiple-argument function: {anchorTerm maximum3Type}`#check maximum 3` yields {anchorInfo maximum3Type}`maximum 3 : Nat → Nat`, giving it another Nat yields {anchorInfo maximum3Type}`maximum 3 4 : Nat`. {anchorTerm stringAppendHelloType}`#check spaceBetween "Hello "` yields {anchorInfo stringAppendHelloType}`spaceBetween "Hello" : String → String`, giving it another String yields {anchorInfo stringAppendHelloType}`spaceBetween "Hello" "world" : String`.
 Using a function that returns a function to implement multiple-argument functions is called _currying_ after the mathematician Haskell Curry, and Lean use currying by default as a core design choice related to its type system, a concept that will be explained later (Is it ?)
-You can read Nat -> Nat -> Nat incorrectly as "takes two Nats and returns a Nat", but what it's really saying is "takes a Nat and returns something of the type Nat -> Nat" -- that is, it returns a function that takes a Nat and returns a Nat. {margin}[Adapted from [Haskell's wiki](https://wiki.haskell.org/Currying)]
+You can read Nat -> Nat -> Nat incorrectly as "takes two Nats and returns a Nat", but what it's really saying is "takes a Nat and returns something of the type Nat -> Nat", that is, it returns a function that takes a Nat and returns a Nat. {margin}[Adapted from [Haskell's wiki](https://wiki.haskell.org/Currying)]
 Function arrows associate to the right, which means that {anchorTerm currying}`Nat → Nat → Nat` should be parenthesized {anchorTerm currying}`Nat → (Nat → Nat)`.
 
 As a special case, Lean returns a function's signature when its name is used directly with {kw}`#check`.
 Entering {anchorTerm add1sig}`#check add1` yields {anchorInfo add1sig}`add1 (n : Nat) : Nat`.
 However, Lean can be “tricked” into showing the function's type by writing the function's name in parentheses, which causes the function to be treated as an ordinary expression, so {anchorTerm add1type}`#check (add1)` yields {anchorInfo add1type}`add1 : Nat → Nat` and {anchorTerm maximumType}`#check (maximum)` yields {anchorInfo maximumType}`maximum : Nat → Nat → Nat`.
 This arrow can also be written with an ASCII alternative arrow {anchorTerm add1typeASCII}`->` directly when writing a type signature.
-Moving arguments into the signature just as how lean does when putting a function in parentheses, using ASCII arrows typically, means that the values passed are not bound to a local variable for use in the function.
+Moving arguments into the signature just as how lean does when putting a function in parentheses, means that the values passed are not bound to a local variable for use in the function.
 Rather, the function should return a function whose type match its type signature as it can't treat by itself its argument as it is having none :
 ```anchor myAppend
 def originalAppend : String -> String -> String := String.append

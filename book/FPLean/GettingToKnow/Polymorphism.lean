@@ -208,7 +208,7 @@ This definition says that {anchorName List}`List` takes a single type as its arg
 This type is the type of the entries stored in the list.
 According to the constructors, a {anchorTerm List}`List α` can be built with either {anchorName List}`nil` or {anchorName List}`cons`.
 The constructor {anchorName List}`nil` represents empty lists and the constructor {anchorName List}`cons` is used for non-empty lists.
-Because it is defined in that order, that is, the first argument to {anchorName List}`cons` being one {lit}`α`, and the second argument being a list of other {lit}`α`, a {anchorTerm List}` constructed through {anchorName List}`cons` must contains adhere to this signature, it is therefore true to say that the first argument to {anchorName List}`cons` is the head of the list, the first one, and the second argument is its tail, the rest.
+Because it is defined in that order, that is, the first argument to {anchorName List}`cons` being one {lit}`α`, and the second argument being a list of other {lit}`α`, a {anchorTerm List}`List` constructed through {anchorName List}`cons` must have been against its signature, it is therefore true to say that the first argument to {anchorName List}`cons` is the head of the list, the first one, and the second argument is its tail, the rest.
 A list that contains $`n` entries contains $`n` {anchorName List}`cons` constructors, each fitting into the second argument of its {anchorName List}`cons` predecessor with the help of parentheses, the last of which has {anchorName List}`nil` as its tail, or its second argument.
 :::
 
@@ -221,7 +221,7 @@ def explicitPrimesUnder10 : List Nat :=
 ```
 
 These two definitions are completely equivalent, behind the scene the notation {lit}`[a,b,c]` used by {anchorName primesUnder10}`primesUnder10` is a _macro_ that output to {anchorName explicitPrimesUnder10}`explicitPrimesUnder10`.
-Macro are explored later in {ref "Ref to macro"}[Typed Queries], simply remember that they are allow Lean to be extended by translating new syntax into existing syntax and can therefore be used in place where the underlying syntax must be used, with greater comfort.
+Macro are explored later in {ref "Ref to macro"}[Typed Queries], simply remember that they allow Lean to be extended by translating new syntax into existing syntax and can therefore be used in place where the underlying syntax must be used, with greater comfort.
 For example, each group of {lit}`#eval` expresion give similar values:
 ```anchor comfy
 #eval List.cons 3 List.nil
@@ -233,7 +233,7 @@ For example, each group of {lit}`#eval` expresion give similar values:
 #eval 1::2::3::[4,5]
 #eval %[1,2,3|[4,5]]
 ```
-Substituing (or not) numbers for variables in pattern matching works, as they appear as original {lit}`List`'s constructors, which pattern matching look for if given a value of type {anchorName List}`List` to match for.
+Substituing (or not) numbers for variables in pattern matching works, as they appear as original {lit}`List`'s constructors, which pattern matching look for when given a value of type {anchorName List}`List` to match for.
 :::
 
 :::paragraph

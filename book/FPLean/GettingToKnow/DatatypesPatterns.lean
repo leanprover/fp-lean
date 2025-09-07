@@ -45,7 +45,8 @@ inductive Bool where
 This definition has two main parts.
 The first line provides the name of the new type ({anchorName Bool}`Bool`), while the remaining lines each describe a constructor.
 Inductive datatypes have multiple constructors, unlike structures that contain only one, for their creation.
-Here, there are two constructors, {anchorName Bool}`true` and {anchorName Bool}`false`, and neither takes any arguments.
+Constructors for Inductive datatypes are mere inert receivers of and containers for other data.
+Here, there are two constructors, {anchorName Bool}`true` and {anchorName Bool}`false`, and neither takes any arguments, neither hold any data.
 The two constructors have their type explicitly declared for clarity but this is facultative here, as they must construct the Type under which they are defined.
 
 Just as a structure declaration places its names in a namespace named after the declared type, an inductive datatype places the names of its constructors in a namespace.
@@ -417,4 +418,4 @@ This message means that {anchorName div}`div` requires a manual proof of termina
 This topic is explored in {ref "division-as-iterated-subtraction"}[the final chapter].
 :::
 
-You may be interested in reading about how numbers [are treated at runtime](https://lean-lang.org/doc/reference/latest//Basic-Types/Natural-Numbers/#nat-runtime) for reasons of efficiency.
+You may be interested in reading about how numbers [are treated at runtime](https://lean-lang.org/doc/reference/latest//Basic-Types/Natural-Numbers/#nat-runtime) for efficiency.
