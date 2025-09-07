@@ -44,11 +44,11 @@ operator inside parentheses:
 ```
 
 
-Here, {anchorName onePlusTwoEval}`Nat` is the type of _natural numbers_, which are arbitrary-precision unsigned integers.
+Here, {anchorName onePlusTwoEval}`Nat` is the type of _natural numbers_, which are [arbitrary-precision unsigned integers](https://en.wikipedia.org/wiki/Arbitrary-precision_arithmetic).
 In Lean, {anchorName onePlusTwoEval}`Nat` is the default type for non-negative integer literals.
-This default type is not always the best choice.
+This default type is not always the best choice, and Lean support [fixed-width integer](https://lean-lang.org/doc/reference/latest/Basic-Types/Fixed-Precision-Integers/#fixed-ints) defined using [modular arithmetic](en.wikipedia.org/wiki/Modular_arithmetic).
 In C, unsigned integers underflow to the largest representable numbers when subtraction would otherwise yield a result less than zero.
-{anchorName onePlusTwoEval}`Nat`, however, can represent arbitrarily-large unsigned numbers, so there is no largest number to underflow to.
+{anchorName onePlusTwoEval}`Nat`, can represent arbitrarily-large unsigned numbers, so there is no largest number to underflow to.
 Thus, subtraction on {anchorName onePlusTwoEval}`Nat` returns {anchorName Nat}`zero` when the answer would have otherwise been negative.
 For instance,
 

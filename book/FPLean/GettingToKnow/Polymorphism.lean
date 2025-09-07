@@ -183,8 +183,8 @@ Evaluation can occur both in the expression and its type:
 # Linked Lists
 
 :::paragraph
-Lean's standard library includes a canonical linked list datatype, called {anchorName fragments}`List`, and special syntax that makes it more convenient to use.
-Lists are written in square brackets.
+Lean's standard library includes a canonical linked list datatype, called {anchorName fragments}`List`, and special syntaxes that makes it more convenient to use.
+Lists can be written in square brackets.
 For instance, a list that contains the prime numbers less than 10 can be written:
 
 ```anchor primesUnder10
@@ -202,14 +202,14 @@ inductive List (α : Type) where
   | cons : α → List α → List α
 ```
 
+Theses names are abbreviations for the Latin word "Nihil", meaning  _nothing_, and "construct".
 The actual definition in the standard library is slightly different, because it uses features that have not yet been presented, but it is substantially similar.
 This definition says that {anchorName List}`List` takes a single type as its argument, just as {anchorName PPoint}`PPoint` did.
 This type is the type of the entries stored in the list.
 According to the constructors, a {anchorTerm List}`List α` can be built with either {anchorName List}`nil` or {anchorName List}`cons`.
 The constructor {anchorName List}`nil` represents empty lists and the constructor {anchorName List}`cons` is used for non-empty lists.
-The first argument to {anchorName List}`cons` is the head of the list, and the second argument is its tail.
-A list that contains $`n` entries contains $`n` {anchorName List}`cons` constructors, the last of which has {anchorName List}`nil` as its tail.
-
+Because it is defined in that order, that is, the first argument to {anchorName List}`cons` being one {lit}`α`, and the second argument being a list of other {lit}`α`, a {anchorTerm List}` constructed through {anchorName List}`cons` must contains adhere to this signature, it is therefore true to say that the first argument to {anchorName List}`cons` is the head of the list, the first one, and the second argument is its tail, the rest.
+A list that contains $`n` entries contains $`n` {anchorName List}`cons` constructors, each fitting into the second argument of its {anchorName List}`cons` predecessor with the help of parentheses, the last of which has {anchorName List}`nil` as its tail, or its second argument.
 :::
 
 :::paragraph
@@ -220,7 +220,20 @@ def explicitPrimesUnder10 : List Nat :=
   List.cons 2 (List.cons 3 (List.cons 5 (List.cons 7 List.nil)))
 ```
 
-These two definitions are completely equivalent, but {anchorName primesUnder10}`primesUnder10` is much easier to read than {anchorName explicitPrimesUnder10}`explicitPrimesUnder10`.
+These two definitions are completely equivalent, behind the scene the notation {lit}`[a,b,c]` used by {anchorName primesUnder10}`primesUnder10` is a _macro_ that output to {anchorName explicitPrimesUnder10}`explicitPrimesUnder10`.
+Macro are explored later in {ref "Ref to macro"}[Typed Queries], simply remember that they are allow Lean to be extended by translating new syntax into existing syntax and can therefore be used in place where the underlying syntax must be used, with greater comfort.
+For example, each group of {lit}`#eval` expresion give similar values:
+```anchor comfy
+#eval List.cons 3 List.nil
+#eval List.singleton 3
+#eval [3]
+
+#eval [1,2,3,4,5]
+#eval 1::2::3::4::5::List.nil
+#eval 1::2::3::[4,5]
+#eval %[1,2,3|[4,5]]
+```
+Substituing (or not) numbers for variables in pattern matching works, as they appear as original {lit}`List`'s constructors, which pattern matching look for if given a value of type {anchorName List}`List` to match for.
 :::
 
 :::paragraph
