@@ -671,7 +671,7 @@ inductive MyType : Type where
 Lean gives the following error:
 
 ```anchorError TypeInType
-invalid universe level in constructor 'MyType.ctor', parameter 'α' has type
+Invalid universe level in constructor `MyType.ctor`: Parameter `α` has type
   Type
 at universe level
   2

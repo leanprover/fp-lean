@@ -27,7 +27,7 @@ Both of these are expressed using an inequality proposition, rather than proposi
 Because different types have different notions of ordering, inequality is governed by two type classes, called {anchorName ordSugarClasses (module := Examples.Classes)}`LE` and {anchorName ordSugarClasses (module := Examples.Classes)}`LT`.
 The table in the section on {ref "equality-and-ordering"}[standard type classes] describes how these classes relate to the syntax:
 
-:::table (header := true)
+:::table +header
 *
   * Expression
   * Desugaring
@@ -114,7 +114,7 @@ The inductively-defined predicate {anchorName IsThree}`IsThree` states that its 
 inductive IsThree : Nat → Prop where
   | isThree : IsThree 3
 ```
-The mechanism used here is just like {ref "column-pointers"}[indexed families such as {moduleName module := Examples.DependentTypes.DB}`HasCol`], except the resulting type is a proposition that can be proved rather than data that can be used.
+The mechanism used here is just like {ref "column-pointers"}[indexed families such as {moduleName (module := Examples.DependentTypes.DB)}`HasCol`], except the resulting type is a proposition that can be proved rather than data that can be used.
 :::
 
 Using this predicate, it is possible to prove that three is indeed three:
@@ -161,7 +161,8 @@ theorem three_plus_two_five : IsThree n → IsFive (n + 2) := by
 ```
 However, this results in an error:
 ```anchorError threePlusTwoFive1a
-tactic 'constructor' failed, no applicable constructor found
+Tactic `constructor` failed: no applicable constructor found
+
 n : Nat
 three : IsThree n
 ⊢ IsFive (n + 2)

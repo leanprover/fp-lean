@@ -148,7 +148,7 @@ def getTheAlpha : (Nat × α) ⊕ (Nat × α) → α
   | .inl (n, x) | .inr (n, y) => x
 ```
 ```anchorError getTheAlpha
-unknown identifier 'x'
+Unknown identifier `x`
 ```
 
 The fact that the result expression is essentially copy-pasted to each branch of the pattern match can lead to some surprising behavior.

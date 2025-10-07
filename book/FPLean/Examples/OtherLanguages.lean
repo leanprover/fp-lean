@@ -2,8 +2,10 @@ import SubVerso.Examples
 import Lean.Data.NameMap
 import Std.Data.HashMap
 import VersoManual
+import Lean.DocString.Syntax
 
 open Lean (NameMap MessageSeverity)
+open Lean.Doc.Syntax
 open Std
 
 namespace FPLean

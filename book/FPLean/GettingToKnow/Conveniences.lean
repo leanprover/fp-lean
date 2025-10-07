@@ -300,7 +300,7 @@ def id x := x
 
 
 ```anchorError identNoTypes
-failed to infer binder type
+Failed to infer type of binder `x`
 ```
 :::
 
@@ -717,11 +717,10 @@ Just as with the brace notation for named constructor arguments, this positional
 For instance, {anchorTerm pointPosEvalNoType}`#eval ⟨1, 2⟩` yields the following error:
 
 ```anchorError pointPosEvalNoType
-invalid constructor ⟨...⟩, expected type must be an inductive type
-  ?m.93937
+Invalid `⟨...⟩` notation: The expected type of this term could not be determined
 ```
 
-The metavariable in the error is because there is no type information available.
+This error occurs because there is no type information available.
 Adding an annotation, such as in {anchorTerm pointPosWithType}`#eval (⟨1, 2⟩ : Point)`, solves the problem:
 
 ```anchorInfo pointPosWithType
@@ -766,7 +765,7 @@ yields the error
 failed to synthesize
   ToString (Nat → Nat)
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 
 This is because there is no standard way to convert functions into strings.

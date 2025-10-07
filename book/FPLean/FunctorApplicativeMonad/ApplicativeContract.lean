@@ -141,7 +141,7 @@ by
 v >>= pure
 ={
 /-- `pure` is a right identity of `>>=` -/
-by simp [LawfulMonad.bind_pure_comp]
+by simp
 }=
 v
 ```
@@ -231,7 +231,7 @@ pure (x (y z))
 Time to start moving backwards!
 `pure` is a left identity of `>>=`
 -/
-by simp [LawfulMonad.pure_bind]
+by simp
 }=
 u >>= fun x =>
 v >>= fun y =>
@@ -240,7 +240,7 @@ pure (y z) >>= fun q =>
 pure (x q)
 ={
 /-- Associativity of `>>=` -/
-by simp [LawfulMonad.bind_assoc]
+by simp
 }=
 u >>= fun x =>
 v >>= fun y =>
@@ -249,7 +249,7 @@ v >>= fun y =>
  pure (x q)
 ={
 /-- Associativity of `>>=` -/
-by simp [LawfulMonad.bind_assoc]
+by simp
 }=
 u >>= fun x =>
  (v >>= fun y =>
@@ -280,13 +280,13 @@ pure x >>= fun y =>
 pure (g y)
 ={
 /-- `pure` is a left identity of `>>=` -/
-by simp [LawfulMonad.pure_bind]
+by simp
 }=
 pure f >>= fun g =>
 pure (g x)
 ={
 /-- `pure` is a left identity of `>>=` -/
-by simp [LawfulMonad.pure_bind]
+by simp
 }=
 pure (f x)
 ```
@@ -303,7 +303,7 @@ pure x >>= fun y =>
 pure (f y)
 ={
 /-- `pure` is a left identity of `>>=` -/
-by simp [LawfulMonad.pure_bind]
+by simp
 }=
 u >>= fun f =>
 pure (f x)

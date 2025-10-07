@@ -110,12 +110,12 @@ def onePlusOneIsFifteen : 1 + 1 = 15 := rfl
 ```
 
 ```anchorError onePlusOneIsFifteen
-type mismatch
+Type mismatch
   rfl
 has type
-  ?m.1247 = ?m.1247 : Prop
+  ?m.16 = ?m.16
 but is expected to have type
-  1 + 1 = 15 : Prop
+  1 + 1 = 15
 ```
 
 This error message indicates that {moduleTerm}`rfl` can prove that two expressions are equal when both sides of the equality statement are already the same number.
@@ -214,7 +214,7 @@ theorem andImpliesOr : A ∧ B → A ∨ B :=
 ```
 
 
-:::table (header := true)
+:::table +header
 *
   - Connective
   - Lean Syntax
@@ -357,7 +357,7 @@ When asked to prove that a one-element list has more than two elements, it retur
 
 
 ```anchorError thirdRabbitErr
-tactic 'decide' proved that the proposition
+Tactic `decide` proved that the proposition
   ["rabbit"].length > 2
 is false
 ```
@@ -373,7 +373,7 @@ theorem onePlusOneIsStillTwo : OnePlusOneIsTwo := by simp
 The error messages simply states that it could do nothing, because without unfolding {anchorTerm onePlusOneIsStillTwo}`OnePlusOneIsTwo`, no progress can be made:
 
 ```anchorError onePlusOneIsStillTwo
-simp made no progress
+`simp` made no progress
 ```
 
 Using {anchorTerm onePlusOneIsStillTwo2}`decide` also fails:
@@ -388,7 +388,7 @@ This is also due to it not unfolding {anchorName onePlusOneIsStillTwo2}`OnePlusO
 failed to synthesize
   Decidable OnePlusOneIsTwo
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 
 Defining {anchorName onePlusOneIsStillTwo}`OnePlusOneIsTwo` with {ref "abbrev-vs-def"}[{kw}`abbrev` fixes the problem] by marking the definition for unfolding.
@@ -404,7 +404,7 @@ def unsafeThird (xs : List α) : α := xs[2]!
 failed to synthesize
   Inhabited α
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 
 This is due to a technical restriction that is part of keeping Lean usable as both a logic for proving theorems and a programming language.
@@ -425,10 +425,13 @@ Adding whitespace between a list and the brackets used for lookup can cause anot
 
 
 ```anchorError extraSpace
-function expected at
+Function expected at
   woodlandCritters
-term has type
+but this term has type
   List String
+
+Note: Expected a function because this term is being applied to the argument
+  [1]
 ```
 
 Adding a space causes Lean to treat the expression as a function application, and the index as a list that contains a single number.

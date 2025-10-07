@@ -58,14 +58,14 @@ Applying {anchorName drop}`List.drop` to a {moduleName}`Pos`, however, leads to 
 [1, 2, 3, 4].drop (2 : Pos)
 ```
 ```anchorError dropPos
-Application type mismatch: In the application
-  List.drop 2
-the argument
+Application type mismatch: The argument
   2
 has type
-  Pos : Type
+  Pos
 but is expected to have type
-  Nat : Type
+  Nat
+in the application
+  List.drop 2
 ```
 Because the author of {anchorName drop}`List.drop` did not make it a method of a type class, it can't be overridden by defining a new instance.
 
@@ -175,7 +175,7 @@ numerals are polymorphic in Lean, but the numeral `392` cannot be used in a cont
   Option (Option (Option Nat))
 due to the absence of the instance above
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 :::
 
@@ -333,10 +333,13 @@ This {anchorName Adder}`Adder` type is not a function, and applying it to an arg
 #eval add5 3
 ```
 ```anchorError add5notfun
-function expected at
+Function expected at
   add5
-term has type
+but this term has type
   Adder
+
+Note: Expected a function because this term is being applied to the argument
+  3
 ```
 Defining a {anchorName CoeFunAdder}`CoeFun` instance causes Lean to transform the adder into a function with type {anchorTerm CoeFunAdder}`Nat → Nat`:
 
@@ -497,7 +500,7 @@ numerals are polymorphic in Lean, but the numeral `392` cannot be used in a cont
   Option (Option (Option Nat))
 due to the absence of the instance above
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 
 # Design Considerations
@@ -526,14 +529,14 @@ def lastSpider :=
   List.getLast? idahoSpiders
 ```
 ```anchorError lastSpiderB
-Application type mismatch: In the application
-  List.getLast? idahoSpiders
-the argument
+Application type mismatch: The argument
   idahoSpiders
 has type
-  NonEmptyList String : Type
+  NonEmptyList String
 but is expected to have type
-  List ?m.56328 : Type
+  List ?m.3
+in the application
+  List.getLast? idahoSpiders
 ```
 More generally, when a coercion is not applied for some reason, the user receives the original type error, which can make it difficult to debug chains of coercions.
 

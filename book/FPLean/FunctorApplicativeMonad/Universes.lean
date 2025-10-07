@@ -88,14 +88,14 @@ def myListOfNat : MyList Type :=
   .cons Nat .nil
 ```
 ```anchorError myListNat1Err
-Application type mismatch: In the application
-  MyList Type
-the argument
+Application type mismatch: The argument
   Type
 has type
-  Type 1 : Type 2
-but is expected to have type
-  Type : Type 1
+  Type 1
+of sort `Type 2` but is expected to have type
+  Type
+of sort `Type 1` in the application
+  MyList Type
 ```
 
 Updating {anchorName MyList2}`MyList` so that its argument is a {anchorTerm MyList2}`Type 1` results in a definition rejected by Lean:
@@ -105,7 +105,7 @@ inductive MyList (α : Type 1) : Type where
   | cons : α → MyList α → MyList α
 ```
 ```anchorError MyList2
-invalid universe level in constructor 'MyList.cons', parameter has type
+Invalid universe level in constructor `MyList.cons`: Parameter has type
   α
 at universe level
   2
@@ -195,14 +195,14 @@ However, it requires that both arguments be in the same universe:
 def stringOrType : Sum String Type := .inr Nat
 ```
 ```anchorError stringOrTypeLevels
-Application type mismatch: In the application
-  Sum String Type
-the argument
+Application type mismatch: The argument
   Type
 has type
-  Type 1 : Type 2
-but is expected to have type
-  Type : Type 1
+  Type 1
+of sort `Type 2` but is expected to have type
+  Type
+of sort `Type 1` in the application
+  Sum String Type
 ```
 
 This datatype can be made more flexible by using different variables for the two type arguments' universe levels, and then declaring that the resulting datatype is in the largest of the two:

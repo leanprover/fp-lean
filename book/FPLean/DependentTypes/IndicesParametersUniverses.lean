@@ -117,7 +117,7 @@ inductive ParamAfterIndex : Nat → Type u → Type u where
   | test2 : ParamAfterIndex n γ → ParamAfterIndex k γ → ParamAfterIndex (n + k) γ
 ```
 ```anchorError ParamAfterIndex
-invalid universe level in constructor 'ParamAfterIndex.test1', parameter 'γ' has type
+Invalid universe level in constructor `ParamAfterIndex.test1`: Parameter `γ` has type
   Type u
 at universe level
   u+2

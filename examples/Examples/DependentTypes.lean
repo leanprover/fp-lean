@@ -23,13 +23,13 @@ example : Vect String 3 :=
   .cons "one" (.cons "two" (.cons "three" .nil))
 -- ANCHOR_END: vect3
 
-/-- error:
-type mismatch
+/--
+error: Type mismatch
   Vect.nil
 has type
-  Vect ?m.1605 0 : Type ?u.1604
+  Vect ?m.3 0
 but is expected to have type
-  Vect String 3 : Type
+  Vect String 3
 -/
 #check_msgs in
 -- ANCHOR: nilNotLengthThree
@@ -37,13 +37,13 @@ example : Vect String 3 := Vect.nil
 -- ANCHOR_END: nilNotLengthThree
 
 
-/-- error:
-type mismatch
+/--
+error: Type mismatch
   Vect.nil
 has type
-  Vect ?m.1602 0 : Type ?u.1576
+  Vect ?m.2 0
 but is expected to have type
-  Vect String n : Type
+  Vect String n
 -/
 #check_msgs in
 -- ANCHOR: nilNotLengthN
@@ -51,13 +51,13 @@ example : Vect String n := Vect.nil
 -- ANCHOR_END: nilNotLengthN
 
 
-/-- error:
-type mismatch
+/--
+error: Type mismatch
   Vect.cons "Hello" (Vect.cons "world" Vect.nil)
 has type
-  Vect String (0 + 1 + 1) : Type
+  Vect String (0 + 1 + 1)
 but is expected to have type
-  Vect String n : Type
+  Vect String n
 -/
 #check_msgs in
 -- ANCHOR: consNotLengthN
@@ -206,14 +206,14 @@ stop discarding
 
 discarding
 /--
-error: Application type mismatch: In the application
-  cons x (cons x (replicate k x))
-the argument
+error: Application type mismatch: The argument
   cons x (replicate k x)
 has type
-  Vect α (k + 1) : Type ?u.2998
+  Vect α (k + 1)
 but is expected to have type
-  Vect α k : Type ?u.2998
+  Vect α k
+in the application
+  cons x (cons x (replicate k x))
 -/
 #check_msgs in
 -- ANCHOR: replicateOops
@@ -306,13 +306,13 @@ def List.zip : List α → List β → List (α × β)
   | x :: xs, y :: ys => (x, y) :: zip xs ys
 -- ANCHOR_END: zipMissing
 
-/-- error:
-type mismatch
+/--
+error: Type mismatch
   Vect.cons y ys
 has type
-  Vect ?m.3469 (?m.3480 + 1) : Type ?u.3477
+  Vect ?m.10 (?m.16 + 1)
 but is expected to have type
-  Vect β 0 : Type ?u.3344
+  Vect β 0
 -/
 #check_msgs in
 -- ANCHOR: zipExtraCons

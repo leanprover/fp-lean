@@ -279,11 +279,11 @@ def saveIfEven (i : Int) : WithLog Int Int :=
 
 
 
-/-- error:
-failed to synthesize
-  HAdd Nat Nat (?m.4319 ?m.4321)
+/--
+error: failed to synthesize
+  HAdd Nat Nat (?m.4 ?m.3)
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #check_msgs in
 -- ANCHOR: mapMIdNoHint

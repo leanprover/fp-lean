@@ -154,9 +154,7 @@ theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
 namespace Golf
 
 discarding
-/-- error:
-simp made no progress
--/
+/-- error: `simp` made no progress -/
 #check_msgs in
 -- ANCHOR: plusR_zero_left_golf_1
 theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by

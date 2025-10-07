@@ -198,7 +198,7 @@ theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
     simp
 ```
 ```anchorError plusR_zero_left_golf_1
-simp made no progress
+`simp` made no progress
 ```
 However, {kw}`simp` can be configured to make use of a set of definitions.
 Just like {kw}`rw`, these arguments are provided in a list.

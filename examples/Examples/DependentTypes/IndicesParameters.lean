@@ -75,8 +75,8 @@ inductive WithIndex : Type u → Type (u + 1) where
   | test2 : WithIndex α → WithIndex α → WithIndex (α × α)
 -- ANCHOR_END: WithIndex
 
-/-- error:
-invalid universe level in constructor 'ParamAfterIndex.test1', parameter 'γ' has type
+/--
+error: Invalid universe level in constructor `ParamAfterIndex.test1`: Parameter `γ` has type
   Type u
 at universe level
   u+2

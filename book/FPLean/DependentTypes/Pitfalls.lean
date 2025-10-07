@@ -263,12 +263,12 @@ def appendR : (n k : Nat) → Vect α n → Vect α k → Vect α (n.plusR k)
   | n + 1, k, .cons x xs, ys => _
 ```
 ```anchorError appendR3
-type mismatch
-  ?m.7829
+Type mismatch
+  ?m.11
 has type
-  Vect α k : Type ?u.7765
+  Vect α k
 but is expected to have type
-  Vect α (Nat.plusR 0 k) : Type ?u.7765
+  Vect α (Nat.plusR 0 k)
 ```
 This error is pointing out that {anchorTerm plusRinfo}`Nat.plusR 0 k` and {anchorName plusRinfo}`k` are _not_ definitionally equal.
 
@@ -288,12 +288,12 @@ def appendR : (n k : Nat) → Vect α n → Vect α k → Vect α (n + k)
   | n + 1, k, .cons x xs, ys => _
 ```
 ```anchorError appendR4
-type mismatch
-  ?m.8578
+Type mismatch
+  ?m.15
 has type
-  Vect α k : Type ?u.8479
+  Vect α k
 but is expected to have type
-  Vect α (0 + k) : Type ?u.8479
+  Vect α (0 + k)
 ```
 
 Addition is getting _stuck_ on the variables.

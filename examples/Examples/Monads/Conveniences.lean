@@ -142,9 +142,7 @@ def getTheNat : (Nat × α) ⊕ (Nat × β) → Nat
 
 
 
-/-- error:
-unknown identifier 'x'
--/
+/-- error: Unknown identifier `x` -/
 #check_msgs in
 -- ANCHOR: getTheAlpha
 def getTheAlpha : (Nat × α) ⊕ (Nat × α) → α

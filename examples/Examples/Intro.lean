@@ -133,14 +133,14 @@ example : (
 
 
 /--
-error: Application type mismatch: In the application
-  String.append ["hello", " "]
-the argument
+error: Application type mismatch: The argument
   ["hello", " "]
 has type
-  List String : Type
+  List String
 but is expected to have type
-  String : Type
+  String
+in the application
+  String.append ["hello", " "]
 ---
 info: sorry.append "world" : String
 -/
@@ -208,14 +208,14 @@ example : Nat -> Nat := add1
 -- ANCHOR_END: add1_7
 
 /--
-error: Application type mismatch: In the application
-  add1 "seven"
-the argument
+error: Application type mismatch: The argument
   "seven"
 has type
-  String : Type
+  String
 but is expected to have type
-  Nat : Type
+  Nat
+in the application
+  add1 "seven"
 ---
 info: add1 sorry : Nat
 -/
@@ -350,14 +350,14 @@ open SubVerso.Examples in
 
 discarding
 open SubVerso.Examples in
-/-- error:
-failed to synthesize
+/--
+error: failed to synthesize
   OfNat NaturalNumber 38
 numerals are polymorphic in Lean, but the numeral `38` cannot be used in a context where the expected type is
   NaturalNumber
 due to the absence of the instance above
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #check_msgs in
 -- ANCHOR: thirtyEight
@@ -1653,8 +1653,8 @@ example : Exhausts (Bool ⊕ Empty) [Sum.inl true, Sum.inl false] := by
 
 
 discarding
-/-- error:
-invalid universe level in constructor 'MyType.ctor', parameter 'α' has type
+/--
+error: Invalid universe level in constructor `MyType.ctor`: Parameter `α` has type
   Type
 at universe level
   2
@@ -1939,9 +1939,9 @@ namespace ReallyNoTypes
 open SubVerso.Examples
 
 /--
-error: failed to infer type of `id`
+error: Failed to infer type of definition `id`
 ---
-error: failed to infer binder type
+error: Failed to infer type of binder `x`
 -/
 #check_msgs in
 -- ANCHOR: identNoTypes
@@ -2224,7 +2224,7 @@ open NewNamespace in
 error: failed to synthesize
   ToString (Nat → Nat)
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ---
 info: toString "three fives is " ++ sorry ++ toString "" : String
 -/
@@ -2275,10 +2275,7 @@ example : (⟨1, 2⟩ : (Point)) = (Point.mk 1 2 : (Point)) := rfl
 -- ANCHOR_END: pointPos
 
 
-/--
-error: invalid constructor ⟨...⟩, expected type must be an inductive type ⏎
-  ?m.93541
--/
+/-- error: Invalid `⟨...⟩` notation: The expected type of this term could not be determined -/
 #check_msgs in
 -- ANCHOR: pointPosEvalNoType
 #eval ⟨1, 2⟩

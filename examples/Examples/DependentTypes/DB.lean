@@ -22,11 +22,11 @@ abbrev DBType.asType : DBType → Type
 -- ANCHOR_END: mountHoodEval
 
 discarding
-/-- error:
-failed to synthesize
+/--
+error: failed to synthesize
   BEq t.asType
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #check_msgs in
 -- ANCHOR: dbEqNoSplit
@@ -142,13 +142,13 @@ def waterfallDiary : Table waterfall := [
 -- ANCHOR_END: waterfallDiary
 
 discarding
-/-- error:
-type mismatch
+/--
+error: Type mismatch
   (v1, r1')
 has type
-  ?m.3093 × ?m.3096 : Type (max ?u.3105 ?u.3104)
+  ?m.10 × ?m.11
 but is expected to have type
-  Row (col :: cols) : Type
+  Row (col :: cols)
 -/
 #check_msgs in
 -- ANCHOR: RowBEqRecursion
@@ -598,7 +598,7 @@ def example2 :=
 stop discarding
 
 /--
-error: tactic 'decide' proved that the proposition
+error: Tactic `decide` proved that the proposition
   disjoint (List.map Column.name peak) (List.map Column.name waterfall) = true
 is false
 ---
@@ -606,13 +606,13 @@ error: unsolved goals
 case a.a.a.a.a.a.a
 mountains : Query peak := ⋯
 waterfalls : Query waterfall := ⋯
-⊢ HasCol [] "mountain.location" ?m.63414
+⊢ HasCol [] "mountain.location" ?m.29
 ---
 error: unsolved goals
 case a.a.a.a.a.a.a
 mountains : Query peak := ⋯
 waterfalls : Query waterfall := ⋯
-⊢ HasCol [] "waterfall.location" ?m.63414
+⊢ HasCol [] "waterfall.location" ?m.29
 ---
 error: unsolved goals
 case a.a.a.a.a.a.a.a

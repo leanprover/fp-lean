@@ -39,7 +39,7 @@ numerals are polymorphic in Lean, but the numeral `7` cannot be used in a contex
   Pos
 due to the absence of the instance above
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 Instead, the constructors must be used directly:
 ```anchor seven
@@ -53,18 +53,18 @@ def fourteen : Pos := seven + seven
 ```
 ```anchorError fourteenOops
 failed to synthesize
-  HAdd Pos Pos ?m.543
+  HAdd Pos Pos ?m.3
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 ```anchor fortyNineOops
 def fortyNine : Pos := seven * seven
 ```
 ```anchorError fortyNineOops
 failed to synthesize
-  HMul Pos Pos ?m.576
+  HMul Pos Pos ?m.3
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 
 Each of these error messages begins with {lit}`failed to synthesize`.
@@ -148,7 +148,7 @@ Because there is not yet an instance of {anchorTerm PlusFloat}`Plus Float`, atte
 failed to synthesize
   Plus Float
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 These errors mean that Lean was unable to find an instance for a given type class.
 
@@ -359,7 +359,7 @@ numerals are polymorphic in Lean, but the numeral `4` cannot be used in a contex
   LT4
 due to the absence of the instance above
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 
 For {anchorName PosMul}`Pos`, the {anchorTerm OfNat}`OfNat` instance should work for _any_ {anchorTerm chapterIntro}`Nat` other than {anchorName PosStuff}`Nat.zero`.
@@ -391,7 +391,7 @@ numerals are polymorphic in Lean, but the numeral `0` cannot be used in a contex
   Pos
 due to the absence of the instance above
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 
 # Exercises

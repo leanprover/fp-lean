@@ -3,6 +3,6 @@
  {"manual":
   {"updateFrequency": "manual",
    "shortName": "ref",
-   "root": "https://lean-lang.org/doc/reference/4.19.0/",
+   "root": "https://lean-lang.org/doc/reference/4.23.0/",
    "longName": "Lean Language Reference"}},
  "outputDir": ".verso"}

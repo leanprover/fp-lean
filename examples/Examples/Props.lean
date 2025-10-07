@@ -32,12 +32,17 @@ def onePlusOneIsTwo : 1 + 1 = 2 := rfl
 -- ANCHOR_END: onePlusOneIsTwo
 
 /--
-error: type mismatch
+error: Type mismatch
   rfl
 has type
-  ?m.1247 = ?m.1247 : Prop
+  ?m.16 = ?m.16
 but is expected to have type
-  1 + 1 = 15 : Prop
+  1 + 1 = 15
+---
+error: Not a definitional equality: the left-hand side
+  1 + 1
+is not definitionally equal to the right-hand side
+  15
 -/
 #check_msgs in
 -- ANCHOR: onePlusOneIsFifteen
@@ -54,7 +59,7 @@ theorem onePlusOneIsTwo : OnePlusOneIsTwo := rfl
 -- ANCHOR_END: onePlusOneIsTwoProp
 
 discarding
-/-- error: simp made no progress -/
+/-- error: `simp` made no progress -/
 #check_msgs in
 -- ANCHOR: onePlusOneIsStillTwo
 theorem onePlusOneIsStillTwo : OnePlusOneIsTwo := by simp
@@ -65,7 +70,7 @@ stop discarding
 error: failed to synthesize
   Decidable OnePlusOneIsTwo
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #check_msgs in
 -- ANCHOR: onePlusOneIsStillTwo2
@@ -260,7 +265,7 @@ example := Prop
 -- ANCHOR_END: thirdCritters
 
 /--
-error: tactic 'decide' proved that the proposition
+error: Tactic `decide` proved that the proposition
   ["rabbit"].length > 2
 is false
 -/
@@ -304,7 +309,7 @@ end
 error: failed to synthesize
   Inhabited α
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #check_msgs in
 -- ANCHOR: unsafeThird
@@ -312,10 +317,13 @@ def unsafeThird (xs : List α) : α := xs[2]!
 -- ANCHOR_END: unsafeThird
 
 /--
-error: function expected at
+error: Function expected at
   woodlandCritters
-term has type
+but this term has type
   List String
+
+Note: Expected a function because this term is being applied to the argument
+  [1]
 -/
 #check_msgs in
 -- ANCHOR: extraSpace

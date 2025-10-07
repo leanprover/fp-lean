@@ -89,14 +89,14 @@ However, the anonymous angle-bracket notation that delegates to the underlying c
 def troll : Monster := ⟨true, "sunlight"⟩
 ```
 ```anchorError wrongTroll1
-Application type mismatch: In the application
-  Monster.mk true
-the argument
+Application type mismatch: The argument
   true
 has type
-  Bool : Type
+  Bool
 but is expected to have type
-  MythicalCreature : Type
+  MythicalCreature
+in the application
+  Monster.mk true
 ```
 An extra set of angle brackets is required, which invokes {anchorName MythicalCreatureMk}`MythicalCreature.mk` on {anchorName troll3}`true`:
 
@@ -112,14 +112,14 @@ However, this only occurs when using dot notation, and applying the field lookup
 #eval MythicalCreature.large troll
 ```
 ```anchorError trollLargeNoDot
-Application type mismatch: In the application
-  MythicalCreature.large troll
-the argument
+Application type mismatch: The argument
   troll
 has type
-  Monster : Type
+  Monster
 but is expected to have type
-  MythicalCreature : Type
+  MythicalCreature
+in the application
+  MythicalCreature.large troll
 ```
 Dot notation can also take inheritance into account for user-defined functions.
 A small creature is one that is not large:
@@ -129,14 +129,14 @@ def MythicalCreature.small (c : MythicalCreature) : Bool := !c.large
 ```
 Evaluating {anchorTerm smallTroll}`troll.small` yields {anchorTerm smallTroll}`false`, while attempting to evaluate {anchorTerm smallTrollWrong}`MythicalCreature.small troll` results in:
 ```anchorError smallTrollWrong
-Application type mismatch: In the application
-  MythicalCreature.small troll
-the argument
+Application type mismatch: The argument
   troll
 has type
-  Monster : Type
+  Monster
 but is expected to have type
-  MythicalCreature : Type
+  MythicalCreature
+in the application
+  MythicalCreature.small troll
 ```
 
 # Multiple Inheritance

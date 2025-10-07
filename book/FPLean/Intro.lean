@@ -80,14 +80,14 @@ Lean's replies are formatted like this:
 Error messages returned by Lean are formatted like this:
 
 ```anchorError add1_string
-Application type mismatch: In the application
-  add1 "seven"
-the argument
+Application type mismatch: The argument
   "seven"
 has type
-  String : Type
+  String
 but is expected to have type
-  Nat : Type
+  Nat
+in the application
+  add1 "seven"
 ```
 
 Warnings are formatted like this:

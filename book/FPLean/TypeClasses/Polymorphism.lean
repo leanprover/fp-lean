@@ -92,7 +92,7 @@ def fourPos : List Pos := [1, 2, 3, 4]
 failed to synthesize
   Zero Pos
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 The Lean standard library includes this function, where it is called {moduleName}`List.sum`.
 

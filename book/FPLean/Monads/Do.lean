@@ -33,14 +33,14 @@ This translates to a use of {lit}`>>=` together with a function that binds that 
 ```anchor doSugar2a
  do let x ← E₁
     Stmt
-    ...
+    …
     Eₙ
 ```
 translates to
 ```anchor doSugar2b
 E₁ >>= fun x =>
   do Stmt
-     ...
+     …
      Eₙ
 ```
 
@@ -48,14 +48,14 @@ When the first statement of the {kw}`do` block is an expression, then it is cons
 ```anchor doSugar3a
   do E₁
      Stmt
-     ...
+     …
      Eₙ
 ```
 translates to
 ```anchor doSugar3b
 E₁ >>= fun () =>
   do Stmt
-     ...
+     …
      Eₙ
 ```
 
@@ -63,14 +63,14 @@ Finally, when the first statement of the {kw}`do` block is a {kw}`let` that uses
 ```anchor doSugar4a
 do let x := E₁
    Stmt
-   ...
+   …
    Eₙ
 ```
 translates to
 ```anchor doSugar4b
 let x := E₁
 do Stmt
-   ...
+   …
    Eₙ
 ```
 

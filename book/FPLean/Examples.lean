@@ -1,10 +1,12 @@
 import SubVerso.Examples
 import Lean.Data.NameMap
+import Lean.DocString.Syntax
 import VersoManual
 import FPLean.Examples.Commands
 import FPLean.Examples.OtherLanguages
 
 open Lean (NameMap MessageSeverity)
+open Lean.Doc.Syntax
 
 namespace FPLean
 
@@ -141,6 +143,14 @@ div.paragraph > .eval-steps:not(:last-child), div.paragraph > .eval-steps:not(:l
   margin-top: 0.25em;
   margin-bottom: 0.25em;
 }
+
+.eval-steps .hl.lean.block:not(:last-child)::after {
+  content: "⟹";
+  display: block;
+  margin-left: 1em;
+  font-size: 175%;
+}
+
 "#
 
 block_extension Block.leanEvalSteps (steps : Array Highlighted) where
@@ -391,18 +401,18 @@ private def quoteCode (str : String) : String := Id.run do
 @[role_expander moduleEvalStep]
 def moduleEvalStep : RoleExpander
   | args, inls => do
-    let {module := moduleName, anchor?, step, showProofStates := _, defSite := _} ← parseThe EvalStepContext args
+    let {project, module := moduleName, anchor?, step, showProofStates := _, defSite := _} ← parseThe EvalStepContext args
     let code? ← oneCodeStr? inls
 
     let modStr := moduleName.getId.toString
 
-    let items ← loadModuleContent modStr
+    let items ← loadModuleContent project modStr
     let highlighted := Highlighted.seq (items.map (·.code))
 
     let fragment ←
       if let some anchor := anchor? then
         try
-          let {anchors, ..} ← anchored moduleName anchor
+          let {anchors, ..} ← anchored project moduleName anchor
           if let some hl := anchors[anchor.getId.toString]? then
             pure hl
           else
@@ -411,10 +421,11 @@ def moduleEvalStep : RoleExpander
               Suggestion.saveSuggestion anchor x x
             return #[← ``(sorryAx _ true)]
         catch
-          | .error ref e =>
-            logErrorAt ref e
+          | .error refStx e =>
+            logErrorAt refStx e
             return #[← ``(sorryAx _ true)]
-          | e => throw e
+          | e =>
+            throw e
       else pure highlighted
 
     let steps := splitHighlighted (· == "===>") fragment
@@ -474,9 +485,9 @@ where
 @[code_block_expander moduleEvalStep]
 def moduleEvalStepBlock : CodeBlockExpander
   | args, code => do
-    let {module := moduleName, anchor?, step, showProofStates := _, defSite := _} ← parseThe EvalStepContext args
+    let {project, module := moduleName, anchor?, step, showProofStates := _, defSite := _} ← parseThe EvalStepContext args
 
-    withAnchored moduleName anchor? fun fragment => do
+    withAnchored project moduleName anchor? fun fragment => do
       let steps := splitHighlighted (· == "===>") fragment
 
       if let some step := steps[step.val]? then
@@ -496,9 +507,9 @@ macro_rules
 @[code_block_expander moduleEvalSteps]
 def moduleEvalSteps : CodeBlockExpander
   | args, str => do
-    let {module := moduleName, anchor?, showProofStates := _, defSite := _} ← parseThe CodeContext args
+    let {project, module := moduleName, anchor?, showProofStates := _, defSite := _} ← parseThe CodeContext args
 
-    withAnchored moduleName anchor? fun fragment => do
+    withAnchored project moduleName anchor? fun fragment => do
       _ ← ExpectString.expectString "steps" str fragment.toString
 
       let steps := splitHighlighted (· == "===>") fragment
@@ -513,9 +524,9 @@ macro_rules
 @[code_block_expander moduleEqSteps]
 def moduleEqSteps : CodeBlockExpander
   | args, str => do
-    let {module := moduleName, anchor?, showProofStates := _, defSite := _} ← parseThe CodeContext args
+    let {project, module := moduleName, anchor?, showProofStates := _, defSite := _} ← parseThe CodeContext args
 
-    withAnchored moduleName anchor? fun fragment => do
+    withAnchored project moduleName anchor? fun fragment => do
       _ ← ExpectString.expectString "steps" str fragment.toString
 
       let steps := splitHighlighted (· ∈ ["={", "}="]) fragment
@@ -687,8 +698,8 @@ def commandBlock : BlockCommandOf CommandBlockConfig
     let out := «show».getD command |>.getString
     ``(Block.other (Block.shellCommand $(quote out) $(quote <| prompt.map (·.getString))) #[Block.code $(quote out)])
 
-instance : Coe StrLit (TSyntax `argument) where
-  coe stx := ⟨mkNode ``Verso.Syntax.anon #[mkNode ``Verso.Syntax.arg_str #[stx.raw]]⟩
+instance : Coe StrLit (TSyntax `doc_arg) where
+  coe stx := ⟨mkNode ``Lean.Doc.Syntax.anon #[mkNode ``Lean.Doc.Syntax.arg_str #[stx.raw]]⟩
 
 macro_rules
   | `(block|```command $args* | $s```) => `(block|command{command $args* $s})
@@ -824,13 +835,21 @@ def file : CodeBlockExpander
     logSilentInfo contents
     return #[← ``(Block.other (InlineLean.Block.exampleFile (FileType.other $(quote (show?.getD (fn.fileName.getD fn.toString))))) #[Block.code $(quote contents)])]
 
+structure PlainFileConfig where
+  project : StrLit
+  file : StrLit
+  show? : Option StrLit
+
+instance [Monad m] [MonadOptions m] [MonadError m] : FromArgs PlainFileConfig m where
+  fromArgs := PlainFileConfig.mk <$> projectOrDefault <*> .positional' `file <*> (some <$> .positional `show .strLit <|> pure none)
+
 @[code_block_expander plainFile]
 def plainFile : CodeBlockExpander
   | args, expectedContentsStr => do
-    let (file, show?) ← ArgParse.run ((·, ·) <$> .positional `file .strLit <*> (some <$> .positional `show .strLit <|> pure none)) args
+    let {project := projectDir, file, show?} ← parseThe PlainFileConfig args
     let show? := show?.map (·.getString)
 
-    let projectDir : System.FilePath ← getProjectDir
+    let projectDir : System.FilePath := projectDir.getString
     let fn :=  projectDir / file.getString
     let contents ← IO.FS.readFile fn
 
@@ -858,10 +877,10 @@ def moduleOutText : RoleExpander
   | args, inls => withTraceNode `Elab.Verso (fun _ => pure m!"moduleOutText") <| do
     let str? ← oneCodeStr? inls
 
-    let {module := moduleName, anchor?, severity, showProofStates := _, defSite := _, expandTraces, onlyTrace} ← parseThe MessageContext args
+    let {project, module := moduleName, anchor?, severity, showProofStates := _, defSite := _, expandTraces, onlyTrace} ← parseThe MessageContext args
     if onlyTrace.isSome then throwError "Unsupported option: `onlyTrace`"
 
-    withAnchored moduleName anchor? fun hl => do
+    withAnchored project moduleName anchor? fun hl => do
       let infos := allInfo hl
       if let some str := str? then
         let mut strings := #[]

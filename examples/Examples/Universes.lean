@@ -92,14 +92,14 @@ example : Type → Type := MyList
 
 
 /--
-error: Application type mismatch: In the application
-  MyList Type
-the argument
+error: Application type mismatch: The argument
   Type
 has type
-  Type 1 : Type 2
-but is expected to have type
-  Type : Type 1
+  Type 1
+of sort `Type 2` but is expected to have type
+  Type
+of sort `Type 1` in the application
+  MyList Type
 -/
 #check_msgs in
 -- ANCHOR: myListNat1Err
@@ -132,8 +132,8 @@ end MyList15
 
 
 
-/-- error:
-invalid universe level in constructor 'MyList.cons', parameter has type
+/--
+error: Invalid universe level in constructor `MyList.cons`: Parameter has type
   α
 at universe level
   2
@@ -223,14 +223,14 @@ def typeOrType : Sum Type Type := .inr Nat
 -- ANCHOR_END: SumPoly
 
 /--
-error: Application type mismatch: In the application
-  Sum String Type
-the argument
+error: Application type mismatch: The argument
   Type
 has type
-  Type 1 : Type 2
-but is expected to have type
-  Type : Type 1
+  Type 1
+of sort `Type 2` but is expected to have type
+  Type
+of sort `Type 1` in the application
+  Sum String Type
 -/
 #check_msgs in
 -- ANCHOR: stringOrTypeLevels

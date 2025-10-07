@@ -52,7 +52,7 @@ def DBType.beq (t : DBType) (x y : t.asType) : Bool :=
 failed to synthesize
   BEq t.asType
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 Just as in the nested pairs universe, type class search doesn't automatically check each possibility for {anchorName dbEqNoSplit}`t`'s value
 The solution is to use pattern matching to refine the types of {anchorTerm dbEq}`x` and {anchorName dbEq}`y`:
@@ -177,12 +177,12 @@ def Row.bEq (r1 r2 : Row s) : Bool :=
       v1 == v2 && bEq r1' r2'
 ```
 ```anchorError RowBEqRecursion
-type mismatch
+Type mismatch
   (v1, r1')
 has type
-  ?m.3273 × ?m.3276 : Type (max ?u.3285 ?u.3284)
+  ?m.10 × ?m.11
 but is expected to have type
-  Row (col :: cols) : Type
+  Row (col :: cols)
 ```
 The problem is that the pattern {anchorTerm RowBEqRecursion}`col :: cols` does not sufficiently refine the type of the rows.
 This is because Lean cannot yet tell whether the singleton pattern {anchorTerm Row}`[col]` or the {anchorTerm Row}`col1 :: col2 :: cols` pattern in the definition of {anchorName Row}`Row` was matched, so the call to {anchorName Row}`Row` does not compute down to a pair type.
@@ -787,7 +787,7 @@ def example2 :=
 ```
 This error message is more helpful:
 ```anchorError QueryOops2
-tactic 'decide' proved that the proposition
+Tactic `decide` proved that the proposition
   disjoint (List.map Column.name peak) (List.map Column.name waterfall) = true
 is false
 ```

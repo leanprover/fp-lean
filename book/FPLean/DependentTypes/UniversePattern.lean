@@ -85,7 +85,7 @@ instance {t : NestedPairs} : BEq t.asType where
 failed to synthesize
   BEq t.asType
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 The {anchorName beqNoCases}`t` in the error message stands for an unknown value of type {anchorName beqNoCases}`NestedPairs`.
 

@@ -48,7 +48,7 @@ This means that {anchorName all}`true`, {anchorName all}`false`, and {anchorName
 
 The following types have special representations:
 
-:::table (header := true)
+:::table +header
 *
   * Type
   * Logical representation
