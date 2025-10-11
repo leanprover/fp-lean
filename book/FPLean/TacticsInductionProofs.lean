@@ -461,8 +461,7 @@ theorem BinTree.mirror_count (t : BinTree α) :
 ```
 
 Because the proofs in this book are fairly modest, most of them do not provide an opportunity for {tactic}`grind` to show its full power.
-From time to time, however, it will be used.
-TODO:
+However, it is very convenient in some of the later proofs in the book.
 
 # Exercises
 
