@@ -118,7 +118,15 @@ htmlSplit := .never
 
 ## October, 2025
 
-The book has been updated to the latest stable Lean release, and now describes functional induction and the {tactic}`grind` tactic.
+The book has been updated to the latest stable Lean release (version 4.23.0), and now describes functional induction and the {tactic}`grind` tactic.
+
+## August, 2025
+
+This is a maintenance release to resolve an issue with copy-pasting code from the book.
+
+## July, 2025
+
+The book has been updated for version 4.21 of Lean.
 
 ## June, 2025
 
