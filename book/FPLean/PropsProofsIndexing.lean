@@ -262,7 +262,7 @@ The {tactic}`decide` tactic can prove theorems that use these connectives.
 For example:
 
 ```anchor connectivesD
-theorem onePlusOneAndLessThan : 1 + 1 = 2 ∨ 3 < 5 := by decide
+theorem onePlusOneOrLessThan : 1 + 1 = 2 ∨ 3 < 5 := by decide
 theorem notTwoEqualFive : ¬(1 + 1 = 5) := by decide
 theorem trueIsTrue : True := by decide
 theorem trueOrFalse : True ∨ False := by decide

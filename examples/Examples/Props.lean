@@ -111,7 +111,7 @@ end
 -- ANCHOR_END: connectiveTable
 
 -- ANCHOR: connectives
-theorem onePlusOneAndLessThan : 1 + 1 = 2 ∨ 3 < 5 := by simp
+theorem onePlusOneOrLessThan : 1 + 1 = 2 ∨ 3 < 5 := by simp
 theorem notTwoEqualFive : ¬(1 + 1 = 5) := by simp
 theorem trueIsTrue : True := by simp
 theorem trueOrFalse : True ∨ False := by simp
@@ -120,7 +120,7 @@ theorem falseImpliesTrue : False → True := by simp
 
 namespace Decide
 -- ANCHOR: connectivesD
-theorem onePlusOneAndLessThan : 1 + 1 = 2 ∨ 3 < 5 := by decide
+theorem onePlusOneOrLessThan : 1 + 1 = 2 ∨ 3 < 5 := by decide
 theorem notTwoEqualFive : ¬(1 + 1 = 5) := by decide
 theorem trueIsTrue : True := by decide
 theorem trueOrFalse : True ∨ False := by decide
