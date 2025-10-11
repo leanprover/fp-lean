@@ -328,7 +328,7 @@ instance [Hashable α] : Hashable (BinTree α) where
 
 Instance of classes like {moduleName}`BEq` and {moduleName}`Hashable` are often quite tedious to implement by hand.
 Lean includes a feature called _instance deriving_ that allows the compiler to automatically construct well-behaved instances of many type classes.
-In fact, the {anchorTerm Point (module := Examples.Intro)}`deriving Repr` phrase in the definition of {anchorName Point (module:=Examples.Intro)}`Point` in the {ref "structures"}[section on structures] is an example of instance deriving.
+In fact, the {anchorTerm Firewood (module := Examples.Intro)}`deriving Repr` phrase in the definition of {anchorName Firewood (module:=Examples.Intro)}`Firewood` in the {ref "polymorphism"}[first section on polymorphism] is an example of instance deriving.
 
 Instances can be derived in two ways.
 The first can be used when defining a structure or inductive type.

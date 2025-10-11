@@ -312,10 +312,10 @@ The split between definitional and propositional equality represents a division 
 Similarly, definitional equality is invoked automatically by the type checker, while propositional equality must be specifically appealed to.
 
 
-In {ref "props-proofs-indexing"}[Propositions, Proofs, and Indexing], some equality statements are proved using {kw}`decide`.
+In {ref "props-proofs-indexing"}[Propositions, Proofs, and Indexing], some equality statements are proved using {tactic}`decide`.
 All of these equality statements are ones in which the propositional equality is in fact already a definitional equality.
-Typically, statements of propositional equality are proved by first getting them into a form where they are either definitional or close enough to existing proved equalities, and then using tools like {kw}`decide` or {kw}`simp` to take care of the simplified cases.
-The {kw}`simp` tactic is quite powerful: behind the scenes, it uses a number of fast, automated tools to construct a proof.
+Typically, statements of propositional equality are proved by first getting them into a form where they are either definitional or close enough to existing proved equalities, and then using tools like {tactic}`decide` or {tactic}`simp` to take care of the simplified cases.
+The {tactic}`simp` tactic is quite powerful: behind the scenes, it uses a number of fast, automated tools to construct a proof.
 A simpler tactic called {kw}`rfl` specifically uses definitional equality to prove propositional equality.
 The name {kw}`rfl` is short for _reflexivity_, which is the property of equality that states that everything equals itself.
 

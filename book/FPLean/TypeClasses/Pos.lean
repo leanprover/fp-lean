@@ -224,7 +224,7 @@ instance : ToString Pos where
 "There are 7"
 ```
 When more than one instance is defined, the most recent takes precedence.
-Additionally, if a type has a {anchorName UglyToStringPos}`ToString` instance, then it can be used to display the result of {kw}`#eval` even if the type in question was not defined with {anchorTerm JSON}`deriving Repr`, so {anchorTerm sevenEvalStr}`#eval seven` outputs {anchorInfo sevenEvalStr}`7`.
+Additionally, if a type has a {anchorName UglyToStringPos}`ToString` instance, then it can be used to display the result of {kw}`#eval` so {anchorTerm sevenEvalStr}`#eval seven` outputs {anchorInfo sevenEvalStr}`7`.
 
 # Overloaded Multiplication
 
@@ -318,7 +318,6 @@ inductive LT4 where
   | one
   | two
   | three
-deriving Repr
 ```
 While it would not make sense to allow _any_ literal number to be used for this type, numbers less than four clearly make sense:
 

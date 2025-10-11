@@ -769,6 +769,7 @@ Hint: Additional diagnostic information may be available using the `set_option d
 ```
 
 This is because there is no standard way to convert functions into strings.
-The Lean compiler maintains a table that describes how to convert values of various types into strings, and the message {lit}`failed to synthesize instance` means that the Lean compiler didn't find an entry in this table for the given type.
-This uses the same language feature as the {anchorTerm Point}`deriving Repr` syntax that was described in the {ref "structures"}[section on structures].
+Just as the compiler maintains a table that describes how to display the result of evaluating expressions of various types, it maintains a table that describes how to convert values of various types into strings.
+The message {lit}`failed to synthesize instance` means that the Lean compiler didn't find an entry in this table for the given type.
+The chapter on {ref "type-classes"}[type classes] describes this mechanism in more detail, including the means of adding new entries to the table.
 :::

@@ -64,6 +64,7 @@ error: could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type
 #eval String.append "it is "
 -- ANCHOR_END: stringAppendReprFunction
 
+
 /-- info:
 false
 -/
@@ -434,7 +435,6 @@ end evaluation steps
 structure Point where
   x : Float
   y : Float
-deriving Repr
 -- ANCHOR_END: Point
 
 
@@ -605,7 +605,6 @@ structure Point3D where
   x : Float
   y : Float
   z : Float
-deriving Repr
 -- ANCHOR_END: Point3D
 
 -- ANCHOR: origin3D
@@ -619,7 +618,6 @@ structure Point where
   point ::
   x : Float
   y : Float
-deriving Repr
 -- ANCHOR_END: PointCtorName
 -- ANCHOR: PointCtorNameName
 example := Point.point
@@ -1020,7 +1018,6 @@ open SubVerso.Examples in
 structure PPoint (α : Type) where
   x : α
   y : α
-deriving Repr
 -- ANCHOR_END: PPoint
 
 
@@ -1721,6 +1718,58 @@ type expected, got
 def ofFive : MyType := ctor 5
 -- ANCHOR_END: MissingTypeArg2
 
+-- ANCHOR: WoodSplittingTool
+inductive WoodSplittingTool where
+  | axe
+  | maul
+  | froe
+-- ANCHOR_END: WoodSplittingTool
+
+/-- info: WoodSplittingTool.axe -/
+#check_msgs in
+-- ANCHOR: evalAxe
+#eval WoodSplittingTool.axe
+-- ANCHOR_END: evalAxe
+
+-- ANCHOR: allTools
+def allTools : List WoodSplittingTool := [
+  WoodSplittingTool.axe,
+  WoodSplittingTool.maul,
+  WoodSplittingTool.froe
+]
+-- ANCHOR_END: allTools
+
+/--
+error: could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type
+  List WoodSplittingTool
+-/
+#check_msgs in
+-- ANCHOR: evalAllTools
+#eval allTools
+-- ANCHOR_END: evalAllTools
+
+-- ANCHOR: Firewood
+inductive Firewood where
+  | birch
+  | pine
+  | beech
+deriving Repr
+-- ANCHOR_END: Firewood
+
+-- ANCHOR: allFirewood
+def allFirewood : List Firewood := [
+  Firewood.birch,
+  Firewood.pine,
+  Firewood.beech
+]
+-- ANCHOR_END: allFirewood
+
+/-- info: [Firewood.birch, Firewood.pine, Firewood.beech] -/
+#check_msgs in
+-- ANCHOR: evalAllFirewood
+#eval allFirewood
+-- ANCHOR_END: evalAllFirewood
+
 end
 
 -- Example solution
@@ -1756,7 +1805,7 @@ Could not find a decreasing measure.
 The basic measures relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
               xs ys
-1) 1767:28-46  ?  ?
+1) 1816:28-46  ?  ?
 Please use `termination_by` to specify a decreasing measure.
 -/
 #check_msgs in

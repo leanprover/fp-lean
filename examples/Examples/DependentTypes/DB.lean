@@ -427,17 +427,21 @@ inductive Query : Schema → Type where
   | union : Query s → Query s → Query s
   | diff : Query s → Query s → Query s
   | select : Query s → DBExpr s .bool → Query s
-  | project : Query s → (s' : Schema) → Subschema s' s → Query s'
+  | project :
+    Query s → (s' : Schema) →
+    Subschema s' s →
+    Query s'
   | product :
-      Query s1 → Query s2 →
-      disjoint (s1.map Column.name) (s2.map Column.name) →
-      Query (s1 ++ s2)
+    Query s1 → Query s2 →
+    disjoint (s1.map Column.name) (s2.map Column.name) →
+    Query (s1 ++ s2)
   | renameColumn :
-      Query s → (c : HasCol s n t) → (n' : String) → !((s.map Column.name).contains n') →
-      Query (s.renameColumn c n')
+    Query s → (c : HasCol s n t) → (n' : String) →
+    !((s.map Column.name).contains n') →
+    Query (s.renameColumn c n')
   | prefixWith :
-      (n : String) → Query s →
-      Query (s.map fun c => {c with name := n ++ "." ++ c.name})
+    (n : String) → Query s →
+    Query (s.map fun c => {c with name := n ++ "." ++ c.name})
 -- ANCHOR_END: Query
 
 
@@ -552,7 +556,8 @@ def example2 :=
   let waterfall := table waterfallDiary |>.prefixWith "waterfall"
   mountain.product waterfall (by decide)
     |>.select (.eq (c! "mountain.location") (c! "waterfall.location"))
-    |>.project [⟨"mountain.name", .string⟩, ⟨"waterfall.name", .string⟩] (by repeat constructor)
+    |>.project [⟨"mountain.name", .string⟩, ⟨"waterfall.name", .string⟩]
+      (by repeat constructor)
 -- ANCHOR_END: Query2
 
 
@@ -593,7 +598,8 @@ def example2 :=
   let waterfalls := table waterfallDiary |>.prefixWith "waterfall"
   mountains.product waterfalls (by simp)
     |>.select (.eq (c! "location") (c! "waterfall.location"))
-    |>.project [⟨"mountain.name", .string⟩, ⟨"waterfall.name", .string⟩] (by repeat constructor)
+    |>.project [⟨"mountain.name", .string⟩, ⟨"waterfall.name", .string⟩]
+      (by repeat constructor)
 -- ANCHOR_END: QueryOops1
 stop discarding
 
@@ -633,7 +639,8 @@ def example2 :=
   let waterfalls := table waterfallDiary
   mountains.product waterfalls (by decide)
     |>.select (.eq (c! "mountain.location") (c! "waterfall.location"))
-    |>.project [⟨"mountain.name", .string⟩, ⟨"waterfall.name", .string⟩] (by repeat constructor)
+    |>.project [⟨"mountain.name", .string⟩, ⟨"waterfall.name", .string⟩]
+      (by repeat constructor)
 -- ANCHOR_END: QueryOops2
 end Ooops
 

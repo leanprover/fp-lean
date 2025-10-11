@@ -368,7 +368,6 @@ inductive JSON where
   | number : Float → JSON
   | object : List (String × JSON) → JSON
   | array : List JSON → JSON
-deriving Repr
 ```
 a JSON serializer is a structure that tracks the type it knows how to serialize along with the serialization code itself:
 

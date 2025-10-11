@@ -36,7 +36,6 @@ A polymorphic version of {anchorName Point}`Point`, called {anchorName PPoint}`P
 structure PPoint (α : Type) where
   x : α
   y : α
-deriving Repr
 ```
 
 :::
@@ -797,6 +796,65 @@ type expected, got
   (MyType : Type → Type)
 ```
 
+:::
+
+:::paragraph
+Evaluating expressions that use polymorphic types may trigger a situation in which Lean is incapable of displaying a value.
+The {anchorTerm evalAxe}`#eval` command evaluates the provided expression, using the expression's type to determine how to display the result.
+For some types, such as functions, this process fails, but Lean is perfectly capable of automatically generating display code for most other types.
+There is no need, for example, to provide Lean with any specific display code for {anchorName WoodSplittingTool}`WoodSplittingTool`:
+```anchor WoodSplittingTool
+inductive WoodSplittingTool where
+  | axe
+  | maul
+  | froe
+```
+```anchor evalAxe
+#eval WoodSplittingTool.axe
+```
+```anchorInfo evalAxe
+WoodSplittingTool.axe
+```
+There are limits to the automation that Lean uses here, however.
+{anchorName allTools}`allTools` is a list of all three tools:
+```anchor allTools
+def allTools : List WoodSplittingTool := [
+  WoodSplittingTool.axe,
+  WoodSplittingTool.maul,
+  WoodSplittingTool.froe
+]
+```
+Evaluating it leads to an error:
+```anchor evalAllTools
+#eval allTools
+```
+```anchorError evalAllTools
+could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type
+  List WoodSplittingTool
+```
+This is because Lean attempts to use code from a built-in table to display a list, but this code demands that display code for {anchorName WoodSplittingTool}`WoodSplittingTool` already exists.
+This error can be worked around by instructing Lean to generate this display code when a datatype is defined, instead of at the last moment as part of {anchorTerm evalAllTools}`#eval`, by adding {anchorTerm Firewood}`deriving Repr` to its definition:
+```anchor Firewood
+inductive Firewood where
+  | birch
+  | pine
+  | beech
+deriving Repr
+```
+Evaluating a list of {anchorName Firewood}`Firewood` succeeds:
+```anchor allFirewood
+def allFirewood := [
+  Firewood.birch,
+  Firewood.pine,
+  Firewood.beech
+]
+```
+```anchor evalAllFirewood
+#eval allFirewood
+```
+```anchorInfo evalAllFirewood
+[Firewood.birch, Firewood.pine, Firewood.beech]
+```
 :::
 
 # Exercises

@@ -116,6 +116,10 @@ number := false
 htmlSplit := .never
 %%%
 
+## October, 2025
+
+The book has been updated to the latest stable Lean release, and now describes functional induction and the {tactic}`grind` tactic.
+
 ## June, 2025
 
 The book has been reformatted with Verso.

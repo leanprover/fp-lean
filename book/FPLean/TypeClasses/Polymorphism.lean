@@ -114,7 +114,6 @@ The {ref "polymorphism"}[section on polymorphism] presented a polymorphic point 
 structure PPoint (α : Type) where
   x : α
   y : α
-deriving Repr
 ```
 Addition of points should add the underlying {anchorName PPoint}`x` and {anchorName PPoint}`y` fields.
 Thus, an {anchorName AddPPoint}`Add` instance for {anchorName AddPPoint}`PPoint` requires an {anchorName AddPPoint}`Add` instance for whatever type these fields have.

@@ -89,15 +89,9 @@ This is declared using the {kw}`structure` keyword.
 structure Point where
   x : Float
   y : Float
-deriving Repr
 ```
 
-
 After this declaration, {anchorName Point}`Point` is a new structure type.
-The final line, which says {anchorTerm Point}`deriving Repr`, asks Lean to generate code to display values of type {anchorName Point}`Point`.
-This code is used by {kw}`#eval` to render the result of evaluation for consumption by programmers, analogous to the {python}`repr` function in Python.
-It is also possible to override the compiler's generated display code.
-
 The typical way to create a value of a structure type is to provide values for all of its fields inside of curly braces.
 The origin of a Cartesian plane is where {anchorName Point}`x` and {anchorName Point}`y` are both zero:
 
@@ -184,7 +178,6 @@ structure Point3D where
   x : Float
   y : Float
   z : Float
-deriving Repr
 ```
 
 ```anchor origin3D
@@ -351,9 +344,7 @@ structure Point where
   point ::
   x : Float
   y : Float
-deriving Repr
 ```
-
 
 In addition to the constructor, an accessor function is defined for each field of a structure.
 These have the same name as the field, in the structure's namespace.

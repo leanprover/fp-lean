@@ -497,10 +497,10 @@ theorem Nat.le_succ_of_le (h : n ≤ m) : n ≤ m + 1:= by
 end Golf
 
 namespace Golf'
--- ANCHOR: le_succ_of_le_omega
+-- ANCHOR: le_succ_of_le_grind
 theorem Nat.le_succ_of_le (h : n ≤ m) : n ≤ m + 1:= by
-  omega
--- ANCHOR_END: le_succ_of_le_omega
+  grind
+-- ANCHOR_END: le_succ_of_le_grind
 end Golf'
 
 namespace NoTac
@@ -513,6 +513,7 @@ theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1
 end NoTac
 end Extras
 
+discarding
 -- ANCHOR: splitList_shorter_le
 theorem splitList_shorter_le (lst : List α) :
     (splitList lst).fst.length ≤ lst.length ∧
@@ -528,6 +529,42 @@ theorem splitList_shorter_le (lst : List α) :
       apply Nat.le_succ_of_le
       assumption
 -- ANCHOR_END: splitList_shorter_le
+stop discarding
+
+discarding
+/--
+error: unsolved goals
+case case1
+α : Type u_1
+⊢ ([], []).fst.length ≤ [].length ∧ ([], []).snd.length ≤ [].length
+---
+error: unsolved goals
+case case2
+α : Type u_1
+x : α
+xs a b : List α
+splitEq : splitList xs = (a, b)
+ih : (splitList xs).fst.length ≤ xs.length ∧ (splitList xs).snd.length ≤ xs.length
+⊢ (x :: b, a).fst.length ≤ (x :: xs).length ∧ (x :: b, a).snd.length ≤ (x :: xs).length
+-/
+#check_msgs in
+-- ANCHOR: splitList_shorter_le_funInd1
+theorem splitList_shorter_le (lst : List α) :
+    (splitList lst).fst.length ≤ lst.length ∧
+      (splitList lst).snd.length ≤ lst.length := by
+  fun_induction splitList with
+  | case1 => skip
+  | case2 x xs a b splitEq ih => skip
+-- ANCHOR_END: splitList_shorter_le_funInd1
+stop discarding
+
+
+-- ANCHOR: splitList_shorter_le_funInd2
+theorem splitList_shorter_le (lst : List α) :
+    (splitList lst).fst.length ≤ lst.length ∧
+      (splitList lst).snd.length ≤ lst.length := by
+  fun_induction splitList <;> grind
+-- ANCHOR_END: splitList_shorter_le_funInd2
 
 discarding
 /-- error:
@@ -619,6 +656,8 @@ theorem splitList_shorter (lst : List α) (_ : lst.length ≥ 2) :
     simp +arith [splitList]
     apply splitList_shorter_le
 -- ANCHOR_END: splitList_shorter
+
+
 
 
 -- ANCHOR: splitList_shorter_sides
@@ -749,7 +788,7 @@ def mergeSort [Ord α] (xs : List α) : List α :=
   else
     let halves := splitList xs
     have : xs.length ≥ 2 := by
-      omega
+      grind
     have : halves.fst.length < xs.length := by
       apply splitList_shorter_fst
       assumption

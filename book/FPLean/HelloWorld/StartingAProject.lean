@@ -44,7 +44,7 @@ The library file {lit}`Greeting.lean` imports {lit}`Greeting/Basic.lean`:
 import Greeting.Basic
 ```
 
-This means that everything defined in {lit}`Greetings/Basic.lean` is also available to files that import {lit}`Greetings.lean`.
+This means that everything defined in {lit}`Greeting/Basic.lean` is also available to files that import {lit}`Greeting.lean`.
 In {kw}`import` statements, dots are interpreted as directories on disk.
 
 The executable source {lit}`Main.lean` contains:
@@ -55,7 +55,7 @@ def main : IO Unit :=
   IO.println s!"Hello, {hello}!"
 ```
 
-Because {lit}`Main.lean` imports {lit}`Greetings.lean` and {lit}`Greetings.lean` imports {lit}`Greetings/Basic.lean`, the definition of {lit}`hello` is available in {lit}`main`.
+Because {lit}`Main.lean` imports {lit}`Greeting.lean` and {lit}`Greeting.lean` imports {lit}`Greeting/Basic.lean`, the definition of {lit}`hello` is available in {lit}`main`.
 
 To build the package, run the command {command lake "first-lake/greeting"}`lake build`.
 After a number of build commands scroll by, the resulting binary has been placed in {lit}`.lake/build/bin`.

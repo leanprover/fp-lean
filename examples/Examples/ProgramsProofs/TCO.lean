@@ -277,7 +277,7 @@ stop discarding
 theorem helper_add_sum_accum (xs : List Nat) :
     (n : Nat) → n + Tail.sumHelper 0 xs = Tail.sumHelper n xs := by
   induction xs with
-  | nil => simp [Tail.sum, Tail.sumHelper]
+  | nil => simp [Tail.sumHelper]
   | cons y ys ih =>
     intro n
     simp [Tail.sumHelper]
@@ -667,6 +667,7 @@ theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
 -- ANCHOR_END: nonTailEqHelper8
 stop discarding
 
+discarding
 -- ANCHOR: nonTailEqHelperDone
 theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
     (n : Nat) → n + NonTail.sum xs = Tail.sumHelper n xs := by
@@ -679,7 +680,53 @@ theorem non_tail_sum_eq_helper_accum (xs : List Nat) :
     rw [Nat.add_comm y n]
     exact ih (n + y)
 -- ANCHOR_END: nonTailEqHelperDone
+stop discarding
 
+discarding
+/--
+error: unsolved goals
+case case1
+n : Nat
+⊢ n + NonTail.sum [] = n
+---
+error: unsolved goals
+case case2
+n y : Nat
+ys : List Nat
+ih : y + n + NonTail.sum ys = Tail.sumHelper (y + n) ys
+⊢ n + NonTail.sum (y :: ys) = Tail.sumHelper (y + n) ys
+-/
+#check_msgs in
+-- ANCHOR: nonTailEqHelperFunInd1
+theorem non_tail_sum_eq_helper_accum (xs : List Nat) (n : Nat) :
+    n + NonTail.sum xs = Tail.sumHelper n xs := by
+  fun_induction Tail.sumHelper with
+  | case1 n => skip
+  --           ^ PROOF_STATE: BASE
+  | case2 n y ys ih => skip
+  --                   ^ PROOF_STATE: STEP
+-- ANCHOR_END: nonTailEqHelperFunInd1
+stop discarding
+
+discarding
+-- ANCHOR: nonTailEqHelperFunInd2
+theorem non_tail_sum_eq_helper_accum (xs : List Nat) (n : Nat) :
+    n + NonTail.sum xs = Tail.sumHelper n xs := by
+  fun_induction Tail.sumHelper with
+  | case1 n => simp [NonTail.sum]
+  | case2 n y ys ih =>
+    simp [NonTail.sum]
+    rw [←Nat.add_assoc]
+    rw [Nat.add_comm n y]
+    assumption
+-- ANCHOR_END: nonTailEqHelperFunInd2
+stop discarding
+
+-- ANCHOR: nonTailEqHelperFunInd3
+theorem non_tail_sum_eq_helper_accum (xs : List Nat) (n : Nat) :
+    n + NonTail.sum xs = Tail.sumHelper n xs := by
+  fun_induction Tail.sumHelper <;> grind [NonTail.sum]
+-- ANCHOR_END: nonTailEqHelperFunInd3
 
 -- ANCHOR: NatAddAssoc
 example : (n m k : Nat) → (n + m) + k = n + (m + k) := Nat.add_assoc

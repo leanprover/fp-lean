@@ -238,7 +238,7 @@ abbrev SizesMatch (sc : SizedCreature) : Prop :=
   sc.large = (sc.size == Size.large)
 ```
 Note that a single equality sign is used to indicate the equality _proposition_, while a double equality sign is used to indicate a function that checks equality and returns a {anchorName MythicalCreature}`Bool`.
-{anchorName sizesMatch}`SizesMatch` is defined as an {kw}`abbrev` because it should automatically be unfolded in proofs, so that {kw}`decide` can see the equality that should be proven.
+{anchorName sizesMatch}`SizesMatch` is defined as an {kw}`abbrev` because it should automatically be unfolded in proofs, so that {tactic}`decide` can see the equality that should be proven.
 
 A _huldre_ is a medium-sized mythical creature—in fact, they are the same size as humans.
 The two sized fields on {anchorName huldresize}`huldre` match one another:

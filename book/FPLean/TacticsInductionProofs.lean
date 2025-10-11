@@ -188,8 +188,8 @@ The above proof is no shorter than the recursive function; it's merely written i
 But proofs with tactics can be shorter, easier, and more maintainable.
 Just as a lower score is better in the game of golf, a shorter proof is better in the game of tactic golf.
 
-The induction step of {anchorName plusR_zero_left_golf_1}`plusR_zero_left` can be proved using the simplification tactic {kw}`simp`.
-Using {kw}`simp` on its own does not help:
+The induction step of {anchorName plusR_zero_left_golf_1}`plusR_zero_left` can be proved using the simplification tactic {tactic}`simp`.
+Using {tactic}`simp` on its own does not help:
 ```anchor plusR_zero_left_golf_1
 theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
   induction k with
@@ -200,9 +200,9 @@ theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
 ```anchorError plusR_zero_left_golf_1
 `simp` made no progress
 ```
-However, {kw}`simp` can be configured to make use of a set of definitions.
+However, {tactic}`simp` can be configured to make use of a set of definitions.
 Just like {kw}`rw`, these arguments are provided in a list.
-Asking {kw}`simp` to take the definition of {anchorName plusR_zero_left_golf_1}`Nat.plusR` into account leads to a simpler goal:
+Asking {tactic}`simp` to take the definition of {anchorName plusR_zero_left_golf_1}`Nat.plusR` into account leads to a simpler goal:
 ```anchor plusR_zero_left_golf_2
 theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
   induction k with
@@ -244,7 +244,7 @@ theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
 ```
 
 This proof is no shorter than the prior proof that used unfolding and explicit rewriting.
-However, a series of transformations can make it much shorter, taking advantage of the fact that {kw}`simp` can solve many kinds of goals.
+However, a series of transformations can make it much shorter, taking advantage of the fact that {tactic}`simp` can solve many kinds of goals.
 The first step is to drop the {kw}`with` at the end of {kw}`induction`.
 For structured, readable proofs, the {kw}`with` syntax is convenient.
 It complains if any cases are missing, and it shows the structure of the induction clearly.
@@ -271,9 +271,9 @@ If the result is zero goals, then the tactic was a success, and that part of the
 The {kw}`<;>` operator takes two tactics as arguments, resulting in a new tactic.
 {lit}`T1 `{kw}`<;>`{lit}` T2` applies {lit}`T1` to the current goal, and then applies {lit}`T2` in _all_ goals created by {lit}`T1`.
 In other words, {kw}`<;>` enables a general tactic that can solve many kinds of goals to be used on multiple new goals all at once.
-One such general tactic is {kw}`simp`.
+One such general tactic is {tactic}`simp`.
 
-Because {kw}`simp` can both complete the proof of the base case and make progress on the proof of the induction step, using it with {kw}`induction` and {kw}`<;>` shortens the proof:
+Because {tactic}`simp` can both complete the proof of the base case and make progress on the proof of the induction step, using it with {kw}`induction` and {kw}`<;>` shortens the proof:
 ```anchor plusR_zero_left_golf_6a
 theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
   induction k <;> simp [Nat.plusR]
@@ -295,7 +295,7 @@ theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
 Here, {kw}`exact` would not have been possible, because {lit}`ih` was never explicitly named.
 
 For beginners, this proof is not easier to read.
-However, a common pattern for expert users is to take care of a number of simple cases with powerful tactics like {kw}`simp`, allowing them to focus the text of the proof on the interesting cases.
+However, a common pattern for expert users is to take care of a number of simple cases with powerful tactics like {tactic}`simp`, allowing them to focus the text of the proof on the interesting cases.
 Additionally, these proofs tend to be more robust in the face of small changes to the functions and datatypes involved in the proof.
 The game of tactic golf is a useful part of developing good taste and style when writing proofs.
 
@@ -351,7 +351,7 @@ ihr : r.mirror.count = r.count
 
 
 The base case is true because mirroring {anchorName mirror_count_1}`leaf` results in {anchorName mirror_count_1}`leaf`, so the left and right sides are definitionally equal.
-This can be expressed by using {kw}`simp` with instructions to unfold {anchorName mirror_count_1}`BinTree.mirror`:
+This can be expressed by using {tactic}`simp` with instructions to unfold {anchorName mirror_count_1}`BinTree.mirror`:
 ```anchor mirror_count_1
 theorem BinTree.mirror_count (t : BinTree α) :
     t.mirror.count = t.count := by
@@ -402,7 +402,7 @@ ihr : r.mirror.count = r.count
 ⊢ 1 + r.count + l.count = 1 + l.count + r.count
 ```
 
-The {kw}`simp` tactic can use additional arithmetic identities when passed the {anchorTerm mirror_count_4}`+arith` option.
+The {tactic}`simp` tactic can use additional arithmetic identities when passed the {anchorTerm mirror_count_4}`+arith` option.
 It is enough to prove this goal, yielding:
 
 ```anchor mirror_count_4
@@ -429,7 +429,7 @@ theorem BinTree.mirror_count (t : BinTree α) :
 ```
 As proofs grow more complicated, listing assumptions by hand can become tedious.
 Furthermore, manually writing assumption names can make it more difficult to re-use proof steps for multiple subgoals.
-The argument {lit}`*` to {kw}`simp` or {kw}`simp +arith` instructs them to use _all_ assumptions while simplifying or solving the goal.
+The argument {lit}`*` to {tactic}`simp` or {kw}`simp +arith` instructs them to use _all_ assumptions while simplifying or solving the goal.
 In other words, the proof could also be written:
 
 ```anchor mirror_count_6
@@ -448,6 +448,21 @@ theorem BinTree.mirror_count (t : BinTree α) :
   induction t <;> simp +arith [BinTree.mirror, BinTree.count, *]
 ```
 
+# The {lit}`grind` Tactic
+
+The {tactic}`grind` tactic can automatically prove many theorems.
+Like {tactic}`simp`, it accepts an optional list of additional facts to take into consideration or functions to unfold; unlike {tactic}`simp`, it automatically takes local hypotheses into consideration.
+Additionally, {tactic}`grind`'s support for reasoning about specific mathematical domains is far stronger than {tactic}`simp`'s arithmetic support.
+The proof of {anchorName mirror_count_8}`BinTree.mirror_count` can rewritten to use {tactic}`grind`:
+```anchor mirror_count_8
+theorem BinTree.mirror_count (t : BinTree α) :
+    t.mirror.count = t.count := by
+  induction t <;> grind [BinTree.mirror, BinTree.count]
+```
+
+Because the proofs in this book are fairly modest, most of them do not provide an opportunity for {tactic}`grind` to show its full power.
+From time to time, however, it will be used.
+TODO:
 
 # Exercises
 

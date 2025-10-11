@@ -536,17 +536,21 @@ inductive Query : Schema → Type where
   | union : Query s → Query s → Query s
   | diff : Query s → Query s → Query s
   | select : Query s → DBExpr s .bool → Query s
-  | project : Query s → (s' : Schema) → Subschema s' s → Query s'
+  | project :
+    Query s → (s' : Schema) →
+    Subschema s' s →
+    Query s'
   | product :
-      Query s1 → Query s2 →
-      disjoint (s1.map Column.name) (s2.map Column.name) →
-      Query (s1 ++ s2)
+    Query s1 → Query s2 →
+    disjoint (s1.map Column.name) (s2.map Column.name) →
+    Query (s1 ++ s2)
   | renameColumn :
-      Query s → (c : HasCol s n t) → (n' : String) → !((s.map Column.name).contains n') →
-      Query (s.renameColumn c n')
+    Query s → (c : HasCol s n t) → (n' : String) →
+    !((s.map Column.name).contains n') →
+    Query (s.renameColumn c n')
   | prefixWith :
-      (n : String) → Query s →
-      Query (s.map fun c => {c with name := n ++ "." ++ c.name})
+    (n : String) → Query s →
+    Query (s.map fun c => {c with name := n ++ "." ++ c.name})
 ```
 The {anchorName Query}`select` constructor requires that the expression used for selection return a Boolean.
 The {anchorName Query}`product` constructor's type contains a call to {anchorName Query}`disjoint`, which ensures that the two schemas don't share any names:
@@ -740,7 +744,8 @@ def example2 :=
   let waterfall := table waterfallDiary |>.prefixWith "waterfall"
   mountain.product waterfall (by decide)
     |>.select (.eq (c! "mountain.location") (c! "waterfall.location"))
-    |>.project [⟨"mountain.name", .string⟩, ⟨"waterfall.name", .string⟩] (by repeat constructor)
+    |>.project [⟨"mountain.name", .string⟩, ⟨"waterfall.name", .string⟩]
+      (by repeat constructor)
 ```
 Because the example data includes only waterfalls in the USA, executing the query returns pairs of mountains and waterfalls in the US:
 ```anchor Query2Exec
@@ -763,7 +768,8 @@ def example2 :=
   let waterfalls := table waterfallDiary |>.prefixWith "waterfall"
   mountains.product waterfalls (by simp)
     |>.select (.eq (c! "location") (c! "waterfall.location"))
-    |>.project [⟨"mountain.name", .string⟩, ⟨"waterfall.name", .string⟩] (by repeat constructor)
+    |>.project [⟨"mountain.name", .string⟩, ⟨"waterfall.name", .string⟩]
+      (by repeat constructor)
 ```
 This is excellent feedback!
 On the other hand, the text of the error message is quite difficult to act on:
@@ -775,7 +781,7 @@ waterfalls : Query (List.map (fun c => { name := "waterfall" ++ "." ++ c.name, c
 ⊢ HasCol (List.map (fun c => { name := "waterfall" ++ "." ++ c.name, contains := c.contains }) []) "location" ?m.62066
 ```
 
-Similarly, forgetting to add prefixes to the names of the two tables results in an error on {kw}`by decide`, which should provide evidence that the schemas are in fact disjoint;
+Similarly, forgetting to add prefixes to the names of the two tables results in an error on {kw}`by decide`, which should provide evidence that the schemas are in fact disjoint:
 ```anchor QueryOops2
 open Query in
 def example2 :=
@@ -783,7 +789,8 @@ def example2 :=
   let waterfalls := table waterfallDiary
   mountains.product waterfalls (by decide)
     |>.select (.eq (c! "mountain.location") (c! "waterfall.location"))
-    |>.project [⟨"mountain.name", .string⟩, ⟨"waterfall.name", .string⟩] (by repeat constructor)
+    |>.project [⟨"mountain.name", .string⟩, ⟨"waterfall.name", .string⟩]
+      (by repeat constructor)
 ```
 This error message is more helpful:
 ```anchorError QueryOops2

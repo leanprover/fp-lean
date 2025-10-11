@@ -360,7 +360,6 @@ inductive LT4 where
   | one
   | two
   | three
-deriving Repr
 -- ANCHOR_END: LT4
 
 
@@ -532,7 +531,6 @@ namespace PointStuff
 structure PPoint (α : Type) where
   x : α
   y : α
-deriving Repr
 -- ANCHOR_END: PPoint
 
 
@@ -1616,7 +1614,6 @@ inductive JSON where
   | number : Float → JSON
   | object : List (String × JSON) → JSON
   | array : List JSON → JSON
-deriving Repr
 -- ANCHOR_END: JSON
 
 

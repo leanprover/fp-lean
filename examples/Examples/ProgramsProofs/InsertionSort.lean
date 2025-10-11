@@ -51,7 +51,7 @@ def insertSorted [Ord α] (arr : Array α) (i : Fin arr.size) : Array α :=
   | ⟨0, _⟩ => arr
   | ⟨i' + 1, _⟩ =>
     have : i' < arr.size := by
-      omega
+      grind
     match Ord.compare arr[i'] arr[i] with
     | .lt | .eq => arr
     | .gt =>
@@ -154,6 +154,7 @@ theorem insert_sorted_size_eq [Ord α] (arr : Array α) (i : Fin arr.size) :
 -- ANCHOR_END: insert_sorted_size_eq_1
 stop discarding
 
+
 discarding
 /--
 error: unsolved goals
@@ -213,328 +214,81 @@ theorem insert_sorted_size_eq [Ord α] (arr : Array α) (i : Fin arr.size) :
 stop discarding
 
 discarding
-/-- error:
-unsolved goals
-α : Type u_1
-inst✝ : Ord α
-len i : Nat
-⊢ ∀ (arr : Array α) (isLt : i < arr.size), arr.size = len → (insertSorted arr ⟨i, isLt⟩).size = len
--/
-#check_msgs in
--- ANCHOR: insert_sorted_size_eq_redo_0
-theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
-    (arr : Array α) → (isLt : i < arr.size) → arr.size = len →
-    (insertSorted arr ⟨i, isLt⟩).size = len := by
-  skip
--- ANCHOR_END: insert_sorted_size_eq_redo_0
-stop discarding
-
-discarding
 /--
 error: unsolved goals
-case zero
+case case1
 α : Type u_1
 inst✝ : Ord α
-len : Nat
-⊢ ∀ (arr : Array α) (isLt : 0 < arr.size), arr.size = len → (insertSorted arr ⟨0, isLt⟩).size = len
----
-error: unsolved goals
-case succ
-α : Type u_1
-inst✝ : Ord α
-len i' : Nat
-ih : ∀ (arr : Array α) (isLt : i' < arr.size), arr.size = len → (insertSorted arr ⟨i', isLt⟩).size = len
-⊢ ∀ (arr : Array α) (isLt : i' + 1 < arr.size), arr.size = len → (insertSorted arr ⟨i' + 1, isLt⟩).size = len
--/
-#check_msgs in
--- ANCHOR: insert_sorted_size_eq_redo_1a
-theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
-    (arr : Array α) → (isLt : i < arr.size) → arr.size = len →
-    (insertSorted arr ⟨i, isLt⟩).size = len := by
-  induction i with
-  | zero => skip
-  | succ i' ih => skip
--- ANCHOR_END: insert_sorted_size_eq_redo_1a
-stop discarding
-
-discarding
-/--
-error: unsolved goals
-case zero
-α : Type u_1
-inst✝ : Ord α
-len : Nat
-⊢ ∀ (arr : Array α) (isLt : 0 < arr.size), arr.size = len → (insertSorted arr ⟨0, isLt⟩).size = len
----
-error: unsolved goals
-case succ
-α : Type u_1
-inst✝ : Ord α
-len i' : Nat
-ih : ∀ (arr : Array α) (isLt : i' < arr.size), arr.size = len → (insertSorted arr ⟨i', isLt⟩).size = len
-⊢ ∀ (arr : Array α) (isLt : i' + 1 < arr.size), arr.size = len → (insertSorted arr ⟨i' + 1, isLt⟩).size = len
--/
-#check_msgs in
--- ANCHOR: insert_sorted_size_eq_redo_1b
-theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
-    (arr : Array α) → (isLt : i < arr.size) → arr.size = len →
-    (insertSorted arr ⟨i, isLt⟩).size = len := by
-  induction i with
-  | zero => skip
-  | succ i' ih => skip
--- ANCHOR_END: insert_sorted_size_eq_redo_1b
-stop discarding
-
-discarding
-/--
-error: unsolved goals
-case zero
-α : Type u_1
-inst✝ : Ord α
-len : Nat
-arr : Array α
+arr✝ arr : Array α
 isLt : 0 < arr.size
-hLen : arr.size = len
-⊢ arr.size = len
+⊢ arr.size = arr.size
 ---
 error: unsolved goals
-case succ
+case case2
 α : Type u_1
 inst✝ : Ord α
-len i' : Nat
-ih : ∀ (arr : Array α) (isLt : i' < arr.size), arr.size = len → (insertSorted arr ⟨i', isLt⟩).size = len
-⊢ ∀ (arr : Array α) (isLt : i' + 1 < arr.size), arr.size = len → (insertSorted arr ⟨i' + 1, isLt⟩).size = len
--/
-#check_msgs in
--- ANCHOR: insert_sorted_size_eq_redo_2
-theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
-    (arr : Array α) → (isLt : i < arr.size) → arr.size = len →
-    (insertSorted arr ⟨i, isLt⟩).size = len := by
-  induction i with
-  | zero =>
-    intro arr isLt hLen
-    simp [insertSorted]
-  | succ i' ih => skip
--- ANCHOR_END: insert_sorted_size_eq_redo_2
-stop discarding
-
-discarding
-/-- error:
-unsolved goals
-case succ
-α : Type u_1
-inst✝ : Ord α
-len i' : Nat
-ih : ∀ (arr : Array α) (isLt : i' < arr.size), arr.size = len → (insertSorted arr ⟨i', isLt⟩).size = len
-⊢ ∀ (arr : Array α) (isLt : i' + 1 < arr.size), arr.size = len → (insertSorted arr ⟨i' + 1, isLt⟩).size = len
--/
-#check_msgs in
--- ANCHOR: insert_sorted_size_eq_redo_2b
-theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
-    (arr : Array α) → (isLt : i < arr.size) → arr.size = len →
-    (insertSorted arr ⟨i, isLt⟩).size = len := by
-  induction i with
-  | zero =>
-    intro arr isLt hLen
-    simp [insertSorted, *]
-  | succ i' ih => skip
--- ANCHOR_END: insert_sorted_size_eq_redo_2b
-stop discarding
-
-discarding
-/-- error:
-unsolved goals
-case succ
-α : Type u_1
-inst✝ : Ord α
-len i' : Nat
-ih : ∀ (arr : Array α) (isLt : i' < arr.size), arr.size = len → (insertSorted arr ⟨i', isLt⟩).size = len
-arr : Array α
-isLt : i' + 1 < arr.size
-hLen : arr.size = len
-⊢ (match compare arr[i'] arr[i' + 1] with
+arr✝ arr : Array α
+i : Nat
+isLt✝ : i + 1 < arr.size
+this : i < arr.size
+isLt : compare arr[i] arr[⟨i.succ, isLt✝⟩] = Ordering.lt
+⊢ (match compare arr[i] arr[⟨i.succ, isLt✝⟩] with
       | Ordering.lt => arr
       | Ordering.eq => arr
-      | Ordering.gt => insertSorted (arr.swap i' (i' + 1) ⋯ ⋯) ⟨i', ⋯⟩).size =
-    len
+      | Ordering.gt => insertSorted (arr.swap i (↑⟨i.succ, isLt✝⟩) this ⋯) ⟨i, ⋯⟩).size =
+    arr.size
+---
+error: unsolved goals
+case case3
+α : Type u_1
+inst✝ : Ord α
+arr✝ arr : Array α
+i : Nat
+isLt : i + 1 < arr.size
+this : i < arr.size
+isEq : compare arr[i] arr[⟨i.succ, isLt⟩] = Ordering.eq
+⊢ (match compare arr[i] arr[⟨i.succ, isLt⟩] with
+      | Ordering.lt => arr
+      | Ordering.eq => arr
+      | Ordering.gt => insertSorted (arr.swap i (↑⟨i.succ, isLt⟩) this ⋯) ⟨i, ⋯⟩).size =
+    arr.size
+---
+error: unsolved goals
+case case4
+α : Type u_1
+inst✝ : Ord α
+arr✝ arr : Array α
+i : Nat
+isLt : i + 1 < arr.size
+this : i < arr.size
+isGt : compare arr[i] arr[⟨i.succ, isLt⟩] = Ordering.gt
+ih : (insertSorted (arr.swap i (↑⟨i.succ, isLt⟩) this ⋯) ⟨i, ⋯⟩).size = (arr.swap i (↑⟨i.succ, isLt⟩) this ⋯).size
+⊢ (match compare arr[i] arr[⟨i.succ, isLt⟩] with
+      | Ordering.lt => arr
+      | Ordering.eq => arr
+      | Ordering.gt => insertSorted (arr.swap i (↑⟨i.succ, isLt⟩) this ⋯) ⟨i, ⋯⟩).size =
+    arr.size
 -/
 #check_msgs in
--- ANCHOR: insert_sorted_size_eq_redo_3
-theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
-    (arr : Array α) → (isLt : i < arr.size) → (arr.size = len) →
-    (insertSorted arr ⟨i, isLt⟩).size = len := by
-  induction i with
-  | zero =>
-    intro arr isLt hLen
-    simp [insertSorted, *]
-  | succ i' ih =>
-    intro arr isLt hLen
-    simp [insertSorted]
--- ANCHOR_END: insert_sorted_size_eq_redo_3
+-- ANCHOR: insert_sorted_size_eq_funInd1
+theorem insert_sorted_size_eq [Ord α]
+    (arr : Array α) (i : Fin arr.size) :
+    (insertSorted arr i).size = arr.size := by
+  fun_induction insertSorted with
+  | case1 arr isLt => skip
+  | case2 arr i isLt this isLt => skip
+  | case3 arr i isLt this isEq => skip
+  | case4 arr i isLt this isGt ih => skip
+-- ANCHOR_END: insert_sorted_size_eq_funInd1
 stop discarding
 
-discarding
-/--
-error: unsolved goals
-case h_1
-α : Type u_1
-inst✝ : Ord α
-len i' : Nat
-ih : ∀ (arr : Array α) (isLt : i' < arr.size), arr.size = len → (insertSorted arr ⟨i', isLt⟩).size = len
-arr : Array α
-isLt : i' + 1 < arr.size
-hLen : arr.size = len
-x✝ : Ordering
-heq✝ : compare arr[i'] arr[i' + 1] = Ordering.lt
-⊢ arr.size = len
 
-case h_2
-α : Type u_1
-inst✝ : Ord α
-len i' : Nat
-ih : ∀ (arr : Array α) (isLt : i' < arr.size), arr.size = len → (insertSorted arr ⟨i', isLt⟩).size = len
-arr : Array α
-isLt : i' + 1 < arr.size
-hLen : arr.size = len
-x✝ : Ordering
-heq✝ : compare arr[i'] arr[i' + 1] = Ordering.eq
-⊢ arr.size = len
-
-case h_3
-α : Type u_1
-inst✝ : Ord α
-len i' : Nat
-ih : ∀ (arr : Array α) (isLt : i' < arr.size), arr.size = len → (insertSorted arr ⟨i', isLt⟩).size = len
-arr : Array α
-isLt : i' + 1 < arr.size
-hLen : arr.size = len
-x✝ : Ordering
-heq✝ : compare arr[i'] arr[i' + 1] = Ordering.gt
-⊢ (insertSorted (arr.swap i' (i' + 1) ⋯ ⋯) ⟨i', ⋯⟩).size = len
--/
-#check_msgs in
--- ANCHOR: insert_sorted_size_eq_redo_4
-theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
-    (arr : Array α) → (isLt : i < arr.size) → (arr.size = len) →
-    (insertSorted arr ⟨i, isLt⟩).size = len := by
-  induction i with
-  | zero =>
-    intro arr isLt hLen
-    simp [insertSorted, *]
-  | succ i' ih =>
-    intro arr isLt hLen
-    simp [insertSorted]
-    split
--- ANCHOR_END: insert_sorted_size_eq_redo_4
-stop discarding
-
-discarding
-/--
-error: unsolved goals
-case h_3
-α : Type u_1
-inst✝ : Ord α
-len i' : Nat
-ih : ∀ (arr : Array α) (isLt : i' < arr.size), arr.size = len → (insertSorted arr ⟨i', isLt⟩).size = len
-arr : Array α
-isLt : i' + 1 < arr.size
-hLen : arr.size = len
-x✝ : Ordering
-heq✝ : compare arr[i'] arr[i' + 1] = Ordering.gt
-⊢ (insertSorted (arr.swap i' (i' + 1) ⋯ ⋯) ⟨i', ⋯⟩).size = len
--/
-#check_msgs in
--- ANCHOR: insert_sorted_size_eq_redo_5
-theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
-    (arr : Array α) → (isLt : i < arr.size) → (arr.size = len) →
-    (insertSorted arr ⟨i, isLt⟩).size = len := by
-  induction i with
-  | zero =>
-    intro arr isLt hLen
-    simp [insertSorted, *]
-  | succ i' ih =>
-    intro arr isLt hLen
-    simp [insertSorted]
-    split <;> try assumption
--- ANCHOR_END: insert_sorted_size_eq_redo_5
-stop discarding
-
-namespace Wak
-
-/--
-error: unsolved goals
-case h_2
-α : Type u_1
-inst✝ : Ord α
-i' : Nat
-ih : ∀ (arr : Array α) (isLt : i' < arr.size), arr.size = (insertSorted arr ⟨i', isLt⟩).size
-arr : Array α
-isLt : i' + 1 < arr.size
-x✝ : Ordering
-heq✝ : compare arr[i'] arr[i' + 1] = Ordering.eq
-⊢ arr.size = arr.size
-
-case h_3
-α : Type u_1
-inst✝ : Ord α
-i' : Nat
-ih : ∀ (arr : Array α) (isLt : i' < arr.size), arr.size = (insertSorted arr ⟨i', isLt⟩).size
-arr : Array α
-isLt : i' + 1 < arr.size
-x✝ : Ordering
-heq✝ : compare arr[i'] arr[i' + 1] = Ordering.gt
-⊢ arr.size = (insertSorted (arr.swap i' (i' + 1) ⋯ ⋯) ⟨i', ⋯⟩).size
--/
-#check_msgs in
--- ANCHOR: isnert_sorted_size_eq_partial_redo
-theorem insert_sorted_size_eq [Ord α] (i : Nat) :
-    (arr : Array α) → (isLt : i < arr.size) →
-    arr.size = (insertSorted arr ⟨i, isLt⟩).size := by
-  induction i with
-  | zero =>
-    intro arr isLt
-    simp [insertSorted, *]
-  | succ i' ih =>
-    intro arr isLt
-    simp [insertSorted]
-    split <;> try assumption
-    simp [*]
--- ANCHOR_END: isnert_sorted_size_eq_partial_redo
-end Wak
-
-namespace Alt
-
-
--- ANCHOR: insert_sorted_size_eq_redo_6
-theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
-    (arr : Array α) → (isLt : i < arr.size) → (arr.size = len) →
-    (insertSorted arr ⟨i, isLt⟩).size = len := by
-  induction i with
-  | zero =>
-    intro arr isLt hLen
-    simp [insertSorted, *]
-  | succ i' ih =>
-    intro arr isLt hLen
-    simp [insertSorted]
-    split <;> try assumption
-    simp [*]
--- ANCHOR_END: insert_sorted_size_eq_redo_6
-end Alt
-
-
--- ANCHOR: insert_sorted_size_eq_redo
-theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
-    (arr : Array α) → (isLt : i < arr.size) → (arr.size = len) →
-    (insertSorted arr ⟨i, isLt⟩).size = len := by
-  induction i with
-  | zero =>
-    intro arr isLt hLen
-    simp [insertSorted, *]
-  | succ i' ih =>
-    intro arr isLt hLen
-    simp [insertSorted]
-    split <;> simp [*]
--- ANCHOR_END: insert_sorted_size_eq_redo
+-- ANCHOR: insert_sorted_size_eq_funInd
+theorem insert_sorted_size_eq [Ord α]
+    (arr : Array α) (i : Fin arr.size) :
+    (insertSorted arr i).size = arr.size := by
+  fun_induction insertSorted <;> grind [Array.size_swap]
+-- ANCHOR_END: insert_sorted_size_eq_funInd
 
 discarding
 /--
@@ -557,7 +311,7 @@ Could not find a decreasing measure.
 The basic measures relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
             arr i #1
-1) 570:4-55   ? ?  ?
+1) 324:4-55   ? ?  ?
 
 #1: arr.size - i
 
@@ -593,11 +347,11 @@ partial def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
 -- ANCHOR_END: insertionSortPartialOne
 
 /-- info:
-#["igneous", "metamorphic", "sedentary"]
+#["igneous", "metamorphic", "sedimentary"]
 -/
 #check_msgs in
 -- ANCHOR: insertionSortPartialTwo
-#eval insertionSortLoop #["metamorphic", "igneous", "sedentary"] 0
+#eval insertionSortLoop #["metamorphic", "igneous", "sedimentary"] 0
 -- ANCHOR_END: insertionSortPartialTwo
 end Partial
 
@@ -666,7 +420,7 @@ h : i < arr.size
 def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
   if h : i < arr.size then
     have : (insertSorted arr ⟨i, h⟩).size - (i + 1) < arr.size - i := by
-      rw [insert_sorted_size_eq arr.size i arr h rfl]
+      rw [insert_sorted_size_eq]
     insertionSortLoop (insertSorted arr ⟨i, h⟩) (i + 1)
   else
     arr
@@ -683,8 +437,7 @@ example : ∀ (a i : Nat), i < a → a - (i + 1) < a - i := Nat.sub_succ_lt_self
 def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
   if h : i < arr.size then
     have : (insertSorted arr ⟨i, h⟩).size - (i + 1) < arr.size - i := by
-      rw [insert_sorted_size_eq arr.size i arr h rfl]
-      omega
+      grind [insert_sorted_size_eq]
     insertionSortLoop (insertSorted arr ⟨i, h⟩) (i + 1)
   else
     arr
@@ -701,7 +454,7 @@ def insertionSort [Ord α] (arr : Array α) : Array α :=
 example := @List.map
 example := @Array.swap
 example := (@Array.swap : {α : Type _} → (xs : Array α) → (i j : Nat) → (h1 : autoParam (i < xs.size) _) → (h2 : autoParam (j < xs.size) _) → Array α)
-example : Fin 1 := {val := 0, isLt := by omega}
+example : Fin 1 := {val := 0, isLt := by grind}
 example := @Array.set
 example {n} := Fin n
 example := Fin 0
