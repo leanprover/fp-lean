@@ -843,7 +843,7 @@ deriving Repr
 ```
 Evaluating a list of {anchorName Firewood}`Firewood` succeeds:
 ```anchor allFirewood
-def allFirewood := [
+def allFirewood : List Firewood := [
   Firewood.birch,
   Firewood.pine,
   Firewood.beech
