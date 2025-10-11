@@ -178,7 +178,7 @@ failed to prove index is valid, possible solutions:
 
 Because both the collection type and the index type are input parameters to the {anchorTerm ListPosElem}`GetElem` type class, new types can be used to index into existing collections.
 The positive number type {anchorTerm ListPosElem}`Pos` is a perfectly reasonable index into a {anchorTerm ListPosElem}`List`, with the caveat that it cannot point at the first entry.
-The follow instance of {anchorTerm ListPosElem}`GetElem` allows {anchorTerm ListPosElem}`Pos` to be used just as conveniently as {moduleName}`Nat` to find a list entry:
+The following instance of {anchorTerm ListPosElem}`GetElem` allows {anchorTerm ListPosElem}`Pos` to be used just as conveniently as {moduleName}`Nat` to find a list entry:
 
 ```anchor ListPosElem
 instance : GetElem (List α) Pos α
