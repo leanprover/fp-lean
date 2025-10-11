@@ -95,11 +95,11 @@ open Plus (plus)
 example : {α : Type} → [Plus α] → α → α → α := @Plus.plus
 -- ANCHOR_END: plusType
 
-/-- error:
-failed to synthesize
+/--
+error: failed to synthesize
   Plus Float
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #check_msgs in
 -- ANCHOR: plusFloatFail
@@ -130,14 +130,14 @@ example := Nat.zero
 -- ANCHOR_END: PosStuff
 
 discarding
-/-- error:
-failed to synthesize
+/--
+error: failed to synthesize
   OfNat Pos 7
 numerals are polymorphic in Lean, but the numeral `7` cannot be used in a context where the expected type is
   Pos
 due to the absence of the instance above
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #check_msgs in
 -- ANCHOR: sevenOops
@@ -151,11 +151,11 @@ def seven : Pos :=
 -- ANCHOR_END: seven
 
 discarding
-/-- error:
-failed to synthesize
-  HAdd Pos Pos ?m.332
+/--
+error: failed to synthesize
+  HAdd Pos Pos ?m.3
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #check_msgs in
 -- ANCHOR: fourteenOops
@@ -163,11 +163,11 @@ def fourteen : Pos := seven + seven
 -- ANCHOR_END: fourteenOops
 stop discarding
 
-/-- error:
-failed to synthesize
-  HMul Pos Pos ?m.332
+/--
+error: failed to synthesize
+  HMul Pos Pos ?m.3
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #check_msgs in
 -- ANCHOR: fortyNineOops
@@ -360,7 +360,6 @@ inductive LT4 where
   | one
   | two
   | three
-deriving Repr
 -- ANCHOR_END: LT4
 
 
@@ -395,14 +394,14 @@ LT4.zero
 #eval (0 : LT4)
 -- ANCHOR_END: LT4zero
 
-/-- error:
-failed to synthesize
+/--
+error: failed to synthesize
   OfNat LT4 4
 numerals are polymorphic in Lean, but the numeral `4` cannot be used in a context where the expected type is
   LT4
 due to the absence of the instance above
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #check_msgs in
 -- ANCHOR: LT4four
@@ -436,14 +435,14 @@ def eight : Pos := 8
 -- ANCHOR_END: eight
 
 
-/-- error:
-failed to synthesize
+/--
+error: failed to synthesize
   OfNat Pos 0
 numerals are polymorphic in Lean, but the numeral `0` cannot be used in a context where the expected type is
   Pos
 due to the absence of the instance above
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #check_msgs in
 -- ANCHOR: zeroBad
@@ -514,11 +513,11 @@ def fourPos : List Pos := [1, 2, 3, 4]
 -- ANCHOR_END: fourNatsSum
 
 
-/-- error:
-failed to synthesize
+/--
+error: failed to synthesize
   Zero Pos
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #check_msgs in
 -- ANCHOR: fourPosSum
@@ -532,7 +531,6 @@ namespace PointStuff
 structure PPoint (α : Type) where
   x : α
   y : α
-deriving Repr
 -- ANCHOR_END: PPoint
 
 
@@ -1099,11 +1097,11 @@ example : ("Octopus" ==  "Cuttlefish") = false := rfl
 example : ("Octopodes" ==  "Octo".append "podes") = true := rfl
 -- ANCHOR_END: boolEqFalse
 
-/-- error:
-failed to synthesize
+/--
+error: failed to synthesize
   BEq (Nat → Nat)
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #check_msgs in
 -- ANCHOR: functionEq
@@ -1133,13 +1131,13 @@ instance {x : Pos} {y : Pos} : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.toNat ≤ y.toNat))
 -- ANCHOR_END: DecLTLEPos
 
-/-- error:
-type mismatch
+/--
+error: Type mismatch
   inferInstanceAs (Decidable (x.toNat < y.toNat))
 has type
-  Decidable (x.toNat < y.toNat) : Type
+  Decidable (x.toNat < y.toNat)
 but is expected to have type
-  Decidable (x ≤ y) : Type
+  Decidable (x ≤ y)
 -/
 #check_msgs in
 -- ANCHOR: LTLEMismatch
@@ -1171,11 +1169,11 @@ class HTTP (m : Method) where
 #check 2 < 4
 -- ANCHOR_END: twoLessFour
 
-/-- error:
-failed to synthesize
+/--
+error: failed to synthesize
   Decidable ((fun x => 1 + x) = fun x => x.succ)
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #check_msgs in
 -- ANCHOR: funEqDec
@@ -1290,9 +1288,7 @@ deriving instance BEq, Hashable for NonEmptyList
 -- ANCHOR_END: BEqHashableDerive
 
 
-/-- error:
-default handlers have not been implemented yet, class: 'ToString' types: [NonEmptyList]
--/
+/-- error: No deriving handlers have been implemented for class `ToString` -/
 #check_msgs in
 -- ANCHOR: derivingNotFound
 deriving instance ToString for NonEmptyList
@@ -1482,14 +1478,14 @@ example : {α : Type} → Nat → List α → List α := @List.drop
 -- ANCHOR_END: drop
 
 /--
-error: Application type mismatch: In the application
-  List.drop 2
-the argument
+error: Application type mismatch: The argument
   2
 has type
-  Pos : Type
+  Pos
 but is expected to have type
-  Nat : Type
+  Nat
+in the application
+  List.drop 2
 -/
 #check_msgs in
 -- ANCHOR: dropPos
@@ -1546,14 +1542,14 @@ def perhapsPerhapsPerhaps : Option (Option (Option String)) :=
 
 
 discarding
-/-- error:
-failed to synthesize
+/--
+error: failed to synthesize
   OfNat (Option (Option (Option Nat))) 392
 numerals are polymorphic in Lean, but the numeral `392` cannot be used in a context where the expected type is
   Option (Option (Option Nat))
 due to the absence of the instance above
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #check_msgs in
 -- ANCHOR: ofNatBeforeCoe
@@ -1595,12 +1591,12 @@ instance : CoeDep (List α) (x :: xs) (NonEmptyList α) where
 -- ANCHOR_END: CoeDepListNEList
 
 /--
-error: type mismatch
+error: Type mismatch
   []
 has type
-  List ?m.22415 : Type
+  List ?m.2
 but is expected to have type
-  NonEmptyList Nat : Type
+  NonEmptyList Nat
 -/
 #check_msgs in
 #eval ([] : NonEmptyList Nat)
@@ -1618,7 +1614,6 @@ inductive JSON where
   | number : Float → JSON
   | object : List (String × JSON) → JSON
   | array : List JSON → JSON
-deriving Repr
 -- ANCHOR_END: JSON
 
 
@@ -1789,11 +1784,14 @@ structure Adder where
 def add5 : Adder := ⟨5⟩
 -- ANCHOR_END: add5
 
-/-- error:
-function expected at
+/--
+error: Function expected at
   add5
-term has type
+but this term has type
   Adder
+
+Note: Expected a function because this term is being applied to the argument
+  3
 -/
 #check_msgs in
 -- ANCHOR: add5notfun
@@ -1874,14 +1872,14 @@ end Ser
 
 namespace A
 /--
-error: Application type mismatch: In the application
-  List.getLast? idahoSpiders
-the argument
+error: Application type mismatch: The argument
   idahoSpiders
 has type
-  NonEmptyList String : Type
+  NonEmptyList String
 but is expected to have type
-  List ?m.56120 : Type
+  List ?m.3
+in the application
+  List.getLast? idahoSpiders
 -/
 #check_msgs in
 -- ANCHOR: lastSpiderB
@@ -1890,8 +1888,8 @@ def lastSpider :=
 -- ANCHOR_END: lastSpiderB
 
 discarding
-/-- error:
-invalid field 'getLast?', the environment does not contain 'NonEmptyList.getLast?'
+/--
+error: Invalid field `getLast?`: The environment does not contain `NonEmptyList.getLast?`
   idahoSpiders
 has type
   NonEmptyList String

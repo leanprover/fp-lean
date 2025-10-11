@@ -24,7 +24,7 @@ Most arithmetic operators are available in a heterogeneous form, where the argum
 For each heterogeneous operator, there is a corresponding homogeneous version that can found by removing the letter {lit}`h`, so that {moduleName}`HAdd.hAdd` becomes {moduleName}`Add.add`.
 The following arithmetic operators are overloaded:
 
-:::table (header := true)
+:::table +header
 
 *
  -  Expression
@@ -69,7 +69,7 @@ There are instances for fixed-width types such as {anchorTerm UInt8}`UInt8`, {an
 The latter is the size of words on the current platform, typically 32 or 64 bits.
 The following bitwise operators are overloaded:
 
-:::table (header := true)
+:::table +header
 *
  -  Expression
  -  Desugaring
@@ -123,7 +123,7 @@ For example, {anchorTerm functionEq}`(fun (x : Nat) => 1 + x) == (Nat.succ ·)` 
 failed to synthesize
   BEq (Nat → Nat)
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 As this message indicates, {lit}`==` is overloaded using a type class.
 The expression {anchorTerm beqDesugar}`x == y` is actually shorthand for {anchorTerm beqDesugar}`BEq.beq x y`.
@@ -163,12 +163,12 @@ For example, {anchorTerm funEqDec}`if (fun (x : Nat) => 1 + x) = (Nat.succ ·) t
 failed to synthesize
   Decidable ((fun x => 1 + x) = fun x => x.succ)
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 
 The following propositions, that are usually decidable, are overloaded with type classes:
 
-:::table (header := true)
+:::table +header
 *
  -  Expression
  -  Desugaring
@@ -221,12 +221,12 @@ instance {x : Pos} {y : Pos} : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.toNat < y.toNat))
 ```
 ```anchorError LTLEMismatch
-type mismatch
+Type mismatch
   inferInstanceAs (Decidable (x.toNat < y.toNat))
 has type
-  Decidable (x.toNat < y.toNat) : Type
+  Decidable (x.toNat < y.toNat)
 but is expected to have type
-  Decidable (x ≤ y) : Type
+  Decidable (x ≤ y)
 ```
 
 :::paragraph
@@ -328,7 +328,7 @@ instance [Hashable α] : Hashable (BinTree α) where
 
 Instance of classes like {moduleName}`BEq` and {moduleName}`Hashable` are often quite tedious to implement by hand.
 Lean includes a feature called _instance deriving_ that allows the compiler to automatically construct well-behaved instances of many type classes.
-In fact, the {anchorTerm Point (module := Examples.Intro)}`deriving Repr` phrase in the definition of {anchorName Point (module:=Examples.Intro)}`Point` in the {ref "structures"}[section on structures] is an example of instance deriving.
+In fact, the {anchorTerm Firewood (module := Examples.Intro)}`deriving Repr` phrase in the definition of {anchorName Firewood (module:=Examples.Intro)}`Firewood` in the {ref "polymorphism"}[first section on polymorphism] is an example of instance deriving.
 
 Instances can be derived in two ways.
 The first can be used when defining a structure or inductive type.
@@ -504,7 +504,7 @@ deriving instance ToString for NonEmptyList
 ```
 results in the following error:
 ```anchorError derivingNotFound
-default handlers have not been implemented yet, class: 'ToString' types: [NonEmptyList]
+No deriving handlers have been implemented for class `ToString`
 ```
 Invoking {anchorTerm derivingNotFound}`deriving instance` causes Lean to consult an internal table of code generators for type class instances.
 If the code generator is found, then it is invoked on the provided type to create the instance.

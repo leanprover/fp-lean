@@ -282,13 +282,13 @@ def appendR : (n k : Nat) → Vect α n → Vect α k → Vect α (n.plusR k)
 stop discarding
 
 discarding
-/-- error:
-type mismatch
-  ?m.2199
+/--
+error: Type mismatch
+  ?m.11
 has type
-  Vect α k : Type ?u.2135
+  Vect α k
 but is expected to have type
-  Vect α (Nat.plusR 0 k) : Type ?u.2135
+  Vect α (Nat.plusR 0 k)
 -/
 #check_msgs in
 -- ANCHOR: appendR3
@@ -299,13 +299,13 @@ def appendR : (n k : Nat) → Vect α n → Vect α k → Vect α (n.plusR k)
 stop discarding
 
 discarding
-/-- error:
-type mismatch
-  ?m.2234
+/--
+error: Type mismatch
+  ?m.15
 has type
-  Vect α k : Type ?u.2135
+  Vect α k
 but is expected to have type
-  Vect α (0 + k) : Type ?u.2135
+  Vect α (0 + k)
 -/
 #check_msgs in
 -- ANCHOR: appendR4

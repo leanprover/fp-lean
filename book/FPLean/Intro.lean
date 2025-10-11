@@ -80,14 +80,14 @@ Lean's replies are formatted like this:
 Error messages returned by Lean are formatted like this:
 
 ```anchorError add1_string
-Application type mismatch: In the application
-  add1 "seven"
-the argument
+Application type mismatch: The argument
   "seven"
 has type
-  String : Type
+  String
 but is expected to have type
-  Nat : Type
+  Nat
+in the application
+  add1 "seven"
 ```
 
 Warnings are formatted like this:
@@ -115,6 +115,18 @@ In Emacs, use {lit}`C-c C-k` with point on the character in question.
 number := false
 htmlSplit := .never
 %%%
+
+## October, 2025
+
+The book has been updated to the latest stable Lean release (version 4.23.0), and now describes functional induction and the {tactic}`grind` tactic.
+
+## August, 2025
+
+This is a maintenance release to resolve an issue with copy-pasting code from the book.
+
+## July, 2025
+
+The book has been updated for version 4.21 of Lean.
 
 ## June, 2025
 

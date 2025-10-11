@@ -242,9 +242,9 @@ Omitting the hint results in an error:
 ```
 ```anchorError mapMIdNoHint
 failed to synthesize
-  HAdd Nat Nat (?m.22324 ?m.22326)
+  HAdd Nat Nat (?m.4 ?m.3)
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 In this error, the application of one metavariable to another indicates that Lean doesn't run the type-level computation backwards.
 The return type of the function is expected to be the monad applied to some other type.

@@ -52,11 +52,11 @@ abbrev NestedPairs.asType : NestedPairs → Type
 
 
 
-/-- error:
-failed to synthesize
+/--
+error: failed to synthesize
   BEq t.asType
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #check_msgs in
 -- ANCHOR: beqNoCases

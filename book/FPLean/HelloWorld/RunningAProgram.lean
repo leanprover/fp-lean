@@ -40,8 +40,8 @@ The program displays {commandOut hello}`lean --run Hello.lean` and exits.
 # Anatomy of a Greeting
 
 When Lean is invoked with the {lit}`--run` option, it invokes the program's {lit}`main` definition.
-In programs that do not take command-line arguments, {moduleName module:=Hello}`main` should have type {moduleTerm}`IO Unit`.
-This means that {moduleName module:=Hello}`main` is not a function, because there are no arrows ({lit}`→`) in its type.
+In programs that do not take command-line arguments, {moduleName (module := Hello)}`main` should have type {moduleTerm}`IO Unit`.
+This means that {moduleName (module := Hello)}`main` is not a function, because there are no arrows ({lit}`→`) in its type.
 Instead of being a function that has side effects, {moduleTerm}`main` consists of a description of effects to be carried out.
 
 As discussed in {ref "polymorphism"}[the preceding chapter], {moduleTerm}`Unit` is the simplest inductive type.

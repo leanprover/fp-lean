@@ -238,7 +238,7 @@ instance [Alternative f] : OrElse (f α) where
   orElse := Alternative.orElse
 ```
 
-The implementation of {anchorName FakeAlternative}`Alternative` for {anchorName ApplicativeOption}`Option` keeps the first none-{anchorName ApplicativeOption}`none` argument:
+The implementation of {anchorName FakeAlternative}`Alternative` for {anchorName ApplicativeOption}`Option` keeps the first non-{anchorName ApplicativeOption}`none` argument:
 
 ```anchor AlternativeOption
 instance : Alternative Option where

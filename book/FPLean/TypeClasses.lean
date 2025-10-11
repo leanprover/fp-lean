@@ -21,6 +21,9 @@ set_option verso.exampleModule "Examples.Classes"
 set_option pp.rawOnError true
 
 #doc (Manual) "Overloading and Type Classes" =>
+%%%
+tag := "type-classes"
+%%%
 
 In many languages, the built-in datatypes get special treatment.
 For example, in C and Java, {lit}`+` can be used to add {c}`float`s and {c}`int`s, but not arbitrary-precision numbers from a third-party library.

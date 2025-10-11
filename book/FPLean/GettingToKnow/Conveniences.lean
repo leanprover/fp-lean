@@ -300,7 +300,7 @@ def id x := x
 
 
 ```anchorError identNoTypes
-failed to infer binder type
+Failed to infer type of binder `x`
 ```
 :::
 
@@ -422,7 +422,7 @@ def halve : Nat → Nat
 ```
 
 Behind the scenes, both definitions are completely equivalent.
-Remember: {anchorTerm halve}`halven + 1` is equivalent to {anchorTerm halveParens}`(halve n) + 1`, not {anchorTerm halveParens}`halve (n + 1)`.
+Remember: {anchorTerm halve}`halve n + 1` is equivalent to {anchorTerm halveParens}`(halve n) + 1`, not {anchorTerm halveParens}`halve (n + 1)`.
 
 :::
 
@@ -529,7 +529,7 @@ def double : Nat → Nat := fun
 When an anonymous function is very simple, like {anchorEvalStep incrSteps 0}`fun x => x + 1`, the syntax for creating the function can be fairly verbose.
 In that particular example, six non-whitespace characters are used to introduce the function, and its body consists of only three non-whitespace characters.
 For these simple cases, Lean provides a shorthand.
-In an expression surrounded by parentheses, a centered dot character {anchorTerm incrSteps}`·` can stand for an parameter, and the expression inside the parentheses becomes the function's body.
+In an expression surrounded by parentheses, a centered dot character {anchorTerm incrSteps}`·` can stand for a parameter, and the expression inside the parentheses becomes the function's body.
 That particular function can also be written {anchorEvalStep incrSteps 1}`(· + 1)`.
 :::
 
@@ -717,11 +717,10 @@ Just as with the brace notation for named constructor arguments, this positional
 For instance, {anchorTerm pointPosEvalNoType}`#eval ⟨1, 2⟩` yields the following error:
 
 ```anchorError pointPosEvalNoType
-invalid constructor ⟨...⟩, expected type must be an inductive type
-  ?m.93937
+Invalid `⟨...⟩` notation: The expected type of this term could not be determined
 ```
 
-The metavariable in the error is because there is no type information available.
+This error occurs because there is no type information available.
 Adding an annotation, such as in {anchorTerm pointPosWithType}`#eval (⟨1, 2⟩ : Point)`, solves the problem:
 
 ```anchorInfo pointPosWithType
@@ -766,10 +765,11 @@ yields the error
 failed to synthesize
   ToString (Nat → Nat)
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 
 This is because there is no standard way to convert functions into strings.
-The Lean compiler maintains a table that describes how to convert values of various types into strings, and the message {lit}`failed to synthesize instance` means that the Lean compiler didn't find an entry in this table for the given type.
-This uses the same language feature as the {anchorTerm Point}`deriving Repr` syntax that was described in the {ref "structures"}[section on structures].
+Just as the compiler maintains a table that describes how to display the result of evaluating expressions of various types, it maintains a table that describes how to convert values of various types into strings.
+The message {lit}`failed to synthesize instance` means that the Lean compiler didn't find an entry in this table for the given type.
+The chapter on {ref "type-classes"}[type classes] describes this mechanism in more detail, including the means of adding new entries to the table.
 :::

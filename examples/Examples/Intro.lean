@@ -64,6 +64,7 @@ error: could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type
 #eval String.append "it is "
 -- ANCHOR_END: stringAppendReprFunction
 
+
 /-- info:
 false
 -/
@@ -133,14 +134,14 @@ example : (
 
 
 /--
-error: Application type mismatch: In the application
-  String.append ["hello", " "]
-the argument
+error: Application type mismatch: The argument
   ["hello", " "]
 has type
-  List String : Type
+  List String
 but is expected to have type
-  String : Type
+  String
+in the application
+  String.append ["hello", " "]
 ---
 info: sorry.append "world" : String
 -/
@@ -208,14 +209,14 @@ example : Nat -> Nat := add1
 -- ANCHOR_END: add1_7
 
 /--
-error: Application type mismatch: In the application
-  add1 "seven"
-the argument
+error: Application type mismatch: The argument
   "seven"
 has type
-  String : Type
+  String
 but is expected to have type
-  Nat : Type
+  Nat
+in the application
+  add1 "seven"
 ---
 info: add1 sorry : Nat
 -/
@@ -350,14 +351,14 @@ open SubVerso.Examples in
 
 discarding
 open SubVerso.Examples in
-/-- error:
-failed to synthesize
+/--
+error: failed to synthesize
   OfNat NaturalNumber 38
 numerals are polymorphic in Lean, but the numeral `38` cannot be used in a context where the expected type is
   NaturalNumber
 due to the absence of the instance above
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #check_msgs in
 -- ANCHOR: thirtyEight
@@ -434,7 +435,6 @@ end evaluation steps
 structure Point where
   x : Float
   y : Float
-deriving Repr
 -- ANCHOR_END: Point
 
 
@@ -605,7 +605,6 @@ structure Point3D where
   x : Float
   y : Float
   z : Float
-deriving Repr
 -- ANCHOR_END: Point3D
 
 -- ANCHOR: origin3D
@@ -619,7 +618,6 @@ structure Point where
   point ::
   x : Float
   y : Float
-deriving Repr
 -- ANCHOR_END: PointCtorName
 -- ANCHOR: PointCtorNameName
 example := Point.point
@@ -1020,7 +1018,6 @@ open SubVerso.Examples in
 structure PPoint (α : Type) where
   x : α
   y : α
-deriving Repr
 -- ANCHOR_END: PPoint
 
 
@@ -1653,8 +1650,8 @@ example : Exhausts (Bool ⊕ Empty) [Sum.inl true, Sum.inl false] := by
 
 
 discarding
-/-- error:
-invalid universe level in constructor 'MyType.ctor', parameter 'α' has type
+/--
+error: Invalid universe level in constructor `MyType.ctor`: Parameter `α` has type
   Type
 at universe level
   2
@@ -1721,6 +1718,58 @@ type expected, got
 def ofFive : MyType := ctor 5
 -- ANCHOR_END: MissingTypeArg2
 
+-- ANCHOR: WoodSplittingTool
+inductive WoodSplittingTool where
+  | axe
+  | maul
+  | froe
+-- ANCHOR_END: WoodSplittingTool
+
+/-- info: WoodSplittingTool.axe -/
+#check_msgs in
+-- ANCHOR: evalAxe
+#eval WoodSplittingTool.axe
+-- ANCHOR_END: evalAxe
+
+-- ANCHOR: allTools
+def allTools : List WoodSplittingTool := [
+  WoodSplittingTool.axe,
+  WoodSplittingTool.maul,
+  WoodSplittingTool.froe
+]
+-- ANCHOR_END: allTools
+
+/--
+error: could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type
+  List WoodSplittingTool
+-/
+#check_msgs in
+-- ANCHOR: evalAllTools
+#eval allTools
+-- ANCHOR_END: evalAllTools
+
+-- ANCHOR: Firewood
+inductive Firewood where
+  | birch
+  | pine
+  | beech
+deriving Repr
+-- ANCHOR_END: Firewood
+
+-- ANCHOR: allFirewood
+def allFirewood : List Firewood := [
+  Firewood.birch,
+  Firewood.pine,
+  Firewood.beech
+]
+-- ANCHOR_END: allFirewood
+
+/-- info: [Firewood.birch, Firewood.pine, Firewood.beech] -/
+#check_msgs in
+-- ANCHOR: evalAllFirewood
+#eval allFirewood
+-- ANCHOR_END: evalAllFirewood
+
 end
 
 -- Example solution
@@ -1756,7 +1805,7 @@ Could not find a decreasing measure.
 The basic measures relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
               xs ys
-1) 1767:28-46  ?  ?
+1) 1816:28-46  ?  ?
 Please use `termination_by` to specify a decreasing measure.
 -/
 #check_msgs in
@@ -1939,9 +1988,9 @@ namespace ReallyNoTypes
 open SubVerso.Examples
 
 /--
-error: failed to infer type of `id`
+error: Failed to infer type of definition `id`
 ---
-error: failed to infer binder type
+error: Failed to infer type of binder `x`
 -/
 #check_msgs in
 -- ANCHOR: identNoTypes
@@ -2224,7 +2273,7 @@ open NewNamespace in
 error: failed to synthesize
   ToString (Nat → Nat)
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ---
 info: toString "three fives is " ++ sorry ++ toString "" : String
 -/
@@ -2275,10 +2324,7 @@ example : (⟨1, 2⟩ : (Point)) = (Point.mk 1 2 : (Point)) := rfl
 -- ANCHOR_END: pointPos
 
 
-/--
-error: invalid constructor ⟨...⟩, expected type must be an inductive type ⏎
-  ?m.93541
--/
+/-- error: Invalid `⟨...⟩` notation: The expected type of this term could not be determined -/
 #check_msgs in
 -- ANCHOR: pointPosEvalNoType
 #eval ⟨1, 2⟩

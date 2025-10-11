@@ -570,7 +570,7 @@ def number (t : BinTree α) : BinTree (Nat × α) :=
       (i, BinTree.branch numberedLeft (k, x) numberedRight)
   (helper 0 t).snd
 ```
-This code, like the {moduleName}`none`-propagating {anchorName first}`Option` code, the {anchorName exceptNames show:=error}`Except.error`-propagating {anchorName exceptNames}`Except` code, and the log-accumulating {moduleName}`WithLog` code, commingles two concerns: propagating the value of the counter, and actually traversing the tree to find the result.
+This code, like the {moduleName}`none`-propagating {anchorName first}`Option` code, the {anchorName exceptNames (show := error)}`Except.error`-propagating {anchorName exceptNames}`Except` code, and the log-accumulating {moduleName}`WithLog` code, commingles two concerns: propagating the value of the counter, and actually traversing the tree to find the result.
 Just as in those cases, an {anchorName andThenState}`andThen` helper can be defined to propagate state from one step of a computation to another.
 The first step is to give a name to the pattern of taking an input state as an argument and returning an output state together with a value:
 

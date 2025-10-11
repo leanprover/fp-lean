@@ -468,7 +468,7 @@ They represent a sequence of natural numbers, from the starting number to the en
 Lean has special syntax to construct ranges, consisting of square brackets, numbers, and colons that comes in four varieties.
 The stopping point must always be provided, while the start and the step are optional, defaulting to {anchorTerm ranges}`0` and {anchorTerm ranges}`1`, respectively:
 
-:::table (header := true)
+:::table +header
 *
  *  Expression
  *  Start

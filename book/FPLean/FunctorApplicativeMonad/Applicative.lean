@@ -203,14 +203,14 @@ The first argument is the underlying {anchorName FastPos}`Nat`, and the second a
 ```anchor one
 def one : FastPos := ⟨1, by decide⟩
 ```
-The proposition {anchorTerm onep}`1 > 0` is decidable, so the {kw}`decide` tactic produces the necessary evidence.
+The proposition {anchorTerm onep}`1 > 0` is decidable, so the {tactic}`decide` tactic produces the necessary evidence.
 The {anchorName OfNatFastPos}`OfNat` instance is very much like that for {anchorName Pos (module:=Examples.Classes)}`Pos`, except it uses a short tactic proof to provide evidence that {lit}`n + 1 > 0`:
 
 ```anchor OfNatFastPos
 instance : OfNat FastPos (n + 1) where
   ofNat := ⟨n + 1, by simp⟩
 ```
-Here, {kw}`simp` is needed because {kw}`decide` requires concrete values, but the proposition in question is {anchorTerm OfNatFastPosp}`n + 1 > 0`.
+Here, {tactic}`simp` is needed because {tactic}`decide` requires concrete values, but the proposition in question is {anchorTerm OfNatFastPosp}`n + 1 > 0`.
 
 Subtypes are a two-edged sword.
 They allow efficient representation of validation rules, but they transfer the burden of maintaining these rules to the users of the library, who have to _prove_ that they are not violating important invariants.

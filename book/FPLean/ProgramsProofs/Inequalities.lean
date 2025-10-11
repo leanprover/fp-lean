@@ -427,11 +427,11 @@ In this short tactic script, both goals introduced by {kw}`induction` are addres
 The tactic {lit}`first | T1 | T2 | ... | Tn` means to use try {lit}`T1` through {lit}`Tn` in order, using the first tactic that succeeds.
 In other words, {anchorTerm le_succ_of_le_golf}`repeat (first | constructor | assumption)` applies constructors as long as it can, and then attempts to solve the goal using an assumption.
 
-The proof can be shortened even further by using {anchorTerm le_succ_of_le_omega}`omega`, a built-in solver for linear arithmetic:
+The proof can be shortened even further by using {tactic}`grind`, which includes a solver for linear arithmetic:
 
-```anchor le_succ_of_le_omega
+```anchor le_succ_of_le_grind
 theorem Nat.le_succ_of_le (h : n ≤ m) : n ≤ m + 1:= by
-  omega
+  grind
 ```
 
 Finally, the proof can be written as a recursive function:
@@ -574,6 +574,49 @@ theorem splitList_shorter_snd (lst : List α) (h : lst.length ≥ 2) :
   splitList_shorter lst h |>.right
 ```
 
+## A Simpler Proof
+
+:::paragraph
+Instead of using ordinary induction, {anchorName splitList_shorter_le_funInd1}`splitList_shorter_le` can be proved using functional induction, resulting in one case for each branch of {anchorName splitList}`splitList`:
+```anchor splitList_shorter_le_funInd1
+theorem splitList_shorter_le (lst : List α) :
+    (splitList lst).fst.length ≤ lst.length ∧
+      (splitList lst).snd.length ≤ lst.length := by
+  fun_induction splitList with
+  | case1 => skip
+  | case2 x xs a b splitEq ih => skip
+```
+The first case matches the base case of {anchorName splitList}`splitList`.
+_Both_ applications of {anchorName splitList}`splitList` have been replaced by the result of this first branch:
+```anchorError splitList_shorter_le_funInd1
+unsolved goals
+case case1
+α : Type u_1
+⊢ ([], []).fst.length ≤ [].length ∧ ([], []).snd.length ≤ [].length
+```
+The second case matches the recursive branch of {anchorName splitList}`splitList`.
+In addition to the induction hypothesis, the value of the {anchorTerm splitList}`let` in {anchorName splitList}`splitList` is tracked in an assumption:
+```anchorError splitList_shorter_le_funInd1
+unsolved goals
+case case2
+α : Type u_1
+x : α
+xs a b : List α
+splitEq : splitList xs = (a, b)
+ih : (splitList xs).fst.length ≤ xs.length ∧ (splitList xs).snd.length ≤ xs.length
+⊢ (x :: b, a).fst.length ≤ (x :: xs).length ∧ (x :: b, a).snd.length ≤ (x :: xs).length
+```
+:::
+
+While the second case looks a bit complicated, everything needed to complete the proof is present.
+Indeed, {tactic}`grind` can prove both goals immediately:
+```anchor splitList_shorter_le_funInd2
+theorem splitList_shorter_le (lst : List α) :
+    (splitList lst).fst.length ≤ lst.length ∧
+      (splitList lst).snd.length ≤ lst.length := by
+  fun_induction splitList <;> grind
+```
+
 # Merge Sort Terminates
 
 Merge sort has two recursive calls, one for each sub-list returned by {anchorName splitList}`splitList`.
@@ -663,7 +706,7 @@ declaration uses 'sorry'
 
 There is one promising assumption available: {lit}`h : ¬List.length xs < 2`, which comes from the {kw}`if`.
 Clearly, if it is not the case that {anchorTerm mergeSort}`xs.length < 2`, then {anchorTerm mergeSort}`xs.length ≥ 2`.
-The {anchorTerm mergeSort}`omega` tactic solves this goal, and the program is now complete:
+The {anchorTerm mergeSort}`grind` tactic solves this goal, and the program is now complete:
 
 ```anchor mergeSort
 def mergeSort [Ord α] (xs : List α) : List α :=
@@ -674,7 +717,7 @@ def mergeSort [Ord α] (xs : List α) : List α :=
   else
     let halves := splitList xs
     have : xs.length ≥ 2 := by
-      omega
+      grind
     have : halves.fst.length < xs.length := by
       apply splitList_shorter_fst
       assumption
@@ -769,7 +812,7 @@ termination_by n
 
 # Exercises
 
-Prove the following theorems:
+Prove the following theorems without using {tactic}`grind`:
 
  * For all natural numbers $`n`, $`0 < n + 1`.
  * For all natural numbers $`n`, $`0 \leq n`.

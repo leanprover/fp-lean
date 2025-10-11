@@ -79,7 +79,7 @@ def insertSorted [Ord α] (arr : Array α) (i : Fin arr.size) : Array α :=
   | ⟨0, _⟩ => arr
   | ⟨i' + 1, _⟩ =>
     have : i' < arr.size := by
-      omega
+      grind
     match Ord.compare arr[i'] arr[i] with
     | .lt | .eq => arr
     | .gt =>
@@ -88,7 +88,7 @@ def insertSorted [Ord α] (arr : Array α) (i : Fin arr.size) : Array α :=
 If the index {anchorName insertSorted}`i` is {anchorTerm insertSorted}`0`, then the element being inserted into the sorted region has reached the beginning of the region and is the smallest.
 If the index is {anchorTerm insertSorted}`i' + 1`, then the element at {anchorName insertSorted}`i'` should be compared to the element at {anchorName insertSorted}`i`.
 Note that while {anchorName insertSorted}`i` is a {anchorTerm insertSorted}`Fin arr.size`, {anchorName insertSorted}`i'` is just a {anchorName insertionSortLoop}`Nat` because it results from the {anchorName names}`val` field of {anchorName insertSorted}`i`.
-Nonetheless, the proof automation used for checking array index notation includes {anchorTerm insertSorted}`omega`, so {anchorName insertSorted}`i'` is automatically usable as an index.
+Nonetheless, the proof automation used for checking array index notation includes a solver for linear integer arithmetic, so {anchorName insertSorted}`i'` is automatically usable as an index.
 
 The two elements are looked up and compared.
 If the element to the left is less than or equal to the element being inserted, then the loop is finished and the invariant has been restored.
@@ -167,10 +167,10 @@ partial def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
 #[3, 5, 8, 17]
 ```
 ```anchor insertionSortPartialTwo
-#eval insertionSortLoop #["metamorphic", "igneous", "sedentary"] 0
+#eval insertionSortLoop #["metamorphic", "igneous", "sedimentary"] 0
 ```
 ```anchorInfo insertionSortPartialTwo
-#["igneous", "metamorphic", "sedentary"]
+#["igneous", "metamorphic", "sedimentary"]
 ```
 
 ## Termination
@@ -362,277 +362,112 @@ heq✝ : compare arr[j'] arr[j' + 1] = Ordering.gt
 ⊢ (insertSorted (arr.swap j' (j' + 1) ⋯ ⋯) ⟨j', ⋯⟩).size = arr.size
 ```
 
+:::paragraph
 However, this whole proof is beginning to get unmanageable.
 The next step would be to introduce a variable standing for the length of the result of swapping, show that it is equal to {anchorTerm insert_sorted_size_eq_3}`arr.size`, and then show that this variable is also equal to the length of the array that results from the recursive call.
 These equality statements can then be chained together to prove the goal.
-It's much easier, however, to carefully reformulate the theorem statement such that the induction hypothesis is automatically strong enough and the variables are already introduced.
-The reformulated statement reads:
-```anchor insert_sorted_size_eq_redo_0
-theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
-    (arr : Array α) → (isLt : i < arr.size) → arr.size = len →
-    (insertSorted arr ⟨i, isLt⟩).size = len := by
-  skip
+It's much easier, however, to use functional induction:
+```anchor insert_sorted_size_eq_funInd1
+theorem insert_sorted_size_eq [Ord α]
+    (arr : Array α) (i : Fin arr.size) :
+    (insertSorted arr i).size = arr.size := by
+  fun_induction insertSorted with
+  | case1 arr isLt => skip
+  | case2 arr i isLt this isLt => skip
+  | case3 arr i isLt this isEq => skip
+  | case4 arr i isLt this isGt ih => skip
 ```
-This version of the theorem statement is easier to prove for a few reasons:
- 1. Rather than bundling up the index and the proof of its validity in a {anchorName insertSorted}`Fin`, the index comes before the array.
-    This allows the induction hypothesis to naturally generalize over the array and the proof that {anchorName insert_sorted_size_eq_redo_0}`i` is in bounds.
- 2. An abstract length {anchorName insert_sorted_size_eq_redo_0}`len` is introduced to stand for {anchorTerm insert_sorted_size_eq_redo_0}`arr.size`.
-    Proof automation is often better at working with explicit statements of equality.
-
-The resulting proof state shows the statement that will be used to generate the induction hypothesis, as well as the base case and the goal of the inductive step:
-```anchorError insert_sorted_size_eq_redo_0
+The first goal is the case for index {anchorTerm insertSorted}`0`.
+Here, the array is not modified, so proving that its size is unmodified will not require any complicated steps:
+```anchorError insert_sorted_size_eq_funInd1
 unsolved goals
+case case1
 α : Type u_1
 inst✝ : Ord α
-len i : Nat
-⊢ ∀ (arr : Array α) (isLt : i < arr.size), arr.size = len → (insertSorted arr ⟨i, isLt⟩).size = len
-```
-
-Compare the statement with the goals that result from the {anchorTerm insert_sorted_size_eq_redo_1a}`induction` tactic:
-```anchor insert_sorted_size_eq_redo_1a
-theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
-    (arr : Array α) → (isLt : i < arr.size) → arr.size = len →
-    (insertSorted arr ⟨i, isLt⟩).size = len := by
-  induction i with
-  | zero => skip
-  | succ i' ih => skip
-```
-In the base case, each occurrence of {anchorName insert_sorted_size_eq_redo_1a}`i` has been replaced by {lit}`0`.
-Using {anchorTerm insert_sorted_size_eq_redo_2}`intro` to introduce each assumption and then simplifying using {anchorName insert_sorted_size_eq_redo_2}`insertSorted` will prove the goal, because {anchorName insert_sorted_size_eq_redo_2}`insertSorted` at index {lit}`0` returns its argument unchanged:
-```anchorError insert_sorted_size_eq_redo_1a
-unsolved goals
-case zero
-α : Type u_1
-inst✝ : Ord α
-len : Nat
-⊢ ∀ (arr : Array α) (isLt : 0 < arr.size), arr.size = len → (insertSorted arr ⟨0, isLt⟩).size = len
-```
-In the inductive step, the induction hypothesis has exactly the right strength.
-It will be useful for _any_ array, so long as that array has length {anchorName insert_sorted_size_eq_redo_2}`len`:
-```anchorError insert_sorted_size_eq_redo_1b
-unsolved goals
-case succ
-α : Type u_1
-inst✝ : Ord α
-len i' : Nat
-ih : ∀ (arr : Array α) (isLt : i' < arr.size), arr.size = len → (insertSorted arr ⟨i', isLt⟩).size = len
-⊢ ∀ (arr : Array α) (isLt : i' + 1 < arr.size), arr.size = len → (insertSorted arr ⟨i' + 1, isLt⟩).size = len
-```
-
-In the base case, {anchorTerm insert_sorted_size_eq_redo_2}`simp` reduces the goal to {anchorTerm insert_sorted_size_eq_redo_2}`arr.size = len`:
-```anchor insert_sorted_size_eq_redo_2
-theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
-    (arr : Array α) → (isLt : i < arr.size) → arr.size = len →
-    (insertSorted arr ⟨i, isLt⟩).size = len := by
-  induction i with
-  | zero =>
-    intro arr isLt hLen
-    simp [insertSorted]
-  | succ i' ih => skip
-```
-```anchorError insert_sorted_size_eq_redo_2
-unsolved goals
-case zero
-α : Type u_1
-inst✝ : Ord α
-len : Nat
-arr : Array α
+arr✝ arr : Array α
 isLt : 0 < arr.size
-hLen : arr.size = len
-⊢ arr.size = len
+⊢ arr.size = arr.size
 ```
-This can be proved using the assumption {anchorName insert_sorted_size_eq_redo_2b}`hLen`.
-Adding the {anchorTerm insert_sorted_size_eq_redo_2b}`*` parameter to {anchorTerm insert_sorted_size_eq_redo_2b}`simp` instructs it to additionally use assumptions, which solves the goal:
-```anchor insert_sorted_size_eq_redo_2b
-theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
-    (arr : Array α) → (isLt : i < arr.size) → arr.size = len →
-    (insertSorted arr ⟨i, isLt⟩).size = len := by
-  induction i with
-  | zero =>
-    intro arr isLt hLen
-    simp [insertSorted, *]
-  | succ i' ih => skip
-```
-
-In the inductive step, introducing assumptions and simplifying the goal results once again in a goal that contains a pattern match:
-```anchor insert_sorted_size_eq_redo_3
-theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
-    (arr : Array α) → (isLt : i < arr.size) → (arr.size = len) →
-    (insertSorted arr ⟨i, isLt⟩).size = len := by
-  induction i with
-  | zero =>
-    intro arr isLt hLen
-    simp [insertSorted, *]
-  | succ i' ih =>
-    intro arr isLt hLen
-    simp [insertSorted]
-```
-```anchorError insert_sorted_size_eq_redo_3
+The next two goals are the same, and cover the {anchorName insertSorted}`.lt` and {anchorName insertSorted}`.eq` cases for the element comparison.
+The local assumptions {anchorName insert_sorted_size_eq_funInd1}`isLt` and {anchorName insert_sorted_size_eq_funInd1}`isEq` will allow the correct branch of the {anchorTerm insertSorted}`match` to be selected:
+```anchorError insert_sorted_size_eq_funInd1
 unsolved goals
-case succ
+case case2
 α : Type u_1
 inst✝ : Ord α
-len i' : Nat
-ih : ∀ (arr : Array α) (isLt : i' < arr.size), arr.size = len → (insertSorted arr ⟨i', isLt⟩).size = len
-arr : Array α
-isLt : i' + 1 < arr.size
-hLen : arr.size = len
-⊢ (match compare arr[i'] arr[i' + 1] with
+arr✝ arr : Array α
+i : Nat
+isLt✝ : i + 1 < arr.size
+this : i < arr.size
+isLt : compare arr[i] arr[⟨i.succ, isLt✝⟩] = Ordering.lt
+⊢ (match compare arr[i] arr[⟨i.succ, isLt✝⟩] with
     | Ordering.lt => arr
     | Ordering.eq => arr
-    | Ordering.gt => insertSorted (arr.swap i' (i' + 1) ⋯ ⋯) ⟨i', ⋯⟩).size =
-  len
+    | Ordering.gt => insertSorted (arr.swap i (↑⟨i.succ, isLt✝⟩) this ⋯) ⟨i, ⋯⟩).size =
+  arr.size
 ```
-Using the {anchorTerm insert_sorted_size_eq_redo_4}`split` tactic results in one goal for each pattern.
-Once again, the first two goals result from branches without recursive calls, so the induction hypothesis is not necessary:
-```anchor insert_sorted_size_eq_redo_4
-theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
-    (arr : Array α) → (isLt : i < arr.size) → (arr.size = len) →
-    (insertSorted arr ⟨i, isLt⟩).size = len := by
-  induction i with
-  | zero =>
-    intro arr isLt hLen
-    simp [insertSorted, *]
-  | succ i' ih =>
-    intro arr isLt hLen
-    simp [insertSorted]
-    split
-```
-```anchorError insert_sorted_size_eq_redo_4
+```anchorError insert_sorted_size_eq_funInd1
 unsolved goals
-case h_1
+case case3
 α : Type u_1
 inst✝ : Ord α
-len i' : Nat
-ih : ∀ (arr : Array α) (isLt : i' < arr.size), arr.size = len → (insertSorted arr ⟨i', isLt⟩).size = len
-arr : Array α
-isLt : i' + 1 < arr.size
-hLen : arr.size = len
-x✝ : Ordering
-heq✝ : compare arr[i'] arr[i' + 1] = Ordering.lt
-⊢ arr.size = len
-
-case h_2
-α : Type u_1
-inst✝ : Ord α
-len i' : Nat
-ih : ∀ (arr : Array α) (isLt : i' < arr.size), arr.size = len → (insertSorted arr ⟨i', isLt⟩).size = len
-arr : Array α
-isLt : i' + 1 < arr.size
-hLen : arr.size = len
-x✝ : Ordering
-heq✝ : compare arr[i'] arr[i' + 1] = Ordering.eq
-⊢ arr.size = len
-
-case h_3
-α : Type u_1
-inst✝ : Ord α
-len i' : Nat
-ih : ∀ (arr : Array α) (isLt : i' < arr.size), arr.size = len → (insertSorted arr ⟨i', isLt⟩).size = len
-arr : Array α
-isLt : i' + 1 < arr.size
-hLen : arr.size = len
-x✝ : Ordering
-heq✝ : compare arr[i'] arr[i' + 1] = Ordering.gt
-⊢ (insertSorted (arr.swap i' (i' + 1) ⋯ ⋯) ⟨i', ⋯⟩).size = len
-```
-Running {anchorTerm insert_sorted_size_eq_redo_5}`try assumption` in each goal that results from {anchorTerm insert_sorted_size_eq_redo_5}`split` eliminates both of the non-recursive goals:
-```anchor insert_sorted_size_eq_redo_5
-theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
-    (arr : Array α) → (isLt : i < arr.size) → (arr.size = len) →
-    (insertSorted arr ⟨i, isLt⟩).size = len := by
-  induction i with
-  | zero =>
-    intro arr isLt hLen
-    simp [insertSorted, *]
-  | succ i' ih =>
-    intro arr isLt hLen
-    simp [insertSorted]
-    split <;> try assumption
-```
-```anchorError insert_sorted_size_eq_redo_5
-unsolved goals
-case h_3
-α : Type u_1
-inst✝ : Ord α
-len i' : Nat
-ih : ∀ (arr : Array α) (isLt : i' < arr.size), arr.size = len → (insertSorted arr ⟨i', isLt⟩).size = len
-arr : Array α
-isLt : i' + 1 < arr.size
-hLen : arr.size = len
-x✝ : Ordering
-heq✝ : compare arr[i'] arr[i' + 1] = Ordering.gt
-⊢ (insertSorted (arr.swap i' (i' + 1) ⋯ ⋯) ⟨i', ⋯⟩).size = len
-```
-
-The new formulation of the proof goal, in which a constant {anchorName insert_sorted_size_eq_redo_6}`len` is used for the lengths of all the arrays involved in the recursive function, falls nicely within the kinds of problems that {anchorTerm insert_sorted_size_eq_redo_6}`simp` can solve.
-This final proof goal can be solved by {anchorTerm insert_sorted_size_eq_redo_6}`simp [*]`, because the assumptions that relate the array's length to {anchorName insert_sorted_size_eq_redo_6}`len` are important:
-
-```anchor insert_sorted_size_eq_redo_6
-theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
-    (arr : Array α) → (isLt : i < arr.size) → (arr.size = len) →
-    (insertSorted arr ⟨i, isLt⟩).size = len := by
-  induction i with
-  | zero =>
-    intro arr isLt hLen
-    simp [insertSorted, *]
-  | succ i' ih =>
-    intro arr isLt hLen
-    simp [insertSorted]
-    split <;> try assumption
-    simp [*]
-```
-
-Finally, because {anchorTerm insert_sorted_size_eq_redo}`simp [*]` can use assumptions, the {anchorTerm insert_sorted_size_eq_redo_6}`try assumption` line can be replaced by {anchorTerm insert_sorted_size_eq_redo}`simp [*]`, shortening the proof:
-
-```anchor insert_sorted_size_eq_redo
-theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
-    (arr : Array α) → (isLt : i < arr.size) → (arr.size = len) →
-    (insertSorted arr ⟨i, isLt⟩).size = len := by
-  induction i with
-  | zero =>
-    intro arr isLt hLen
-    simp [insertSorted, *]
-  | succ i' ih =>
-    intro arr isLt hLen
-    simp [insertSorted]
-    split <;> simp [*]
-```
-
-This proof can now be used to replace the {anchorTerm insertionSortLoopSorry}`sorry` in {anchorName insertionSortLoopSorry}`insertionSortLoop`.
-Providing {anchorTerm insertionSortLoopRw}`arr.size` as the {anchorName insert_sorted_size_eq_redo}`len` argument to the theorem causes the final conclusion to be {lit}`(insertSorted arr ⟨i, isLt⟩).size = arr.size`, so the rewrite ends with a very manageable proof goal:
-```anchor insertionSortLoopRw
-def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
-  if h : i < arr.size then
-    have : (insertSorted arr ⟨i, h⟩).size - (i + 1) < arr.size - i := by
-      rw [insert_sorted_size_eq arr.size i arr h rfl]
-    insertionSortLoop (insertSorted arr ⟨i, h⟩) (i + 1)
-  else
-    arr
-termination_by arr.size - i
-```
-```anchorError insertionSortLoopRw
-unsolved goals
-α : Type ?u.130721
-inst✝ : Ord α
-arr : Array α
+arr✝ arr : Array α
 i : Nat
-h : i < arr.size
-⊢ arr.size - (i + 1) < arr.size - i
+isLt : i + 1 < arr.size
+this : i < arr.size
+isEq : compare arr[i] arr[⟨i.succ, isLt⟩] = Ordering.eq
+⊢ (match compare arr[i] arr[⟨i.succ, isLt⟩] with
+    | Ordering.lt => arr
+    | Ordering.eq => arr
+    | Ordering.gt => insertSorted (arr.swap i (↑⟨i.succ, isLt⟩) this ⋯) ⟨i, ⋯⟩).size =
+  arr.size
 ```
-The {anchorTerm insertionSortLoop}`omega` tactic can prove this:
+In the final case, once the {anchorTerm insertSorted}`match` is reduced, there will be some work left to do to prove that the next step of the insertion preserves the size of the array.
+In particular, the induction hypothesis states that the size of the next step is equal to the size of the result of the swap, but the desired conclusion is that it's equal to the size of the original array:
+```anchorError insert_sorted_size_eq_funInd1
+unsolved goals
+case case4
+α : Type u_1
+inst✝ : Ord α
+arr✝ arr : Array α
+i : Nat
+isLt : i + 1 < arr.size
+this : i < arr.size
+isGt : compare arr[i] arr[⟨i.succ, isLt⟩] = Ordering.gt
+ih : (insertSorted (arr.swap i (↑⟨i.succ, isLt⟩) this ⋯) ⟨i, ⋯⟩).size = (arr.swap i (↑⟨i.succ, isLt⟩) this ⋯).size
+⊢ (match compare arr[i] arr[⟨i.succ, isLt⟩] with
+    | Ordering.lt => arr
+    | Ordering.eq => arr
+    | Ordering.gt => insertSorted (arr.swap i (↑⟨i.succ, isLt⟩) this ⋯) ⟨i, ⋯⟩).size =
+  arr.size
+```
+:::
 
+:::paragraph
+The Lean library includes the theorem {anchorName insert_sorted_size_eq_funInd}`Array.size_swap`, which states that swapping two elements of an array doesn't change its size.
+By default, {tactic}`grind` doesn't use this fact, but once instructed to do so, it can take care of all four cases:
+```anchor insert_sorted_size_eq_funInd
+theorem insert_sorted_size_eq [Ord α]
+    (arr : Array α) (i : Fin arr.size) :
+    (insertSorted arr i).size = arr.size := by
+  fun_induction insertSorted <;> grind [Array.size_swap]
+```
+:::
+
+:::paragraph
+This proof can now be used to replace the {anchorTerm insertionSortLoopSorry}`sorry` in {anchorName insertionSortLoopSorry}`insertionSortLoop`.
+In particular, this theorem allows {anchorTerm insertionSortLoop}`grind` to succeed:
 ```anchor insertionSortLoop
 def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
   if h : i < arr.size then
     have : (insertSorted arr ⟨i, h⟩).size - (i + 1) < arr.size - i := by
-      rw [insert_sorted_size_eq arr.size i arr h rfl]
-      omega
+      grind [insert_sorted_size_eq]
     insertionSortLoop (insertSorted arr ⟨i, h⟩) (i + 1)
   else
     arr
 termination_by arr.size - i
 ```
+:::
 
 
 # The Driver Function

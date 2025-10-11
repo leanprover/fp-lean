@@ -472,7 +472,78 @@ Finally, using this helper theorem with the actual initial accumulator value res
 For example, in {anchorName nonTailEqRealDone}`non_tail_sum_eq_tail_sum`, the accumulator is specified to be {anchorTerm TailSum}`0`.
 This may require rewriting the goal to make the neutral initial accumulator values occur in the right place.
 
+# Functional Induction
 
+The proof of {anchorName nonTailEqRealDone}`non_tail_sum_eq_helper_accum` follows the implementation of {anchorName TailSum}`Tail.sumHelper` closely.
+There is not, however, a perfect match between the implementation and the structure expected by mathematical induction, which makes it necessary to manage the assumption {anchorName nonTailEqHelperDone}`n` carefully.
+This is a small amount of work in the case of {anchorName nonTailEqHelperDone}`non_tail_sum_eq_helper_accum`, but proofs about functions whose definitions are further from the structure expected by {tactic}`induction` require more bookkeeping.
+
+In addition to proving theorems about recursive functions by induction on one of the arguments, Lean supports proofs by induction on the recursive call structure of functions.
+This {deftech}_functional induction_ results in a base case for each branch of the function's control flow that does not include a recursive call, and inductive steps for each branch that does.
+A proof by functional induction should demonstrate that the theorem holds for the non-recursive branches, and that if the theorem holds for the result of each recursive call, then it also holds for the result of the recursive branch.
+
+:::paragraph
+Using functional induction simplifies {anchorName nonTailEqHelperFunInd1}`non_tail_sum_eq_helper_accum`:
+```anchor nonTailEqHelperFunInd1
+theorem non_tail_sum_eq_helper_accum (xs : List Nat) (n : Nat) :
+    n + NonTail.sum xs = Tail.sumHelper n xs := by
+  fun_induction Tail.sumHelper with
+  | case1 n => skip
+  | case2 n y ys ih => skip
+```
+Each branch of the proof matches the corresponding branch of {anchorName TailSum}`Tail.sumHelper`:
+```anchorTerm TailSum
+def Tail.sumHelper (soFar : Nat) : List Nat → Nat
+  | [] => soFar
+  | x :: xs => sumHelper (x + soFar) xs
+```
+In the first, {anchorTerm nonTailEqHelperFunInd1}`case1`, the right side of the equality is the accumulator value, called {anchorName nonTailEqHelperFunInd1}`n` in the proof:
+```anchorError nonTailEqHelperFunInd1
+unsolved goals
+case case1
+n : Nat
+⊢ n + NonTail.sum [] = n
+```
+In the second, {anchorTerm nonTailEqHelperFunInd1}`case2`, the right side of the equality is the next step in the tail-recursive loop:
+```anchorError nonTailEqHelperFunInd1
+unsolved goals
+case case2
+n y : Nat
+ys : List Nat
+ih : y + n + NonTail.sum ys = Tail.sumHelper (y + n) ys
+⊢ n + NonTail.sum (y :: ys) = Tail.sumHelper (y + n) ys
+```
+:::
+
+:::paragraph
+The resulting proof can be simpler.
+The fundamentals of the argument, including the properties of addition that are used, are the same; however, the bookkeeping has been removed.
+It is no longer necessary to manually juggle the accumulator value, and the induction hypothesis can be used directly instead of requiring instantiation:
+```anchor nonTailEqHelperFunInd2
+theorem non_tail_sum_eq_helper_accum (xs : List Nat) (n : Nat) :
+    n + NonTail.sum xs = Tail.sumHelper n xs := by
+  fun_induction Tail.sumHelper with
+  | case1 n => simp [NonTail.sum]
+  | case2 n y ys ih =>
+    simp [NonTail.sum]
+    rw [←Nat.add_assoc]
+    rw [Nat.add_comm n y]
+    assumption
+```
+:::
+
+:::paragraph
+The {tactic}`grind` tactic is very well suited to this kind of goal.
+Unlike {tactic}`simp` and {tactic}`rw`, it is not directional; internally, it accumulates a collection of facts until it either proves the goal completely or fails to do so.
+It is preconfigured to use basic facts about arithmetic, such as the associativity and commutativity of addition, and it automatically uses local assumptions such as the induction hypothesis.
+Using {tactic}`grind`, this proof becomes short and to-the-point:
+```anchor nonTailEqHelperFunInd3
+theorem non_tail_sum_eq_helper_accum (xs : List Nat) (n : Nat) :
+    n + NonTail.sum xs = Tail.sumHelper n xs := by
+  fun_induction Tail.sumHelper <;> grind [NonTail.sum]
+```
+This proof also matches the way the proof might be explained to a skilled programmer: “Just check both branches of {anchorName nonTailEqHelperFunInd3}`Tail.sumHelper`!”
+:::
 
 # Exercise
 
@@ -489,6 +560,7 @@ The first step is to think about the relationship between the accumulator value 
 Just as adding a number to the accumulator in {anchorName TailSum}`Tail.sumHelper` is the same as adding it to the overall sum, using {anchorName names}`List.cons` to add a new entry to the accumulator in {anchorName TailReverse}`Tail.reverseHelper` is equivalent to some change to the overall result.
 Try three or four different accumulator values with pencil and paper until the relationship becomes clear.
 Use this relationship to prove a suitable helper theorem.
+Try proving this helper theorem both using induction on lists and via functional induction.
 Then, write down the overall theorem.
 Because {anchorName reverseEqStart}`NonTail.reverse` and {anchorName TailReverse}`Tail.reverse` are polymorphic, stating their equality requires the use of {lit}`@` to stop Lean from trying to figure out which type to use for {anchorName reverseEqStart}`α`.
 Once {anchorName reverseEqStart}`α` is treated as an ordinary argument, {kw}`funext` should be invoked with both {anchorName reverseEqStart}`α` and {anchorName reverseEqStart}`xs`:

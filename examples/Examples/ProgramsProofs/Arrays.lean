@@ -122,8 +122,9 @@ theorem three_plus_two_five : IsThree n → IsFive (n + 2) := by
 stop discarding
 
 discarding
-/-- error:
-tactic 'constructor' failed, no applicable constructor found
+/--
+error: Tactic `constructor` failed: no applicable constructor found
+
 n : Nat
 three : IsThree n
 ⊢ IsFive (n + 2)

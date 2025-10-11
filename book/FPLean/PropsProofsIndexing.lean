@@ -110,12 +110,12 @@ def onePlusOneIsFifteen : 1 + 1 = 15 := rfl
 ```
 
 ```anchorError onePlusOneIsFifteen
-type mismatch
+Type mismatch
   rfl
 has type
-  ?m.1247 = ?m.1247 : Prop
+  ?m.16 = ?m.16
 but is expected to have type
-  1 + 1 = 15 : Prop
+  1 + 1 = 15
 ```
 
 This error message indicates that {moduleTerm}`rfl` can prove that two expressions are equal when both sides of the equality statement are already the same number.
@@ -156,13 +156,9 @@ theorem onePlusOneIsTwo : 1 + 1 = 2 := by
   decide
 ```
 
-The {kw}`decide` tactic invokes a _decision procedure_, which is a program that can check whether a statement is true or false, returning a suitable proof in either case.
+The {tactic}`decide` tactic invokes a _decision procedure_, which is a program that can check whether a statement is true or false, returning a suitable proof in either case.
 It is primarily used when working with concrete values like {anchorTerm SomeNats}`1` and {anchorTerm SomeNats}`2`.
-The other important tactic in this book is {kw}`simp`, short for “simplify,” which is the workhorse of Lean proofs.
-It rewrites the goal to as simple a form as possible.
-In many cases, this rewriting simplifies the statement so much that it can be automatically proved.
-Behind the scenes, a detailed formal proof is constructed, but using {kw}`simp` hides this complexity.
-
+The other important tactics in this book are {tactic}`simp`, short for “simplify,” and {tactic}`grind`, which can automatically prove many theorems.
 
 Tactics are useful for a number of reasons:
  1. Many proofs are complicated and tedious when written out down to the smallest detail, and tactics can automate these uninteresting parts.
@@ -172,6 +168,16 @@ Tactics are useful for a number of reasons:
 Behind the scenes, indexing notation uses a tactic to prove that the user's lookup operation is safe.
 This tactic takes many facts about arithmetic into account, combining them with any locally-known facts to attempt to prove that the index is in bounds.
 
+The {tactic}`simp` tactic is a workhorse of Lean proofs.
+It rewrites the goal to as simple a form as possible.
+In many cases, this rewriting simplifies the statement so much that it can be automatically proved.
+Behind the scenes, a detailed formal proof is constructed, but using {tactic}`simp` hides this complexity.
+
+Like {tactic}`decide`, the {tactic}`grind` tactic is used to finish proofs.
+It uses a collection of techniques from SMT solvers that can prove a wide variety of theorems.
+Unlike {tactic}`simp`, {tactic}`grind` can never make progress towards a proof without completing it entirely; it either succeeds fully or fails.
+The {tactic}`grind` tactic is very powerful, customizable, and extensible; due to this power and flexibility, its output when it fails to prove a theorem contains a lot of information that can help trained Lean users diagnose the reason for the failure.
+This can be overwhelming in the beginning, so this chapter uses only {tactic}`decide` and {tactic}`simp`.
 
 # Connectives
 %%%
@@ -188,7 +194,7 @@ In particular, most of these connectives are defined like datatypes, and they ha
 If {anchorTerm AndProp}`A` and {anchorTerm AndProp}`B` are propositions, then “{anchorTerm AndProp}`A` and {anchorTerm AndProp}`B`” (written {anchorTerm AndProp}`A ∧ B`) is a proposition.
 Evidence for {anchorTerm AndProp}`A ∧ B` consists of the constructor {anchorTerm AndIntro}`And.intro`, which has the type {anchorTerm AndIntro}`A → B → A ∧ B`.
 Replacing {anchorTerm AndIntro}`A` and {anchorTerm AndIntro}`B` with concrete propositions, it is possible to prove {anchorTerm AndIntroEx}`1 + 1 = 2 ∧ "Str".append "ing" = "String"` with {anchorTerm AndIntroEx}`And.intro rfl rfl`.
-Of course, {kw}`decide` is also powerful enough to find this proof:
+Of course, {tactic}`decide` is also powerful enough to find this proof:
 
 ```anchor AndIntroExTac
 theorem addAndAppend : 1 + 1 = 2 ∧ "Str".append "ing" = "String" := by
@@ -214,7 +220,7 @@ theorem andImpliesOr : A ∧ B → A ∨ B :=
 ```
 
 
-:::table (header := true)
+:::table +header
 *
   - Connective
   - Lean Syntax
@@ -252,11 +258,11 @@ theorem andImpliesOr : A ∧ B → A ∨ B :=
 
 :::
 
-The {kw}`decide` tactic can prove theorems that use these connectives.
+The {tactic}`decide` tactic can prove theorems that use these connectives.
 For example:
 
 ```anchor connectivesD
-theorem onePlusOneAndLessThan : 1 + 1 = 2 ∨ 3 < 5 := by decide
+theorem onePlusOneOrLessThan : 1 + 1 = 2 ∨ 3 < 5 := by decide
 theorem notTwoEqualFive : ¬(1 + 1 = 5) := by decide
 theorem trueIsTrue : True := by decide
 theorem trueOrFalse : True ∨ False := by decide
@@ -357,13 +363,13 @@ When asked to prove that a one-element list has more than two elements, it retur
 
 
 ```anchorError thirdRabbitErr
-tactic 'decide' proved that the proposition
+Tactic `decide` proved that the proposition
   ["rabbit"].length > 2
 is false
 ```
 
 
-The {kw}`simp` and {kw}`decide` tactics do not automatically unfold definitions with {kw}`def`.
+The {tactic}`simp` and {tactic}`decide` tactics do not automatically unfold definitions with {kw}`def`.
 Attempting to prove {anchorTerm onePlusOneIsStillTwo}`OnePlusOneIsTwo` using {anchorTerm onePlusOneIsStillTwo}`simp` fails:
 
 ```anchor onePlusOneIsStillTwo
@@ -373,7 +379,7 @@ theorem onePlusOneIsStillTwo : OnePlusOneIsTwo := by simp
 The error messages simply states that it could do nothing, because without unfolding {anchorTerm onePlusOneIsStillTwo}`OnePlusOneIsTwo`, no progress can be made:
 
 ```anchorError onePlusOneIsStillTwo
-simp made no progress
+`simp` made no progress
 ```
 
 Using {anchorTerm onePlusOneIsStillTwo2}`decide` also fails:
@@ -388,7 +394,7 @@ This is also due to it not unfolding {anchorName onePlusOneIsStillTwo2}`OnePlusO
 failed to synthesize
   Decidable OnePlusOneIsTwo
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 
 Defining {anchorName onePlusOneIsStillTwo}`OnePlusOneIsTwo` with {ref "abbrev-vs-def"}[{kw}`abbrev` fixes the problem] by marking the definition for unfolding.
@@ -404,7 +410,7 @@ def unsafeThird (xs : List α) : α := xs[2]!
 failed to synthesize
   Inhabited α
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 
 This is due to a technical restriction that is part of keeping Lean usable as both a logic for proving theorems and a programming language.
@@ -425,10 +431,13 @@ Adding whitespace between a list and the brackets used for lookup can cause anot
 
 
 ```anchorError extraSpace
-function expected at
+Function expected at
   woodlandCritters
-term has type
+but this term has type
   List String
+
+Note: Expected a function because this term is being applied to the argument
+  [1]
 ```
 
 Adding a space causes Lean to treat the expression as a function application, and the index as a list that contains a single number.

@@ -154,9 +154,7 @@ theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
 namespace Golf
 
 discarding
-/-- error:
-simp made no progress
--/
+/-- error: `simp` made no progress -/
 #check_msgs in
 -- ANCHOR: plusR_zero_left_golf_1
 theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
@@ -237,10 +235,17 @@ theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
 -- ANCHOR_END: plusR_zero_left_golf_6a
 stop discarding
 
+discarding
 -- ANCHOR: plusR_zero_left_golf_6
 theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
   induction k <;> simp [Nat.plusR] <;> assumption
 -- ANCHOR_END: plusR_zero_left_golf_6
+stop discarding
+
+-- ANCHOR: plusR_zero_left_golf_7
+theorem plusR_zero_left (k : Nat) : k = Nat.plusR 0 k := by
+  induction k <;> grind [Nat.plusR]
+-- ANCHOR_END: plusR_zero_left_golf_7
 end Golf
 
 discarding
@@ -475,11 +480,19 @@ end B
 
 
 namespace A
+discarding
 -- ANCHOR: mirror_count_7
 theorem BinTree.mirror_count (t : BinTree α) :
     t.mirror.count = t.count := by
   induction t <;> simp +arith [BinTree.mirror, BinTree.count, *]
 -- ANCHOR_END: mirror_count_7
+stop discarding
+
+-- ANCHOR: mirror_count_8
+theorem BinTree.mirror_count (t : BinTree α) :
+    t.mirror.count = t.count := by
+  induction t <;> grind [BinTree.mirror, BinTree.count]
+-- ANCHOR_END: mirror_count_8
 end A
 
 end Golf
@@ -499,3 +512,21 @@ theorem List.append_assoc (xs ys zs : List α) :
     xs ++ (ys ++ zs) = (xs ++ ys) ++ zs := by simp
 -- ANCHOR_END: ex
 end Ex
+
+def BinTree.graftLeft (root newBranch : BinTree α) : BinTree α :=
+  match root with
+  | .leaf => newBranch
+  | .branch l x r => .branch (l.graftLeft newBranch) x r
+
+theorem BinTree.count_graftLeft_eq_sum_count' (root newBranch : BinTree α) :
+    (root.graftLeft newBranch).count = root.count + newBranch.count := by
+  induction root with
+  | leaf => simp [BinTree.graftLeft, BinTree.count]
+  | branch l x r ihl ihr =>
+    simp +arith [BinTree.graftLeft, BinTree.count, *]
+
+
+
+theorem BinTree.count_graftLeft_eq_sum_count (root newBranch : BinTree α) :
+    (root.graftLeft newBranch).count = root.count + newBranch.count := by
+  induction root <;> grind [BinTree.graftLeft, BinTree.count]

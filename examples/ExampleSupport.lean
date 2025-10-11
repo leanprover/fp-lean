@@ -180,12 +180,12 @@ elab_rules : command
 expect error {{{ errorEx1 }}}
   def x : Nat := "I am not a Nat"
 message
-"type mismatch
+"Type mismatch
   \"I am not a Nat\"
 has type
-  String : Type
+  String
 but is expected to have type
-  Nat : Type"
+  Nat"
 end expect
 
 

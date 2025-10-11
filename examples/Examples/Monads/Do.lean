@@ -20,9 +20,9 @@ variable {Es : m Unit} {Stmt Stmt₁ : m Unit} {Eₙ : m ζ}
 
 
 
-local syntax "..." : term
+local syntax "…" : term
 macro_rules
-  | `(...) => `(Es)
+  | `(…) => `(Es)
 
 example :
 (
@@ -43,7 +43,7 @@ example :
 -- ANCHOR: doSugar2a
  do let x ← E₁
     Stmt
-    ...
+    …
     Eₙ
 -- ANCHOR_END: doSugar2a
 ) =
@@ -51,7 +51,7 @@ example :
 -- ANCHOR: doSugar2b
 E₁ >>= fun x =>
   do Stmt
-     ...
+     …
      Eₙ
 -- ANCHOR_END: doSugar2b
 )
@@ -66,7 +66,7 @@ example :
 -- ANCHOR: doSugar4a
 do let x := E₁
    Stmt
-   ...
+   …
    Eₙ
 -- ANCHOR_END: doSugar4a
 ) =
@@ -74,7 +74,7 @@ do let x := E₁
 -- ANCHOR: doSugar4b
 let x := E₁
 do Stmt
-   ...
+   …
    Eₙ
 -- ANCHOR_END: doSugar4b
 )
@@ -88,7 +88,7 @@ example :
 -- ANCHOR: doSugar3a
   do E₁
      Stmt
-     ...
+     …
      Eₙ
 -- ANCHOR_END: doSugar3a
 ) =
@@ -96,7 +96,7 @@ example :
 -- ANCHOR: doSugar3b
 E₁ >>= fun () =>
   do Stmt
-     ...
+     …
      Eₙ
 -- ANCHOR_END: doSugar3b
 )

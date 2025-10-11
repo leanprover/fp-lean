@@ -86,14 +86,14 @@ When a program can't be given a type, an error is returned from both {kw}`#check
 outputs
 
 ```anchorError stringAppendList
-Application type mismatch: In the application
-  String.append ["hello", " "]
-the argument
+Application type mismatch: The argument
   ["hello", " "]
 has type
-  List String : Type
+  List String
 but is expected to have type
-  String : Type
+  String
+in the application
+  String.append ["hello", " "]
 ```
 
 because the first argument to {anchorName stringAppendList}`String.append` is expected to be a string, but a list of strings was provided instead.

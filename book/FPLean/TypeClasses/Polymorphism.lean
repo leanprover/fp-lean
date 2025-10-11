@@ -92,7 +92,7 @@ def fourPos : List Pos := [1, 2, 3, 4]
 failed to synthesize
   Zero Pos
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ```
 The Lean standard library includes this function, where it is called {moduleName}`List.sum`.
 
@@ -114,7 +114,6 @@ The {ref "polymorphism"}[section on polymorphism] presented a polymorphic point 
 structure PPoint (α : Type) where
   x : α
   y : α
-deriving Repr
 ```
 Addition of points should add the underlying {anchorName PPoint}`x` and {anchorName PPoint}`y` fields.
 Thus, an {anchorName AddPPoint}`Add` instance for {anchorName AddPPoint}`PPoint` requires an {anchorName AddPPoint}`Add` instance for whatever type these fields have.

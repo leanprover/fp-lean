@@ -5,11 +5,11 @@
    "type": "git",
    "subDir": null,
    "scope": "",
-   "rev": "767f10408ca8abe29a15add2bf111eefdd9522b2",
+   "rev": "bdc74c95376f9a5c23dba1b3159b03c5c1c8aad7",
    "name": "subverso",
    "manifestFile": "lake-manifest.json",
    "inputRev": "main",
    "inherited": false,
    "configFile": "lakefile.lean"}],
- "name": "examples",
+ "name": "greeting",
  "lakeDir": ".lake"}

@@ -95,14 +95,14 @@ end Blurble
 namespace Foo
 discarding
 /--
-error: Application type mismatch: In the application
-  Monster.mk true
-the argument
+error: Application type mismatch: The argument
   true
 has type
-  Bool : Type
+  Bool
 but is expected to have type
-  MythicalCreature : Type
+  MythicalCreature
+in the application
+  Monster.mk true
 -/
 #check_msgs in
 -- ANCHOR: wrongTroll1
@@ -117,14 +117,14 @@ end Foo
 
 
 /--
-error: Application type mismatch: In the application
-  MythicalCreature.large troll
-the argument
+error: Application type mismatch: The argument
   troll
 has type
-  Monster : Type
+  Monster
 but is expected to have type
-  MythicalCreature : Type
+  MythicalCreature
+in the application
+  MythicalCreature.large troll
 -/
 #check_msgs in
 -- ANCHOR: trollLargeNoDot
@@ -248,14 +248,14 @@ false
 
 
 /--
-error: Application type mismatch: In the application
-  MythicalCreature.small troll
-the argument
+error: Application type mismatch: The argument
   troll
 has type
-  Monster : Type
+  Monster
 but is expected to have type
-  MythicalCreature : Type
+  MythicalCreature
+in the application
+  MythicalCreature.small troll
 -/
 #check_msgs in
 -- ANCHOR: smallTrollWrong
@@ -266,14 +266,14 @@ example := MythicalCreature.small troll
 
 
 /--
-error: Application type mismatch: In the application
-  MythicalCreature.small nisse
-the argument
+error: Application type mismatch: The argument
   nisse
 has type
-  Helper : Type
+  Helper
 but is expected to have type
-  MythicalCreature : Type
+  MythicalCreature
+in the application
+  MythicalCreature.small nisse
 -/
 #check_msgs in
 -- ANCHOR: smallElfNoDot
@@ -450,7 +450,7 @@ instance : LawfulFunctor (Pair α) where
   id_map x := by
     simp [Functor.map]
   map_const := by
-    simp [Function.const, Function.comp, Functor.mapConst, Functor.map]
+    simp [Functor.mapConst, Functor.map]
   comp_map g h x := by
     cases x
     simp [Function.comp, Functor.map]
@@ -645,7 +645,7 @@ by
 v >>= pure
 ={
 /-- `pure` is a right identity of `>>=` -/
-by simp [LawfulMonad.bind_pure_comp]
+by simp
 }=
 v
 -- ANCHOR_END: mSeqRespId
@@ -761,7 +761,7 @@ pure (x (y z))
 Time to start moving backwards!
 `pure` is a left identity of `>>=`
 -/
-by simp [LawfulMonad.pure_bind]
+by simp
 }=
 u >>= fun x =>
 v >>= fun y =>
@@ -770,7 +770,7 @@ pure (y z) >>= fun q =>
 pure (x q)
 ={
 /-- Associativity of `>>=` -/
-by simp [LawfulMonad.bind_assoc]
+by simp
 }=
 u >>= fun x =>
 v >>= fun y =>
@@ -779,7 +779,7 @@ v >>= fun y =>
  pure (x q)
 ={
 /-- Associativity of `>>=` -/
-by simp [LawfulMonad.bind_assoc]
+by simp
 }=
 u >>= fun x =>
  (v >>= fun y =>
@@ -822,13 +822,13 @@ pure x >>= fun y =>
 pure (g y)
 ={
 /-- `pure` is a left identity of `>>=` -/
-by simp [LawfulMonad.pure_bind]
+by simp
 }=
 pure f >>= fun g =>
 pure (g x)
 ={
 /-- `pure` is a left identity of `>>=` -/
-by simp [LawfulMonad.pure_bind]
+by simp
 }=
 pure (f x)
 -- ANCHOR_END: mSeqPureNoOp
@@ -856,7 +856,7 @@ pure x >>= fun y =>
 pure (f y)
 ={
 /-- `pure` is a left identity of `>>=` -/
-by simp [LawfulMonad.pure_bind]
+by simp
 }=
 u >>= fun f =>
 pure (f x)
@@ -946,7 +946,7 @@ instance : LawfulApplicative (Validate ε) where
     simp [Function.comp, Functor.map]
     split <;> rfl
   seqLeft_eq x y := by
-    simp [SeqLeft.seqLeft, Function.const, Functor.map]
+    simp [SeqLeft.seqLeft, Functor.map]
     cases x <;> cases y <;> simp [Seq.seq, Functor.map]
   seqRight_eq x y := by
     cases x <;> cases y <;> simp [SeqRight.seqRight, Functor.map, Seq.seq]
@@ -967,8 +967,8 @@ theorem v_bind_pure (x : Validate ε α) : x >>= pure = x := by
 
 
 
-/-- error:
-unsolved goals
+/--
+error: unsolved goals
 case errors.errors
 ε α✝ β✝ : Type
 a✝¹ a✝ : NonEmptyList ε
@@ -983,7 +983,7 @@ instance : LawfulMonad (Validate ε) where
     cases f <;> cases x <;>
     simp [Functor.map, bind, Seq.seq]
   pure_bind x f := by
-    simp [bind, pure]
+    simp [bind]
   bind_assoc x f g := by
     cases x <;>
     simp [bind]

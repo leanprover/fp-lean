@@ -2,11 +2,9 @@ import FPLean.Examples.Commands.Env
 import FPLean.Examples.Commands.ShLex
 import Lean.Elab
 import Verso.FS
-import Verso.Hooks
 
 namespace FPLean.Commands
 open Lean
-open Verso.Doc.Elab
 
 variable {m : _} [Monad m] [MonadEnv m] [MonadLiftT IO m] [MonadLiftT BaseIO m] [MonadError m]
 
@@ -77,11 +75,6 @@ def fileContents (container : Ident) (file : StrLit) : m String := do
   if (← filename.isDir) then
     throwErrorAt file "{filename} is a directory"
   IO.FS.readFile filename
-
---@[document_finished_hook]
-def cleanupContainers : DocumentFinishedHook := do
-  for (_, v) in containersExt.getState (← getEnv) do
-    if (← v.workingDirectory.isDir) then IO.FS.removeDirAll v.workingDirectory
 
 
 end Commands

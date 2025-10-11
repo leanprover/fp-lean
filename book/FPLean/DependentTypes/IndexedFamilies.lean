@@ -45,12 +45,12 @@ This means that using {anchorName nilNotLengthThree}`Vect.nil` in a context expe
 example : Vect String 3 := Vect.nil
 ```
 ```anchorError nilNotLengthThree
-type mismatch
+Type mismatch
   Vect.nil
 has type
-  Vect ?m.1606 0 : Type ?u.1605
+  Vect ?m.3 0
 but is expected to have type
-  Vect String 3 : Type
+  Vect String 3
 ```
 The mismatch between {anchorTerm Vect}`0` and {anchorTerm nilNotLengthThree}`3` in this example plays exactly the same role as any other type mismatch, even though {anchorTerm Vect}`0` and {anchorTerm nilNotLengthThree}`3` are not themselves types.
 The metavariable in the message can be ignored because its presence indicates that {anchorName otherEx}`Vect.nil` can have any element type.
@@ -65,23 +65,23 @@ Using {anchorName nilNotLengthN}`n` for the length allows neither {anchorName ot
 example : Vect String n := Vect.nil
 ```
 ```anchorError nilNotLengthN
-type mismatch
+Type mismatch
   Vect.nil
 has type
-  Vect ?m.1694 0 : Type ?u.1693
+  Vect ?m.2 0
 but is expected to have type
-  Vect String n : Type
+  Vect String n
 ```
 ```anchor consNotLengthN
 example : Vect String n := Vect.cons "Hello" (Vect.cons "world" Vect.nil)
 ```
 ```anchorError consNotLengthN
-type mismatch
+Type mismatch
   Vect.cons "Hello" (Vect.cons "world" Vect.nil)
 has type
-  Vect String (0 + 1 + 1) : Type
+  Vect String (0 + 1 + 1)
 but is expected to have type
-  Vect String n : Type
+  Vect String n
 ```
 
 Having the length of the list as part of its type means that the type becomes more informative.
@@ -188,14 +188,14 @@ def Vect.replicate (n : Nat) (x : α) : Vect α n :=
   | k + 1 => .cons x (.cons x (replicate k x))
 ```
 ```anchorError replicateOops
-Application type mismatch: In the application
-  cons x (cons x (replicate k x))
-the argument
+Application type mismatch: The argument
   cons x (replicate k x)
 has type
-  Vect α (k + 1) : Type ?u.2998
+  Vect α (k + 1)
 but is expected to have type
-  Vect α k : Type ?u.2998
+  Vect α k
+in the application
+  cons x (cons x (replicate k x))
 ```
 
 
@@ -275,12 +275,12 @@ def Vect.zip : Vect α n → Vect β n → Vect (α × β) n
   | .cons x xs, .cons y ys => .cons (x, y) (zip xs ys)
 ```
 ```anchorError zipExtraCons
-type mismatch
+Type mismatch
   Vect.cons y ys
 has type
-  Vect ?m.5565 (?m.5576 + 1) : Type ?u.5573
+  Vect ?m.10 (?m.16 + 1)
 but is expected to have type
-  Vect β 0 : Type ?u.5440
+  Vect β 0
 ```
 The refinement of the length can be observed by making {anchorName VectZipLen}`n` into an explicit argument:
 
