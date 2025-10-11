@@ -529,7 +529,7 @@ def double : Nat → Nat := fun
 When an anonymous function is very simple, like {anchorEvalStep incrSteps 0}`fun x => x + 1`, the syntax for creating the function can be fairly verbose.
 In that particular example, six non-whitespace characters are used to introduce the function, and its body consists of only three non-whitespace characters.
 For these simple cases, Lean provides a shorthand.
-In an expression surrounded by parentheses, a centered dot character {anchorTerm incrSteps}`·` can stand for an parameter, and the expression inside the parentheses becomes the function's body.
+In an expression surrounded by parentheses, a centered dot character {anchorTerm incrSteps}`·` can stand for a parameter, and the expression inside the parentheses becomes the function's body.
 That particular function can also be written {anchorEvalStep incrSteps 1}`(· + 1)`.
 :::
 
