@@ -15,12 +15,17 @@ def ensureContainer (container : Ident) : m Container := do
   let c : Container := ⟨tmp, {}⟩
   let projectRoot : System.FilePath := ".."
   let copyErrors : IO.Ref (Array String) ← IO.mkRef #[]
-  Verso.FS.copyRecursively (fun s => copyErrors.modify (·.push s)) projectRoot tmp
+  Verso.FS.copyRecursively (fun s => copyErrors.modify (·.push s)) projectRoot tmp shouldCopy
   let errs ← (copyErrors.get : IO _)
   unless errs.isEmpty do
     throwErrorAt container "Errors copying project to container {name}: {indentD <| MessageData.joinSep (errs.toList.map toMessageData) Format.line}"
   modifyEnv (containersExt.modifyState · (·.insert name c))
   return c
+where
+  shouldCopy (path : System.FilePath) : IO Bool := do
+    let some x := path.fileName
+      | return true
+    return !(x.startsWith ".") && !(x == "site-packages") && !(x == "_out") && !(x == "static")
 
 def requireContainer (container : Ident) : m Container := do
   let name := container.getId
