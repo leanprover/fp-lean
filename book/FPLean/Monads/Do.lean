@@ -10,6 +10,9 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.Monads.Do"
 
 #doc (Manual) "{kw}`do`-Notation for Monads" =>
+%%%
+tag := "monad-do-notation"
+%%%
 
 While APIs based on monads are very powerful, the explicit use of {lit}`>>=` with anonymous functions is still somewhat noisy.
 Just as infix operators are used instead of explicit calls to {anchorName names}`HAdd.hAdd`, Lean provides a syntax for monads called _{kw}`do`-notation_ that can make programs that use monads easier to read and write.
@@ -182,6 +185,9 @@ def number (t : BinTree α) : BinTree (Nat × α) :=
 
 
 # Exercises
+%%%
+tag := "monad-do-notation-exercises"
+%%%
 
  * Rewrite {anchorName evaluateM (module:=Examples.Monads.Class)}`evaluateM`, its helpers, and the different specific use cases using {kw}`do`-notation instead of explicit calls to {lit}`>>=`.
  * Rewrite {anchorName firstThirdFifthSeventhDo}`firstThirdFifthSeventh` using nested actions.

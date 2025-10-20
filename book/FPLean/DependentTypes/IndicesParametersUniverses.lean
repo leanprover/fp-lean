@@ -10,6 +10,9 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.DependentTypes.IndicesParameters"
 
 #doc (Manual) "Indices, Parameters, and Universe Levels" =>
+%%%
+tag := "indices-parameters-universe-levels"
+%%%
 
 The distinction between indices and parameters of an inductive type is more than just a way to describe arguments to the type that either vary or do not between the constructors.
 Whether an argument to an inductive type is a parameter or an index also matters when it comes time to determine the relationships between their universe levels.

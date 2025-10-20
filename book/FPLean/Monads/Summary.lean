@@ -10,8 +10,14 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.Monads.Class"
 
 #doc (Manual) "Summary" =>
+%%%
+tag := "monads-summary"
+%%%
 
 # Encoding Side Effects
+%%%
+tag := none
+%%%
 
 Lean is a pure functional language.
 This means that it does not include side effects such as mutable variables, logging, or exceptions.
@@ -24,6 +30,9 @@ Functional programming does not mean that programs can't use effects, it simply 
 A Lean type signature describes not only the types of arguments that a function expects and the type of result that it returns, but also which effects it may use.
 
 # The Monad Type Class
+%%%
+tag := none
+%%%
 
 It's possible to write purely functional programs in languages that allow effects anywhere.
 For example, {python}`2 + 3` is a valid Python program that has no effects at all.
@@ -35,6 +44,9 @@ It has two methods: {anchorName FakeMonad}`pure` represents programs that have n
 The contract for {anchorName FakeMonad}`Monad` instances ensures that {anchorName FakeMonad}`bind` and {anchorName FakeMonad}`pure` actually capture pure computation and sequencing.
 
 # {kw}`do`-Notation for Monads
+%%%
+tag := none
+%%%
 
 Rather than being limited to {moduleName}`IO`, {kw}`do`-notation works for any monad.
 It allows programs that use monads to be written in a style that is reminiscent of statement-oriented languages, with statements sequenced after one another.
@@ -42,6 +54,9 @@ Additionally, {kw}`do`-notation enables a number of additional convenient shorth
 A program written with {kw}`do` is translated to applications of {lit}`>>=` behind the scenes.
 
 # Custom Monads
+%%%
+tag := none
+%%%
 
 Different languages provide different sets of side effects.
 While most languages feature mutable variables and file I/O, not all have features like exceptions.
@@ -50,6 +65,9 @@ An advantage to encoding effects with monads is that programs are not limited to
 Because Lean is designed to make programming with any monad convenient, programmers are free to choose exactly the set of side effects that make sense for any given application.
 
 # The {lit}`IO` Monad
+%%%
+tag := none
+%%%
 
 Programs that can affect the real world are written as {moduleName}`IO` actions in Lean.
 {moduleName}`IO` is one monad among many.

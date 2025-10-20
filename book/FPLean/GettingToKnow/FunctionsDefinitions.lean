@@ -11,6 +11,9 @@ set_option verso.exampleModule "Examples.Intro"
 
 
 #doc (Manual) "Functions and Definitions" =>
+%%%
+tag := "functions-and-definitions"
+%%%
 
 :::paragraph
 In Lean, definitions are introduced using the {kw}`def` keyword.
@@ -57,6 +60,9 @@ In Lean, functions are defined using the same {kw}`def` keyword as other values.
 Nonetheless, definitions such as {anchorTerm helloNameVal}`hello` introduce names that refer _directly_ to their values, rather than to zero-argument functions that return equivalent results each time they are called.
 
 # Defining Functions
+%%%
+tag := "defining-functions"
+%%%
 
 :::paragraph
 There are a variety of ways to define functions in Lean. The simplest is to place the function's arguments before the definition's type, separated by spaces. For instance, a function that adds one to its argument can be written:
@@ -124,12 +130,18 @@ Using a function that returns a function to implement multiple-argument function
 Function arrows associate to the right, which means that {anchorTerm currying}`Nat → Nat → Nat` should be parenthesized {anchorTerm currying}`Nat → (Nat → Nat)`.
 
 ## Exercises
+%%%
+tag := "function-definition-exercises"
+%%%
 
  * Define the function {anchorName joinStringsWithEx}`joinStringsWith` with type {anchorTerm joinStringsWith}`String → String → String → String` that creates a new string by placing its first argument between its second and third arguments. {anchorEvalStep joinStringsWithEx 0}`joinStringsWith ", " "one" "and another"` should evaluate to {anchorEvalStep joinStringsWithEx 1}`"one, and another"`.
  * What is the type of {anchorTerm joinStringsWith}`joinStringsWith ": "`? Check your answer with Lean.
  * Define a function {anchorName volume}`volume` with type {anchorTerm volume}`Nat → Nat → Nat → Nat` that computes the volume of a rectangular prism with the given height, width, and depth.
 
 # Defining Types
+%%%
+tag := "defining-types"
+%%%
 
 Most typed programming languages have some means of defining aliases for types, such as C's {c}`typedef`.
 In Lean, however, types are a first-class part of the language—they are expressions like any other.

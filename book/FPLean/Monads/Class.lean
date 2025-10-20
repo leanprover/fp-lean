@@ -10,6 +10,9 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.Monads.Class"
 
 #doc (Manual) "The Monad Type Class" =>
+%%%
+tag := "monad-type-class"
+%%%
 
 :::paragraph
 Rather than having to import an operator like {lit}`ok` or {lit}`andThen` for each type that is a monad, the Lean standard library contains a type class that allow them to be overloaded, so that the same operators can be used for _any_ monad.
@@ -119,6 +122,9 @@ The fact that {anchorName firstThirdFifthSeventhMonad}`m` must have a {anchorNam
 :::
 
 # General Monad Operations
+%%%
+tag := "monad-class-polymorphism"
+%%%
 
 :::paragraph
 Because many different types are monads, functions that are polymorphic over _any_ monad are very powerful.
@@ -210,6 +216,9 @@ Using this function with {anchorName mapMsaveIfEven}`mapM` results in a log cont
 
 
 # The Identity Monad
+%%%
+tag := "Id-monad"
+%%%
 
 Monads encode programs with effects, such as failure, exceptions, or logging, into explicit representations as data and functions.
 Sometimes, however, an API will be written to use a monad for flexibility, but the API's client may not require any encoded effects.
@@ -259,6 +268,9 @@ typeclass instance problem is stuck, it is often due to metavariables
 :::
 
 # The Monad Contract
+%%%
+tag := "monad-contract"
+%%%
 
 Just as every pair of instances of {anchorName MonadContract}`BEq` and {anchorName MonadContract}`Hashable` should ensure that any two equal values have the same hash, there is a contract that each instance of {anchorName MonadContract}`Monad` should obey.
 First, {anchorName MonadContract}`pure` should be a left identity of {anchorName MonadContract}`bind`.
@@ -271,8 +283,14 @@ Because {anchorName MonadContract}`pure` has no effects, sequencing its effects 
 The associative property of {anchorName MonadContract}`bind` basically says that the sequencing bookkeeping itself doesn't matter, so long as the order in which things are happening is preserved.
 
 # Exercises
+%%%
+tag := "monad-class-exercises"
+%%%
 
 ## Mapping on a Tree
+%%%
+tag := none
+%%%
 
 :::paragraph
 Define a function {anchorName ex1}`BinTree.mapM`.
@@ -284,6 +302,9 @@ def BinTree.mapM [Monad m] (f : α → m β) : BinTree α → m (BinTree β)
 :::
 
 ## The Option Monad Contract
+%%%
+tag := none
+%%%
 
 :::paragraph
 First, write a convincing argument that the {anchorName badOptionMonad}`Monad` instance for {anchorName badOptionMonad}`Option` satisfies the monad contract.

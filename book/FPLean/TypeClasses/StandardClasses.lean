@@ -12,6 +12,9 @@ set_option verso.exampleModule "Examples.Classes"
 set_option pp.rawOnError true
 
 #doc (Manual) "Standard Classes" =>
+%%%
+tag := "standard-classes"
+%%%
 
 
 This section presents a variety of operators and functions that can be overloaded using type classes in Lean.
@@ -19,6 +22,9 @@ Each operator or function corresponds to a method of a type class.
 Unlike C++, infix operators in Lean are defined as abbreviations for named functions; this means that overloading them for new types is not done using the operator itself, but rather using the underlying name (such as {moduleName}`HAdd.hAdd`).
 
 # Arithmetic
+%%%
+tag := "arithmetic-classes"
+%%%
 
 Most arithmetic operators are available in a heterogeneous form, where the arguments may have different type and an output parameter decides the type of the resulting expression.
 For each heterogeneous operator, there is a corresponding homogeneous version that can found by removing the letter {lit}`h`, so that {moduleName}`HAdd.hAdd` becomes {moduleName}`Add.add`.
@@ -63,6 +69,9 @@ The following arithmetic operators are overloaded:
 :::
 
 # Bitwise Operators
+%%%
+tag := "bitwise-classes"
+%%%
 
 Lean contains a number of standard bitwise operators that are overloaded using type classes.
 There are instances for fixed-width types such as {anchorTerm UInt8}`UInt8`, {anchorTerm UInt16}`UInt16`, {anchorTerm UInt32}`UInt32`, {anchorTerm UInt64}`UInt64`, and {anchorTerm USize}`USize`.
@@ -257,6 +266,9 @@ In situations where {java}`compareTo` would be the right approach in Java, use {
 :::
 
 # Hashing
+%%%
+tag := "hashing"
+%%%
 
 Java and C# have {java}`hashCode` and {CSharp}`GetHashCode` methods, respectively, that compute a hash of a value for use in data structures such as hash tables.
 The Lean equivalent is a type class called {anchorName Hashable}`Hashable`:
@@ -325,6 +337,9 @@ instance [Hashable α] : Hashable (BinTree α) where
 :::
 
 # Deriving Standard Classes
+%%%
+tag := "deriving-standard-classes"
+%%%
 
 Instance of classes like {moduleName}`BEq` and {moduleName}`Hashable` are often quite tedious to implement by hand.
 Lean includes a feature called _instance deriving_ that allows the compiler to automatically construct well-behaved instances of many type classes.
@@ -359,6 +374,9 @@ Aside from the clear advantages in programmer productivity and code readability,
 When reviewing changes to code, modifications that involve updates to datatypes are much easier to read without line after line of formulaic modifications to equality tests and hash computation.
 
 # Appending
+%%%
+tag := "append-class"
+%%%
 
 Many datatypes have some sort of append operator.
 In Lean, appending two values is overloaded with the type class {anchorName HAppend}`HAppend`, which is a heterogeneous operation like that used for arithmetic operations:
@@ -412,6 +430,9 @@ results in
 ```
 
 # Functors
+%%%
+tag := "Functor"
+%%%
 
 A polymorphic type is a {deftech}_functor_ if it has an overload for a function named {anchorName FunctorDef}`map` that transforms every element contained in it by a function.
 While most languages use this terminology, C#'s equivalent of {anchorName FunctorDef}`map` is called {CSharp}`System.Linq.Enumerable.Select`.
@@ -496,6 +517,9 @@ The composition {anchorTerm compDef}`f ∘ g` can also be written {anchorTerm co
 These rules prevent implementations of {anchorName FunctorDef}`map` that move the data around or delete some of it.
 
 # Messages You May Meet
+%%%
+tag := "standard-classes-messages"
+%%%
 
 Lean is not able to derive instances for all classes.
 For example, the code
@@ -511,6 +535,9 @@ If the code generator is found, then it is invoked on the provided type to creat
 This message, however, means that no code generator was found for {anchorName derivingNotFound}`ToString`.
 
 # Exercises
+%%%
+tag := "standard-classes-exercises"
+%%%
 
  * Write an instance of {anchorTerm moreOps}`HAppend (List α) (NonEmptyList α) (NonEmptyList α)` and test it.
  * Implement a {anchorTerm FunctorLaws}`Functor` instance for the binary tree datatype.

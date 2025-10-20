@@ -16,6 +16,9 @@ tag := "alternative"
 
 
 # Recovery from Failure
+%%%
+tag := "alternative-recovery"
+%%%
 
 {anchorName Validate}`Validate` can also be used in situations where there is more than one way for input to be acceptable.
 For the input form {anchorName RawInput}`RawInput`, an alternative set of business rules that implement conventions from a legacy system might be the following:
@@ -219,6 +222,9 @@ Validate.errors
 
 
 # The {lit}`Alternative` Class
+%%%
+tag := "Alternative"
+%%%
 
 Many types support a notion of failure and recovery.
 The {anchorName AlternativeMany}`Many` monad from the section on {ref "nondeterministic-search"}[evaluating arithmetic expressions in a variety of monads] is one such type, as is {anchorName AlternativeOption}`Option`.
@@ -292,8 +298,14 @@ Running it on {anchorTerm evenDivisors20}`20` yields the expected results:
 
 
 # Exercises
+%%%
+tag := "Alternative-exercises"
+%%%
 
 ## Improve Validation Friendliness
+%%%
+tag := none
+%%%
 
 The errors returned from {anchorName Validate}`Validate` programs that use {anchorTerm OrElseSugar}`<|>` can be difficult to read, because inclusion in the list of errors simply means that the error can be reached through _some_ code path.
 A more structured error report can be used to guide the user through the process more accurately:

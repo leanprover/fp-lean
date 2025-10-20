@@ -10,6 +10,9 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.DependentTypes.Finite"
 
 #doc (Manual) "The Universe Design Pattern" =>
+%%%
+tag := "universe-pattern"
+%%%
 
 In Lean, types such as {anchorTerm sundries}`Type`, {anchorTerm sundries}`Type 3`, and {anchorTerm sundries}`Prop` that classify other types are known as universes.
 However, the term _universe_ is also used for a design pattern in which a datatype is used to represent a subset of Lean's types, and a function converts the datatype's constructors into actual types.
@@ -90,6 +93,9 @@ Hint: Additional diagnostic information may be available using the `set_option d
 The {anchorName beqNoCases}`t` in the error message stands for an unknown value of type {anchorName beqNoCases}`NestedPairs`.
 
 # Type Classes vs Universes
+%%%
+tag := "type-classes-vs-universe-pattern"
+%%%
 
 Type classes allow an open-ended collection of types to be used with an API as long as they have implementations of the necessary interfaces.
 In most cases, this is preferable.
@@ -104,6 +110,9 @@ This is useful in a few situations:
 Type classes are useful in many of the same situations as interfaces in Java or C#, while a universe à la Tarski can be useful in cases where a sealed class might be used, but where an ordinary inductive datatype is not usable.
 
 # A Universe of Finite Types
+%%%
+tag := "finite-type-universe"
+%%%
 
 Restricting the types that can be used with an API to a predetermined collection can enable operations that would be impossible for an open-ended API.
 For example, functions can't normally be compared for equality.
@@ -350,6 +359,9 @@ Nested exponentials grow quickly, and there are many higher-order functions.
 
 
 # Exercises
+%%%
+tag := "universe-exercises"
+%%%
 
  * Write a function that converts any value from a type coded for by {anchorName Finite}`Finite` into a string. Functions should be represented as their tables.
  * Add the empty type {anchorName sundries}`Empty` to {anchorName Finite}`Finite` and {anchorName FiniteBeq}`Finite.beq`.

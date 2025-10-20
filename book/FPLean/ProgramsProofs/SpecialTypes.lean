@@ -10,6 +10,9 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.SpecialTypes"
 
 #doc (Manual) "Special Types" =>
+%%%
+tag := "runtime-special-types"
+%%%
 
 Understanding the representation of data in memory is very important.
 Usually, the representation can be understood from the definition of a datatype.
@@ -107,6 +110,9 @@ The following types have special representations:
 
 
 # Exercise
+%%%
+tag := "runtime-special-types-exercise"
+%%%
 
 The {ref "positive-numbers"}[definition of {anchorName Pos (module := Examples.Classes)}`Pos`] does not take advantage of Lean's compilation of {anchorName all}`Nat` to an efficient type.
 At run time, it is essentially a linked list.

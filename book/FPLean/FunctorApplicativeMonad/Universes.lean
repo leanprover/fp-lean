@@ -10,6 +10,9 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.Universes"
 
 #doc (Manual) "Universes" =>
+%%%
+tag := "universe-levels"
+%%%
 
 In the interests of simplicity, this book has thus far papered over an important feature of Lean: _universes_.
 A universe is a type that classifies other types.
@@ -71,6 +74,9 @@ Even though {anchorTerm SomeTypes}`Nat` is in {anchorTerm SomeTypes}`Type`, this
 Similarly, even though {anchorTerm SomeTypes}`Type` is in {anchorTerm SomeTypes}`Type 1`, the function type {anchorTerm FunTypePropType}`Type → 2 + 2 = 4` is still in {anchorTerm FunTypePropType}`Prop`.
 
 # User Defined Types
+%%%
+tag := "inductive-type-universes"
+%%%
 
 Structures and inductive datatypes can be declared to inhabit particular universes.
 Lean then checks whether each datatype avoids paradoxes by being in a universe that's large enough to prevent it from containing its own type.
@@ -120,6 +126,9 @@ Generally speaking, it's easiest to start with the datatype in the same universe
 Then, if Lean rejects the definition, increase its level by one, which will usually go through.
 
 # Universe Polymorphism
+%%%
+tag := "universe-polymorphism"
+%%%
 
 Defining a datatype in a specific universe can lead to code duplication.
 Placing {anchorName MyList1}`MyList` in {anchorTerm MyList1Type}`Type → Type` means that it can't be used for an actual list of types.
@@ -225,6 +234,9 @@ In positions where Lean expects a universe level, any of the following are allow
  * A level increase, written with {anchorTerm someTrueProps}`+ 1`
 
 ## Writing Universe-Polymorphic Definitions
+%%%
+tag := none
+%%%
 
 Until now, every datatype defined in this book has been in {anchorTerm SomeTypes}`Type`, the smallest universe of data.
 When presenting polymorphic datatypes from the Lean standard library, such as {anchorName SomeTypes}`List` and {anchorName SumMax}`Sum`, this book created non-universe-polymorphic versions of them.
@@ -238,6 +250,10 @@ Finally, it's a good idea to put the new type in as small of a universe as possi
 Non-polymorphic types, such as {anchorTerm SomeTypes}`Nat` and {anchorName SomeTypes}`String`, can be placed directly in {anchorTerm Type0Type}`Type 0`.
 
 ## {anchorTerm PropType}`Prop` and Polymorphism
+%%%
+tag := none
+%%%
+
 
 Just as {anchorTerm SomeTypes}`Type`, {anchorTerm SomeTypes}`Type 1`, and so on describe types that classify programs and data, {anchorTerm PropType}`Prop` classifies logical propositions.
 A type in {anchorTerm PropType}`Prop` describes what counts as convincing evidence for the truth of a statement.
@@ -273,6 +289,9 @@ The universe level {lit}`imax u v` is {lit}`0` when {anchorTerm sorts}`v` is {li
 Together with {anchorTerm sorts}`Sort`, this allows the special rule for functions that return {anchorTerm PropType}`Prop`s to be used when writing code that should be as portable as possible between {anchorTerm PropType}`Prop` and {anchorTerm SomeTypes}`Type` universes.
 
 # Polymorphism in Practice
+%%%
+tag := none
+%%%
 
 In the remainder of the book, definitions of polymorphic datatypes, structures, and classes will use universe polymorphism in order to be consistent with the Lean standard library.
 This will enable the complete presentation of the {moduleName}`Functor`, {anchorName next}`Applicative`, and {anchorName next}`Monad` classes to be completely consistent with their actual definitions.

@@ -11,11 +11,17 @@ set_option verso.exampleModule "Examples.MonadTransformers.Do"
 
 
 #doc (Manual) "More do Features" =>
+%%%
+tag := "more-do-features"
+%%%
 
 Lean's {kw}`do`-notation provides a syntax for writing programs with monads that resembles imperative programming languages.
 In addition to providing a convenient syntax for programs with monads, {kw}`do`-notation provides syntax for using certain monad transformers.
 
 # Single-Branched {kw}`if`
+%%%
+tag := "single-branched-if"
+%%%
 
 When working in a monad, a common pattern is to carry out a side effect only if some condition is true.
 For instance, {anchorName countLettersModify (module := Examples.MonadTransformers.Defs)}`countLetters` contains a check for vowels or consonants, and letters that are neither have no effect on the state.
@@ -85,6 +91,9 @@ They simply replace the missing branch with {anchorTerm count}`pure ()`.
 The remaining extensions in this section, however, require Lean to automatically rewrite the {kw}`do`-block to add a local transformer on top of the monad that the {kw}`do`-block is written in.
 
 # Early Return
+%%%
+tag := "early-return"
+%%%
 
 The standard library contains a function {anchorName findHuh}`List.find?` that returns the first entry in a list that satisfies some check.
 A simple implementation that doesn't make use of the fact that {anchorName findHuh}`Option` is a monad loops over the list using a recursive function, with an {kw}`if` to stop the loop when the desired entry is found:
@@ -219,6 +228,9 @@ def greet (name : String) : String :=
 the expression {anchorTerm greetDavid}`greet "David"` evaluates to {anchorTerm greetDavid}`"Hello, David"`, not just {anchorTerm greetDavid}`"David"`.
 
 # Loops
+%%%
+tag := "loops"
+%%%
 
 Just as every program with mutable state can be rewritten to a program that passes the state as arguments, every loop can be rewritten as a recursive function.
 From one perspective, {anchorName findHuh}`List.find?` is most clear as a recursive function.
@@ -229,6 +241,9 @@ After all, the program consults the entries in order until a satisfactory one is
 If the loop terminates without having returned, the answer is {anchorName findHuhSimple}`none`.
 
 ## Looping with ForM
+%%%
+tag := "looping-with-forM"
+%%%
 
 Lean includes a type class that describes looping over a container type in some monad.
 This class is called {anchorName ForM}`ForM`:
@@ -379,6 +394,9 @@ Ok
 ```
 
 ## Stopping Iteration
+%%%
+tag := "break"
+%%%
 
 Terminating a loop early is difficult to do with {anchorName ForM}`ForM`.
 Writing a function that iterates over the {anchorName AllLessThan}`Nat`s in an {anchorName AllLessThan}`AllLessThan` only until {anchorTerm OptionTcountToThree}`3` is reached requires a means of stopping the loop partway through.
@@ -555,6 +573,9 @@ def printArray [ToString α] (xs : Array α) : IO Unit := do
 In this example, {anchorName printArray}`h` is evidence that {lit}`i ∈ [0:xs.size]`, and the tactic that checks whether {anchorTerm printArray}`xs[i]` is safe is able to transform this into evidence that {lit}`i < xs.size`.
 
 # Mutable Variables
+%%%
+tag := "let-mut"
+%%%
 
 In addition to early {kw}`return`, {kw}`else`-less {kw}`if`, and {kw}`for` loops, Lean supports local mutable variables within a {kw}`do` block.
 Behind the scenes, these mutable variables desugar to code that's equivalent to {anchorName twoStateT}`StateT`, rather than being implemented by true mutable variables.
@@ -634,6 +655,9 @@ yields the following error on the attempted mutation of {anchorName nonLocalMut}
 This is because the recursive function is written in the identity monad, and only the monad of the {kw}`do`-block in which the variable is introduced is transformed with {anchorName twoStateT}`StateT`.
 
 # What counts as a {kw}`do` block?
+%%%
+tag := "do-block-boundaries"
+%%%
 
 Many features of {kw}`do`-notation apply only to a single {kw}`do`-block.
 Early return terminates the current block, and mutable variables can only be mutated in the block that they are defined in.
@@ -748,6 +772,9 @@ example : Id Unit := do
 
 
 # Imperative or Functional Programming?
+%%%
+tag := none
+%%%
 
 The imperative features provided by Lean's {kw}`do`-notation allow many programs to very closely resemble their counterparts in languages like Rust, Java, or C#.
 This resemblance is very convenient when translating an imperative algorithm into Lean, and some tasks are just most naturally thought of imperatively.
@@ -756,6 +783,9 @@ Monads and monad transformers allow functional versus imperative programming to 
 
 
 # Exercises
+%%%
+tag := "monad-transformer-do-exercises"
+%%%
 
  * Rewrite {lit}`doug` to use {kw}`for` instead of the {anchorName doList (module:=DirTree)}`doList` function.
  * Are there other opportunities to use the features introduced in this section to improve the code? If so, use them!

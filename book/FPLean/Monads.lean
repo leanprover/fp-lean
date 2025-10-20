@@ -18,6 +18,9 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.Monads"
 
 #doc (Manual) "Monads" =>
+%%%
+tag := "monads"
+%%%
 
 In C# and Kotlin, the {CSharp}`?.` operator is a way to look up a property or call a method on a potentially-null value.
 If the receiver is {CSharp}`null`, the whole expression is null.
@@ -30,6 +33,9 @@ At the same time, logging is easiest to accomplish by having a dedicated logging
 Chained null checks and exceptions typically require language designers to anticipate this use case, while logging frameworks typically make use of side effects to decouple code that logs from the accumulation of the logs.
 
 # One API, Many Applications
+%%%
+tag := "monad-api-examples"
+%%%
 
 All these features and more can be implemented in library code as instances of a common API called {moduleName}`Monad`.
 Lean provides dedicated syntax that makes this API convenient to use, but can also get in the way of understanding what is going on behind the scenes.
@@ -37,6 +43,9 @@ This chapter begins with the nitty-gritty presentation of manually nesting null 
 Please suspend your disbelief in the meantime.
 
 ## Checking for {lit}`none`: Don't Repeat Yourself
+%%%
+tag := "example-option-monad"
+%%%
 
 :::paragraph
 In Lean, pattern matching can be used to chain checks for null.
@@ -137,6 +146,10 @@ Improving the syntax used to write {anchorName firstThirdandThenExpl}`andThen` c
 :::
 
 ### Infix Operators
+%%%
+tag := "defining-infix-operators"
+%%%
+
 
 In Lean, infix operators can be declared using the {kw}`infix`, {kw}`infixl`, and {kw}`infixr` commands, which create (respectively) non-associative, left-associative, and right-associative operators.
 When used multiple times in a row, a {deftech}_left associative_ operator stacks up the opening parentheses on the left side of the expression.
@@ -183,6 +196,9 @@ def firstThirdFifthSeventh (xs : List α) : Option (α × α × α × α) :=
 :::
 
 ## Propagating Error Messages
+%%%
+tag := "example-except-monad"
+%%%
 
 Pure functional languages such as Lean have no built-in exception mechanism for error handling, because throwing or catching an exception is outside of the step-by-step evaluation model for expressions.
 However, functional programs certainly need to handle errors.
@@ -634,6 +650,9 @@ Because {anchorName State}`State` simulates only a single local variable, {ancho
 :::
 
 ## Monads: A Functional Design Pattern
+%%%
+tag := "monad-as-design-pattern"
+%%%
 
 Each of these examples has consisted of:
  * A polymorphic type, such as {anchorName first}`Option`, {anchorTerm okExcept}`Except ε`, {anchorTerm save}`WithLog α`, or {anchorTerm andThenState}`State σ`

@@ -18,6 +18,10 @@ The {ref "props-proofs-indexing"}[Interlude] describes how to use indexing notat
 This syntax is also governed by a type class, and it can be used for a variety of different types.
 
 # Arrays
+%%%
+tag := "array-indexing"
+%%%
+
 For instance, Lean arrays are much more efficient than linked lists for most purposes.
 In Lean, the type {anchorTerm arrVsList}`Array α` is a dynamically-sized array holding values of type {anchorName arrVsList}`α`, much like a Java {java}`ArrayList`, a C++ {cpp}`std::vector`, or a Rust {rust}`Vec`.
 Unlike {anchorTerm arrVsList}`List`, which has a pointer indirection on each use of the {anchorName arrVsList}`cons` constructor, arrays occupy a contiguous region of memory, which is much better for processor caches.
@@ -49,6 +53,9 @@ failed to prove index is valid, possible solutions:
 ```
 
 # Non-Empty Lists
+%%%
+tag := "non-empty-list-indexing"
+%%%
 
 A datatype that represents non-empty lists can be defined as a structure with a field for the head of the list and a field for the tail, which is an ordinary, potentially empty list:
 

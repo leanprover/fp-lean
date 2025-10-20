@@ -10,8 +10,14 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.ProgramsProofs.InsertionSort"
 
 #doc (Manual) "Summary" =>
+%%%
+tag := "programs-proofs-summary"
+%%%
 
 # Tail Recursion
+%%%
+tag := none
+%%%
 
 Tail recursion is recursion in which the results of recursive calls are returned immediately, rather than being used in some other way.
 These recursive calls are called _tail calls_.
@@ -26,6 +32,9 @@ In Lean, only self-tail-calls are optimized into loops.
 In other words, two functions that each end with a tail call to the other will not be optimized.
 
 # Reference Counting and In-Place Updates
+%%%
+tag := none
+%%%
 
 Rather than using a tracing garbage collector, as is done in Java, C#, and most JavaScript implementations, Lean uses reference counting for memory management.
 This means that each value in memory contains a field that tracks how many other values refer to it, and the run-time system maintains these counts as references appear or disappear.
@@ -40,6 +49,9 @@ While tail calls can be identified by inspecting the function's definition, unde
 The debugging helper {anchorName dbgTraceIfSharedSig}`dbgTraceIfShared` can be used at key locations in the program to check that a value is not shared.
 
 # Proving Programs Correct
+%%%
+tag := none
+%%%
 
 Rewriting a program in accumulator-passing style, or making other transformations that make it run faster, can also make it more difficult to understand.
 It can be useful to keep the original version of the program that is more clearly correct, and then use it as an executable specification for the optimized version.
@@ -53,6 +65,9 @@ Fixing this problem usually requires thought about how to construct a more gener
 In particular, to prove that a function is equivalent to an accumulator-passing version, a theorem statement that relates arbitrary initial accumulator values to the final result of the original function is needed.
 
 # Safe Array Indices
+%%%
+tag := none
+%%%
 
 The type {anchorTerm names}`Fin n` represents natural numbers that are strictly less than {anchorName names}`n`.
 {anchorName names}`Fin` is short for “finite”.
@@ -65,6 +80,9 @@ Lean provides instances of most of the useful numeric type classes for {anchorNa
 The {anchorName names}`OfNat` instances for {anchorName names}`Fin` perform modular arithmetic rather than failing at compile time if the number provided is larger than the {anchorName names}`Fin` can accept.
 
 # Provisional Proofs
+%%%
+tag := none
+%%%
 
 Sometimes, it can be useful to pretend that a statement is proved without actually doing the work of proving it.
 This can be useful when making sure that a proof of a statement would be suitable for some task, such as a rewrite in another proof, determining that an array access is safe, or showing that a recursive call is made on a smaller value than the original argument.
@@ -80,6 +98,9 @@ Proving that {anchorTerm names}`3 < 2` can cause an out-of-bounds array access t
 Using {anchorTerm names}`sorry` is convenient during development, but keeping it in the code is dangerous.
 
 # Proving Termination
+%%%
+tag := none
+%%%
 
 When a recursive function does not use structural recursion, Lean cannot automatically determine that it terminates.
 In these situations, the function could just be marked {kw}`partial`.

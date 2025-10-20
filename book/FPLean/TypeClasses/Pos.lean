@@ -71,6 +71,9 @@ Each of these error messages begins with {lit}`failed to synthesize`.
 This indicates that the error is due to an overloaded operation that has not been implemented, and it describes the type class that must be implemented.
 
 # Classes and Instances
+%%%
+tag := "classes-and-instances"
+%%%
 
 A type class consists of a name, some parameters, and a collection of {deftech}_methods_.
 The parameters describe the types for which overloadable operations are being defined, and the methods are the names and type signatures of the overloadable operations.
@@ -176,6 +179,9 @@ def fourteen : Pos := seven + seven
 ```
 
 # Conversion to Strings
+%%%
+tag := "conversion-to-strings"
+%%%
 
 Another useful built-in class is called {anchorName UglyToStringPos}`ToString`.
 Instances of {anchorName UglyToStringPos}`ToString` provide a standard way of converting values from a given type into strings.
@@ -227,6 +233,9 @@ When more than one instance is defined, the most recent takes precedence.
 Additionally, if a type has a {anchorName UglyToStringPos}`ToString` instance, then it can be used to display the result of {kw}`#eval` so {anchorTerm sevenEvalStr}`#eval seven` outputs {anchorInfo sevenEvalStr}`7`.
 
 # Overloaded Multiplication
+%%%
+tag := "overloaded-multiplication"
+%%%
 
 For multiplication, there is a type class called {anchorName MulPPoint}`HMul` that allows mixed argument types, just like {anchorName chapterIntro}`HAdd`.
 Just as {anchorTerm plusDesugar}`x + y` is interpreted as {anchorTerm plusDesugar}[`HAdd.hAdd x y`], {anchorTerm timesDesugar}`x * y` is interpreted as {anchorTerm timesDesugar}`HMul.hMul x y`.
@@ -394,8 +403,14 @@ Hint: Additional diagnostic information may be available using the `set_option d
 ```
 
 # Exercises
+%%%
+tag := "positive-numbers-exercises"
+%%%
 
 ## Another Representation
+%%%
+tag := "positive-numbers-another-representation"
+%%%
 
 An alternative way to represent a positive number is as the successor of some {anchorTerm chapterIntro}`Nat`.
 Replace the definition of {anchorName PosStuff}`Pos` with a structure whose constructor is named {anchorName AltPos}`succ` that contains a {anchorTerm chapterIntro}`Nat`:
@@ -416,6 +431,9 @@ Define a datatype that represents only even numbers. Define instances of {module
 {moduleName}`OfNat` requires a feature that is introduced in {ref "tc-polymorphism"}[the next section].
 
 ## HTTP Requests
+%%%
+tag := "http-request-ex"
+%%%
 
 An HTTP request begins with an identification of a HTTP method, such as {lit}`GET` or {lit}`POST`, along with a URI and an HTTP version.
 Define an inductive type that represents an interesting subset of the HTTP methods, and a structure that represents HTTP responses.

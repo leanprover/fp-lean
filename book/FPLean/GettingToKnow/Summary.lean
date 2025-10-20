@@ -11,8 +11,14 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.Intro"
 
 #doc (Manual) "Summary" =>
+%%%
+tag := "getting-to-know-summary"
+%%%
 
 # Evaluating Expressions
+%%%
+tag := none
+%%%
 
 In Lean, computation occurs when expressions are evaluated.
 This follows the usual rules of mathematical expressions: sub-expressions are replaced by their values following the usual order of operations, until the entire expression has become a value.
@@ -23,6 +29,9 @@ Similarly to mathematics but unlike most programming languages, Lean variables a
 Variables' values may come from global definitions with {kw}`def`, local definitions with {kw}`let`, as named arguments to functions, or from pattern matching.
 
 # Functions
+%%%
+tag := none
+%%%
 
 Functions in Lean are first-class values, meaning that they can be passed as arguments to other functions, saved in variables, and used like any other value.
 Every Lean function takes exactly one argument.
@@ -38,6 +47,9 @@ There are three primary ways of creating functions:
 3. Functions can be defined using {kw}`def` or {kw}`let` by adding an argument list or by using pattern-matching notation.
 
 # Types
+%%%
+tag := none
+%%%
 
 Lean checks that every expression has a type.
 Types, such as {anchorName fragments}`Int`, {anchorName fragments}`Point`, {anchorTerm fragments}`{α : Type} → Nat → α → List α`, and {anchorTerm fragments}`Option (String ⊕ (Nat × String))`, describe the values that may eventually be found for an expression.
@@ -62,6 +74,9 @@ Because types are first class in Lean, polymorphism does not require any special
 Naming an argument in a function type allows later types to mention that name, and when the function is applied to an argument, the type of the resulting term is found by replacing the argument's name with the actual value it was applied to.
 
 # Structures and Inductive Types
+%%%
+tag := none
+%%%
 
 Brand new datatypes can be introduced to Lean using the {kw}`structure` or {kw}`inductive` features.
 These new types are not considered to be equivalent to any other type, even if their definitions are otherwise identical.
@@ -73,8 +88,10 @@ Datatypes defined with {kw}`structure` are provided with one accessor function f
 Both structures and inductive datatypes may be consumed with pattern matching, which exposes the values stored inside of constructors using a subset of the syntax used to call said constructors.
 Pattern matching means that knowing how to create a value implies knowing how to consume it.
 
-
 # Recursion
+%%%
+tag := none
+%%%
 
 A definition is recursive when the name being defined is used in the definition itself.
 Because Lean is an interactive theorem prover in addition to being a programming language, there are certain restrictions placed on recursive definitions.

@@ -11,10 +11,16 @@ set_option verso.exampleModule "Examples.Intro"
 
 
 #doc (Manual) "Additional Conveniences" =>
+%%%
+tag := "getting-to-know-conveniences"
+%%%
 
 Lean contains a number of convenience features that make programs much more concise.
 
 # Automatic Implicit Parameters
+%%%
+tag := "automatic-implicit-parameters"
+%%%
 
 :::paragraph
 When writing polymorphic functions in Lean, it is typically not necessary to list all the implicit parameters.
@@ -43,6 +49,9 @@ This can greatly simplify highly polymorphic definitions that take many implicit
 :::
 
 # Pattern-Matching Definitions
+%%%
+tag := "pattern-matching-definitions"
+%%%
 
 When defining functions with {kw}`def`, it is quite common to name an argument and then immediately use it with pattern matching.
 For instance, in {anchorName lengthImpAuto}`length`, the argument {anchorName lengthImpAuto}`xs` is used only in {kw}`match`.
@@ -107,6 +116,9 @@ This function is called {anchorTerm fragments}`Option.getD` in the standard libr
 :::
 
 # Local Definitions
+%%%
+tag := "local-definitions"
+%%%
 
 It is often useful to name intermediate steps in a computation.
 In many cases, intermediate values represent useful concepts all on their own, and naming them explicitly can make the program easier to read.
@@ -182,6 +194,9 @@ When it reaches the end of the input list, {anchorName reverse}`soFar` contains 
 :::
 
 # Type Inference
+%%%
+tag := "type-inference"
+%%%
 
 :::paragraph
 In many situations, Lean can automatically determine an expression's type.
@@ -380,6 +395,9 @@ def sameLength (xs : List α) (ys : List β) : Bool :=
 :::
 
 # Natural Number Patterns
+%%%
+tag := "natural-number-patterns"
+%%%
 
 :::paragraph
 
@@ -448,6 +466,9 @@ This restriction enables Lean to transform all uses of the {anchorTerm halveFlip
 :::
 
 # Anonymous Functions
+%%%
+tag := "anonymous-functions"
+%%%
 
 :::paragraph
 
@@ -563,7 +584,9 @@ while {anchor applyCdot}`#eval (· * 2) 5` results in:
 :::
 
 # Namespaces
-
+%%%
+tag := "namespaces"
+%%%
 
 Each name in Lean occurs in a _namespace_, which is a collection of names.
 Names are placed in namespaces using {lit}`.`, so {anchorName fragments}`List.map` is the name {anchorName fragments}`map` in the {lit}`List` namespace.
@@ -657,7 +680,10 @@ To do this, simply omit the {kw}`in` from a top-level usage of {kw}`open`.
 
 :::
 
-# if let
+# {lit}`if let`
+%%%
+tag := "if-let"
+%%%
 
 :::paragraph
 When consuming values that have a sum type, it is often the case that only a single constructor is of interest.
@@ -699,6 +725,9 @@ In some contexts, using {kw}`if let` instead of {kw}`match` can make code easier
 :::
 
 # Positional Structure Arguments
+%%%
+tag := "positional-structure-arguments"
+%%%
 
 The {ref "structures"}[section on structures] presents two ways of constructing structures:
  1. The constructor can be called directly, as in {anchorTerm pointCtor}`Point.mk 1 2`.

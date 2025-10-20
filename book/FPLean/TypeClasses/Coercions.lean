@@ -12,6 +12,9 @@ set_option verso.exampleModule "Examples.Classes"
 set_option pp.rawOnError true
 
 #doc (Manual) "Coercions" =>
+%%%
+tag := "coercions"
+%%%
 
 
 In mathematics, it is common to use the same symbol to stand for different aspects of some object in different contexts.
@@ -24,6 +27,9 @@ When Lean encounters an expression of one type in a context that expects a diffe
 Unlike Java, C, and Kotlin, the coercions are extensible by defining instances of type classes.
 
 # Strings and Paths
+%%%
+tag := "string-path-coercion"
+%%%
 
 In the {ref "handling-input"}[source code to {lit}`feline`], a {moduleName}`String` is converted to a {moduleName}`FilePath` using the anonymous constructor syntax.
 In fact, this was not necessary: Lean defines a coercion from {moduleName}`String` to {moduleName}`FilePath`, so a string can be used in an position where a path is expected.
@@ -43,6 +49,9 @@ def fileDumper : IO Unit := do
 On the last line of {anchorName fileDumper}`fileDumper`, the coercion from {moduleName}`String` to {moduleName}`FilePath` automatically converts {anchorName fileDumper}`f`, so it is not necessary to write {lit}`IO.FS.readFile ⟨f⟩`.
 
 # Positive Numbers
+%%%
+tag := "positive-number-coercion"
+%%%
 
 Every positive number corresponds to a natural number.
 The function {anchorName posToNat}`Pos.toNat` that was defined earlier converts a {moduleName}`Pos` to the corresponding {moduleName}`Nat`:
@@ -98,6 +107,9 @@ List.drop (Pos.toNat 2) [1, 2, 3, 4] : List Nat
 :::
 
 # Chaining Coercions
+%%%
+tag := "chaining-coercions"
+%%%
 
 When searching for coercions, Lean will attempt to assemble a coercion out of a chain of smaller coercions.
 For example, there is already a coercion from {anchorName chapterIntro}`Nat` to {anchorName chapterIntro}`Int`.
@@ -197,6 +209,9 @@ It can also make the programmer's intentions more clear.
 :::
 
 # Non-Empty Lists and Dependent Coercions
+%%%
+tag := "CoeDep"
+%%%
 
 An instance of {anchorTerm chapterIntro}`Coe α β` makes sense when the type {anchorName chapterIntro}`β` has a value that can represent each value from the type {anchorName chapterIntro}`α`.
 Coercing from {moduleName}`Nat` to {moduleName}`Int` makes sense, because the type {moduleName}`Int` contains all the natural numbers, but a coercion from {moduleName}`Int` to {moduleName}`Nat` is a poor idea because {moduleName}`Nat` does not contain the negative numbers.
@@ -227,6 +242,9 @@ instance : CoeDep (List α) (x :: xs) (NonEmptyList α) where
 ```
 
 # Coercing to Types
+%%%
+tag := "CoeSort"
+%%%
 
 In mathematics, it is common to have a concept that consists of a set equipped with additional structure.
 For example, a monoid is some set $`S`, an element $`s` of $`S`, and an associative binary operator on $`S`, such that $`s` is neutral on the left and right of the operator.
@@ -300,6 +318,9 @@ instance : CoeSort Bool Prop where
 In this case, the sort in question is {anchorTerm chapterIntro}`Prop` rather than {anchorTerm chapterIntro}`Type`.
 
 # Coercing to Functions
+%%%
+tag := "CoeFun"
+%%%
 
 Many datatypes that occur regularly in programming consist of a function along with some extra information about it.
 For example, a function might be accompanied by a name to show in logs or by some configuration data.
@@ -417,6 +438,9 @@ JSON.object
 :::
 
 ## Aside: JSON as a String
+%%%
+tag := "json-string"
+%%%
 
 It can be a bit difficult to understand JSON when encoded as Lean objects.
 To help make sure that the serialized response was what was expected, it can be convenient to write a simple converter from {anchorName JSON}`JSON` to {anchorName dropDecimals}`String`.
@@ -485,6 +509,9 @@ With this definition, the output of serialization is easier to read:
 
 
 # Messages You May Meet
+%%%
+tag := "coercion-messages"
+%%%
 
 Natural number literals are overloaded with the {anchorName OfNat}`OfNat` type class.
 Because coercions fire in cases where types don't match, rather than in cases of missing instances, a missing {anchorName OfNat}`OfNat` instance for a type does not cause a coercion from {moduleName}`Nat` to be applied:
@@ -503,6 +530,9 @@ Hint: Additional diagnostic information may be available using the `set_option d
 ```
 
 # Design Considerations
+%%%
+tag := "coercion-design-considerations"
+%%%
 
 Coercions are a powerful tool that should be used responsibly.
 On the one hand, they can allow an API to naturally follow the everyday rules of the domain being modeled.

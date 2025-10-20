@@ -10,6 +10,9 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.ProgramsProofs.Fin"
 
 #doc (Manual) "Bounded Numbers" =>
+%%%
+tag := "Fin"
+%%%
 
 The {anchorTerm sundries}`GetElem` instance for {anchorName sundries}`Array` and {anchorName sundries}`Nat` requires a proof that the provided {anchorName sundries}`Nat` is smaller than the array.
 In practice, these proofs often end up being passed to functions along with the indices.
@@ -53,6 +56,9 @@ def Array.find (arr : Array α) (p : α → Bool) : Option (Fin arr.size × α) 
 ```
 
 # Exercise
+%%%
+tag := "Fin-exercises"
+%%%
 
 Write a function {anchorTerm exercise}`Fin.next? : Fin n → Option (Fin n)` that returns the next largest {anchorName nextThreeFin}`Fin` when it would be in bounds, or {anchorName ArrayFindHelper}`none` if not.
 Check that

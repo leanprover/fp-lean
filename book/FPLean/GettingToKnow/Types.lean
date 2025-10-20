@@ -13,7 +13,9 @@ set_option verso.exampleModule "Examples.Intro"
 
 
 #doc (Manual) "Types" =>
-
+%%%
+tag := "getting-to-know-types"
+%%%
 
 Types classify programs based on the values that they can
 compute. Types serve a number of roles in a program:

@@ -13,9 +13,14 @@ set_option pp.rawOnError true
 
 
 #doc (Manual) "Additional Conveniences" =>
-
+%%%
+tag := "type-class-conveniences"
+%%%
 
 # Constructor Syntax for Instances
+%%%
+tag := "instance-constructor-syntax"
+%%%
 
 Behind the scenes, type classes are structure types and instances are values of these types.
 The only differences are that Lean stores additional information about type classes, such as which parameters are output parameters, and that instances are registered for searching.
@@ -69,6 +74,9 @@ Placing a call to this function after {lit}`:=` in an instance declaration is th
 :::
 
 # Examples
+%%%
+tag := "example-command"
+%%%
 
 When experimenting with Lean code, definitions can be more convenient to use than {kw}`#eval` or {kw}`#check` commands.
 First off, definitions don't produce any output, which can help keep the reader's focus on the most interesting output.

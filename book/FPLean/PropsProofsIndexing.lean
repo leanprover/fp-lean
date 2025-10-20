@@ -56,6 +56,9 @@ Out-of-bounds errors are a common class of bugs, and Lean uses its dual nature a
 Understanding how this works requires an understanding of three key ideas: propositions, proofs, and tactics.
 
 # Propositions and Proofs
+%%%
+tag := "propositions-and-proofs"
+%%%
 
 A _proposition_ is a statement that can be true or false.
 All of the following English sentences are propositions:
@@ -139,6 +142,9 @@ theorem onePlusOneIsTwo : OnePlusOneIsTwo := rfl
 
 
 # Tactics
+%%%
+tag := "tactics"
+%%%
 
 Proofs are normally written using _tactics_, rather than by providing evidence directly.
 Tactics are small programs that construct evidence for a proposition.
@@ -271,6 +277,9 @@ theorem falseImpliesTrue : False → True := by decide
 
 
 # Evidence as Arguments
+%%%
+tag := "evidence-passing"
+%%%
 
 In some cases, safely indexing into a list requires that the list have some minimum size, but the list itself is a variable rather than a concrete value.
 For this lookup to be safe, there must be some evidence that the list is long enough.
@@ -314,6 +323,9 @@ In these cases, {anchorTerm thirdCritters}`by decide` can construct the evidence
 
 
 # Indexing Without Evidence
+%%%
+tag := "indexing-without-evidence"
+%%%
 
 In cases where it's not practical to prove that an indexing operation is in bounds, there are other alternatives.
 Adding a question mark results in an {anchorName thirdOption}`Option`, where the result is {anchorName OptionNames}`some` if the index is in bounds, and {anchorName OptionNames}`none` otherwise.
@@ -354,6 +366,9 @@ There is also a version that crashes the program when the index is out of bounds
 
 
 # Messages You May Meet
+%%%
+tag := "props-proofs-indexing-messages"
+%%%
 In addition to proving that a statement is true, the {anchorTerm thirdRabbitErr}`decide` tactic can also prove that it is false.
 When asked to prove that a one-element list has more than two elements, it returns an error that indicates that the statement is indeed false:
 
@@ -444,6 +459,9 @@ Adding a space causes Lean to treat the expression as a function application, an
 This error message results from having Lean attempt to treat {anchorTerm woodlandCritters}`woodlandCritters` as a function.
 
 ## Exercises
+%%%
+tag := "props-proofs-indexing-exercises"
+%%%
 
 * Prove the following theorems using {anchorTerm exercises}`rfl`: {anchorTerm exercises}`2 + 3 = 5`, {anchorTerm exercises}`15 - 8 = 7`, {anchorTerm exercises}`"Hello, ".append "world" = "Hello, world"`. What happens if {anchorTerm exercises}`rfl` is used to prove {anchorTerm exercises}`5 < 18`? Why?
 * Prove the following theorems using {anchorTerm exercises}`by decide`: {anchorTerm exercises}`2 + 3 = 5`, {anchorTerm exercises}`15 - 8 = 7`, {anchorTerm exercises}`"Hello, ".append "world" = "Hello, world"`, {anchorTerm exercises}`5 < 18`.

@@ -10,6 +10,9 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.DependentTypes.DB"
 
 #doc (Manual) "Worked Example: Typed Queries" =>
+%%%
+tag := "typed-queries"
+%%%
 
 Indexed families are very useful when building an API that is supposed to resemble some other language.
 They can be used to write a library of HTML constructors that don't permit generating invalid HTML, to encode the specific rules of a configuration file format, or to model complicated business constraints.
@@ -20,6 +23,10 @@ It is not a realistic system, however—databases are represented as linked list
 However, it is large enough to demonstrate useful principles and techniques.
 
 # A Universe of Data
+%%%
+tag := "typed-query-data-universe"
+%%%
+
 In this relational algebra, the base data that can be held in columns can have types {anchorName DBType}`Int`, {anchorName DBType}`String`, and {anchorName DBType}`Bool` and are described by the universe {anchorName DBType}`DBType`:
 
 ```anchor DBType
@@ -97,6 +104,9 @@ instance {t : DBType} : Repr t.asType where
 ```
 
 # Schemas and Tables
+%%%
+tag := "schemas"
+%%%
 
 A schema describes the name and type of each column in a database:
 
@@ -163,6 +173,9 @@ def waterfallDiary : Table waterfall := [
 ```
 
 ## Recursion and Universes, Revisited
+%%%
+tag := "recursion-universes-revisited"
+%%%
 
 The convenient structuring of rows as tuples comes at a cost: the fact that {anchorName Row}`Row` treats its two base cases separately means that functions that use {anchorName Row}`Row` in their types and are defined recursively over the codes (that, is the schema) need to make the same distinctions.
 One example of a case where this matters is an equality check that uses recursion over the schema to define a function that checks rows for equality.
@@ -262,6 +275,9 @@ In the second role, the constructors are used like {anchorName Naturals}`Nat`s t
 Programming with indexed families often requires the ability to switch fluently between both perspectives.
 
 ## Subschemas
+%%%
+tag := "subschemas"
+%%%
 
 One important operation in relational algebra is to _project_ a table or row into a smaller schema.
 Every column not present in the smaller schema is forgotten.
@@ -416,6 +432,9 @@ def Subschema.reflexive : (s : Schema) → Subschema s s
 
 
 ## Projecting Rows
+%%%
+tag := "projecting-rows"
+%%%
 
 Given evidence that {anchorName RowProj}`s'` is a subschema of {anchorName RowProj}`s`, a row in {anchorName RowProj}`s` can be projected into a row in {anchorName RowProj}`s'`.
 This is done using the evidence that {anchorName RowProj}`s'` is a subschema of {anchorName RowProj}`s`, which explains where each column of {anchorName RowProj}`s'` is found in {anchorName RowProj}`s`.
@@ -433,6 +452,9 @@ def Row.project (row : Row s) : (s' : Schema) → Subschema s' s → Row s'
 
 
 # Conditions and Selection
+%%%
+tag := "conditions-and-selection"
+%%%
 
 Projection removes unwanted columns from a table, but queries must also be able to remove unwanted rows.
 This operation is called _selection_.
@@ -515,6 +537,9 @@ false
 ```
 
 # Queries
+%%%
+tag := "typed-query-language"
+%%%
 
 The query language is based on relational algebra.
 In addition to tables, it includes the following operators:
@@ -572,11 +597,17 @@ def Schema.renameColumn : (s : Schema) → HasCol s n t → String → Schema
 ```
 
 # Executing Queries
+%%%
+tag := "executing-queries"
+%%%
 
 Executing queries requires a number of helper functions.
 The result of a query is a table; this means that each operation in the query language requires a corresponding implementation that works with tables.
 
 ## Cartesian Product
+%%%
+tag := "executing-cartesian-product"
+%%%
 
 Taking the Cartesian product of two tables is done by appending each row from the first table to each row from the second.
 First off, due to the structure of {anchorName Row}`Row`, adding a single column to a row requires pattern matching on its schema in order to determine whether the result will be a bare value or a tuple.
@@ -635,6 +666,9 @@ def Table.cartesianProduct (table1 : Table s1) (table2 : Table s2) :
 
 
 ## Difference
+%%%
+tag := "executing-difference"
+%%%
 
 Removing undesired rows from a table can be done using {anchorName misc}`List.filter`, which takes a list and a function that returns a {anchorName misc}`Bool`.
 A new list is returned that contains only the entries for which the function returns {anchorName misc}`true`.
@@ -656,6 +690,9 @@ def List.without [BEq α] (source banned : List α) : List α :=
 This will be used with the {anchorName BEqDBType}`BEq` instance for {anchorName Row}`Row` when interpreting queries.
 
 ## Renaming Columns
+%%%
+tag := "executing-renaming-columns"
+%%%
 Renaming a column in a row is done with a recursive function that traverses the row until the column in question is found, at which point the column with the new name gets the same value as the column with the old name:
 
 ```anchor renameRow
@@ -672,6 +709,9 @@ One difficulty in programming with indexed families is that when performance mat
 It takes a very careful, often brittle, design to eliminate these kinds of “re-indexing” functions.
 
 ## Prefixing Column Names
+%%%
+tag := "executing-prefixing-column-names"
+%%%
 
 Adding a prefix to column names is very similar to renaming a column.
 Instead of proceeding to a desired column and then returning, {anchorName prefixRow}`prefixRow` must process all columns:
@@ -688,6 +728,9 @@ This can be used with {anchorName misc}`List.map` in order to add a prefix to al
 Once again, this function only exists to change the type of a value.
 
 ## Putting the Pieces Together
+%%%
+tag := "query-exec-runner"
+%%%
 
 With all of these helpers defined, executing a query requires only a short recursive function:
 
@@ -758,6 +801,10 @@ Because the example data includes only waterfalls in the USA, executing the quer
 ```
 
 ## Errors You May Meet
+%%%
+tag := "typed-queries-error-messages"
+%%%
+
 
 Many potential errors are ruled out by the definition of {anchorName Query}`Query`.
 For instance, forgetting the added qualifier in {anchorTerm Query2}`"mountain.location"` yields a compile-time error that highlights the column reference {anchorTerm QueryOops1}`c! "location"`:
@@ -804,12 +851,21 @@ Unfortunately, it is beyond the scope of this book to provide a description of i
 An indexed family such as {anchorName Query}`Query` is probably best as the core of a typed database interaction library, rather than its user interface.
 
 # Exercises
+%%%
+tag := "typed-query-exercises"
+%%%
 
 ## Dates
+%%%
+tag := none
+%%%
 
 Define a structure to represent dates. Add it to the {anchorName DBExpr}`DBType` universe and update the rest of the code accordingly. Provide the extra {anchorName DBExpr}`DBExpr` constructors that seem to be necessary.
 
 ## Nullable Types
+%%%
+tag := none
+%%%
 
 Add support for nullable columns to the query language by representing database types with the following structure:
 ```anchor nullable
@@ -827,6 +883,9 @@ abbrev NDBType.asType (t : NDBType) : Type :=
 Use this type in place of {anchorName DBExpr}`DBType` in {anchorName Schema}`Column` and {anchorName DBExpr}`DBExpr`, and look up SQL's rules for {lit}`NULL` and comparison operators to determine the types of {anchorName DBExpr}`DBExpr`'s constructors.
 
 ## Experimenting with Tactics
+%%%
+tag := none
+%%%
 
 
 What is the result of asking Lean to find values of the following types using {kw}`by repeat constructor`? Explain why each gives the result that it does.
