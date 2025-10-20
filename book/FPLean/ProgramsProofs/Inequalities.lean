@@ -10,12 +10,19 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.ProgramsProofs.Inequalities"
 
 #doc (Manual) "More Inequalities" =>
+%%%
+tag := "more-inequalities"
+%%%
 
 Lean's built-in proof automation is sufficient to check that {anchorName ArrayMapHelperOk (module:=Examples.ProgramsProofs.Arrays)}`arrayMapHelper` and {anchorName ArrayFindHelper (module:=Examples.ProgramsProofs.Arrays)}`findHelper` terminate.
 All that was needed was to provide an expression whose value decreases with each recursive call.
 However, Lean's built-in automation is not magic, and it often needs some help.
 
 # Merge Sort
+%%%
+tag := "merge-sort"
+%%%
+
 
 One example of a function whose termination proof is non-trivial is merge sort on {moduleName}`List`.
 Merge sort consists of two phases: first, a list is split in half.
@@ -123,6 +130,9 @@ halves : List α × List α := splitList xs
 ```
 
 # Splitting a List Makes it Shorter
+%%%
+tag := "splitting-shortens"
+%%%
 
 It will also be necessary to prove that {lit}`(splitList xs).snd.length < xs.length`.
 Because {anchorName splitList}`splitList` alternates between adding entries to the two lists, it is easiest to prove both statements at once, so the structure of the proof can follow the algorithm used to implement {anchorName splitList}`splitList`.
@@ -295,6 +305,9 @@ The {anchorTerm splitList_shorter_le}`right` goal resembles the {lit}`right✝` 
 It's time to prove that the inequality holds.
 
 ## Adding One to the Greater Side
+%%%
+tag := "le-succ-of-le"
+%%%
 
 The inequality needed to prove {anchorName splitList_shorter_le}`splitList_shorter_le` is {anchorTerm le_succ_of_le_statement}`∀(n m : Nat), n ≤ m → n ≤ m + 1`.
 The incoming assumption that {anchorTerm le_succ_of_le_statement}`n ≤ m` essentially tracks the difference between {anchorName le_succ_of_le_statement}`n` and {anchorName le_succ_of_le_statement}`m` in the number of {anchorName le_succ_of_le_apply}`Nat.le.step` constructors.
@@ -448,6 +461,9 @@ The short, highly-automated proof script is typically easier to maintain, becaus
 The recursive function is typically both harder to understand from the perspective of mathematical proofs and harder to maintain, but it can be a useful bridge for programmers who are beginning to work with interactive theorem proving.
 
 ## Finishing the Proof
+%%%
+tag := "finishing-splitList-shorter-proof"
+%%%
 
 Now that both helper theorems have been proved, the rest of {anchorName splitList_shorter_le5}`splitList_shorter_le` will be completed quickly.
 The current proof state has one goal remaining:
@@ -575,6 +591,10 @@ theorem splitList_shorter_snd (lst : List α) (h : lst.length ≥ 2) :
 ```
 
 ## A Simpler Proof
+%%%
+tag := "splitList-shorter-le-simpler-proof"
+%%%
+
 
 :::paragraph
 Instead of using ordinary induction, {anchorName splitList_shorter_le_funInd1}`splitList_shorter_le` can be proved using functional induction, resulting in one case for each branch of {anchorName splitList}`splitList`:
@@ -618,6 +638,9 @@ theorem splitList_shorter_le (lst : List α) :
 ```
 
 # Merge Sort Terminates
+%%%
+tag := "merge-sort-terminates"
+%%%
 
 Merge sort has two recursive calls, one for each sub-list returned by {anchorName splitList}`splitList`.
 Each recursive call will require a proof that the length of the list being passed to it is shorter than the length of the input list.
@@ -811,6 +834,9 @@ termination_by n
 
 
 # Exercises
+%%%
+tag := "inequalities-exercises"
+%%%
 
 Prove the following theorems without using {tactic}`grind`:
 

@@ -11,6 +11,9 @@ set_option verso.exampleProject "../examples/second-lake/greeting"
 set_option verso.exampleModule "Main"
 
 #doc (Manual) "Starting a Project" =>
+%%%
+tag := "starting-a-project"
+%%%
 
 As a program written in Lean becomes more serious, an ahead-of-time compiler-based workflow that results in an executable becomes more attractive.
 Like other languages, Lean has tools for building multiple-file packages and managing dependencies.
@@ -19,6 +22,10 @@ Lake is typically configured using a TOML file that declaratively specifies depe
 For advanced use cases, Lake can also be configured in Lean itself.
 
 # First steps
+%%%
+tag := "lake-new"
+%%%
+
 
 To get started with a project that uses Lake, use the command {command lake "first-lake"}`lake new greeting` in a directory that does not already contain a file or directory called {lit}`greeting`.
 This creates a directory called {lit}`greeting` that contains the following files:
@@ -65,6 +72,9 @@ Running {command lake "first-lake/greeting"}`lake exe greeting` also results in 
 
 
 # Lakefiles
+%%%
+tag := "lakefiles"
+%%%
 
 A {lit}`lakefile.toml` describes a _package_, which is a coherent collection of Lean code for distribution, analogous to an {lit}`npm` or {lit}`nuget` package or a Rust crate.
 A package may contain any number of libraries or executables.
@@ -101,6 +111,9 @@ By default, {lit}`lake build` builds those targets that are specified in the {li
 To build a target that is not a default target, specify the target's name as an argument after {lit}`lake build`.
 
 # Libraries and Imports
+%%%
+tag := "libraries-and-imports"
+%%%
 
 A Lean library consists of a hierarchically organized collection of source files from which names can be imported, called _modules_.
 By default, a library has a single root file that matches its name.

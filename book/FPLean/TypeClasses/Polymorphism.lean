@@ -26,6 +26,9 @@ It returns an {anchorTerm printlnType}`IO` action.
 
 
 # Checking Polymorphic Functions' Types
+%%%
+tag := "checking-polymorphic-types"
+%%%
 
 Checking the type of a function that takes implicit arguments or uses type classes requires the use of some additional syntax.
 Simply writing
@@ -48,6 +51,9 @@ There is a {lit}`u_1` after {lit}`Type`, which uses a feature of Lean that has n
 For now, ignore these parameters to {lit}`Type`.
 
 # Defining Polymorphic Functions with Instance Implicits
+%%%
+tag := "defining-polymorphic-functions-with-instance-implicits"
+%%%
 
 :::paragraph
 A function that sums all entries in a list needs two instances: {moduleName}`Add` allows the entries to be added, and an {moduleName}`OfNat` instance for {anchorTerm ListSum}`0` provides a sensible value to return for the empty list:
@@ -137,7 +143,9 @@ The API's clients are freed from the burden of plumbing together all of the nece
 
 
 # Methods and Implicit Arguments
-
+%%%
+tag := "method-implicit-params"
+%%%
 
 The type of {anchorTerm ofNatType}`OfNat.ofNat` may be surprising.
 It is {anchorTerm ofNatType}`: {α : Type} → (n : Nat) → [OfNat α n] → α`, in which the {anchorTerm ofNatType}`Nat` argument {anchorTerm ofNatType}`n` occurs as an explicit function parameter.
@@ -166,12 +174,22 @@ Thus, in these cases, Lean uses an explicit parameter for the class's method.
 
 
 # Exercises
+%%%
+tag := "type-class-polymorphism-exercises"
+%%%
 
 ## Even Number Literals
+%%%
+tag := none
+%%%
+
 
 Write an instance of {anchorName ofNatType}`OfNat` for the even number datatype from the {ref "even-numbers-ex"}[previous section's exercises] that uses recursive instance search.
 
 ## Recursive Instance Search Depth
+%%%
+tag := none
+%%%
 
 There is a limit to how many times the Lean compiler will attempt a recursive instance search.
 This places a limit on the size of even number literals defined in the previous exercise.

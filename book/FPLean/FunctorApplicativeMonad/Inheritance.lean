@@ -10,6 +10,9 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.FunctorApplicativeMonad"
 
 #doc (Manual) "Structures and Inheritance" =>
+%%%
+tag := "structure-inheritance"
+%%%
 
 In order to understand the full definitions of {anchorName ApplicativeLaws}`Functor`, {anchorName ApplicativeLaws}`Applicative`, and {anchorName ApplicativeLaws}`Monad`, another Lean feature is necessary: structure inheritance.
 Structure inheritance allows one structure type to provide the interface of another, along with additional fields.
@@ -140,6 +143,9 @@ in the application
 ```
 
 # Multiple Inheritance
+%%%
+tag := "multiple-structure-inheritance"
+%%%
 
 A helper is a mythical creature that can provide assistance when given the correct payment:
 
@@ -202,6 +208,9 @@ This function constructs a {anchorName Helper}`Helper` from the fields of {ancho
 The {lit}`@[reducible]` attribute has the same effect as writing {kw}`abbrev`.
 
 ## Default Declarations
+%%%
+tag := "inheritance-defaults"
+%%%
 
 When one structure inherits from another, default field definitions can be used to instantiate the parent structure's fields based on the child structure's fields.
 If more size specificity is required than whether a creature is large or not, a dedicated datatype describing sizes can be used together with inheritance, yielding a structure in which the {anchorName MythicalCreature}`large` field is computed from the contents of the {anchorName SizedCreature}`size` field:
@@ -253,6 +262,9 @@ example : SizesMatch huldre := by
 
 
 ## Type Class Inheritance
+%%%
+tag := "type-class-inheritance"
+%%%
 
 Behind the scenes, type classes are structures.
 Defining a new type class defines a new structure, and defining an instance creates a value of that structure type.

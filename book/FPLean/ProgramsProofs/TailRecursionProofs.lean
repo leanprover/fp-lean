@@ -10,12 +10,18 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.ProgramsProofs.TCO"
 
 #doc (Manual) "Proving Equivalence" =>
+%%%
+tag := "proving-tail-rec-equiv"
+%%%
 
 Programs that have been rewritten to use tail recursion and an accumulator can look quite different from the original program.
 The original recursive function is often much easier to understand, but it runs the risk of exhausting the stack at run time.
 After testing both versions of the program on examples to rule out simple bugs, proofs can be used to show once and for all that the programs are equivalent.
 
 # Proving {lit}`sum` Equal
+%%%
+tag := "proving-sum-equal"
+%%%
 
 To prove that both versions of {lit}`sum` are equal, begin by writing the theorem statement with a stub proof:
 ```anchor sumEq0
@@ -187,6 +193,9 @@ The induction hypothesis can be used for {lit}`Tail.sumHelper n ys`, not {lit}`T
 In other words, this proof is stuck.
 
 # A Second Attempt
+%%%
+tag := "proving-sum-equal-again"
+%%%
 
 Rather than attempting to muddle through the proof, it's time to take a step back and think.
 Why is it that the tail-recursive version of the function is equal to the non-tail-recursive version?
@@ -473,6 +482,9 @@ For example, in {anchorName nonTailEqRealDone}`non_tail_sum_eq_tail_sum`, the ac
 This may require rewriting the goal to make the neutral initial accumulator values occur in the right place.
 
 # Functional Induction
+%%%
+tag := "fun-induction"
+%%%
 
 The proof of {anchorName nonTailEqRealDone}`non_tail_sum_eq_helper_accum` follows the implementation of {anchorName TailSum}`Tail.sumHelper` closely.
 There is not, however, a perfect match between the implementation and the structure expected by mathematical induction, which makes it necessary to manage the assumption {anchorName nonTailEqHelperDone}`n` carefully.
@@ -546,14 +558,26 @@ This proof also matches the way the proof might be explained to a skilled progra
 :::
 
 # Exercise
+%%%
+tag := "tail-recursion-proof-exercises"
+%%%
 
 ## Warming Up
+%%%
+tag := none
+%%%
 
 Write your own proofs for {anchorName NatZeroAdd}`Nat.zero_add`, {anchorName NatAddAssoc}`Nat.add_assoc`, and {anchorName NatAddComm}`Nat.add_comm` using the {kw}`induction` tactic.
 
 ## More Accumulator Proofs
+%%%
+tag := none
+%%%
 
 ### Reversing Lists
+%%%
+tag := none
+%%%
 
 Adapt the proof for {anchorName NonTailSum}`sum` into a proof for {anchorName NonTailReverse}`NonTail.reverse` and {anchorName TailReverse}`Tail.reverse`.
 The first step is to think about the relationship between the accumulator value being passed to {anchorName TailReverse}`Tail.reverseHelper` and the non-tail-recursive reverse.
@@ -580,5 +604,9 @@ xs : List α
 
 
 ### Factorial
+%%%
+tag := none
+%%%
+
 
 Prove that {anchorName NonTailFact}`NonTail.factorial` from the exercises in the previous section is equal to your tail-recursive solution by finding the relationship between the accumulator and the result and proving a suitable helper theorem.

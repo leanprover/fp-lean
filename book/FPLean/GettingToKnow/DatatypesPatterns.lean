@@ -114,6 +114,9 @@ Just like C# and Java, this encoding ends up with more types than in Lean, becau
 It also illustrates that Lean constructors correspond to objects in JavaScript or TypeScript that include a tag that identifies the contents.
 
 # Pattern Matching
+%%%
+tag := "pattern-matching"
+%%%
 
 In many languages, these kinds of data are consumed by first using an instance-of operator to check which subclass has been received and then reading the values of the fields that are available in the given subclass.
 The instance-of check determines which code to run, ensuring that the data needed by this code is available, while the fields themselves provide the data.

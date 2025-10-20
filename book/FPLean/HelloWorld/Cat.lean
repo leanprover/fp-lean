@@ -14,6 +14,9 @@ set_option verso.exampleModule "FelineLib"
 example_module Examples.Cat
 
 #doc (Manual) "Worked Example: {lit}`cat`" =>
+%%%
+tag := "example-cat"
+%%%
 
 The standard Unix utility {lit}`cat` takes a number of command-line options, followed by zero or more input files.
 If no files are provided, or if one of them is a dash ({lit}`-`), then it takes the standard input as the corresponding input instead of reading a file.
@@ -29,7 +32,10 @@ To get the most benefit from this section, follow along yourself.
 It's OK to copy-paste the code examples, but it's even better to type them in by hand.
 This makes it easier to learn the mechanical process of typing in code, recovering from mistakes, and interpreting feedback from the compiler.
 
-# Getting started
+# Getting Started
+%%%
+tag := "example-cat-start"
+%%%
 
 The first step in implementing {lit}`feline` is to create a package and decide how to organize the code.
 In this case, because the program is so simple, all the code will be placed in {lit}`Main.lean`.
@@ -58,6 +64,9 @@ Ensure that the code can be built by running {command feline1 "feline/1"}`lake b
 
 
 # Concatenating Streams
+%%%
+tag := "example-cat-streams"
+%%%
 
 Now that the basic skeleton of the program has been built, it's time to actually enter the code.
 A proper implementation of {lit}`cat` can be used with infinite IO streams, such as {lit}`/dev/random`, which means that it can't read its input into memory before outputting it.
@@ -191,6 +200,9 @@ Each recursive call is provided with the tail of the input list, and all Lean li
 Thus, {anchorName process}`process` does not introduce any non-termination.
 
 ## Main
+%%%
+tag := "example-cat-main"
+%%%
 
 The final step is to write the {anchorName main}`main` action.
 Unlike prior examples, {anchorName main}`main` in {lit}`feline` is a function.
@@ -209,6 +221,9 @@ def main (args : List String) : IO UInt32 :=
 ```
 
 # Meow!
+%%%
+tag := "example-cat-running"
+%%%
 
 :::paragraph
 To check whether {lit}`feline` works, the first step is to build it with {command feline2 "feline/2"}`lake build`.
@@ -257,6 +272,9 @@ and curl up!
 
 
 # Exercise
+%%%
+tag := "example-cat-exercise"
+%%%
 
 Extend {lit}`feline` with support for usage information.
 The extended version should accept a command-line argument {lit}`--help` that causes documentation about the available command-line options to be written to standard output.

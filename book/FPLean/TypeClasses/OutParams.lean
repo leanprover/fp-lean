@@ -32,6 +32,9 @@ def addPosNat : Pos → Nat → Pos
 These functions allow natural numbers to be added to positive numbers, but they cannot be used with the {moduleName}`Add` type class, which expects both arguments to {moduleName}`add` to have the same type.
 
 # Heterogeneous Overloadings
+%%%
+tag := "heterogeneous-operators"
+%%%
 
 As mentioned in the section on {ref "overloaded-addition"}[overloaded addition], Lean provides a type class called {anchorName chapterIntro}`HAdd` for overloading addition heterogeneously.
 The {anchorName chapterIntro}`HAdd` class takes three type parameters: the two argument types and the return type.
@@ -102,6 +105,9 @@ However, this solution is not very convenient for users of the positive number l
 
 
 # Output Parameters
+%%%
+tag := "output-parameters"
+%%%
 
 This problem can also be solved by declaring {anchorName HPlus}`γ` to be an _output parameter_.
 Most type class parameters are inputs to the search algorithm: they are used to select an instance.
@@ -129,6 +135,9 @@ The process of searching for an instance, possibly recursively, ends up being mo
 Output parameters can determine other types in the program, and instance search can assemble a collection of underlying instances into a program that has this type.
 
 # Default Instances
+%%%
+tag := "default-instances"
+%%%
 
 Deciding whether a parameter is an input or an output controls the circumstances under which Lean will initiate type class search.
 In particular, type class search does not occur until all inputs are known.
@@ -204,6 +213,9 @@ For more information on default instance priorities, please consult the Lean man
 
 
 # Exercises
+%%%
+tag := "out-params-exercises"
+%%%
 
 Define an instance of {anchorTerm MulPPoint}`HMul (PPoint α) α (PPoint α)` that multiplies both projections by the scalar.
 It should work for any type {anchorName MulPPoint}`α` for which there is a {anchorTerm MulPPoint}`Mul α` instance.

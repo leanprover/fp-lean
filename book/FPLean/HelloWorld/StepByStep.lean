@@ -15,6 +15,9 @@ example_module Examples.HelloWorld
 
 
 #doc (Manual) "Step By Step" =>
+%%%
+tag := "step-by-step"
+%%%
 
 :::paragraph
 A {moduleTerm}`do` block can be executed one line at a time.
@@ -31,6 +34,9 @@ Start with the program from the prior section:
 :::
 
 # Standard IO
+%%%
+tag := "stdio"
+%%%
 
 :::paragraph
 The first line is {anchor line1}`let stdin ← IO.getStdin`, while the remainder is:
@@ -55,6 +61,9 @@ Next, this action is executed, actually returning the standard output.
 Finally, this value is associated with the name {anchorTerm line2}`stdout` for the remainder of the {moduleTerm}`do` block.
 
 # Asking a Question
+%%%
+tag := "asking-a-question"
+%%%
 
 :::paragraph
 Now that {anchorTerm line1}`stdin` and {anchorTerm line2}`stdout` have been found, the remainder of the block consists of a question and an answer:
@@ -122,6 +131,9 @@ In the current line of the program, whitespace characters (including the newline
 :::
 
 # Greeting the User
+%%%
+tag := "greeting"
+%%%
 
 :::paragraph
 All that remains to be executed in the {moduleTerm}`do` block is a single statement:
@@ -135,6 +147,10 @@ Because this statement is an expression, it is evaluated to yield an {moduleTerm
 Once the expression has been evaluated, the resulting {moduleTerm}`IO` action is executed, resulting in the greeting.
 
 # {lit}`IO` Actions as Values
+%%%
+tag := "actions-as-values"
+%%%
+
 
 In the above description, it can be difficult to see why the distinction between evaluating expressions and executing {moduleTerm}`IO` actions is necessary.
 After all, each action is executed immediately after it is produced.
@@ -290,6 +306,9 @@ The final step, {moduleTerm (module := Examples.HelloWorld)}`pure ()`, does not 
 :::
 
 # Exercise
+%%%
+tag := "step-by-step-exercise"
+%%%
 
 :::paragraph
 Step through the execution of the following program on a piece of paper:

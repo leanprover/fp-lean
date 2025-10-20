@@ -10,7 +10,9 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.Monads.Class"
 
 #doc (Manual) "Example: Arithmetic in Monads" =>
-
+%%%
+tag := "monads-arithmetic-example"
+%%%
 
 Monads are a way of encoding programs with side effects into a language that does not have them.
 It would be easy to read this as a sort of admission that pure functional programs are missing something important, requiring programmers to jump through hoops just to write a normal program.
@@ -21,6 +23,9 @@ However, while using the {moduleName}`Monad` API does impose a syntactic cost on
 One example of a program that can make sense in a variety of monads is an evaluator for arithmetic expressions.
 
 # Arithmetic Expressions
+%%%
+tag := "monads-arithmetic-example-expr"
+%%%
 
 :::paragraph
 An arithmetic expression is either a literal integer or a primitive binary operator applied to two expressions. The operators are addition, subtraction, multiplication, and division:
@@ -61,6 +66,9 @@ def fourteenDivided : Expr Arith :=
 :::
 
 # Evaluating Expressions
+%%%
+tag := "monads-arithmetic-example-eval"
+%%%
 
 :::paragraph
 Because expressions include division, and division by zero is undefined, evaluation might fail.
@@ -207,6 +215,9 @@ In this refactored code, the fact that the two code paths differ only in their t
 :::
 
 # Further Effects
+%%%
+tag := "monads-arithmetic-example-effects"
+%%%
 
 Failure and exceptions are not the only kinds of effects that can be interesting when working with an evaluator.
 While division's only side effect is failure, adding other primitive operators to the expressions make it possible to express other effects.
@@ -256,6 +267,9 @@ def evaluateM [Monad m]
 ```
 
 ## No Effects
+%%%
+tag := "monads-arithmetic-example-no-effects"
+%%%
 
 The type {anchorName applyEmpty}`Empty` has no constructors, and thus no values, like the {Kotlin}`Nothing` type in Scala or Kotlin.
 In Scala and Kotlin, {Kotlin}`Nothing` can represent computations that never return a result, such as functions that crash the program, throw exceptions, or always fall into infinite loops.
@@ -798,13 +812,22 @@ Similarly, Scheme and Racket's parameter objects are an effect that exactly corr
 The Kotlin idiom of context objects can solve a similar problem, but they are fundamentally a means of passing function arguments automatically, so this idiom is more like the encoding as a reader monad than it is an effect in the language.
 
 ## Exercises
+%%%
+tag := "monads-arithmetic-example-exercises"
+%%%
 
 ### Checking Contracts
+%%%
+tag := none
+%%%
 
 Check the monad contract for {anchorTerm StateMonad}`State σ` and {anchorTerm MonadOptionExcept}`Except ε`.
 
 
 ### Readers with Failure
+%%%
+tag := none
+%%%
 Adapt the reader monad example so that it can also indicate failure when the custom operator is not defined, rather than just returning zero.
 In other words, given these definitions:
 
@@ -820,6 +843,9 @@ do the following:
  4. Define suitable {anchorName evaluateM}`applyPrim` operators and test them with {anchorName evaluateM}`evaluateM` on some example expressions
 
 ### A Tracing Evaluator
+%%%
+tag := "monads-arithmetic-example-exercise-trace"
+%%%
 
 The {anchorName MonadWriter}`WithLog` type can be used with the evaluator to add optional tracing of some operations.
 In particular, the type {anchorName ToTrace}`ToTrace` can serve as a signal to trace a given operator:

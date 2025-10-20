@@ -10,6 +10,9 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.FunctorApplicativeMonad"
 
 #doc (Manual) "The Applicative Contract" =>
+%%%
+tag := "applicative-laws"
+%%%
 
 Just like {anchorName ApplicativeLaws}`Functor`, {anchorName ApplicativeLaws}`Monad`, and types that implement {anchorName SizedCreature}`BEq` and {anchorName MonstrousAssistantMore}`Hashable`, {anchorName ApplicativeLaws}`Applicative` has a set of rules that all instances should adhere to.
 
@@ -61,6 +64,9 @@ In the fourth case, assume that {anchorName ApplicativeLaws}`u` is {anchorTerm O
 
 
 # All Applicatives are Functors
+%%%
+tag := "applicatives-are-functors"
+%%%
 
 The two operators for {anchorName ApplicativeMap}`Applicative` are enough to define {anchorName ApplicativeMap}`map`:
 
@@ -86,6 +92,9 @@ class Applicative (f : Type → Type) extends Functor f where
 ```
 
 # All Monads are Applicative Functors
+%%%
+tag :="monads-are-applicative"
+%%%
 
 An instance of {anchorName MonadExtends}`Monad` already requires an implementation of {anchorName MonadSeq}`pure`.
 Together with {anchorName MonadExtends}`bind`, this is enough to define {anchorName MonadSeq}`seq`:

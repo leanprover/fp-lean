@@ -10,6 +10,9 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.ProgramsProofs.Arrays"
 
 #doc (Manual) "Arrays and Termination" =>
+%%%
+tag := "array-termination"
+%%%
 
 To write efficient code, it is important to select appropriate data structures.
 Linked lists have their place: in some applications, the ability to share the tails of lists is very important.
@@ -23,6 +26,9 @@ Making effective use of arrays requires knowing how to prove to Lean that an arr
 Both of these are expressed using an inequality proposition, rather than propositional equality.
 
 # Inequality
+%%%
+tag := "inequality"
+%%%
 
 Because different types have different notions of ordering, inequality is governed by two type classes, called {anchorName ordSugarClasses (module := Examples.Classes)}`LE` and {anchorName ordSugarClasses (module := Examples.Classes)}`LT`.
 The table in the section on {ref "equality-and-ordering"}[standard type classes] describes how these classes relate to the syntax:
@@ -75,6 +81,9 @@ instance : LE Nat where
 Defining {anchorName LENat}`Nat.le` requires a feature of Lean that has not yet been presented: it is an inductively-defined relation.
 
 ## Inductively-Defined Propositions, Predicates, and Relations
+%%%
+tag := "inductive-props"
+%%%
 
 {anchorName LENat}`Nat.le` is an _inductively-defined relation_.
 Just as {kw}`inductive` can be used to create new datatypes, it can be used to create new propositions.
@@ -236,6 +245,9 @@ theorem four_is_not_three : ¬ IsThree 4 := by
 Just as a pattern match on a {anchorTerm otherEx (module:=Examples.DependentTypes)}`Vect String 2` doesn't need to include a case for {anchorName otherEx (module:=Examples.DependentTypes)}`Vect.nil`, a proof by cases over {anchorTerm fourNotThreeDone}`IsThree 4` doesn't need to include a case for {anchorName IsThree}`isThree`.
 
 ## Inequality of Natural Numbers
+%%%
+tag := "inequality-of-natural-numbers"
+%%%
 
 The definition of {anchorName NatLe}`Nat.le` has a parameter and an index:
 
@@ -395,6 +407,9 @@ Sometimes, creativity can be required in order to figure out just why a function
 
 
 # Exercises
+%%%
+tag := "array-termination-exercises"
+%%%
 
  * Implement a {anchorTerm ForMArr}`ForM m (Array α)` instance on arrays using a tail-recursive accumulator-passing function and a {kw}`termination_by` clause.
  * Reimplement {anchorName ArrayMap}`Array.map`, {anchorName ArrayFind}`Array.find`, and the {anchorName ForMArr}`ForM` instance using {kw}`for`{lit}` ... `{kw}`in`{lit}` ...` loops in the identity monad and compare the resulting code.

@@ -10,11 +10,18 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.FunctorApplicativeMonad.ActualDefs"
 
 #doc (Manual) "The Complete Definitions" =>
+%%%
+tag := "complete-definitions"
+%%%
 
 Now that all the relevant language features have been presented, this section describes the complete, honest definitions of {anchorName HonestFunctor}`Functor`, {anchorName Applicative}`Applicative`, and {anchorName Monad}`Monad` as they occur in the Lean standard library.
 For the sake of understanding, no details are omitted.
 
 # Functor
+%%%
+tag := "complete-functor-definition"
+%%%
+
 
 The complete definition of the {anchorName Applicative}`Functor` class makes use of universe polymorphism and a default method implementation:
 
@@ -66,6 +73,9 @@ Similarly, other arguments to the function have a type built by applying {anchor
 All the type classes in this section share this property.
 
 # Applicative
+%%%
+tag := "complete-applicative-definition"
+%%%
 
 The {anchorName Applicative}`Applicative` type class is actually built from a number of smaller classes that each contain some of the relevant methods.
 The first are {anchorName Applicative}`Pure` and {anchorName Applicative}`Seq`, which contain {anchorName Applicative}`pure` and {anchorName Seq}`seq` respectively:
@@ -153,6 +163,9 @@ In other words, {anchorTerm unfoldMapConstSeqRight}`(fun _ x => x) <$> a` preser
 From the perspective of effects, the side effects of {anchorName unfoldMapConstSeqRight}`a` occur, but the values are thrown out when it is used with {anchorName Seq}`seq`.
 
 # Monad
+%%%
+tag := "complete-monad-definition"
+%%%
 
 Just as the constituent operations of {anchorName Applicative}`Applicative` are split into their own type classes, {anchorName Bind}`Bind` has its own class as well:
 
@@ -176,6 +189,9 @@ From the perspective of API boundaries, any type with a {anchorName Monad}`Monad
 
 
 # Exercises
+%%%
+tag := "complete-functor-applicative-monad-exercises"
+%%%
 
  1. Understand the default implementations of {anchorName HonestFunctor}`map`, {anchorName Seq}`seq`, {anchorName SeqLeft}`seqLeft`, and {anchorName SeqRight}`seqRight` in {anchorName Monad}`Monad` by working through examples such as {anchorName mapConstOption}`Option` and {anchorName ApplicativeExcept (module:=Examples.FunctorApplicativeMonad)}`Except`. In other words, substitute their definitions for {anchorName Bind}`bind` and {anchorName Pure}`pure` into the default definitions, and simplify them to recover the versions {anchorName HonestFunctor}`map`, {anchorName Seq}`seq`, {anchorName SeqLeft}`seqLeft`, and {anchorName SeqRight}`seqRight` that would be written by hand.
  2. On paper or in a text file, prove to yourself that the default implementations of {anchorName HonestFunctor}`map` and {anchorName Seq}`seq` satisfy the contracts for {anchorName Applicative}`Functor` and {anchorName Applicative}`Applicative`. In this argument, you're allowed to use the rules from the {anchorName Monad}`Monad` contract as well as ordinary expression evaluation.

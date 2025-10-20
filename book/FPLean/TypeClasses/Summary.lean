@@ -13,8 +13,14 @@ set_option verso.exampleModule "Examples.Classes"
 set_option pp.rawOnError true
 
 #doc (Manual) "Summary" =>
+%%%
+tag :="type-classes-summary"
+%%%
 
 # Type Classes and Overloading
+%%%
+tag := none
+%%%
 
 Type classes are Lean's mechanism for overloading functions and operators.
 A polymorphic function can be used with multiple types, but it behaves in the same manner no matter which type it is used with.
@@ -40,6 +46,9 @@ Instances may be marked with a {anchorTerm defaultAdd}`@[default_instance]` attr
 When an instance is a default instance, then it will be chosen as a fallback when Lean would otherwise fail to find an instance due to the presence of metavariables in the type.
 
 # Type Classes for Common Syntax
+%%%
+tag := none
+%%%
 
 Most infix operators in Lean are overridden with a type class.
 For instance, the addition operator corresponds to a type class called {moduleName}`Add`.
@@ -52,6 +61,10 @@ This evidence is described by a proposition, and Lean attempts to prove this pro
 When Lean is unable to check that list or array access operations are in bounds at compile time, the check can be deferred to run time by appending a {lit}`?` to the indexing syntax.
 
 # Functors
+%%%
+tag := none
+%%%
+
 
 A functor is a polymorphic type that supports a mapping operation.
 This mapping operation transforms all elements “in place”, changing no other structure.
@@ -61,6 +74,10 @@ While functors are defined by having {anchorName FunctorDef}`map`, the {anchorNa
 For some functors, this can be done more efficiently than traversing the entire structure.
 
 # Deriving Instances
+%%%
+tag := none
+%%%
+
 
 Many type classes have very standard implementations.
 For instance, the Boolean equality class {moduleName}`BEq` is usually implemented by first checking whether both arguments are built with the same constructor, and then checking whether all their arguments are equal.
@@ -71,6 +88,10 @@ Additionally, the {kw}`deriving instance`﻿{lit}` ... `﻿{kw}`for`﻿{lit}` 
 Because each class for which instances can be derived requires special handling, not all classes are derivable.
 
 # Coercions
+%%%
+tag := none
+%%%
+
 
 Coercions allow Lean to recover from what would normally be a compile-time error by inserting a call to a function that transforms data from one type to another.
 For example, the coercion from any type {anchorName CoeOption}`α` to the type {anchorTerm CoeOption}`Option α` allows values to be written directly, rather than with the {anchorName CoeOption}`some` constructor, making {anchorName CoeOption}`Option` work more like nullable types from object-oriented languages.

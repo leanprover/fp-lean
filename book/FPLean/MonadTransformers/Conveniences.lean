@@ -10,8 +10,14 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.MonadTransformers.Conveniences"
 
 #doc (Manual) "Additional Conveniences" =>
+%%%
+tag := "monad-transformer-conveniences"
+%%%
 
 # Pipe Operators
+%%%
+tag := "pipe-operators"
+%%%
 
 Functions are normally written before their arguments.
 When reading a program from left to right, this promotes a view in which the function's _output_ is paramount—the function has a goal to achieve (that is, a value to compute), and it receives arguments to support it in this process.
@@ -66,6 +72,9 @@ As a final convenience, Lean provides the “pipeline dot” operator, which gro
 With “pipeline dot”, the example can be rewritten to {anchorTerm listReverseDropReversePipe}`[1, 2, 3] |>.reverse |>.drop 1 |>.reverse`.
 
 # Infinite Loops
+%%%
+tag := "infinite-loops"
+%%%
 
 Within a {kw}`do`-block, the {kw}`repeat` keyword introduces an infinite loop.
 For example, a program that spams the string {anchorTerm spam}`"Spam!"` can use it:
@@ -103,6 +112,9 @@ Instead, {kw}`repeat` makes use of a type whose {anchorTerm names}`ForM` instanc
 Partiality does not “infect” calling functions.
 
 # While Loops
+%%%
+tag := "while-loops"
+%%%
 
 When programming with local mutability, {kw}`while` loops can be a convenient alternative to {kw}`repeat` with an {kw}`if`-guarded {kw}`break`:
 

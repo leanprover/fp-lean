@@ -11,11 +11,15 @@ set_option verso.exampleModule "Examples.Induction"
 
 #doc (Manual) "Interlude: Tactics, Induction, and Proofs" =>
 %%%
+tag := "tactics-induction-proofs"
 number := false
 htmlSplit := .never
 %%%
 
 # A Note on Proofs and User Interfaces
+%%%
+tag := "proofs-and-uis"
+%%%
 
 This book presents the process of writing proofs as if they are written in one go and submitted to Lean, which then replies with error messages that describe what remains to be done.
 The actual process of interacting with Lean is much more pleasant.
@@ -28,6 +32,9 @@ As your skill in writing proofs increases, Lean's feedback will come to feel les
 Learning the interactive approach is very important.
 
 # Recursion and Induction
+%%%
+tag := "recursion-vs-induction"
+%%%
 
 The functions {anchorName plusR_succ_left (module := Examples.DependentTypes.Pitfalls)}`plusR_succ_left` and {anchorName plusR_zero_left_thm (module:=Examples.DependentTypes.Pitfalls)}`plusR_zero_left` from the preceding chapter can be seen from two perspectives.
 On the one hand, they are recursive functions that build up evidence for a proposition, just as other recursive functions might construct a list, a string, or any other data structure.
@@ -42,6 +49,9 @@ For example, if a concrete proof were desired for the number 3, then it could be
 Thus, it proves the statement for all natural numbers.
 
 # The Induction Tactic
+%%%
+tag := "induction-tactic"
+%%%
 
 Writing proofs by induction as recursive functions that use helpers such as {anchorName plusR_zero_left_done (module:=Examples.DependentTypes.Pitfalls)}`congrArg` does not always do a good job of expressing the intentions behind the proof.
 While recursive functions indeed have the structure of induction, they should probably be viewed as an _encoding_ of a proof.
@@ -182,6 +192,9 @@ This rewrite makes both sides of the equation identical, and Lean takes care of 
 The proof is complete.
 
 # Tactic Golf
+%%%
+tag := "tactic-golf"
+%%%
 
 So far, the tactic language has not shown its true value.
 The above proof is no shorter than the recursive function; it's merely written in a domain-specific language instead of the full Lean language.
@@ -300,6 +313,9 @@ Additionally, these proofs tend to be more robust in the face of small changes t
 The game of tactic golf is a useful part of developing good taste and style when writing proofs.
 
 # Induction on Other Datatypes
+%%%
+tag := "induction-other-types"
+%%%
 
 Mathematical induction proves a statement for natural numbers by providing a base case for {anchorName others}`Nat.zero` and an induction step for {anchorName others}`Nat.succ`.
 The principle of induction is also valid for other datatypes.
@@ -449,6 +465,9 @@ theorem BinTree.mirror_count (t : BinTree α) :
 ```
 
 # The {lit}`grind` Tactic
+%%%
+tag := "grind"
+%%%
 
 The {tactic}`grind` tactic can automatically prove many theorems.
 Like {tactic}`simp`, it accepts an optional list of additional facts to take into consideration or functions to unfold; unlike {tactic}`simp`, it automatically takes local hypotheses into consideration.
@@ -464,6 +483,9 @@ Because the proofs in this book are fairly modest, most of them do not provide a
 However, it is very convenient in some of the later proofs in the book.
 
 # Exercises
+%%%
+tag := "tactics-induction-proofs-exercises"
+%%%
 
  * Prove {anchorName plusR_succ_left (module:=Examples.DependentTypes.Pitfalls)}`plusR_succ_left` using the {kw}`induction`{lit}` ...`{kw}`with` tactic.
  * Rewrite the proof of {anchorName plusR_succ_left (module:=Examples.DependentTypes.Pitfalls)}`plusR_succ_left` to use {kw}`<;>` in a single line.

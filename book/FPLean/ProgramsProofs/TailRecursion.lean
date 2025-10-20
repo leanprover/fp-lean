@@ -115,6 +115,9 @@ At each recursive call, the function argument on the stack is simply replaced wi
 
 
 # Tail and Non-Tail Positions
+%%%
+tag := "tail-positions"
+%%%
 
 The reason why {anchorName TailSum}`Tail.sumHelper` is tail recursive is that the recursive call is in _tail position_.
 Informally speaking, a function call is in tail position when the caller does not need to modify the returned value in any way, but will just return it directly.
@@ -139,6 +142,9 @@ This means that tail calls to {lit}`f` in {lit}`f`'s definition will be eliminat
 While it is certainly possible to eliminate a tail call to some other function, saving a stack frame, this is not yet implemented in Lean.
 
 # Reversing Lists
+%%%
+tag := "reversing-lists-tail-recursively"
+%%%
 
 The function {anchorName NonTailReverse}`NonTail.reverse` reverses lists by appending the head of each sub-list to the end of the result:
 
@@ -201,6 +207,9 @@ Appending lists is not commutative, so care must be taken to find an operation t
 Appending {anchorTerm NonTailReverse}`[x]` after the result of the recursion in {anchorName NonTailReverse}`NonTail.reverse` is analogous to adding {anchorName NonTailReverse}`x` to the beginning of the list when the result is built in the opposite order.
 
 # Multiple Recursive Calls
+%%%
+tag := "multiple-call-tail-recursion"
+%%%
 
 In the definition of {anchorName mirrorNew (module := Examples.Monads.Conveniences)}`BinTree.mirror`, there are two recursive calls:
 
@@ -219,6 +228,9 @@ In these cases, the depth of the structure is often logarithmic with respect to 
 There are systematic techniques for making these functions tail-recursive, such as using _continuation-passing style_ and _defunctionalization_, but they are outside the scope of this book.
 
 # Exercises
+%%%
+tag := "tail-recursion-exercises"
+%%%
 
 Translate each of the following non-tail-recursive functions into accumulator-passing tail-recursive functions:
 

@@ -12,6 +12,9 @@ set_option verso.exampleModule "FelineLib"
 
 
 #doc (Manual) "Additional Conveniences" =>
+%%%
+tag := "hello-world-conveniences"
+%%%
 
 # Nested Actions
 %%%
@@ -128,6 +131,9 @@ invalid use of `(<- ...)`, must be nested inside a 'do' expression
 
 
 # Flexible Layouts for {lit}`do`
+%%%
+tag := "do-layout-syntax"
+%%%
 
 In Lean, {moduleTerm (module := Examples.Cat)}`do` expressions are whitespace-sensitive.
 Each {moduleName (module := Examples.Cat)}`IO` action or local binding in the {moduleTerm (module := Examples.Cat)}`do` is expected to start on its own line, and they should all have the same indentation.
@@ -174,6 +180,9 @@ def main : IO Unit := do
 Idiomatic Lean code uses curly braces with {moduleTerm (module := Examples.Cat)}`do` very rarely.
 
 # Running {lit}`IO` Actions With {kw}`#eval`
+%%%
+tag := "eval-io"
+%%%
 
 Lean's {moduleTerm (module := Examples.Cat)}`#eval` command can be used to execute {moduleName (module := Examples.Cat)}`IO` actions, rather than just evaluating them.
 Normally, adding a {moduleTerm (module := Examples.Cat)}`#eval` command to a Lean file causes Lean to evaluate the provided expression, convert the resulting value to a string, and provide that string as a tooltip and in the info window.

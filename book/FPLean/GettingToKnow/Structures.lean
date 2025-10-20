@@ -224,6 +224,9 @@ To make programs more concise, Lean also allows the structure type annotation in
 
 
 # Updating Structures
+%%%
+tag := "updating-structures"
+%%%
 
 Imagine a function {anchorName zeroXBad}`zeroX` that replaces the {anchorName zeroXBad}`x` field of a {anchorName zeroXBad}`Point` with {anchorTerm zeroX}`0`.
 In most programming language communities, this sentence would mean that the memory location pointed to by {anchorName Point}`x` was to be overwritten with a new value.
@@ -413,6 +416,9 @@ In this case, {lit}`TARGET` represents {anchorName fourAndThree}`fourAndThree`, 
 This is because the target of the accessor notation is used as the first argument in which the type matches, not necessarily the first argument.
 
 # Exercises
+%%%
+tag := "structure-exercises"
+%%%
 
  * Define a structure named {anchorName RectangularPrism}`RectangularPrism` that contains the height, width, and depth of a rectangular prism, each as a {anchorName RectangularPrism}`Float`.
  * Define a function named {anchorTerm RectangularPrism}`volume : RectangularPrism → Float` that computes the volume of a rectangular prism.

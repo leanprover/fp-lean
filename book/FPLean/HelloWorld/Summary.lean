@@ -13,8 +13,14 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.HelloWorld"
 
 #doc (Manual) "Summary" =>
+%%%
+tag := "hello-world-summary"
+%%%
 
 # Evaluation vs Execution
+%%%
+tag := none
+%%%
 
 Side effects are aspects of program execution that go beyond the evaluation of mathematical expressions, such as reading files, throwing exceptions, or triggering industrial machinery.
 While most languages allow side effects to occur during evaluation, Lean does not.
@@ -35,6 +41,9 @@ An {moduleName}`IO` action {anchorName MainTypes}`main` is executed when the pro
 
 
 # {lit}`do` Notation
+%%%
+tag := none
+%%%
 
 The Lean standard library provides a number of basic {moduleName}`IO` actions that represent effects such as reading from and writing to files and interacting with standard input and standard output.
 These base {moduleName}`IO` actions are composed into larger {moduleName}`IO` actions using {kw}`do` notation, which is a built-in domain-specific language for writing descriptions of programs with side effects.
@@ -52,6 +61,9 @@ This unique name then replaces the origin site of the nested action.
 
 
 # Compiling and Running Programs
+%%%
+tag := none
+%%%
 
 A Lean program that consists of a single file with a {moduleName}`main` definition can be run using {lit}`lean --run FILE`.
 While this can be a nice way to get started with a simple program, most programs will eventually graduate to a multiple-file project that should be compiled before running.
@@ -63,6 +75,9 @@ Lake package configuration is another domain-specific language.
 Use {lit}`lake build` to build a project.
 
 # Partiality
+%%%
+tag := none
+%%%
 
 One consequence of following the mathematical model of expression evaluation is that every expression must have a value.
 This rules out both incomplete pattern matches that fail to cover all constructors of a datatype and programs that can fall into an infinite loop.

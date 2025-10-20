@@ -28,6 +28,9 @@ The type classes are a way for programs to express their requirements, and monad
 
 
 # Failure with {lit}`OptionT`
+%%%
+tag := "OptionT"
+%%%
 
 Failure, represented by the {anchorName OptionExcept}`Option` monad, and exceptions, represented by the {anchorName M1eval}`Except` monad, both have corresponding transformers.
 In the case of {anchorName OptionTdef}`Option`, failure can be added to a monad by having it contain values of type {anchorTerm OptionTdef}`Option α` where it would otherwise contain values of type {anchorName OptionTdef}`α`.
@@ -81,6 +84,9 @@ def interact : IO Unit := do
 ```
 
 ## The Monad Instance
+%%%
+tag := "OptionT-monad-instance"
+%%%
 
 Writing the monad instance reveals a difficulty.
 Based on the types, {anchorName MonadExceptT}`pure` should use {anchorName MonadMissingUni}`pure` from the underlying monad {anchorName firstMonadOptionT}`m` together with {anchorName firstMonadOptionT}`some`.
@@ -210,6 +216,9 @@ The final rule states that {anchorTerm OptionTThirdLaw}`bind (bind v f) g`  is t
 It can be checked in the same way, by expanding the definitions of {anchorName OptionTThirdLaw}`bind` and {anchorName OptionTSecondLaw}`pure` and then delegating to the underlying monad {anchorName OptionTFirstLaw}`m`.
 
 ## An {lit}`Alternative` Instance
+%%%
+tag := "OptionT-Alternative-instance"
+%%%
 
 One convenient way to use {anchorName OptionTdef}`OptionT` is through the {anchorName AlternativeOptionT}`Alternative` type class.
 Successful return is already indicated by {anchorName AlternativeOptionT}`pure`, and the {anchorName AlternativeOptionT}`failure` and {anchorName AlternativeOptionT}`orElse` methods of {anchorName AlternativeOptionT}`Alternative` provide a way to write a program that returns the first successful result from a number of subprograms:
@@ -225,6 +234,9 @@ instance [Monad m] : Alternative (OptionT m) where
 
 
 ## Lifting
+%%%
+tag := "OptionT-lifting"
+%%%
 
 Lifting an action from {anchorName LiftOptionT}`m` to {anchorTerm LiftOptionT}`OptionT m` only requires wrapping {anchorName LiftOptionT}`some` around the result of the computation:
 
@@ -236,6 +248,9 @@ instance [Monad m] : MonadLift m (OptionT m) where
 
 
 # Exceptions
+%%%
+tag := "exceptions"
+%%%
 
 The monad transformer version of {anchorName ExceptT}`Except` is very similar to the monad transformer version of {anchorName m}`Option`.
 Adding exceptions of type {anchorName ExceptT}`ε` to some monadic action of type {anchorTerm ExceptT}`m`{lit}` `{anchorTerm ExceptT}`α` can be accomplished by adding exceptions to {anchorName MonadExcept}`α`, yielding type {anchorTerm ExceptT}`m (Except ε α)`:
@@ -311,6 +326,9 @@ instance [Monad m] : MonadLift m (ExceptT ε m) where
 ```
 
 ## Type Classes for Exceptions
+%%%
+tag := "exceptions-type-classes"
+%%%
 
 Exception handling fundamentally consists of two operations: the ability to throw exceptions, and the ability to recover from them.
 Thus far, this has been accomplished using the constructors of {anchorName m}`Except` and pattern matching, respectively.
@@ -384,6 +402,9 @@ In addition to {anchorName m}`Except` and {anchorName ExceptT}`ExceptT`, there a
 For example, failure due to {anchorName m}`Option` can be seen as throwing an exception that contains no data whatsoever, so there is an instance of {anchorTerm OptionExcept}`MonadExcept Unit Option` that allows {kw}`try`{lit}` ...`{kw}`catch`{lit}` ...` syntax to be used with {anchorName m}`Option`.
 
 # State
+%%%
+tag := "state-monad"
+%%%
 
 A simulation of mutable state is added to a monad by having monadic actions accept a starting state as an argument and return a final state together with their result.
 The bind operator for a state monad provides the final state of one action as an argument to the next action, threading the state through the program.
@@ -496,6 +517,9 @@ class MonadState (σ : outParam (Type u)) (m : Type u → Type v) :
 While it would be possible to provide a default implementation of {anchorName MonadState}`modifyGet` in terms of {anchorName MonadState}`get` and {anchorName MonadState}`set`, it would not admit the optimizations that make {anchorName MonadState}`modifyGet` useful in the first place, rendering the method useless.
 
 # {lit}`Of` Classes and {lit}`The` Functions
+%%%
+tag := "of-and-the"
+%%%
 
 Thus far, each monad type class that takes extra information, like the type of exceptions for {anchorName MonadExcept}`MonadExcept` or the type of the state for {anchorName MonadState}`MonadState`, has this type of extra information as an output parameter.
 For simple programs, this is generally convenient, because a monad that combines one use each of {anchorName MonadStateT}`StateT`, {anchorName m}`ReaderT`, and {anchorName ExceptT}`ExceptT` has only a single state type, environment type, and exception type.
@@ -534,6 +558,9 @@ In other words, implementing the {lit}`Of` version yields implementations of bot
 It's generally a good idea to implement the {lit}`Of` version, and then start writing programs using the non-{lit}`Of` versions of the class, transitioning to the {lit}`Of` version if the output parameter becomes inconvenient.
 
 # Transformers and {lit}`Id`
+%%%
+tag := "transformers-and-Id"
+%%%
 
 The identity monad {anchorName various}`Id` is the monad that has no effects whatsoever, to be used in contexts that expect a monad for some reason but where none is actually necessary.
 Another use of {anchorName various}`Id` is to serve as the bottom of a stack of monad transformers.
@@ -541,17 +568,29 @@ For instance, {anchorTerm StateTDoubleB}`StateT σ Id` works just like {anchorTe
 
 
 # Exercises
+%%%
+tag := "monad-transformer-exercises"
+%%%
 
 ## Monad Contract
+%%%
+tag := none
+%%%
 
 Using pencil and paper, check that the rules of the monad transformer contract are satisfied for each monad transformer in this section.
 
 ## Logging Transformer
+%%%
+tag := none
+%%%
 
 Define a monad transformer version of {anchorName WithLog (module:=Examples.Monads)}`WithLog`.
 Also define the corresponding type class {lit}`MonadWithLog`, and write a program that combines logging and exceptions.
 
 ## Counting Files
+%%%
+tag := none
+%%%
 
 Modify {lit}`doug`'s monad with {anchorName MonadStateT}`StateT` such that it counts the number of directories and files seen.
 At the end of execution, it should display a report like:

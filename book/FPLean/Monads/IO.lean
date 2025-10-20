@@ -10,6 +10,9 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.Monads.IO"
 
 #doc (Manual) "The IO Monad" =>
+%%%
+tag := "io-monad"
+%%%
 
 {anchorName names}`IO` as a monad can be understood from two perspectives, which were described in the section on {ref "running-a-program"}[running programs].
 Each can help to understand the meanings of {anchorName names}`pure` and {anchorName names}`bind` for {anchorName names}`IO`.

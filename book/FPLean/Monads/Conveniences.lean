@@ -10,8 +10,14 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.Monads.Conveniences"
 
 #doc (Manual) "Additional Conveniences" =>
+%%%
+tag := "monads-conveniences"
+%%%
 
 # Shared Argument Types
+%%%
+tag := "shared-argument-types"
+%%%
 
 When defining a function that takes multiple arguments that have the same type, both can be written before the same colon.
 For example,
@@ -71,6 +77,9 @@ BinTree.empty : BinTree Nat
 ```
 
 # Or-Patterns
+%%%
+tag := "or-patterns"
+%%%
 
 In contexts that allow multiple patterns, such as {kw}`match`-expressions, multiple patterns may share their result expressions.
 The datatype {anchorName Weekday}`Weekday` that represents days of the week:

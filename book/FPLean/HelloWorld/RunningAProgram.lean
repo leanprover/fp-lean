@@ -38,6 +38,9 @@ The program displays {commandOut hello}`lean --run Hello.lean` and exits.
 
 
 # Anatomy of a Greeting
+%%%
+tag := "hello-world-parts"
+%%%
 
 When Lean is invoked with the {lit}`--run` option, it invokes the program's {lit}`main` definition.
 In programs that do not take command-line arguments, {moduleName (module := Hello)}`main` should have type {moduleTerm}`IO Unit`.
@@ -61,6 +64,9 @@ If it did return something interesting, then that would be indicated by the {mod
 
 
 # Functional Programming vs Effects
+%%%
+tag := "fp-effects"
+%%%
 
 Lean's model of computation is based on the evaluation of mathematical expressions, in which variables are given exactly one value that does not change over time.
 The result of evaluating an expression does not change, and evaluating the same expression again will always yield the same result.
@@ -96,6 +102,10 @@ From the external perspective of the program's user, there is a layer of side ef
 
 
 # Real-World Functional Programming
+%%%
+tag := "fp-world-passing"
+%%%
+
 
 The other useful way to think about side effects in Lean is by considering {moduleTerm}`IO` actions to be functions that take the entire world as an argument and return a value paired with a new world.
 In this case, reading a line of text from standard input _is_ a pure function, because a different world is provided as an argument each time.
@@ -117,6 +127,9 @@ But real programs typically consist of a sequence of effects, rather than just o
 To enable programs to use multiple effects, there is a sub-language of Lean called {kw}`do` notation that allows these primitive {moduleTerm}`IO` actions to be safely composed into a larger, useful program.
 
 # Combining {anchorName all}`IO` Actions
+%%%
+tag := "combining-io-actions"
+%%%
 
 Most useful programs accept input in addition to producing output.
 Furthermore, they may take decisions based on input, using the input data as part of a computation.
@@ -133,8 +146,6 @@ def main : IO Unit := do
 
   stdout.putStrLn s!"Hello, {name}!"
 ```
-
-
 
 In this program, the {anchorName all}`main` action consists of a {kw}`do` block.
 This block contains a sequence of _statements_, which can be both local variables (introduced using {kw}`let`) and actions that are to be executed.

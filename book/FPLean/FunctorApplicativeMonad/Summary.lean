@@ -10,8 +10,14 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.FunctorApplicativeMonad.ActualDefs"
 
 #doc (Manual) "Summary" =>
+%%%
+tag := "structure-applicative-monad-summary"
+%%%
 
 # Type Classes and Structures
+%%%
+tag := none
+%%%
 
 Behind the scenes, type classes are represented by structures.
 Defining a class defines a structure, and additionally creates an empty table of instances.
@@ -20,6 +26,9 @@ Instance search consists of constructing an instance by consulting the instance 
 Both structures and classes may provide default values for fields (which are default implementations of methods).
 
 # Structures and Inheritance
+%%%
+tag := none
+%%%
 
 Structures may inherit from other structures.
 Behind the scenes, a structure that inherits from another structure contains an instance of the original structure as a field.
@@ -31,6 +40,9 @@ Because type classes are just structures with some additional automation applied
 Together with default methods, this can be used to create a fine-grained hierarchy of interfaces that nonetheless does not impose a large burden on clients, because the small classes that the large classes inherit from can be automatically implemented.
 
 # Applicative Functors
+%%%
+tag := none
+%%%
 
 An applicative functor is a functor with two additional operations:
  * {anchorName Applicative}`pure`, which is the same operator as that for {anchorName Monad}`Monad`
@@ -51,6 +63,9 @@ Programs that are written against these interfaces expect that the additional ru
 The default implementations of {anchorName HonestFunctor}`Functor`'s methods in terms of {anchorName Applicative}`Applicative`'s, and of {anchorName Applicative}`Applicative`'s in terms of {anchorName Monad}`Monad`'s, will obey these rules.
 
 # Universes
+%%%
+tag := none
+%%%
 
 To allow Lean to be used as both a programming language and a theorem prover, some restrictions on the language are necessary.
 This includes restrictions on recursive functions that ensure that they all either terminate or are marked as {kw}`partial` and written to return types that are not uninhabited.

@@ -180,6 +180,9 @@ Evaluation can occur both in the expression and its type:
 :::
 
 # Linked Lists
+%%%
+tag := "linked-lists"
+%%%
 
 :::paragraph
 Lean's standard library includes a canonical linked list datatype, called {anchorName fragments}`List`, and special syntax that makes it more convenient to use.
@@ -276,6 +279,9 @@ def length (α : Type) (xs : List α) : Nat :=
 :::
 
 # Implicit Arguments
+%%%
+tag := "implicit-parameters"
+%%%
 
 :::paragraph
 Both {anchorName replaceX}`replaceX` and {anchorName length1}`length` are somewhat bureaucratic to use, because the type argument is typically uniquely determined by the later values.
@@ -353,10 +359,16 @@ List.length : List Int → Nat
 :::
 
 # More Built-In Datatypes
+%%%
+tag := "more-built-in-types"
+%%%
 
 In addition to lists, Lean's standard library contains a number of other structures and inductive datatypes that can be used in a variety of contexts.
 
 ## {lit}`Option`
+%%%
+tag := "Option"
+%%%
 Not every list has a first entry—some lists are empty.
 Many operations on collections may fail to find what they are looking for.
 For instance, a function that finds the first entry in a list may not find any such entry.
@@ -537,6 +549,9 @@ In other words, all products of more than two types, and their corresponding con
 
 
 ## {anchorName Sum}`Sum`
+%%%
+tag := "Sum"
+%%%
 
 The {anchorName Sum}`Sum` datatype is a generic way of allowing a choice between values of two different types.
 For instance, a {anchorTerm fragments}`Sum String Int` is either a {anchorName fragments}`String` or an {anchorName fragments}`Int`.
@@ -594,6 +609,9 @@ As expected, {anchor dogCount}`#eval howManyDogs animals` yields {anchorInfo dog
 :::
 
 ## {anchorName Unit}`Unit`
+%%%
+tag := "Unit"
+%%%
 
 :::paragraph
 {anchorName Unit}`Unit` is a type with just one argumentless constructor, called {anchorName Unit}`unit`.
@@ -633,6 +651,9 @@ By being an intentionally uninteresting value, {anchorName ArithExprEx}`Unit` al
 Unit's constructor can be written as empty parentheses: {anchorTerm unitParens}`() : Unit`.
 
 ## {lit}`Empty`
+%%%
+tag := "Empty"
+%%%
 
 The {anchorName fragments}`Empty` datatype has no constructors whatsoever.
 Thus, it indicates unreachable code, because no series of calls can ever terminate with a value at type {anchorName fragments}`Empty`.
@@ -645,6 +666,9 @@ Using {anchorName fragments}`Empty` as one of the type arguments to {anchorName 
 This can allow generic code to be used in contexts that have additional restrictions.
 
 ## Naming: Sums, Products, and Units
+%%%
+tag := "sum-products-units"
+%%%
 
 Generally speaking, types that offer multiple constructors are called _sum types_, while types whose single constructor takes multiple arguments are called {deftech}_product types_.
 These terms are related to sums and products used in ordinary arithmetic.
@@ -655,6 +679,9 @@ The product {anchorTerm fragments}`Bool × Unit` has the two values {anchorTerm 
 Similarly, $`2 \times 1 = 2`, and $`2 + 1 = 3`.
 
 # Messages You May Meet
+%%%
+tag := "polymorphism-messages"
+%%%
 
 :::paragraph
 Not all definable structures or inductive types can have the type {anchorTerm Prod}`Type`.
@@ -858,6 +885,9 @@ def allFirewood : List Firewood := [
 :::
 
 # Exercises
+%%%
+tag := "polymorphism-exercises"
+%%%
 
  * Write a function to find the last entry in a list. It should return an {anchorName fragments}`Option`.
  * Write a function that finds the first entry in a list that satisfies a given predicate. Start the definition with {anchorTerm List.findFirst?Ex}`def List.findFirst? {α : Type} (xs : List α) (predicate : α → Bool) : Option α := …`.

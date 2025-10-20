@@ -10,6 +10,9 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "DirTree"
 
 #doc (Manual) "Combining IO and Reader" =>
+%%%
+tag := "io-reader"
+%%%
 
 One case where a reader monad can be useful is when there is some notion of the “current configuration” of the application that is passed through many recursive calls.
 An example of such a program is {lit}`tree`, which recursively prints the files in the current directory and its subdirectories, indicating their tree structure using characters.
@@ -190,6 +193,9 @@ def doList [Applicative f] : List α → (α → f Unit) → f Unit
 
 
 # Using a Custom Monad
+%%%
+tag := "reader-io-custom-monad"
+%%%
 
 While this implementation of {lit}`doug` works, manually passing the configuration around is verbose and error-prone.
 The type system will not catch it if the wrong configuration is passed downwards, for instance.
@@ -303,6 +309,9 @@ Monad transformers consist of:
  3. An operator to “lift” an action from the inner monad to the transformed monad, akin to {anchorName runIO}`runIO`
 
 # Adding a Reader to Any Monad
+%%%
+tag := "ReaderT"
+%%%
 
 Adding a reader effect to {anchorName ConfigIO}`IO` was accomplished in {anchorName ConfigIO}`ConfigIO` by wrapping {anchorTerm ConfigIO}`IO α` in a function type.
 The Lean standard library contains a function that can do this to _any_ polymorphic type, called {anchorName MyReaderT}`ReaderT`:
@@ -439,13 +448,22 @@ Finally, using a set of type classes included in the standard library, polymorph
 Just as some functions work in any monad, others can work in any monad that provides a certain type of state, or a certain type of exceptions, without having to specifically describe the _way_ in which a particular concrete monad provides the state or exceptions.
 
 # Exercises
+%%%
+tag := "reader-io-exercises"
+%%%
 
 ## Controlling the Display of Dotfiles
+%%%
+tag := none
+%%%
 
 Files whose names begin with a dot character ({lit}`'.'`) typically represent files that should usually be hidden, such as source-control metadata and configuration files.
 Modify {lit}`doug` with an option to show or hide filenames that begin with a dot.
 This option should be controlled with a {lit}`-a` command-line option.
 
 ## Starting Directory as Argument
+%%%
+tag := none
+%%%
 
 Modify {lit}`doug` so that it takes a starting directory as an additional command-line argument.

@@ -10,6 +10,9 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.ProgramsProofs.InsertionSort"
 
 #doc (Manual) "Insertion Sort and Array Mutation" =>
+%%%
+tag := "insertion-sort-mutation"
+%%%
 
 While insertion sort does not have the optimal worst-case time complexity for a sorting algorithm, it still has a number of useful properties:
  * It is simple and straightforward to implement and understand
@@ -68,6 +71,9 @@ The inner loop takes the element pointed to by the pointer and moves it to the l
 In other words, each iteration inserts the next element of the array into the appropriate location in the sorted region.
 
 # The Inner Loop
+%%%
+tag := "inner-insertion-sort-loop"
+%%%
 
 The inner loop of insertion sort can be implemented as a tail-recursive function that takes the array and the index of the element being inserted as arguments.
 The element being inserted is repeatedly swapped with the element to its left until either the element to the left is smaller or the beginning of the array is reached.
@@ -112,6 +118,9 @@ isLt✝ : i' + 1 < arr.size
 
 
 # The Outer Loop
+%%%
+tag := "outer-insertion-sort-loop"
+%%%
 
 The outer loop of insertion sort moves the pointer from left to right, invoking {anchorName insertionSortLoop}`insertSorted` at each iteration to insert the element at the pointer into the correct position in the array.
 The basic form of the loop resembles the implementation of {anchorTerm etc}`Array.map`:
@@ -174,6 +183,9 @@ partial def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
 ```
 
 ## Termination
+%%%
+tag := "insertionSortLoop-termination"
+%%%
 
 Once again, the function terminates because the difference between the index and the size of the array being processed decreases on each recursive call.
 This time, however, Lean does not accept the {kw}`termination_by`:
@@ -471,6 +483,9 @@ termination_by arr.size - i
 
 
 # The Driver Function
+%%%
+tag := "insertion-sort-driver-function"
+%%%
 
 Insertion sort itself calls {anchorName insertionSort}`insertionSortLoop`, initializing the index that demarcates the sorted region of the array from the unsorted region to {anchorTerm insertionSort}`0`:
 
@@ -494,6 +509,10 @@ A few quick tests show the function is at least not blatantly wrong:
 ```
 
 # Is This Really Insertion Sort?
+%%%
+tag := "insertion-sort-in-place"
+%%%
+
 
 Insertion sort is _defined_ to be an in-place sorting algorithm.
 What makes it useful, despite its quadratic worst-case run time, is that it is a stable sorting algorithm that doesn't allocate extra space and that handles almost-sorted data efficiently.
@@ -681,6 +700,9 @@ When running {lit}`sort --shared`, the array is copied as needed to preserve the
 
 
 # Other Opportunities for Mutation
+%%%
+tag := none
+%%%
 
 The use of mutation instead of copying when references are unique is not limited to array update operators.
 Lean also attempts to “recycle” constructors whose reference counts are about to fall to zero, reusing them instead of allocating new data.
@@ -688,7 +710,11 @@ This means, for instance, that {anchorName names}`List.map` will mutate a linked
 One of the most important steps in optimizing hot loops in Lean code is making sure that the data being modified is not referred to from multiple locations.
 
 # Exercises
+%%%
+tag := "insertion-sort-exercises"
+%%%
+
 
  * Write a function that reverses arrays. Test that if the input array has a reference count of one, then your function does not allocate a new array.
 
-* Implement either merge sort or quicksort for arrays. Prove that your implementation terminates, and test that it doesn't allocate more arrays than expected. This is a challenging exercise!
+ * Implement either merge sort or quicksort for arrays. Prove that your implementation terminates, and test that it doesn't allocate more arrays than expected. This is a challenging exercise!

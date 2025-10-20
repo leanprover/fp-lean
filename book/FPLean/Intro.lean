@@ -46,6 +46,9 @@ These are worth doing, in order to cement your understanding of the section.
 It is also useful to explore Lean as you read the book, finding creative new ways to use what you have learned.
 
 # Getting Lean
+%%%
+tag := "getting-lean"
+%%%
 
 Before writing and running programs written in Lean, you'll need to set up Lean on your own computer.
 The Lean tooling consists of the following:
@@ -59,6 +62,9 @@ The Lean tooling consists of the following:
 Please refer to the [Lean manual](https://lean-lang.org/lean4/doc/quickstart.html) for up-to-date instructions for installing Lean.
 
 # Typographical Conventions
+%%%
+tag := "typographical-conventions"
+%%%
 
 Code examples that are provided to Lean as _input_ are formatted like this:
 
@@ -97,6 +103,9 @@ declaration uses 'sorry'
 ```
 
 # Unicode
+%%%
+tag := "unicode"
+%%%
 
 
 Idiomatic Lean code makes use of a variety of Unicode characters that are not part of ASCII.
@@ -112,86 +121,139 @@ In Emacs, use {lit}`C-c C-k` with point on the character in question.
 
 # Release history
 %%%
+tag := "release-history"
 number := false
 htmlSplit := .never
 %%%
 
 ## October, 2025
+%%%
+tag := none
+%%%
 
 The book has been updated to the latest stable Lean release (version 4.23.0), and now describes functional induction and the {tactic}`grind` tactic.
 
 ## August, 2025
+%%%
+tag := none
+%%%
 
 This is a maintenance release to resolve an issue with copy-pasting code from the book.
 
 ## July, 2025
+%%%
+tag := none
+%%%
 
 The book has been updated for version 4.21 of Lean.
 
 ## June, 2025
+%%%
+tag := none
+%%%
 
 The book has been reformatted with Verso.
 
 ## April, 2025
+%%%
+tag := none
+%%%
 
 The book has been extensively updated and now describes Lean version 4.18.
 
 ## January, 2024
+%%%
+tag := none
+%%%
 
 This is a minor bugfix release that fixes a regression in an example program.
 
 ## October, 2023
+%%%
+tag := none
+%%%
 
 In this first maintenance release, a number of smaller issues were fixed and the text was brought up to date with the latest release of Lean.
 
 ## May, 2023
+%%%
+tag := none
+%%%
 
 The book is now complete! Compared to the April pre-release, many small details have been improved and minor mistakes have been fixed.
 
 ## April, 2023
+%%%
+tag := none
+%%%
 
 This release adds an interlude on writing proofs with tactics as well as a final chapter that combines discussion of performance and cost models with proofs of termination and program equivalence.
 This is the last release prior to the final release.
 
 ## March, 2023
+%%%
+tag := none
+%%%
 
 This release adds a chapter on programming with dependent types and indexed families.
 
 ## January, 2023
+%%%
+tag := none
+%%%
 
 This release adds a chapter on monad transformers that includes a description of the imperative features that are available in {kw}`do`-notation.
 
 ## December, 2022
+%%%
+tag := none
+%%%
 
 This release adds a chapter on applicative functors that additionally describes structures and type classes in more detail.
 This is accompanied with improvements to the description of monads.
 The December 2022 release was delayed until January 2023 due to winter holidays.
 
 ## November, 2022
+%%%
+tag := none
+%%%
 This release adds a chapter on programming with monads. Additionally, the example of using JSON in the coercions section has been updated to include the complete code.
 
 ## October, 2022
-
+%%%
+tag := none
+%%%
 This release completes the chapter on type classes. In addition, a short interlude introducing propositions, proofs, and tactics has been added just before the chapter on type classes, because a small amount of familiarity with the concepts helps to understand some of the standard library type classes.
 
 ## September, 2022
-
+%%%
+tag := none
+%%%
 This release adds the first half of a chapter on type classes, which are Lean's mechanism for overloading operators and an important means of organizing code and structuring libraries. Additionally, the second chapter has been updated to account for changes in Lean's stream API.
 
 ## August, 2022
-
+%%%
+tag := none
+%%%
 This third public release adds a second chapter, which describes compiling and running programs along with Lean's model for side effects.
 
 ## July, 2022
-
+%%%
+tag := none
+%%%
 The second public release completes the first chapter.
 
 ## June, 2022
-
+%%%
+tag := none
+%%%
 This was the first public release, consisting of an introduction and part of the first chapter.
 
 
 # About the Author
+%%%
+tag := "about-the-author"
+%%%
 
 David Thrane Christiansen has been using functional languages for twenty years, and dependent types for ten.
 Together with Daniel P. Friedman, he wrote [_The Little Typer_](https://thelittletyper.com/), an introduction to the key ideas of dependent type theory.
@@ -201,6 +263,9 @@ Since leaving academia, he has worked as a software developer at Galois in Portl
 At the time of writing, he is employed at the [Lean Focused Research Organization](https://lean-fro.org) working full-time on Lean.
 
 # License
+%%%
+tag := "license"
+%%%
 
 {creativeCommons}
 

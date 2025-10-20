@@ -10,6 +10,9 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.MonadTransformers.Defs"
 
 #doc (Manual) "Ordering Monad Transformers" =>
+%%%
+tag := "monad-transformer-order"
+%%%
 
 When composing a monad from a stack of monad transformers, it's important to be aware that the order in which the monad transformers are layered matters.
 Different orderings of the same set of transformers result in different monads.
@@ -129,6 +132,9 @@ When an exception is thrown in {anchorName M1eval}`M1`, there is no final state.
 When an exception is thrown in {anchorName M2eval}`M2`, it is accompanied by a state.
 
 # Commuting Monads
+%%%
+tag := "commuting-monads"
+%%%
 
 In the jargon of functional programming, two monad transformers are said to _commute_ if they can be re-ordered without the meaning of the program changing.
 The fact that the result of the program can differ when {anchorName SomeMonads}`StateT` and {anchorName SomeMonads}`ExceptT` are reordered means that state and exceptions do not commute.
@@ -148,6 +154,9 @@ With great expressive power comes the responsibility to check that what's being 
 
 
 # Exercises
+%%%
+tag := "monad-transformer-order-exercises"
+%%%
 
  * Check that {anchorName m}`ReaderT` and {anchorName SomeMonads}`StateT` commute by expanding their definitions and reasoning about the resulting types.
  * Do {anchorName m}`ReaderT` and {anchorName SomeMonads}`ExceptT` commute? Check your answer by expanding their definitions and reasoning about the resulting types.

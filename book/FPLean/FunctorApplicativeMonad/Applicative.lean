@@ -10,6 +10,9 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.FunctorApplicativeMonad"
 
 #doc (Manual) "Applicative Functors" =>
+%%%
+tag := "applicative"
+%%%
 
 An _applicative functor_ is a functor that has two additional operations available: {anchorName ApplicativeOption}`pure` and {anchorName ApplicativeOption}`seq`.
 {anchorName ApplicativeOption}`pure` is the same operator used in {anchorName ApplicativeLaws}`Monad`, because {anchorName ApplicativeLaws}`Monad` in fact inherits from {anchorName ApplicativeOption}`Applicative`.
@@ -134,6 +137,9 @@ Because {anchorName Pairpure2 (show := pure)}`Pair.pure` would need to work for 
 After all, a caller could choose {anchorName Pairpure2}`α` to be {anchorName ApplicativePair}`Empty`, which has no values at all.
 
 # A Non-Monadic Applicative
+%%%
+tag := "validate"
+%%%
 
 When validating user input to a form, it's generally considered to be best to provide many errors at once, rather than one error at a time.
 This allows the user to have an overview of what is needed to please the computer, rather than feeling badgered as they correct the errors field by field.
@@ -152,6 +158,9 @@ Like the {anchorName ApplicativeExcept}`Except` monad, {anchorName Validate}`Val
 Unlike {anchorName ApplicativeExcept}`Except`, it allows multiple errors to be accumulated, without a risk of forgetting to check whether the list is empty.
 
 ## User Input
+%%%
+tag := "user-input"
+%%%
 As an example of user input, take the following structure:
 
 ```anchor RawInput

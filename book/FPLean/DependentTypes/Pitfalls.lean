@@ -10,6 +10,9 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.DependentTypes.Pitfalls"
 
 #doc (Manual) "Pitfalls of Programming with Dependent Types" =>
+%%%
+tag := "dependent-type-pitfalls"
+%%%
 
 The flexibility of dependent types allows more useful programs to be accepted by a type checker, because the language of types is expressive enough to describe variations that less-expressive type systems cannot.
 At the same time, the ability of dependent types to express very fine-grained specifications allows more buggy programs to be rejected by a type checker.
@@ -72,6 +75,9 @@ Behind the scenes, pattern matching on the first {anchorName appendL1}`Vect` imp
 Here, {lit}`n✝` represents the {anchorName moreNames}`Nat` that is one less than the argument {anchorName appendL1}`n`.
 
 # Definitional Equality
+%%%
+tag := "definitional-equality"
+%%%
 
 In the definition of {anchorName appendL3}`plusL`, there is a pattern case {anchorTerm plusL}`0, k => k`.
 This applies in the length used in the first placeholder, so another way to write the underscore's type {anchorTerm moreNames}`Vect α (Nat.plusL 0 k)` is {anchorTerm moreNames}`Vect α k`.
@@ -230,6 +236,9 @@ Exposing the internals of a function in a type means that refactoring the expose
 In particular, the fact that {anchorName appendL}`plusL` is used in the type of {anchorName appendL}`appendL` means that the definition of {anchorName appendL}`plusL` cannot be replaced by the otherwise-equivalent {anchorName plusR}`plusR`.
 
 # Getting Stuck on Addition
+%%%
+tag := "stuck-addition"
+%%%
 
 What happens if append is defined with {anchorName appendR}`plusR` instead?
 Beginning in the same way, with explicit lengths and placeholder underscores in each case, reveals the following useful error messages:
@@ -301,6 +310,9 @@ Getting it unstuck requires {ref "equality-and-ordering"}[propositional equality
 :::
 
 # Propositional Equality
+%%%
+tag := "propositional-equality"
+%%%
 
 Propositional equality is the mathematical statement that two expressions are equal.
 While definitional equality is a kind of ambient fact that Lean automatically checks when required, statements of propositional equality require explicit proofs.
@@ -476,6 +488,9 @@ def appendR : Vect α n → Vect α k → Vect α (n.plusR k)
 ```
 
 # Pros and Cons
+%%%
+tag := "dependent-types-pros-and-cons"
+%%%
 
 Indexed families have an important property: pattern matching on them affects definitional equality.
 For example, in the {anchorName Vect}`nil` case in a {kw}`match` expression on a {anchorTerm Vect}`Vect`, the length simply _becomes_ {anchorTerm moreNames}`0`.
@@ -509,6 +524,9 @@ Fluency in their use is an important part of knowing when to use them.
 
 
 # Exercises
+%%%
+tag := "dependent-type-pitfalls-exercises"
+%%%
 
  * Using a recursive function in the style of {anchorName plusR_succ_left}`plusR_succ_left`, prove that for all {anchorName moreNames}`Nat`s {anchorName exercises}`n` and {anchorName exercises}`k`, {anchorTerm exercises}`n.plusR k = n + k`.
  * Write a function on {anchorName moreNames}`Vect` for which {anchorName plusR}`plusR` is more natural than {anchorName plusL}`plusL`, where {anchorName plusL}`plusL` would require proofs to be used in the definition.

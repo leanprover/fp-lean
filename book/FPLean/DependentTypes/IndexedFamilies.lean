@@ -10,6 +10,9 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.DependentTypes"
 
 #doc (Manual) "Indexed Families" =>
+%%%
+tag := "indexed-families"
+%%%
 
 Polymorphic inductive types take type arguments.
 For instance, {moduleName}`List` takes an argument that determines the type of the entries in the list, and {moduleName}`Except` takes arguments that determine the types of the exceptions or values.
@@ -291,6 +294,10 @@ def Vect.zip : (n : Nat) → Vect α n → Vect β n → Vect (α × β) n
 ```
 
 # Exercises
+%%%
+tag := "indexed-families-exercises"
+%%%
+
 
 Getting a feel for programming with dependent types requires experience, and the exercises in this section are very important.
 For each exercise, try to see which mistakes the type checker can catch, and which ones it can't, by experimenting with the code as you go.

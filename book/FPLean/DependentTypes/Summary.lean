@@ -10,8 +10,14 @@ set_option verso.exampleProject "../examples"
 set_option verso.exampleModule "Examples.DependentTypes"
 
 #doc (Manual) "Summary" =>
+%%%
+tag := "dependent-types-summary"
+%%%
 
 # Dependent Types
+%%%
+tag := none
+%%%
 
 Dependent types, where types contain non-type code such as function calls and ordinary data constructors, lead to a massive increase in the expressive power of a type system.
 The ability to _compute_ a type from the _value_ of an argument means that the return type of a function can vary based on which argument is provided.
@@ -28,6 +34,9 @@ In these cases, pattern-matching gets “stuck” and does not proceed until or 
 Type-level computation can be seen as a kind of partial evaluation, where only the parts of the program that are sufficiently known need to be evaluated and other parts are left alone.
 
 # The Universe Pattern
+%%%
+tag := none
+%%%
 
 A common pattern when working with dependent types is to section off some subset of the type system.
 For example, a database query library might be able to return varying-length strings, fixed-length strings, or numbers in certain ranges, but it will never return a function, a user-defined datatype, or an {anchorName otherEx}`IO` action.
@@ -43,6 +52,9 @@ Defining a custom universe has a number of advantages over using the types direc
 
 
 # Indexed Families
+%%%
+tag := none
+%%%
 
 Datatypes can take two separate kinds of arguments: _parameters_ are identical in each constructor of the datatype, while _indices_ may vary between constructors.
 For a given choice of index, only some constructors of the datatype are available.
@@ -65,6 +77,9 @@ Thirdly, running complicated code on large values during type checking can lead 
 Avoiding these slowdowns for complicated programs can require specialized techniques.
 
 # Definitional and Propositional Equality
+%%%
+tag := none
+%%%
 
 Lean's type checker must, from time to time, check whether two types should be considered interchangeable.
 Because types can contain arbitrary programs, it must therefore be able to check arbitrary programs for equality.

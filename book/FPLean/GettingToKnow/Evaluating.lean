@@ -143,6 +143,9 @@ String.append "it is " "no"
 
 
 # Messages You May Meet
+%%%
+tag := "evaluating-messages"
+%%%
 
 :::paragraph
 Asking Lean to evaluate a function application that is missing an argument will lead to an error message.
@@ -166,6 +169,9 @@ Lean cannot display functions to users, and thus returns an error when asked to 
 
 
 # Exercises
+%%%
+tag := "evaluating-exercises"
+%%%
 
 What are the values of the following expressions? Work them out by hand,
 then enter them into Lean to check your work.
