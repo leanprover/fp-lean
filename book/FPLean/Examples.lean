@@ -159,7 +159,7 @@ block_extension Block.leanEvalSteps (steps : Array Highlighted) where
   toTeX := none
   extraCss := [highlightingStyle, evalStepsStyle]
   extraJs := [highlightingJs]
-  extraJsFiles := [{filename := "popper.js", contents := popper}, {filename := "tippy.js", contents := tippy}]
+  extraJsFiles := [{filename := "popper.js", contents := popper, sourceMap? := none}, {filename := "tippy.js", contents := tippy, sourceMap? := none}]
   extraCssFiles := [("tippy-border.css", tippy.border.css)]
   toHtml :=
     open Verso.Output.Html in
@@ -263,7 +263,7 @@ block_extension Block.leanOutput (severity : MessageSeverity) (message : String)
         pure <| .seq #[← go b, .raw "\n"]
   extraCss := [highlightingStyle]
   extraJs := [highlightingJs]
-  extraJsFiles := [{filename := "popper.js", contents := popper}, {filename := "tippy.js", contents := tippy}]
+  extraJsFiles := [{filename := "popper.js", contents := popper, sourceMap? := none}, {filename := "tippy.js", contents := tippy, sourceMap? := none}]
   extraCssFiles := [("tippy-border.css", tippy.border.css)]
   toHtml :=
     open Verso.Output.Html in
