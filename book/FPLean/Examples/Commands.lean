@@ -32,6 +32,9 @@ def requireContainer (container : Ident) : m Container := do
   if let some c := (containersExt.getState (← getEnv)).find? name then return c
   else throwErrorAt container "Not found: '{name}'"
 
+private def localeVars : Array String :=
+  #["LANG", "LC_ALL"]
+
 def command (container : Ident) (dir : System.FilePath) (command : StrLit) (viaShell := false) : m IO.Process.Output := do
   let c ← ensureContainer container
   unless dir.isRelative do
@@ -46,7 +49,7 @@ def command (container : Ident) (dir : System.FilePath) (command : StrLit) (viaS
     cmd := cmd,
     args := args,
     cwd := dir,
-    env := #[("PATH", some (extraPath ++ path))]
+    env := #[("PATH", some (extraPath ++ path))] ++ localeVars.map (·, some "C.UTF-8")
   }
   if out.exitCode != 0 then
     let stdout := m!"Stdout: {indentD out.stdout}"
