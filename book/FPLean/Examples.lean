@@ -460,7 +460,7 @@ private def editCodeBlock [Monad m] [MonadFileMap m] (stx : Syntax) (newContents
   let some rng := stx.getRange?
     | pure none
   let { start := {line := l1, ..}, .. } := txt.utf8RangeToLspRange rng
-  let line1 := txt.source.extract (txt.lineStart (l1 + 1)) (txt.lineStart (l1 + 2))
+  let line1 := (txt.lineStart (l1 + 1)).extract txt.source (txt.lineStart (l1 + 2))
   if line1.startsWith "```" then
     return some s!"{delims}{line1.dropWhile (· == '`') |>.trim}\n{withNl newContents}{delims}"
   else
@@ -859,7 +859,7 @@ def plainFile : CodeBlockExpander
     return #[← ``(Block.other (InlineLean.Block.exampleFile (FileType.other $(quote (show?.getD (fn.fileName.getD fn.toString))))) #[Block.code $(quote contents)])]
 
 
-private def severityName {m} [Monad m] [MonadEnv m] [MonadResolveName m] : MessageSeverity → m String
+private def severityName {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadOptions m] [MonadLog m] [AddMessageContext m] : MessageSeverity → m String
   | .error => unresolveNameGlobal ``MessageSeverity.error <&> (·.toString)
   | .warning => unresolveNameGlobal ``MessageSeverity.warning <&> (·.toString)
   | .information => unresolveNameGlobal ``MessageSeverity.information <&> (·.toString)
@@ -959,16 +959,16 @@ def hasSubstring (s pattern : String) : Bool :=
   if h : pattern.endPos.1 = 0 then false
   else
     have hPatt := Nat.zero_lt_of_ne_zero h
-    let rec loop (pos : String.Pos) :=
+    let rec loop (pos : String.Pos.Raw) :=
       if h : pos.byteIdx + pattern.endPos.byteIdx > s.endPos.byteIdx then
         false
       else
         have := Nat.lt_of_lt_of_le (Nat.add_lt_add_left hPatt _) (Nat.ge_of_not_lt h)
-        if s.substrEq pos pattern 0 pattern.endPos.byteIdx then
+        if pos.substrEq s pattern 0 pattern.endPos.byteIdx then
           have := Nat.sub_lt_sub_left this (Nat.add_lt_add_left hPatt _)
           true
         else
-          have := Nat.sub_lt_sub_left this (s.lt_next pos)
-          loop (s.next pos)
+          have := Nat.sub_lt_sub_left this (pos.byteIdx_lt_byteIdx_next s)
+          loop (pos.next s)
       termination_by s.endPos.1 - pos.1
     loop 0

@@ -173,7 +173,7 @@ private def stringAnchors (s : String) : Except String (String × HashMap String
   let mut out := ""
   let mut anchors : HashMap String String := {}
   let mut openAnchors : HashMap String String := {}
-  let lines := s.split (· == '\n')
+  let lines := s.splitToList (· == '\n')
   for line in lines do
     if let some (a, isOpener) := anchor? line |>.toOption then
       if isOpener then
