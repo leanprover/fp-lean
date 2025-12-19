@@ -240,30 +240,19 @@ Because this reduces to {anchorTerm IdMore}`α → (α → β) → β`, the seco
 With the identity monad, {anchorName mapMId}`mapM` becomes equivalent to {anchorName Names (show:=map)}`Functor.map`
 To call it this way, however, Lean requires a hint that the intended monad is {anchorName mapMId}`Id`:
 ```anchor mapMId
-#eval mapM (m := Id) (· + 1) [1, 2, 3, 4, 5]
+def numbers := mapM (m := Id) (do return · + 1) [1, 2, 3, 4, 5]
 ```
-```anchorInfo mapMId
-[2, 3, 4, 5, 6]
-```
-Omitting the hint results in an error:
-```anchor mapMIdNoHint
-#eval mapM (· + 1) [1, 2, 3, 4, 5]
-```
-```anchorError mapMIdNoHint
-failed to synthesize
-  HAdd Nat Nat (?m.4 ?m.3)
-
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
-```
-In this error, the application of one metavariable to another indicates that Lean doesn't run the type-level computation backwards.
-The return type of the function is expected to be the monad applied to some other type.
-Similarly, using {anchorName mapMIdId}`mapM` with a function whose type doesn't provide any specific hints about which monad is to be used results in an “instance problem is stuck” message:
+Using {anchorName mapMIdId}`mapM` in a context in which the type doesn't provide any specific hints about which monad is to be used results in an “instance problem is stuck” message:
 ```anchor mapMIdId
-#eval mapM (fun (x : Nat) => x) [1, 2, 3, 4, 5]
+def numbers := mapM (do return · + 1) [1, 2, 3, 4, 5]
 ```
 ```anchorError mapMIdId
-typeclass instance problem is stuck, it is often due to metavariables
-  Monad ?m.22785
+typeclass instance problem is stuck
+  Pure ?m.6
+
+Note: Lean will not try to resolve this typeclass instance problem because the type argument to `Pure` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
+
+Hint: Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `Nat`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.
 ```
 :::
 

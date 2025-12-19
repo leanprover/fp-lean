@@ -470,8 +470,8 @@ def Pair.pure (x : β) : Pair α β := _
 stop discarding
 
 
-/-- error:
-don't know how to synthesize placeholder for argument 'first'
+/--
+error: don't know how to synthesize placeholder for argument `first`
 context:
 β α : Type
 x : β

@@ -56,7 +56,7 @@ String.append "it is " "no"
 end evaluation steps
 
 /--
-error: could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type
+error: could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type
   String → String
 -/
 #check_msgs in
@@ -909,8 +909,8 @@ false
 -- ANCHOR_END: _something_more
 
 
-/-- error:
-fail to show termination for
+/--
+error: fail to show termination for
   evenLoops
 with errors
 failed to infer structural recursion:
@@ -918,7 +918,7 @@ Not considering parameter n of evenLoops:
   it is unchanged in the recursive calls
 no parameters suitable for structural recursion
 
-well-founded recursion cannot be used, 'evenLoops' does not take any (non-fixed) arguments
+well-founded recursion cannot be used, `evenLoops` does not take any (non-fixed) arguments
 -/
 #check_msgs in
 -- ANCHOR: evenLoops
@@ -1442,15 +1442,15 @@ some 2
 -- ANCHOR_END: headSome
 
 /--
-error: don't know how to synthesize implicit argument 'α'
-  @_root_.List.head? ?m.41386 []
+error: don't know how to synthesize implicit argument `α`
+  @_root_.List.head? ?m.3 []
 context:
-⊢ Type ?u.41383
+⊢ Type ?u.70597
 ---
-error: don't know how to synthesize implicit argument 'α'
-  @List.nil ?m.41386
+error: don't know how to synthesize implicit argument `α`
+  @List.nil ?m.3
 context:
-⊢ Type ?u.41383
+⊢ Type ?u.70597
 -/
 #check_msgs in
 -- ANCHOR: headNoneBad
@@ -1458,15 +1458,15 @@ context:
 -- ANCHOR_END: headNoneBad
 
 /--
-error: don't know how to synthesize implicit argument 'α'
-  @_root_.List.head? ?m.41395 []
+error: don't know how to synthesize implicit argument `α`
+  @_root_.List.head? ?m.3 []
 context:
-⊢ Type ?u.41392
+⊢ Type ?u.70606
 ---
-error: don't know how to synthesize implicit argument 'α'
-  @List.nil ?m.41395
+error: don't know how to synthesize implicit argument `α`
+  @List.nil ?m.3
 context:
-⊢ Type ?u.41392
+⊢ Type ?u.70606
 -/
 #check_msgs in
 -- ANCHOR: headNoneBad2
@@ -1740,7 +1740,7 @@ def allTools : List WoodSplittingTool := [
 -- ANCHOR_END: allTools
 
 /--
-error: could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type
+error: could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type
   List WoodSplittingTool
 -/
 #check_msgs in
@@ -2069,7 +2069,7 @@ def halve : Nat → Nat
 
 example : Explicit.halve = halve := by
   funext x
-  fun_induction halve x <;> simp [halve, Explicit.halve, *]
+  fun_induction halve x <;> simp [Explicit.halve, *]
 
 namespace Oops
 /--
@@ -2275,7 +2275,7 @@ error: failed to synthesize
 
 Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ---
-info: toString "three fives is " ++ sorry ++ toString "" : String
+info: toString "three fives is " ++ sorry : String
 -/
 #check_msgs in
 -- ANCHOR: interpolationOops

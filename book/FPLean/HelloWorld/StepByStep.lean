@@ -261,7 +261,8 @@ def main : IO Unit := runActions from5
 
 Running this program results in the following output:
 
-```anchorInfo countdown5 (module := Examples.HelloWorld)
+```commands countdownFromFive ""
+$ countdown
 5
 4
 3

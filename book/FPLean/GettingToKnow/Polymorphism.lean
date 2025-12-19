@@ -438,17 +438,17 @@ However, attempting to test it on the empty list leads to two errors:
 ```
 
 ```anchorError headNoneBad
-don't know how to synthesize implicit argument 'α'
-  @List.nil ?m.41782
+don't know how to synthesize implicit argument `α`
+  @List.nil ?m.3
 context:
-⊢ Type ?u.41779
+⊢ Type ?u.71462
 ```
 
 ```anchorError headNoneBad
-don't know how to synthesize implicit argument 'α'
-  @_root_.List.head? ?m.41782 []
+don't know how to synthesize implicit argument `α`
+  @_root_.List.head? ?m.3 []
 context:
-⊢ Type ?u.41779
+⊢ Type ?u.71462
 ```
 
 :::
@@ -856,7 +856,7 @@ Evaluating it leads to an error:
 #eval allTools
 ```
 ```anchorError evalAllTools
-could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type
+could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type
   List WoodSplittingTool
 ```
 This is because Lean attempts to use code from a built-in table to display a list, but this code demands that display code for {anchorName WoodSplittingTool}`WoodSplittingTool` already exists.

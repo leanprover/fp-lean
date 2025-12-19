@@ -307,8 +307,9 @@ def Array.find (arr : Array α) (p : α → Bool) :
 -- ANCHOR_END: ArrayFind
 
 namespace Huh
-/-- info:
-Try this: termination_by arr.size - i
+/--
+info: Try this:
+  [apply] termination_by arr.size - i
 -/
 #check_msgs in
 -- ANCHOR: ArrayFindHelperSugg

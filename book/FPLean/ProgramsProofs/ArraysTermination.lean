@@ -384,7 +384,8 @@ def findHelper (arr : Array α) (p : α → Bool)
   else none
 ```
 
-Adding a question mark to {kw}`termination_by` (that is, using {kw}`termination_by?`) causes Lean to explicitly suggest the measure that it chose:
+Adding a question mark to {kw}`termination_by` (that is, using {kw}`termination_by?`) causes Lean to explicitly suggest the measure that it chose.
+Clicking {lit}`[apply]` replaces {kw}`termination_by?` with the suggested measure:
 ```anchor ArrayFindHelperSugg
 def findHelper (arr : Array α) (p : α → Bool)
     (i : Nat) : Option (Nat × α) :=
@@ -397,7 +398,8 @@ def findHelper (arr : Array α) (p : α → Bool)
 termination_by?
 ```
 ```anchorInfo ArrayFindHelperSugg
-Try this: termination_by arr.size - i
+Try this:
+  [apply] termination_by arr.size - i
 ```
 
 Not all termination arguments are as quite as simple as this one.

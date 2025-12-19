@@ -293,7 +293,7 @@ def elabCheckMsgs : CommandElab
   | `(command| $[$dc?:docComment]? #check_msgs%$tk $(spec?)? in $cmd) => do
     let expected : String := (← dc?.mapM (getDocStringText ·)).getD ""
         |>.trim |> removeTrailingWhitespaceMarker
-    let (whitespace, ordering, specFn) ← parseGuardMsgsSpec spec?
+    let {whitespace, ordering, filterFn, reportPositions := _} ← parseGuardMsgsSpec spec?
     let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
     -- do not forward snapshot as we don't want messages assigned to it to leak outside
     withReader ({ · with snap? := none }) do
@@ -307,7 +307,7 @@ def elabCheckMsgs : CommandElab
     let mut toCheck : MessageLog := .empty
     let mut toPassthrough : MessageLog := .empty
     for msg in msgs.toList do
-      match specFn msg with
+      match filterFn msg with
       | .check => toCheck := toCheck.add msg
       | .drop => pure ()
       | .pass => toPassthrough := toPassthrough.add msg
@@ -321,7 +321,7 @@ def elabCheckMsgs : CommandElab
       -- Failed. Put all the messages back on the message log and add an error
       modify fun st => { st with messages := initMsgs ++ msgs }
       let feedback :=
-        let diff := Diff.diff (expected.split (· == '\n')).toArray (res.split (· == '\n')).toArray
+        let diff := Diff.diff (expected.splitToList (· == '\n')).toArray (res.splitToList (· == '\n')).toArray
         Diff.linesToString diff
 
       logErrorAt tk m!"❌️ Docstring on `#check_msgs` does not match generated message:\n\n{feedback}"

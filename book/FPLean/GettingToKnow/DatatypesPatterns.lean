@@ -301,7 +301,7 @@ Not considering parameter n of evenLoops:
   it is unchanged in the recursive calls
 no parameters suitable for structural recursion
 
-well-founded recursion cannot be used, 'evenLoops' does not take any (non-fixed) arguments
+well-founded recursion cannot be used, `evenLoops` does not take any (non-fixed) arguments
 ```
 
 :::
