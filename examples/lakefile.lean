@@ -49,6 +49,11 @@ lean_exe examples {
 }
 
 @[default_target]
+lean_exe countdown {
+  root := `Examples.HelloWorld
+}
+
+@[default_target]
 lean_lib DougLib where
   srcDir := "douglib"
   roots := #[`DirTree]

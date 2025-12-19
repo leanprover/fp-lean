@@ -15,10 +15,13 @@ require verso from git "https://github.com/leanprover/verso.git"@"main"
 private def examplePath : System.FilePath := "../examples"
 
 private def lakeVars :=
-  #["LAKE", "LAKE_HOME", "LAKE_PKG_URL_MAP",
-    "LEAN_SYSROOT", "LEAN_AR", "LEAN_PATH", "LEAN_SRC_PATH",
+  #["LAKE", "LAKE_HOME", "LAKE_PKG_URL_MAP", "LAKE_CACHE_DIR",
+    "LEAN", "LEAN_SYSROOT", "LEAN_AR", "LEAN_PATH", "LEAN_SRC_PATH",
     "LEAN_GITHASH",
     "ELAN_TOOLCHAIN", "DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH"]
+
+private def fixPath (path : System.SearchPath) : String :=
+  path |>.map (·.toString) |>.filter (!·.contains ".lake") |> System.SearchPath.separator.toString.intercalate
 
 input_dir examples where
   path := examplePath
@@ -32,7 +35,11 @@ input_dir exampleBinaries where
 
 target buildExamples (pkg) : Unit := do
   let exs ← examples.fetch
-  let exBins ← examples.fetch
+  let exBins ← exampleBinaries.fetch
+  let toolchainFile := examplePath / "lean-toolchain"
+  let toolchain ← IO.FS.readFile toolchainFile
+  let toolchain := toolchain.trimAscii |>.dropPrefix "leanprover/lean4:" |>.dropPrefix "v" |>.copy
+  addPureTrace toolchain
   exBins.bindM fun binFiles => do
     for file in binFiles do
       if file.extension.isNone || file.extension.isEqSome System.FilePath.exeExtension then
@@ -44,12 +51,20 @@ target buildExamples (pkg) : Unit := do
         list := list ++ s!"{file}\n"
       buildFileUnlessUpToDate' (pkg.buildDir / "examples-built") (text := true) do
         Lake.logInfo s!"Building examples in {examplePath}"
-        let out ← captureProc {
-          cmd := "lake",
-          args := #["build"],
+        let mut out := ""
+        let path := fixPath (← getSearchPath "PATH")
+        out := out ++ (← captureProc {
+          cmd := "elan",
+          args := #["run", "--install", toolchain, "lake", "build"],
           cwd := examplePath,
-          env := lakeVars.map (·, none)
-        }
+          env := lakeVars.map (·, none) ++ #[("PATH", some path)]
+        })
+        out := out ++ (← captureProc {
+          cmd := "elan",
+          args := #["run", "--install", toolchain, "lake", "build", "subverso-extract-mod"],
+          cwd := examplePath,
+          env := lakeVars.map (·, none) ++ #[("PATH", some path)]
+        })
         IO.FS.createDirAll pkg.buildDir
         IO.FS.writeFile (pkg.buildDir / "examples-built") (list ++ "--- Output ---\n" ++ out)
 

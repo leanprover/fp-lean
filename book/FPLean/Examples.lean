@@ -153,14 +153,11 @@ div.paragraph > .eval-steps:not(:last-child), div.paragraph > .eval-steps:not(:l
 
 "#
 
-block_extension Block.leanEvalSteps (steps : Array Highlighted) where
+block_extension Block.leanEvalSteps (steps : Array Highlighted) via withHighlighting where
   data := ToJson.toJson steps
   traverse _ _ _ := pure none
   toTeX := none
-  extraCss := [highlightingStyle, evalStepsStyle]
-  extraJs := [highlightingJs]
-  extraJsFiles := [{filename := "popper.js", contents := popper, sourceMap? := none}, {filename := "tippy.js", contents := tippy, sourceMap? := none}]
-  extraCssFiles := [("tippy-border.css", tippy.border.css)]
+  extraCss := [evalStepsStyle]
   toHtml :=
     open Verso.Output.Html in
     some <| fun _ _ _ data _ => do
@@ -253,7 +250,7 @@ private def getClass : MessageSeverity → String
   | .information => "information"
   | .warning => "warning"
 
-block_extension Block.leanOutput (severity : MessageSeverity) (message : String) (summarize : Bool := false) where
+block_extension Block.leanOutput (severity : MessageSeverity) (message : String) (summarize : Bool := false) via withHighlighting where
   data := ToJson.toJson (severity, message, summarize)
   traverse _ _ _ := do
     pure none
@@ -261,10 +258,6 @@ block_extension Block.leanOutput (severity : MessageSeverity) (message : String)
     some <| fun _ go _ _ content => do
       pure <| .seq <| ← content.mapM fun b => do
         pure <| .seq #[← go b, .raw "\n"]
-  extraCss := [highlightingStyle]
-  extraJs := [highlightingJs]
-  extraJsFiles := [{filename := "popper.js", contents := popper, sourceMap? := none}, {filename := "tippy.js", contents := tippy, sourceMap? := none}]
-  extraCssFiles := [("tippy-border.css", tippy.border.css)]
   toHtml :=
     open Verso.Output.Html in
     some <| fun _ _ _ data _ => do
@@ -379,24 +372,29 @@ structure EvalStepContext extends CodeContext where
 instance [Monad m] [MonadOptions m] [MonadError m] [MonadLiftT CoreM m] : FromArgs EvalStepContext m where
   fromArgs := (fun x y => EvalStepContext.mk y x) <$> .positional' `step <*> fromArgs
 
+private def replicateString (n : Nat) (c : Char) : String :=
+  n.fold (init := "") fun _ _ s => s.push c
+
+private theorem replicateString_length {n c} : (replicateString n c).length = n := by
+  simp [replicateString]
+  induction n <;> simp [Nat.fold, *]
+
 private def quoteCode (str : String) : String := Id.run do
   let str := if str.startsWith "`" || str.endsWith "`" then " " ++ str ++ " " else str
   let mut n := 1
   let mut run := none
-  let mut iter := str.iter
-  while h : iter.hasNext do
-    let c := iter.curr' h
-    iter := iter.next
+  let mut iter := str.startPos
+  while h : iter ≠ str.endPos do
+    let c := iter.get h
+    iter := iter.next h
     if c == '`' then
       run := some (run.getD 0 + 1)
     else if let some k := run then
       if k > n then n := k
       run := none
 
-  let delim := String.mk (List.replicate n '`')
+  let delim := replicateString n '`'
   return delim ++ str ++ delim
-
-
 
 @[role_expander moduleEvalStep]
 def moduleEvalStep : RoleExpander
@@ -432,7 +430,7 @@ def moduleEvalStep : RoleExpander
 
     if let some step := steps[step.val]? then
       if let some code := code? then
-        _ ← ExpectString.expectString "step" code step.toString.trim
+        _ ← ExpectString.expectString "step" code step.toString.trimAscii.copy
         return #[← ``(Inline.other (Inline.lean $(quote step) {}) #[])]
       else
         let stepStr := step.toString
@@ -462,17 +460,17 @@ private def editCodeBlock [Monad m] [MonadFileMap m] (stx : Syntax) (newContents
   let { start := {line := l1, ..}, .. } := txt.utf8RangeToLspRange rng
   let line1 := (txt.lineStart (l1 + 1)).extract txt.source (txt.lineStart (l1 + 2))
   if line1.startsWith "```" then
-    return some s!"{delims}{line1.dropWhile (· == '`') |>.trim}\n{withNl newContents}{delims}"
+    return some s!"{delims}{line1.dropWhile (· == '`') |>.trimAscii.copy}\n{withNl newContents}{delims}"
   else
     return none
 where
   delims : String := Id.run do
     let mut n := 3
     let mut run := none
-    let mut iter := newContents.iter
-    while h : iter.hasNext do
-      let c := iter.curr' h
-      iter := iter.next
+    let mut iter := newContents.startPos
+    while h : iter ≠ newContents.endPos do
+      let c := iter.get h
+      iter := iter.next h
       if c == '`' then
         run := some (run.getD 0 + 1)
       else if let some k := run then
@@ -491,7 +489,7 @@ def moduleEvalStepBlock : CodeBlockExpander
       let steps := splitHighlighted (· == "===>") fragment
 
       if let some step := steps[step.val]? then
-        _ ← ExpectString.expectString "step" code (withNl step.toString.trim)
+        _ ← ExpectString.expectString "step" code (withNl step.toString.trimAscii.copy)
         return #[← ``(Block.other (Block.lean $(quote step) {}) #[])]
       else
         let ok := steps.mapIdx fun i s => ({suggestion := toString i, postInfo? := some s.toString})
@@ -532,7 +530,7 @@ def moduleEqSteps : CodeBlockExpander
       let steps := splitHighlighted (· ∈ ["={", "}="]) fragment
       let steps ← steps.mapM fun hl => do
         if let some ((.token ⟨.docComment, txt⟩), _) := hl.firstToken then
-          let txt := txt.trim |>.stripPrefix "/--" |>.stripSuffix "-/" |>.trim
+          let txt := txt.trimAscii |>.dropPrefix "/--" |>.dropSuffix "-/" |>.trimAscii |>.copy
           if let some ⟨#[.p txts]⟩ := MD4Lean.parse txt then
             let mut out : Array Term := #[]
             for txt in txts do
@@ -711,7 +709,7 @@ def commandOut : RoleExpander
     let cmd ← oneCodeStr inls
     let output ← Commands.commandOut container cmd
     logSilentInfo output
-    return #[← ``(Inline.code $(quote output.trim))]
+    return #[← ``(Inline.code $(quote output.trimAscii.copy))]
 
 @[code_block_expander commandOut]
 def commandOutCodeBlock : CodeBlockExpander
@@ -719,7 +717,7 @@ def commandOutCodeBlock : CodeBlockExpander
     let (container, command) ← ArgParse.run ((·, ·) <$> .positional `container .ident <*> .positional `command .strLit) args
     let output ← Commands.commandOut container command
 
-    _ ← ExpectString.expectString "command output" outStr (withNl output) (useLine := fun l => !l.trim.isEmpty) (preEq := String.trim)
+    _ ← ExpectString.expectString "command output" outStr (withNl output) (useLine := fun l => !l.trimAscii.isEmpty) (preEq := (·.trimAscii.copy))
 
     logSilentInfo output
     return #[← ``(Block.code $(quote output))]
@@ -778,20 +776,20 @@ def commands : CodeBlockExpander
     let mut quoted := false
     for line in specStr.splitOn "\n" do
       if line.startsWith "$$" then
-        commands := commands.push (.quote (line.drop 2 |>.trim))
+        commands := commands.push (.quote (line.drop 2 |>.trimAscii |>.copy))
         quoted := true
       else if line.startsWith "$" then
-        let line := line.drop 1 |>.trim
+        let line := line.drop 1 |>.trimAscii
         quoted := false
         if line.contains '#' then
           let cmd := line.takeWhile (· ≠ '#')
-          let rest := (line.drop (cmd.length + 1)).trim
-          commands := commands.push (.run cmd.trim (some rest))
+          let rest := (line.drop (cmd.positions.count + 1)).trimAscii.copy
+          commands := commands.push (.run cmd.trimAscii.copy (some rest))
         else
-          commands := commands.push (.run line none)
+          commands := commands.push (.run line.copy none)
 
       else if quoted then
-        commands := commands.push (.out line.trimRight)
+        commands := commands.push (.out line.trimAsciiEnd.copy)
     let mut out := #[]
     let mut outStr := ""
     for cmdSpec in commands do
@@ -816,8 +814,8 @@ def commands : CodeBlockExpander
       | .out txt =>
         out := out.push (txt, false)
         outStr := outStr ++ withNl txt
-    unless str.getString.trim == "" && outStr.trim == "" do
-      _ ← ExpectString.expectString "commands" str outStr (preEq := String.trim)
+    unless str.getString.trimAscii.isEmpty && outStr.trimAscii.isEmpty do
+      _ ← ExpectString.expectString "commands" str outStr (preEq := (·.trimAscii.copy))
     if «show» then
       pure #[← ``(Block.other (Block.shellCommands $(quote out)) #[])]
     else pure #[]
@@ -898,7 +896,7 @@ def moduleOutText : RoleExpander
           if let `(inline|role{ $_ $_* }[ $x ]) := (← getRef) then x.raw else str
 
         let suggs : Array Suggestion := strings.map fun msg => {
-          suggestion := quoteCode msg.trim
+          suggestion := quoteCode msg.trimAscii.copy
         }
         let h ←
           if suggs.isEmpty then pure m!""
@@ -917,7 +915,7 @@ def moduleOutText : RoleExpander
               mkNullNode #[tok1, tok2]
             else mkNullNode contents
           for (msg, _) in infos do
-            let msg := msg.toString.trim
+            let msg := msg.toString.trimAscii.copy
             Suggestion.saveSuggestion stx (quoteCode <| ExpectString.abbreviateString msg) (quoteCode msg)
 
       return #[← ``(sorryAx _ true)]
@@ -927,17 +925,17 @@ where
     let str := if str.startsWith "`" || str.endsWith "`" then " " ++ str ++ " " else str
     let mut n := 1
     let mut run := none
-    let mut iter := str.iter
-    while h : iter.hasNext do
-      let c := iter.curr' h
-      iter := iter.next
+    let mut iter := str.startPos
+    while h : iter ≠ str.endPos do
+      let c := iter.get h
+      iter := iter.next h
       if c == '`' then
         run := some (run.getD 0 + 1)
       else if let some k := run then
         if k > n then n := k
         run := none
 
-    let delim := String.mk (List.replicate n '`')
+    let delim := replicateString n '`'
     return delim ++ str ++ delim
 
 macro_rules
@@ -953,22 +951,3 @@ macro_rules
     `(inline|role{%$rs moduleOutText MessageSeverity.error anchor:=$a $arg*}%$re [%$s $str* ]%$e)
   | `(inline|role{%$rs anchorWarningText $a:arg_val $arg*}%$re [%$s $str* ]%$e) =>
     `(inline|role{%$rs moduleOutText MessageSeverity.warning anchor:=$a $arg*}%$re [%$s $str* ]%$e)
-
-
-def hasSubstring (s pattern : String) : Bool :=
-  if h : pattern.endPos.1 = 0 then false
-  else
-    have hPatt := Nat.zero_lt_of_ne_zero h
-    let rec loop (pos : String.Pos.Raw) :=
-      if h : pos.byteIdx + pattern.endPos.byteIdx > s.endPos.byteIdx then
-        false
-      else
-        have := Nat.lt_of_lt_of_le (Nat.add_lt_add_left hPatt _) (Nat.ge_of_not_lt h)
-        if pos.substrEq s pattern 0 pattern.endPos.byteIdx then
-          have := Nat.sub_lt_sub_left this (Nat.add_lt_add_left hPatt _)
-          true
-        else
-          have := Nat.sub_lt_sub_left this (pos.byteIdx_lt_byteIdx_next s)
-          loop (pos.next s)
-      termination_by s.endPos.1 - pos.1
-    loop 0

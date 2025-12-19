@@ -806,8 +806,12 @@ instance : HPlus Pos Nat Pos where
 -- ANCHOR_END: HPlusInstances
 
 /--
-error: typeclass instance problem is stuck, it is often due to metavariables
-  ToString ?m.14563
+error: typeclass instance problem is stuck
+  HPlus Pos Nat ?m.6
+
+Note: Lean will not try to resolve this typeclass instance problem because the third type argument to `HPlus` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
+
+Hint: Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `Nat`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.
 -/
 #check_msgs in
 -- ANCHOR: hPlusOops
@@ -1376,7 +1380,7 @@ example : Functor.map (· + 5) [1, 2, 3] = [6, 7, 8] := rfl
 -- ANCHOR_END: mapList
 
 -- ANCHOR: mapOption
-example : Functor.map toString (some (List.cons 5 List.nil)) = some "[5]" := rfl
+example : Functor.map toString (some (List.cons 5 List.nil)) = some "[5]" := by decide +native -- TODO verify text and perhaps replace
 -- ANCHOR_END: mapOption
 
 -- ANCHOR: mapListList
@@ -1388,7 +1392,7 @@ example : (· + 5) <$> [1, 2, 3] = [6, 7, 8] := rfl
 -- ANCHOR_END: mapInfixList
 
 -- ANCHOR: mapInfixOption
-example : toString <$> (some (List.cons 5 List.nil)) = some "[5]" := rfl
+example : toString <$> (some (List.cons 5 List.nil)) = some "[5]" := by decide +native
 -- ANCHOR_END: mapInfixOption
 
 -- ANCHOR: mapInfixListList

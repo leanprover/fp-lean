@@ -9,10 +9,10 @@ local instance : Monad IO where
 universe u
 example {ε} {α}:= EIO ε α
 -- ANCHOR: EStateMNames
-example {ε} {α} {σ} := EStateM ε σ α → EStateM.Result ε σ α
+example {ε} {α} {σ} := EST ε σ α → EST.Out ε σ α
 -- ANCHOR_END: EStateMNames
-example := @EStateM.Result.ok
-example := @EStateM.Result.error
+example := @EST.Out.ok
+example := @EST.Out.error
 example {α}:= BaseIO α
 example {ε} := Except ε
 example := Type u
@@ -99,65 +99,62 @@ IO.Error.userError : String → IO.Error
 
 /-- info:
 def EIO : Type → Type → Type :=
-fun ε => EStateM ε IO.RealWorld
+fun ε α => EST ε IO.RealWorld α
 -/
 #check_msgs in
 -- ANCHOR: printEIO
 #print EIO
 -- ANCHOR_END: printEIO
 
+-- ANCHOR: VoidSigma
+example {σ} := Void σ
+-- ANCHOR_END: VoidSigma
+
+-- ANCHOR: RealWorld
+example := IO.RealWorld
+-- ANCHOR_END: RealWorld
 
 
 /-- info:
-def EStateM.{u} : Type u → Type u → Type u → Type u :=
-fun ε σ α => σ → EStateM.Result ε σ α
+def EST : Type → Type → Type → Type :=
+fun ε σ α => Void σ → EST.Out ε σ α
 -/
 #check_msgs in
 -- ANCHOR: printEStateM
-#print EStateM
+#print EST
 -- ANCHOR_END: printEStateM
 
 
 /-- info:
-inductive EStateM.Result.{u} : Type u → Type u → Type u → Type u
+inductive EST.Out : Type → Type → Type → Type
 number of parameters: 3
 constructors:
-EStateM.Result.ok : {ε σ α : Type u} → α → σ → EStateM.Result ε σ α
-EStateM.Result.error : {ε σ α : Type u} → ε → σ → EStateM.Result ε σ α
+EST.Out.ok : {ε σ α : Type} → α → Void σ → EST.Out ε σ α
+EST.Out.error : {ε σ α : Type} → ε → Void σ → EST.Out ε σ α
 -/
 #check_msgs in
 -- ANCHOR: printEStateMResult
-#print EStateM.Result
+#print EST.Out
 -- ANCHOR_END: printEStateMResult
 
 
 /-- info:
-protected def EStateM.pure.{u} : {ε σ α : Type u} → α → EStateM ε σ α :=
-fun {ε σ α} a s => EStateM.Result.ok a s
+protected def EST.pure : {α ε σ : Type} → α → EST ε σ α :=
+fun {α ε σ} a s => EST.Out.ok a s
 -/
 #check_msgs in
 -- ANCHOR: printEStateMpure
-#print EStateM.pure
+#print EST.pure
 -- ANCHOR_END: printEStateMpure
 
 /-- info:
-protected def EStateM.bind.{u} : {ε σ α β : Type u} → EStateM ε σ α → (α → EStateM ε σ β) → EStateM ε σ β :=
+protected def EST.bind : {ε σ α β : Type} → EST ε σ α → (α → EST ε σ β) → EST ε σ β :=
 fun {ε σ α β} x f s =>
   match x s with
-  | EStateM.Result.ok a s => f a s
-  | EStateM.Result.error e s => EStateM.Result.error e s
+  | EST.Out.ok a s => f a s
+  | EST.Out.error e s => EST.Out.error e s
 -/
 #check_msgs in
 -- ANCHOR: printEStateMbind
-#print EStateM.bind
+#print EST.bind
 -- ANCHOR_END: printEStateMbind
-
-
-/-- info:
-def IO.RealWorld : Type :=
-Unit
--/
-#check_msgs in
--- ANCHOR: printRealWorld
-#print IO.RealWorld
--- ANCHOR_END: printRealWorld

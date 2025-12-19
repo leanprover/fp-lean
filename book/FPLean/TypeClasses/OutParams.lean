@@ -82,10 +82,14 @@ When attempting to use these instances with {kw}`#eval`, an error occurs:
 #eval toString (HPlus.hPlus (3 : Pos) (5 : Nat))
 ```
 ```anchorError hPlusOops
-typeclass instance problem is stuck, it is often due to metavariables
-  ToString ?m.14563
+typeclass instance problem is stuck
+  HPlus Pos Nat ?m.6
+
+Note: Lean will not try to resolve this typeclass instance problem because the third type argument to `HPlus` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
+
+Hint: Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `Nat`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.
 ```
-This happens because there is a metavariable in the type, and Lean has no way to solve it.
+The message indicates that this happens because there is a metavariable in the type, and Lean has no way to solve it.
 :::
 
 As discussed in {ref "polymorphism"}[the initial description of polymorphism], metavariables represent unknown parts of a program that could not be inferred.

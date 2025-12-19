@@ -269,36 +269,42 @@ def saveIfEven (i : Int) : WithLog Int Int :=
 #eval mapM saveIfEven [1, 2, 3, 4, 5]
 -- ANCHOR_END: mapMsaveIfEven
 
-/-- info:
-[2, 3, 4, 5, 6]
--/
+discarding
 #check_msgs in
 -- ANCHOR: mapMId
-#eval mapM (m := Id) (· + 1) [1, 2, 3, 4, 5]
+def numbers := mapM (m := Id) (do return · + 1) [1, 2, 3, 4, 5]
 -- ANCHOR_END: mapMId
+stop discarding
 
-
-
+discarding
 /--
-error: failed to synthesize
-  HAdd Nat Nat (?m.4 ?m.3)
+error: typeclass instance problem is stuck
+  Pure ?m.6
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Note: Lean will not try to resolve this typeclass instance problem because the type argument to `Pure` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
+
+Hint: Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `Nat`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.
 -/
 #check_msgs in
 -- ANCHOR: mapMIdNoHint
-#eval mapM (· + 1) [1, 2, 3, 4, 5]
+def numbers := mapM (do return · + 1) [1, 2, 3, 4, 5]
 -- ANCHOR_END: mapMIdNoHint
+stop discarding
 
+discarding
+/--
+error: typeclass instance problem is stuck
+  Pure ?m.6
 
-/-- error:
-typeclass instance problem is stuck, it is often due to metavariables
-  Monad ?m.4319
+Note: Lean will not try to resolve this typeclass instance problem because the type argument to `Pure` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
+
+Hint: Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `Nat`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.
 -/
 #check_msgs in
 -- ANCHOR: mapMIdId
-#eval mapM (fun (x : Nat) => x) [1, 2, 3, 4, 5]
+def numbers := mapM (do return · + 1) [1, 2, 3, 4, 5]
 -- ANCHOR_END: mapMIdId
+stop discarding
 
 end MyListStuff
 

@@ -35,6 +35,18 @@ def requireContainer (container : Ident) : m Container := do
 private def localeVars : Array String :=
   #["LANG", "LC_ALL"]
 
+private def lakeVars : Array String :=
+  #["ELAN_TOOLCHAIN", "LEAN_SYSROOT", "LEAN", "LAKE", "LAKE_HOME", "LEAN_PATH", "LAKE_CACHE_DIR", "LEAN_AR", "LEAN_CC", "DYLD_LIBRARY_PATH"]
+
+private def fixPath (path : String) :=
+  System.SearchPath.parse path
+    |>.iter
+    |>.map (·.toString)
+    |>.filter (fun p => ((p.find? ".elan").isNone || (p.find? "toolchains").isNone))
+    |>.toList
+    |> System.SearchPath.separator.toString.intercalate
+
+
 def command (container : Ident) (dir : System.FilePath) (command : StrLit) (viaShell := false) : m IO.Process.Output := do
   let c ← ensureContainer container
   unless dir.isRelative do
@@ -49,13 +61,13 @@ def command (container : Ident) (dir : System.FilePath) (command : StrLit) (viaS
     cmd := cmd,
     args := args,
     cwd := dir,
-    env := #[("PATH", some (extraPath ++ path))] ++ localeVars.map (·, some "C.UTF-8")
+    env := #[("PATH", some (extraPath ++ fixPath path))] ++ lakeVars.map (·, none) ++ localeVars.map (·, some "C.UTF-8")
   }
   if out.exitCode != 0 then
     let stdout := m!"Stdout: {indentD out.stdout}"
     let stderr := m!"Stderr: {indentD out.stderr}"
     throwErrorAt command "Non-zero exit code from '{command.getString}' ({out.exitCode}).\n{indentD stdout}\n{indentD stderr}"
-  modifyEnv (containersExt.modifyState · (·.insert container.getId { c with outputs := c.outputs.insert command.getString.trim out.stdout }))
+  modifyEnv (containersExt.modifyState · (·.insert container.getId { c with outputs := c.outputs.insert command.getString.trimAscii.copy out.stdout }))
   return out
 
 where
@@ -71,7 +83,7 @@ where
 
 def commandOut (container : Ident) (command : StrLit) : m String := do
   let c ← requireContainer container
-  if let some out := c.outputs[command.getString.trim]? then
+  if let some out := c.outputs[command.getString.trimAscii.copy]? then
     return out
   else throwErrorAt command "Output not found: {indentD command}"
 

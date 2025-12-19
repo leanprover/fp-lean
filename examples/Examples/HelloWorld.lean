@@ -101,9 +101,18 @@ def runActions : List (IO Unit) → IO Unit
 def main : IO Unit := runActions from5
 -- ANCHOR_END: main
 
--- ANCHOR: countdown5
+/--
+info: 5
+4
+3
+2
+1
+Blast off!
+-/
+#check_msgs in
+-- ANCHOR: countdownFromFive
 #eval main
--- ANCHOR_END: countdown5
+-- ANCHOR_END: countdownFromFive
 
 evaluation steps : IO Unit {{{ evalMain }}}
 -- ANCHOR: evalMain

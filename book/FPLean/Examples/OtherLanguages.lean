@@ -157,16 +157,16 @@ An anchor consists of a line that contains `ANCHOR:` or `ANCHOR_END:` followed b
 of the anchor.
 -/
 def anchor? (line : String) : Except String (String × Bool) := do
-  let mut line := line.trim
+  let mut line := line.trimAscii
   line := line.dropWhile (· ≠ 'A')
   if line.startsWith "ANCHOR:" then
-    line := line.stripPrefix "ANCHOR:"
-    line := line.trimLeft
-    if line.isEmpty then throw "Expected name after `ANCHOR: `" else return (line, true)
+    line := line.dropPrefix "ANCHOR:"
+    line := line.trimAsciiStart
+    if line.isEmpty then throw "Expected name after `ANCHOR: `" else return (line.copy, true)
   else if line.startsWith "ANCHOR_END:" then
-    line := line.stripPrefix "ANCHOR_END:"
-    line := line.trimLeft
-    if line.isEmpty then throw "Expected name after `ANCHOR_END: `" else return (line, false)
+    line := line.dropPrefix "ANCHOR_END:"
+    line := line.trimAsciiStart
+    if line.isEmpty then throw "Expected name after `ANCHOR_END: `" else return (line.copy, false)
   else throw s!"Expected `ANCHOR:` or `ANCHOR_END:`, got {line}"
 
 private def stringAnchors (s : String) : Except String (String × HashMap String String) := do

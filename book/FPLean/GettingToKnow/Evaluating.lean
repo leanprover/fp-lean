@@ -158,7 +158,7 @@ In particular, the example
 yields a quite long error message:
 
 ```anchorError stringAppendReprFunction
-could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type
+could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type
   String → String
 ```
 

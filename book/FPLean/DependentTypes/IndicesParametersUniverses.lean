@@ -84,7 +84,7 @@ The provided argument
 is not definitionally equal to the expected parameter
   α
 
-Note: The value of parameter 'α' must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
+Note: The value of parameter `α` must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
 ```
 Similarly, attempting to name an index results in an error:
 ```anchor WithNamedIndex
@@ -100,7 +100,7 @@ The provided argument
 is not definitionally equal to the expected parameter
   α
 
-Note: The value of parameter 'α' must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
+Note: The value of parameter `α` must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
 ```
 
 Using an appropriate universe level and placing the index after the colon results in a declaration that is acceptable:
@@ -142,7 +142,7 @@ The provided argument
 is not definitionally equal to the expected parameter
   n
 
-Note: The value of parameter 'n' must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
+Note: The value of parameter `n` must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
 ```
 Using the {anchorName NatParam}`n` as suggested causes the declaration to be accepted:
 

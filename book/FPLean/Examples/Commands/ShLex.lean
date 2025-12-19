@@ -8,12 +8,12 @@ private inductive State where
 
 def shlex (cmd : String) : Except String (Array String) := do
   let mut state : State := .normal
-  let mut iter := cmd.iter
+  let mut iter := cmd.startPos
   let mut out : Array String := #[]
   let mut current : Option String := none
-  while h : iter.hasNext do
-    let c := iter.curr' h
-    iter := iter.next' h
+  while h : iter ≠ cmd.endPos do
+    let c := iter.get h
+    iter := iter.next h
     match state, c with
     | .normal, '\\' =>
       state := .escaped state

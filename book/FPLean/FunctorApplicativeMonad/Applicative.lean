@@ -126,7 +126,7 @@ There is a value with type {anchorName Pairpure2}`β` in scope (namely {anchorNa
 def Pair.pure (x : β) : Pair α β := Pair.mk _ x
 ```
 ```anchorError Pairpure2
-don't know how to synthesize placeholder for argument 'first'
+don't know how to synthesize placeholder for argument `first`
 context:
 β α : Type
 x : β

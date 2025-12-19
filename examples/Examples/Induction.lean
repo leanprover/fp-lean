@@ -71,7 +71,7 @@ error: unsolved goals
 case zero
 ⊢ 0 = Nat.plusR 0 0
 ---
-error: Too many variable names provided at alternative 'succ': 5 provided, but 2 expected
+error: Too many variable names provided at alternative `succ`: 5 provided, but 2 expected
 ---
 error: unsolved goals
 case succ
