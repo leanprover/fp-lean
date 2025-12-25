@@ -50,7 +50,7 @@ This is a contradiction, which demonstrates that something was wrong with the in
 In particular, allowing sets to be constructed by providing an arbitrary property is too powerful.
 Later versions of set theory restrict the formation of sets to remove the paradox.
 
-A related paradox can be constructed in versions of dependent type theory that assign the type {anchorTerm SomeTypes}`Type` to {anchorTerm SomeTypes}`Type`.
+A related paradox can be constructed in versions of dependent type theory that assign the type of {anchorTerm SomeTypes}`Type` to {anchorTerm SomeTypes}`Type`.
 To ensure that Lean has consistent logical foundations and can be used as a tool for mathematics, {anchorTerm SomeTypes}`Type` needs to have some other type.
 This type is called {anchorTerm SomeTypes}`Type 1`:
 ```anchor TypeType
