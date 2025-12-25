@@ -44,9 +44,11 @@ inductive Bool where
 
 This definition has two main parts.
 The first line provides the name of the new type ({anchorName Bool}`Bool`), while the remaining lines each describe a constructor.
-As with constructors of structures, constructors of inductive datatypes are mere inert receivers of and containers for other data, rather than places to insert arbitrary initialization and validation code.
-Unlike structures, inductive datatypes may have multiple constructors.
-Here, there are two constructors, {anchorName Bool}`true` and {anchorName Bool}`false`, and neither takes any arguments.
+Inductive datatypes have multiple constructors, unlike structures that contain only one, for their creation.
+Constructors for Inductive datatypes are mere inert receivers of and containers for other data.
+Here, there are two constructors, {anchorName Bool}`true` and {anchorName Bool}`false`, and neither takes any arguments, neither hold any data.
+The two constructors have their type explicitly declared for clarity but this is facultative here, as they must construct the Type under which they are defined.
+
 Just as a structure declaration places its names in a namespace named after the declared type, an inductive datatype places the names of its constructors in a namespace.
 In the Lean standard library, {anchorName BoolNames}`true` and {anchorName BoolNames}`false` are re-exported from this namespace so that they can be written alone, rather than as {anchorName BoolNames}`Bool.true` and {anchorName BoolNames}`Bool.false`, respectively.
 :::
@@ -81,6 +83,7 @@ The names {anchorName NatNames}`zero` and {anchorName NatNames}`succ` are in a n
 Argument names, such as {anchorName Nat}`n`, may occur in Lean's error messages and in feedback provided when writing mathematical proofs.
 Lean also has an optional syntax for providing arguments by name.
 Generally, however, the choice of argument name is less important than the choice of a structure field name, as it does not form as large a part of the API.
+having {anchorName newNat}`succ : Nat -> Nat` would be faily similar, since {anchorName newNat}`succ` don't use the variable itself.
 
 In C# or Java, {CSharp}`Nat` could be defined as follows:
 ```CSharp
@@ -112,6 +115,8 @@ type Nat = Zero | Succ;
 ```
 Just like C# and Java, this encoding ends up with more types than in Lean, because {typescript}`Zero` and {typescript}`Succ` are each a type on their own.
 It also illustrates that Lean constructors correspond to objects in JavaScript or TypeScript that include a tag that identifies the contents.
+This identification is crucial, {anchorName Bool}`true` and {anchorName Bool}`false` are not _equal_ to {anchorName Bool}`Bool`, they are _of type_ {anchorName Bool}`Bool`.
+Pattern matching check for exhaustiveness, matching against a value of type {anchorName Bool}`Bool` means branching all the possible ways that value could have been constructed
 
 # Pattern Matching
 %%%
@@ -415,3 +420,5 @@ h✝ : ¬n < k
 This message means that {anchorName div}`div` requires a manual proof of termination.
 This topic is explored in {ref "division-as-iterated-subtraction"}[the final chapter].
 :::
+
+You may be interested in reading about how numbers [are treated at runtime](https://lean-lang.org/doc/reference/latest//Basic-Types/Natural-Numbers/#nat-runtime) for efficiency.

@@ -185,8 +185,8 @@ tag := "linked-lists"
 %%%
 
 :::paragraph
-Lean's standard library includes a canonical linked list datatype, called {anchorName fragments}`List`, and special syntax that makes it more convenient to use.
-Lists are written in square brackets.
+Lean's standard library includes a canonical linked list datatype, called {anchorName fragments}`List`, and special syntaxes that makes it more convenient to use.
+Lists can be written in square brackets.
 For instance, a list that contains the prime numbers less than 10 can be written:
 
 ```anchor primesUnder10
@@ -204,14 +204,14 @@ inductive List (α : Type) where
   | cons : α → List α → List α
 ```
 
+Theses names are abbreviations for the Latin word "Nihil", meaning  _nothing_, and "construct".
 The actual definition in the standard library is slightly different, because it uses features that have not yet been presented, but it is substantially similar.
 This definition says that {anchorName List}`List` takes a single type as its argument, just as {anchorName PPoint}`PPoint` did.
 This type is the type of the entries stored in the list.
 According to the constructors, a {anchorTerm List}`List α` can be built with either {anchorName List}`nil` or {anchorName List}`cons`.
 The constructor {anchorName List}`nil` represents empty lists and the constructor {anchorName List}`cons` is used for non-empty lists.
-The first argument to {anchorName List}`cons` is the head of the list, and the second argument is its tail.
-A list that contains $`n` entries contains $`n` {anchorName List}`cons` constructors, the last of which has {anchorName List}`nil` as its tail.
-
+Because it is defined in that order, that is, the first argument to {anchorName List}`cons` being one {lit}`α`, and the second argument being a list of other {lit}`α`, a {anchorTerm List}`List` constructed through {anchorName List}`cons` must have been against its signature, it is therefore true to say that the first argument to {anchorName List}`cons` is the head of the list, the first one, and the second argument is its tail, the rest.
+A list that contains $`n` entries contains $`n` {anchorName List}`cons` constructors, each fitting into the second argument of its {anchorName List}`cons` predecessor with the help of parentheses, the last of which has {anchorName List}`nil` as its tail, or its second argument.
 :::
 
 :::paragraph
@@ -222,7 +222,20 @@ def explicitPrimesUnder10 : List Nat :=
   List.cons 2 (List.cons 3 (List.cons 5 (List.cons 7 List.nil)))
 ```
 
-These two definitions are completely equivalent, but {anchorName primesUnder10}`primesUnder10` is much easier to read than {anchorName explicitPrimesUnder10}`explicitPrimesUnder10`.
+These two definitions are completely equivalent, behind the scene the notation {lit}`[a,b,c]` used by {anchorName primesUnder10}`primesUnder10` is a _macro_ that output to {anchorName explicitPrimesUnder10}`explicitPrimesUnder10`.
+Macro are explored later in {ref "Ref to macro"}[Typed Queries], simply remember that they allow Lean to be extended by translating new syntax into existing syntax and can therefore be used in place where the underlying syntax must be used, with greater comfort.
+For example, each group of {lit}`#eval` expresion give similar values:
+```anchor comfy
+#eval List.cons 3 List.nil
+#eval List.singleton 3
+#eval [3]
+
+#eval [1,2,3,4,5]
+#eval 1::2::3::4::5::List.nil
+#eval 1::2::3::[4,5]
+#eval %[1,2,3|[4,5]]
+```
+Substituing (or not) numbers for variables in pattern matching works, as they appear as original {lit}`List`'s constructors, which pattern matching look for when given a value of type {anchorName List}`List` to match for.
 :::
 
 :::paragraph
@@ -490,15 +503,15 @@ tag := "prod"
 %%%
 
 The {anchorName Prod}`Prod` structure, short for “Product”, is a generic way of joining two values together.
-For instance, a {anchorTerm fragments}`Prod Nat String` contains a {anchorName fragments}`Nat` and a {anchorName fragments}`String`.
-In other words, {anchorTerm natPoint}`PPoint Nat` could be replaced by {anchorTerm fragments}`Prod Nat Nat`.
+For instance, a {anchorTerm fragments}`Prod Nat String` contains a {anchorName fragments}`Nat` and a {anchorName fragments}`String` in a {anchorName Prod}`Prod` structure.
+Using {anchorTerm fragments}`Prod Nat Nat` would computally be the same as using our {anchorTerm natPoint}`PPoint Nat`.
+However, many applications are best served by defining their own structures, even for simple cases like {anchorName Point}`Point`, because using domain terminology can make it easier to read the code.
+Additionally, defining structure types helps catch more errors by assigning different types to different domain concepts, even if they are of a similar body, preventing them from being mixed up.
 {anchorName fragments}`Prod` is very much like C#'s tuples, the {Kotlin}`Pair` and {Kotlin}`Triple` types in Kotlin, and {cpp}`tuple` in C++.
-Many applications are best served by defining their own structures, even for simple cases like {anchorName Point}`Point`, because using domain terminology can make it easier to read the code.
-Additionally, defining structure types helps catch more errors by assigning different types to different domain concepts, preventing them from being mixed up.
 
 On the other hand, there are some cases where it is not worth the overhead of defining a new type.
-Additionally, some libraries are sufficiently generic that there is no more specific concept than “pair”.
-Finally, the standard library contains a variety of convenience functions that make it easier to work with the built-in pair type.
+Additionally, a standard library can contains a variety of convenience functions that make it easier to work with the built-in pair type of the language.
+Finally, some libraries are sufficiently generic that there is no more specific concept than “pair”.
 
 :::paragraph
 The structure {anchorName Prod}`Prod` is defined with two type arguments:
@@ -512,11 +525,12 @@ structure Prod (α : Type) (β : Type) : Type where
 :::
 
 :::paragraph
-Lists are used so frequently that there is special syntax to make them more readable.
+These names are abbreviations for "first" and "second".
+Lists are used so frequently that there is special syntax to make them more readable ({lit}`[a, b, c]`, {lit}`::`, etc).
 For the same reason, both the product type and its constructor have special syntax.
-The type {anchorTerm ProdSugar}`Prod α β` is typically written {anchorTerm ProdSugar}`α × β`, mirroring the usual notation for a Cartesian product of sets.
-Similarly, the usual mathematical notation for pairs is available for {anchorName ProdSugar}`Prod`.
-In other words, instead of writing:
+The type {anchorTerm ProdSugar}`Prod α β` is typically written {anchorTerm ProdSugar}`α × β`, mirroring the usual notation for a [Cartesian product](https://en.wikipedia.org/wiki/Cartesian_product) of sets.
+Similarly, the usual [mathematical notation](https://en.wikipedia.org/wiki/Ordered_pair) for pairs is available for {anchorName ProdSugar}`Prod`.
+Meaning, instead of writing:
 
 ```anchor fivesStruct
 def fives : String × Int := { fst := "five", snd := 5 }
@@ -606,6 +620,7 @@ def howManyDogs (pets : List PetName) : Nat :=
 
 Function calls are evaluated before infix operators, so {anchorTerm howManyDogsAdd}`howManyDogs morePets + 1` is the same as {anchorTerm howManyDogsAdd}`(howManyDogs morePets) + 1`.
 As expected, {anchor dogCount}`#eval howManyDogs animals` yields {anchorInfo dogCount}`3`.
+Infix operators and precedences values will be explained in {ref "Refer to modad -> Infix Operators"}[Infix operator]
 :::
 
 ## {anchorName Unit}`Unit`
@@ -638,9 +653,19 @@ inductive ArithExpr (ann : Type) : Type where
   | times : ann → ArithExpr ann → ArithExpr ann → ArithExpr ann
 ```
 
-The type argument {anchorName ArithExpr}`ann` stands for annotations, and each constructor is annotated.
-Expressions coming from a parser might be annotated with source locations, so a return type of {anchorTerm ArithExprEx}`ArithExpr SourcePos` ensures that the parser put a {anchorName ArithExprEx}`SourcePos` at each subexpression.
-Expressions that don't come from the parser, however, will not have source locations, so their type can be {anchorTerm ArithExprEx}`ArithExpr Unit`.
+The type argument {anchorName ArithExpr}`ann` stands for annotations, and each constructor having it is therefore _annotated_.
+An anotation can be anything useful, expressions coming from a parser might be annotated with source locations (a line and column number from a source code file), so a return type of {anchorTerm ArithExprEx}`ArithExpr SourcePos` ensures that the parser put a {anchorName ArithExprEx}`SourcePos` at each subexpression, allowing access to the location of each in a hypothetical source code for different reasons.
+
+Expressions that don't come from the parser, however, may not have source locations, so their type can be {anchorTerm ArithExprEx}`ArithExpr Unit`:
+
+```anchor ArithExprVal
+def toEval := (ArithExpr.times () (ArithExpr.int () 2) (ArithExpr.int () 3))
+#check toEval
+```
+```anchorInfo ArithExprVal
+toEval : ArithExpr Unit
+```
+Unit's constructor can be written as empty parentheses: {anchorTerm unitParens}`() : Unit`.
 
 :::
 
@@ -648,7 +673,6 @@ Additionally, because all Lean functions have arguments, zero-argument functions
 In a return position, the {anchorName ArithExprEx}`Unit` type is similar to {CSharp}`void` in languages derived from C.
 In the C family, a function that returns {CSharp}`void` will return control to its caller, but it will not return any interesting value.
 By being an intentionally uninteresting value, {anchorName ArithExprEx}`Unit` allows this to be expressed without requiring a special-purpose {CSharp}`void` feature in the type system.
-Unit's constructor can be written as empty parentheses: {anchorTerm unitParens}`() : Unit`.
 
 ## {lit}`Empty`
 %%%
@@ -675,7 +699,20 @@ These terms are related to sums and products used in ordinary arithmetic.
 The relationship is easiest to see when the types involved contain a finite number of values.
 If {anchorName SumProd}`α` and {anchorName SumProd}`β` are types that contain $`n` and $`k` distinct values, respectively, then {anchorTerm SumProd}`α ⊕ β` contains $`n + k` distinct values and {anchorTerm SumProd}`α × β` contains $`n \times k` distinct values.
 For instance, {anchorName fragments}`Bool` has two values: {anchorName BoolNames}`true` and {anchorName BoolNames}`false`, and {anchorName Unit}`Unit` has one value: {anchorName BooloUnit}`Unit.unit`.
-The product {anchorTerm fragments}`Bool × Unit` has the two values {anchorTerm BoolxUnit}`(true, Unit.unit)` and {anchorTerm BoolxUnit}`(false, Unit.unit)`, and the sum {anchorTerm fragments}`Bool ⊕ Unit` has the three values {anchorTerm BooloUnit}`Sum.inl true`, {anchorTerm BooloUnit}`Sum.inl false`, and {anchorTerm BooloUnit}`Sum.inr Unit.unit`.
+The product {anchorTerm fragments}`Bool × Unit` can have the two values {anchorTerm BoolxUnit}`(true, Unit.unit)` and {anchorTerm BoolxUnit}`(false, Unit.unit)`, and the sum {anchorTerm fragments}`Bool ⊕ Unit` can have the three values {anchorTerm BooloUnit}`Sum.inl true`, {anchorTerm BooloUnit}`Sum.inl false`, and {anchorTerm BooloUnit}`Sum.inr Unit.unit`:
+
+```anchor SumType
+def SumType := Bool ⊕ Unit
+def one : SumType := Sum.inr Unit.unit
+def two : SumType := Sum.inl true
+def three: SumType:= Sum.inl false
+```
+
+```anchor ProdType
+def ProdType := Bool × Unit
+def one : ProdType:= (false, Unit.unit)
+def two : ProdType:= (true, Unit.unit)
+```
 Similarly, $`2 \times 1 = 2`, and $`2 + 1 = 3`.
 
 # Messages You May Meet
