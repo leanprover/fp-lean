@@ -172,7 +172,7 @@ They also contain _variables_ and _functions_.
 Definitional equality of variables is relatively simple: each variable is equal only to itself, so {anchorTerm moreNames}`(n k : Nat) → Vect Int n` is not definitionally equal to {anchorTerm moreNames}`(n k : Nat) → Vect Int k`.
 Functions, on the other hand, are more complicated.
 While mathematics considers two functions to be equal if they have identical input-output behavior, there is no efficient algorithm to check that, and the whole point of definitional equality is for Lean to check whether two types are interchangeable.
-Instead, Lean considers functions to be definitionally equal either when they are both {kw}`fun`-expressions with definitionally equal bodies.
+Instead, Lean considers functions to be definitionally equal when they are both {kw}`fun`-expressions with definitionally equal bodies.
 In other words, two functions must use _the same algorithm_ that calls _the same helpers_ to be considered definitionally equal.
 This is not typically very helpful, so definitional equality of functions is mostly used when the exact same defined function occurs in two types.
 
