@@ -64,7 +64,7 @@ Similarly, {anchorTerm Type1Type}`Type 1` is a {anchorTerm Type1Type}`Type 2`,
 {anchorTerm Type3Type}`Type 3` is a {anchorTerm Type3Type}`Type 4`, and so forth.
 
 Function types occupy the smallest universe that can contain both the argument type and the return type.
-This means that {anchorTerm NatNatType}`Nat → Nat` is a {anchorTerm NatNatType}`Type`, {anchorTerm Fun00Type}`Type → Type` is a {anchorTerm Fun00Type}`Type 1`, and {anchorTerm Fun12Type}`Type 3` is a {anchorTerm Fun12Type}`Type 1 → Type 2`.
+This means that {anchorTerm NatNatType}`Nat → Nat` is a {anchorTerm NatNatType}`Type`, {anchorTerm Fun00Type}`Type → Type` is a {anchorTerm Fun00Type}`Type 1`, and {anchorTerm Fun12Type}`Type 1 → Type 2` is a {anchorTerm Fun12Type}`Type 3`.
 
 There is one exception to this rule.
 If the return type of a function is a {anchorTerm PropType}`Prop`, then the whole function type is in {anchorTerm PropType}`Prop`, even if the argument is in a larger universe such as {anchorTerm SomeTypes}`Type` or even {anchorTerm SomeTypes}`Type 1`.
