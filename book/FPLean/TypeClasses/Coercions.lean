@@ -458,8 +458,8 @@ The solution is to write a little function that cleans up the presentation by dr
 ```anchor dropDecimals
 def dropDecimals (numString : String) : String :=
   if numString.contains '.' then
-    let noTrailingZeros := numString.dropRightWhile (· == '0')
-    noTrailingZeros.dropRightWhile (· == '.')
+    let noTrailingZeros := numString.dropEndWhile (· == '0')
+    noTrailingZeros.dropEndWhile (· == '.')
   else numString
 ```
 With this definition, {anchorTerm dropDecimalExample}`dropDecimals (5 : Float).toString` yields {anchorTerm dropDecimalExample}`5`, and {anchorTerm dropDecimalExample2}`dropDecimals (5.2 : Float).toString` yields {anchorTerm dropDecimalExample2}`5.2`.

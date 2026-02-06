@@ -1669,8 +1669,8 @@ def String.separate (sep : String) (strings : List String) : String :=
 -- ANCHOR: dropDecimals
 def dropDecimals (numString : String) : String :=
   if numString.contains '.' then
-    let noTrailingZeros := numString.dropRightWhile (· == '0')
-    noTrailingZeros.dropRightWhile (· == '.')
+    let noTrailingZeros := numString.dropEndWhile (· == '0')
+    noTrailingZeros.dropEndWhile (· == '.')
   else numString
 -- ANCHOR_END: dropDecimals
 
