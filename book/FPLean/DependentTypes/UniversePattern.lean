@@ -193,7 +193,7 @@ The implementation of {anchorName FiniteAll}`enumerate` is also by recursion on 
 In the case for {anchorName Finite}`Unit`, there is only a single value.
 In the case for {anchorName Finite}`Bool`, there are two values to return ({anchorName sundries}`true` and {anchorName sundries}`false`).
 In the case for pairs, the result should be the Cartesian product of the values for the type coded for by {anchorName FiniteAll}`t1` and the values for the type coded for by {anchorName FiniteAll}`t2`.
-In other words, every value from {anchorName FiniteAll}`dom` should be paired with every value from {anchorName FiniteAll}`cod`.
+In other words, every value from {anchorName FiniteAll}`t1` should be paired with every value from {anchorName FiniteAll}`t2`.
 The helper function {anchorName ListProduct}`List.product` can certainly be written with an ordinary recursive function, but here it is defined using {kw}`for` in the identity monad:
 
 ```anchor ListProduct
