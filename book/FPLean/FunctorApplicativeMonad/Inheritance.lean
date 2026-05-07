@@ -183,7 +183,7 @@ def domesticatedTroll : MonstrousAssistant where
 ```
 
 Both of the parent structure types extend {anchorName MythicalCreature}`MythicalCreature`.
-If multiple inheritance were implemented naïvely, then this could lead to a “diamond problem”, where it would be unclear which path to {anchorName MythicalCreature}`large` should be taken from a given {anchorName MonstrousAssistant}`MonstrousAssistant`.
+If multiple inheritance were implemented naively, then this could lead to a “diamond problem”, where it would be unclear which path to {anchorName MythicalCreature}`large` should be taken from a given {anchorName MonstrousAssistant}`MonstrousAssistant`.
 Should it take {lit}`large` from the contained {anchorName Monster}`Monster` or from the contained {anchorName Helper}`Helper`?
 In Lean, the answer is that the first specified path to the grandparent structure is taken, and the additional parent structures' fields are copied rather than having the new structure include both parents directly.
 
