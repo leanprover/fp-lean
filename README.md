@@ -10,5 +10,5 @@ The book's build has been tested with:
 1. Lean 4 (see the version in lean-toolchain in examples/)
 2. expect (tested with v5.45.4 but any version from the last decade should work)
 
-To build the book, change to the "book" directory and run "lake exe fp-lean". After this, "book/out/html-multi" contains a multi-page Web version of the book.
+To build the book, change to the "book" directory and run "lake exe fp-lean". After this, "book/_out/html-multi" contains a multi-page Web version of the book.
 
