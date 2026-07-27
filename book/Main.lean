@@ -10,10 +10,10 @@ def plausible := {{
   }}
 
 
-def config : Config where
+def config : RenderConfig where
   emitTeX := false
-  emitHtmlSingle := false
-  emitHtmlMulti := true
+  emitHtmlSingle := .no
+  emitHtmlMulti := .immediately
   htmlDepth := 2
   extraFiles := [("static", "static")]
   extraCss := [
@@ -27,5 +27,5 @@ def config : Config where
   logo := some "/static/lean_logo.svg"
   sourceLink := some "https://github.com/leanprover/fp-lean"
   issueLink := some "https://github.com/leanprover/fp-lean/issues"
-  linkTargets := fun st => st.localTargets ++ st.remoteTargets
-def main := manualMain (%doc FPLean) (config := config.addKaTeX)
+
+def main := manualMain (%doc FPLean) (config := config)
