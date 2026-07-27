@@ -27,7 +27,7 @@ tag := "arithmetic-classes"
 %%%
 
 Most arithmetic operators are available in a heterogeneous form, where the arguments may have different type and an output parameter decides the type of the resulting expression.
-For each heterogeneous operator, there is a corresponding homogeneous version that can found by removing the letter {lit}`h`, so that {moduleName}`HAdd.hAdd` becomes {moduleName}`Add.add`.
+For each heterogeneous operator, there is a corresponding homogeneous version that can be found by removing the letter {lit}`h`, so that {moduleName}`HAdd.hAdd` becomes {moduleName}`Add.add`.
 The following arithmetic operators are overloaded:
 
 :::table +header
