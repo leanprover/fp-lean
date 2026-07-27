@@ -14,11 +14,9 @@ To build the book, make sure that Lean and expect are installed, and
 
 ```bash
 cd examples    # pre-build examples first
-lean --version # makes sure the needed here Lean version is installed
 lake build
 lake build subverso-extract-mod
 cd ../book     # now the book can be built
-lean --version # makes sure the needed here Lean version is installed
 lake exe fp-lean
 ```
 After this, `book/_out/html-multi` contains a multi-page Web version of the book.
