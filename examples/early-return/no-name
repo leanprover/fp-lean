@@ -1,9 +1,0 @@
-#!/usr/bin/expect -f
-log_user 0
-spawn lean --run EarlyReturn.lean
-log_user 1
-
-expect "?"
-send "\n"
-expect "Hello, David!"
-

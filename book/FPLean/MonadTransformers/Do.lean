@@ -172,25 +172,44 @@ def main (argv : List String) : IO UInt32 := do
   return 0
 ```
 Running it with no arguments and typing the name {lit}`David` yields the same result as the previous version:
-```commands «early-return» "early-return"
-$ expect -f ./run # lean --run EarlyReturn.lean
-How would you like to be addressed?
-David
-Hello, David!
+```interaction «early-return» "early-return"
+{ command := "lean", args := #["--run", "EarlyReturn.lean"],
+  script := #[
+    .expect "How would you like to be addressed?",
+    .send "David",
+    .expect "Hello, David!",
+    .exitCode 0] }
+---
+$ lean --run EarlyReturn.lean
+< How would you like to be addressed?
+> David
+< Hello, David!
 ```
 
 Providing the name as a command-line argument instead of an answer causes an error:
-```commands «early-return» "early-return"
-$ expect -f ./too-many-args # lean --run EarlyReturn.lean David
-Expected no arguments, but got 1
+```interaction «early-return» "early-return"
+{ command := "lean", args := #["--run", "EarlyReturn.lean", "David"],
+  script := #[
+    .expect "Expected no arguments, but got 1",
+    .exitCode 1] }
+---
+$ lean --run EarlyReturn.lean David
+< Expected no arguments, but got 1
 ```
 
 And providing no name causes the other error:
-```commands «early-return» "early-return"
-$ expect -f ./no-name # lean --run EarlyReturn.lean
-How would you like to be addressed?
-
-No name provided
+```interaction «early-return» "early-return"
+{ command := "lean", args := #["--run", "EarlyReturn.lean"],
+  script := #[
+    .expect "How would you like to be addressed?",
+    .send "",
+    .expect "No name provided",
+    .exitCode 1] }
+---
+$ lean --run EarlyReturn.lean
+< How would you like to be addressed?
+>
+< No name provided
 ```
 
 The program that uses early return avoids needing to nest the control flow, as is done in this version that does not use early return:
