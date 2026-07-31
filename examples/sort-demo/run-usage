@@ -1,6 +1,0 @@
-#!/usr/bin/expect -f
-log_user 0
-spawn sort
-log_user 1
-
-expect "Expected single argument"

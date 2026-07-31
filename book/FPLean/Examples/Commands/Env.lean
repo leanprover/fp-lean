@@ -1,8 +1,10 @@
-import Lean.Environment
-import Std.Data.HashMap
+module
+public import Lean.Environment
+public import Std.Data.HashMap
 import SubVerso.Highlighting.Highlighted
 import SubVerso.Module
 
+public section
 
 open Lean Std
 

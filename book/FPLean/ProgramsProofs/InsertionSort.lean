@@ -635,9 +635,14 @@ def main (args : List String) : IO UInt32 := do
 ```
 
 Running it with no arguments produces the expected usage information:
-```commands «sort-sharing» "sort-demo"
-$ expect -f ./run-usage # sort
-Expected single argument, either "--shared" or "--unique"
+```interaction «sort-sharing» "sort-demo"
+{ command := "sort",
+  script := #[
+    .expect "Expected single argument, either \"--shared\" or \"--unique\"",
+    .exitCode 1] }
+---
+$ sort
+< Expected single argument, either "--shared" or "--unique"
 ```
 
 The file {lit}`test-data` contains the following rocks:

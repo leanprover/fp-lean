@@ -71,6 +71,19 @@ target buildExamples (pkg) : Unit := do
 target syncBuildExamples : Unit := do
   .pure <$> (← buildExamples.fetch).await
 
+target pty.o pkg : System.FilePath := do
+  let src ← inputTextFile <| pkg.dir / "expect" / "native" / "pty.c"
+  let oFile := pkg.buildDir / "native" / "pty.o"
+  -- The Lean toolchain is part of the trace, because the object is compiled against its headers
+  buildO oFile src #["-I", (← getLeanIncludeDir).toString] #["-fPIC"] "cc" getLeanTrace
+
+lean_lib Expect where
+  srcDir := "expect"
+  precompileModules := true
+  -- The terminal code is part of the library, so that a change to it reaches everything that
+  -- elaborates against the library
+  moreLinkObjs := #[pty.o]
+
 lean_lib FPLean where
   needs := #[syncBuildExamples]
 

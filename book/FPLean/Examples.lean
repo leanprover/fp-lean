@@ -3,6 +3,7 @@ import Lean.Data.NameMap
 import Lean.DocString.Syntax
 import VersoManual
 import FPLean.Examples.Commands
+import FPLean.Examples.Interaction
 import FPLean.Examples.OtherLanguages
 
 open Lean (NameMap MessageSeverity)
@@ -662,6 +663,17 @@ def command : RoleExpander
     unless output.stderr.isEmpty do
       logSilentInfo <| "Stderr:\n" ++ output.stderr
     let out := «show».getD cmd |>.getString
+    return #[← ``(Inline.other (Inline.shellCommand $(quote out)) #[Inline.code $(quote out)])]
+
+/--
+A command invocation.
+-/
+@[role_expander commandLine]
+def commandLine : RoleExpander
+  | args, inls => do
+    ArgParse.done.run args
+    let cmd ← oneCodeStr inls
+    let out := cmd.getString
     return #[← ``(Inline.other (Inline.shellCommand $(quote out)) #[Inline.code $(quote out)])]
 
 structure CommandBlockConfig extends CommandConfig where
