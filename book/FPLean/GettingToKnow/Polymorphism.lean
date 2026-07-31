@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 open Verso.Genre Manual
@@ -856,7 +857,7 @@ Evaluating it leads to an error:
 #eval allTools
 ```
 ```anchorError evalAllTools
-could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type
+Could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type
   List WoodSplittingTool
 ```
 This is because Lean attempts to use code from a built-in table to display a list, but this code demands that display code for {anchorName WoodSplittingTool}`WoodSplittingTool` already exists.

@@ -127,7 +127,7 @@ theorem processEqual : Original.process = Improved.process := by
     | nil =>
       simp [Original.process, Improved.process]
     | cons head tail ih =>
-      cases decEq head "-" <;> simp [*, ih, Original.process, Improved.process]
+      cases decEq head "-" <;> simp [*, Original.process, Improved.process]
 
 example : Original.main = Improved.main := by
   funext x
@@ -157,9 +157,7 @@ def getNums (n : Nat) : IO (Nat × Nat) := do
 -- ANCHOR_END: getNums
 
 
-/-- error:
-invalid use of `(<- ...)`, must be nested inside a 'do' expression
--/
+/-- error: Nested action `← getNumB` must be nested inside a `do` expression. -/
 #check_msgs in
 -- ANCHOR: testEffects
 def test : IO Unit := do

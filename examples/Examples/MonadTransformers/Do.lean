@@ -9,6 +9,37 @@ set_option linter.unusedVariables false
 namespace StEx
 namespace FancyDo
 
+-- ANCHOR: names
+
+example := IO.FS.Stream.getLine
+
+example := (0 : Nat)
+
+section
+
+example := Std.Rio Nat
+
+example := Std.Rco Nat
+
+example := Std.Roo Nat
+
+example := Std.Roi Nat
+
+example := Std.Rci Nat
+
+example := Std.Rii Nat
+
+example := Std.Ric Nat
+
+example := Std.Roc Nat
+
+example := Std.Rcc Nat
+
+end
+
+-- ANCHOR_END: names
+
+
 -- ANCHOR: countLettersNoElse
 def countLetters (str : String) : StateT LetterCounts (Except Err) Unit :=
   let rec loop (chars : List Char) := do
@@ -133,7 +164,7 @@ def Many.forM [Monad m] : Many α → (α → m PUnit) → m PUnit
     action first
     forM (rest ()) action
 
-instance : ForM m (Many α) α where
+instance [Monad m] : ForM m (Many α) α where
   forM := Many.forM
 -- ANCHOR_END: ManyForM
 
@@ -198,7 +229,7 @@ def AllLessThan.forM [Monad m]
       countdown n
   countdown coll.num
 
-instance : ForM m AllLessThan Nat where
+instance [Monad m] : ForM m AllLessThan Nat where
   forM := AllLessThan.forM
 -- ANCHOR_END: AllLessThanForM
 
@@ -217,7 +248,7 @@ instance : ForM m AllLessThan Nat where
 
 
 -- ANCHOR: ForInIOAllLessThan
-instance : ForIn m AllLessThan Nat where
+instance [Monad m] : ForIn m AllLessThan Nat where
   forIn := ForM.forIn
 -- ANCHOR_END: ForInIOAllLessThan
 
@@ -331,7 +362,9 @@ def two : Nat := Id.run do
   return x
 -- ANCHOR_END: two
 
+--ANCHOR: two_spec
 example : two = 2 := by rfl
+--ANCHOR_END: two_spec
 
 namespace St
 
@@ -370,8 +403,10 @@ def six : Nat := Id.run do
 example : six = 6 := by rfl
 
 
-/-- error:
-`found` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intend to mutate but define `found`, consider using `let found` instead
+/--
+error:
+Variable `found` cannot be mutated. Only variables declared using `let mut` can be mutated.
+      If you did not intend to mutate but define `found`, consider using `let found` instead
 -/
 #check_msgs in
 -- ANCHOR: nonLocalMut
@@ -392,100 +427,38 @@ similar datatypes ForM Loops.Fake.ForM
 
 namespace Ranges
 
-deriving instance Repr for Std.Range
-
 --NB in this section, using the typical bookExample macro fails
 --because `stop` has become a reserved word due to another macro.
 -- These tests are here in support of a table.
 
-def rangeToList (r : Std.Range) : List Nat := Id.run do
-  let mut out : List Nat := []
-  for i in r do
-    out := out ++ [i]
-  pure out
+--- ANCHOR: ranges
+#check *...10
 
-/-- info:
-{ start := 0, stop := 10, step := 1, step_pos := _ }
--/
-#check_msgs in
--- ANCHOR: rangeStop
-#eval [:10]
--- ANCHOR_END: rangeStop
+#check 3...10
 
-/-- info:
-[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
--/
-#check_msgs in
--- ANCHOR: rangeStopContents
-#eval rangeToList [:10]
--- ANCHOR_END: rangeStopContents
+#check 3...=10
 
+#check 3<...=10
 
-/-- info:
-{ start := 2, stop := 10, step := 1, step_pos := _ }
--/
-#check_msgs in
--- ANCHOR: rangeStartStop
-#eval [2:10]
--- ANCHOR_END: rangeStartStop
+#check 3...=10
 
-/-- info:
-[2, 3, 4, 5, 6, 7, 8, 9]
--/
-#check_msgs in
--- ANCHOR: rangeStartStopContents
-#eval rangeToList [2:10]
--- ANCHOR_END: rangeStartStopContents
+#check 3<...10
 
-/-- info:
-{ start := 0, stop := 10, step := 3, step_pos := _ }
--/
-#check_msgs in
--- ANCHOR: rangeStopStep
-#eval [:10:3]
--- ANCHOR_END: rangeStopStep
+#check 3...*
 
+#check 10...3
 
--- ANCHOR: ranges
+#guard (10...3).size == 0
 
-example : Std.Range := [:10]
-example : Std.Range := [2:10]
-example : Std.Range := [:10:3]
-example : Std.Range := [2:10:3]
-example := [0, 10, 1, 2, 3]
-example := IO.FS.Stream.getLine
--- ANCHOR_END: ranges
+#check (3<...10)
 
-
-/-- info:
-[0, 3, 6, 9]
--/
-#check_msgs in
--- ANCHOR: rangeStopStepContents
-#eval rangeToList [:10:3]
--- ANCHOR_END: rangeStopStepContents
-
-/-- info:
-{ start := 2, stop := 10, step := 3, step_pos := _ }
--/
-#check_msgs in
--- ANCHOR: rangeStartStopStep
-#eval [2:10:3]
--- ANCHOR_END: rangeStartStopStep
-
-/-- info:
-[2, 5, 8]
--/
-#check_msgs in
--- ANCHOR: rangeStartStopStepContents
-#eval rangeToList [2:10:3]
--- ANCHOR_END: rangeStartStopStepContents
-
+#check 2
+---ANCHOR_END: ranges
 
 -- ANCHOR: fourToEight
 def fourToEight : IO Unit := do
-  for i in [4:9:2] do
-    IO.println i
+  for i in 2...5 do
+    IO.println (i * 2)
 -- ANCHOR_END: fourToEight
 
 /-- info:
@@ -525,8 +498,9 @@ example : Id Unit := do
 -- ANCHOR_END: collapsedBlock
 
 
-/-- error:
-`x` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intend to mutate but define `x`, consider using `let x` instead
+/--
+error: Variable `x` cannot be mutated. Only variables declared using `let mut` can be mutated.
+      If you did not intend to mutate but define `x`, consider using `let x` instead
 -/
 #check_msgs in
 -- ANCHOR: letBodyNotBlock
@@ -548,8 +522,9 @@ example : Id Unit := do
 -- ANCHOR_END: letBodyArrBlock
 
 
-/-- error:
-`x` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intend to mutate but define `x`, consider using `let x` instead
+/--
+error: Variable `x` cannot be mutated. Only variables declared using `let mut` can be mutated.
+      If you did not intend to mutate but define `x`, consider using `let x` instead
 -/
 #check_msgs in
 -- ANCHOR: funArgNotBlock

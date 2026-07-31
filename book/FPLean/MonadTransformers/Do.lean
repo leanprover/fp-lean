@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 open Verso.Genre Manual
@@ -162,8 +163,8 @@ def main (argv : List String) : IO UInt32 := do
   stdout.putStrLn "How would you like to be addressed?"
   stdout.flush
 
-  let name := (← stdin.getLine).trim
-  if name == "" then
+  let name := (← stdin.getLine).trimAscii
+  if name.isEmpty then
     stderr.putStrLn s!"No name provided"
     return 1
 
@@ -226,8 +227,8 @@ def main (argv : List String) : IO UInt32 := do
     stdout.putStrLn "How would you like to be addressed?"
     stdout.flush
 
-    let name := (← stdin.getLine).trim
-    if name == "" then
+    let name := (← stdin.getLine).trimAscii
+    if name.isEmpty then
       stderr.putStrLn s!"No name provided"
       pure 1
     else
@@ -314,7 +315,7 @@ def Many.forM [Monad m] : Many α → (α → m PUnit) → m PUnit
     action first
     forM (rest ()) action
 
-instance : ForM m (Many α) α where
+instance [Monad m] : ForM m (Many α) α where
   forM := Many.forM
 ```
 
@@ -338,7 +339,7 @@ def AllLessThan.forM [Monad m]
       countdown n
   countdown coll.num
 
-instance : ForM m AllLessThan Nat where
+instance [Monad m] : ForM m AllLessThan Nat where
   forM := AllLessThan.forM
 ```
 Running {anchorName AllLessThanForMRun}`IO.println` on each number less than five can be accomplished with {anchorName ForM}`ForM`:
@@ -370,7 +371,7 @@ instance : ForM IO LinesOf String where
   forM := LinesOf.forM
 ```
 The definition of {anchorName ForM}`ForM` is marked {kw}`partial` because there is no guarantee that the stream is finite.
-In this case, {anchorName ranges}`IO.FS.Stream.getLine` works only in the {anchorName countToThree}`IO` monad, so no other monad can be used for looping.
+In this case, {anchorName names}`IO.FS.Stream.getLine` works only in the {anchorName countToThree}`IO` monad, so no other monad can be used for looping.
 
 This example program uses this looping construct to filter out lines that don't contain letters:
 ```anchor main (module := ForMIO)
@@ -472,7 +473,7 @@ The standard library provides an adapter that converts a {anchorName ForM}`ForM`
 To enable {kw}`for` loops based on a {anchorName ForM}`ForM` instance, add something like the following, with appropriate replacements for {anchorName AllLessThan}`AllLessThan` and {anchorName AllLessThan}`Nat`:
 
 ```anchor ForInIOAllLessThan
-instance : ForIn m AllLessThan Nat where
+instance [Monad m] : ForIn m AllLessThan Nat where
   forIn := ForM.forIn
 ```
 Note, however, that this adapter only works for {anchorName ForM}`ForM` instances that keep the monad unconstrained, as most of them do.
@@ -500,59 +501,41 @@ def List.find? (p : α → Bool) (xs : List α) : Option α := do
   failure
 ```
 
-A {anchorName ranges}`Std.Range` is a structure that consists of a starting number, an ending number, and a step.
-They represent a sequence of natural numbers, from the starting number to the ending number, increasing by the step each time.
-Lean has special syntax to construct ranges, consisting of square brackets, numbers, and colons that comes in four varieties.
-The stopping point must always be provided, while the start and the step are optional, defaulting to {anchorTerm ranges}`0` and {anchorTerm ranges}`1`, respectively:
+A {deftech}_range_ represents a series of consecutive elements of some type, from a lower bound to an upper bound.
+The bounds may be {deftech}_open_, in which case the bound is not included in the range, or {deftech}_closed_, in which case the bound is included in the range.
+Either bound may be omitted, in which case the range extends infinitely in the corresponding direction.
 
-:::table +header
-*
- *  Expression
- *  Start
- *  Stop
- *  Step
- *  As List
+:::paragraph
+Ranges are represented by a collection of types with a naming convention that describes their bounds.
+Each type's name beings with {lit}`R`, and the next two letters determine the bound:
 
-*
- *  {anchorTerm rangeStopContents}`[:10]`
- *  {anchorTerm ranges}`0`
- *  {anchorTerm rangeStop}`10`
- *  {anchorTerm ranges}`1`
- *  {anchorInfo rangeStopContents}`[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]`
+* {lit}`o` represents an open range, where the bound value is not included
+* {lit}`c` represents a closed range, where the bound value is included
+* {lit}`i` represents an infinite range that is unbounded in the given direction
 
-*
- *  {anchorTerm rangeStartStopContents}`[2:10]`
- *  {anchorTerm rangeStartStopContents}`2`
- *  {anchorTerm rangeStartStopContents}`10`
- *  {anchorTerm ranges}`1`
- *  {anchorInfo rangeStartStopContents}`[2, 3, 4, 5, 6, 7, 8, 9]`
-
-*
- *  {anchorTerm rangeStopStepContents}`[:10:3]`
- *  {anchorTerm ranges}`0`
- *  {anchorTerm rangeStartStopContents}`10`
- *  {anchorTerm rangeStopStepContents}`3`
- *  {anchorInfo rangeStopStepContents}`[0, 3, 6, 9]`
-
-*
- *  {anchorTerm rangeStartStopStepContents}`[2:10:3]`
- *  {anchorTerm rangeStartStopStepContents}`2`
- *  {anchorTerm rangeStartStopStepContents}`10`
- *  {anchorTerm rangeStartStopStepContents}`3`
- *  {anchorInfo rangeStartStopStepContents}`[2, 5, 8]`
-
+For example, the type {anchorTerm names}`Std.Rco Nat` represents left-closed right-open sequences of {anchorName names}`Nat`s that include their lower bound but omit their upper bound, and {anchorTerm names}`Std.Roi Nat` represents infinite sequences of {anchorName names}`Nat`s that begin just above their lower bound.
+Even though {anchorTerm names}`Std.Rio Nat` has no lower bound, the sequence is finite because {anchorName names}`Nat` itself has an inherent lower bound of {anchorTerm names}`0`.
 :::
 
-Note that the starting number _is_ included in the range, while the stopping numbers is not.
-All three arguments are {anchorName three}`Nat`s, which means that ranges cannot count down—a range where the starting number is greater than or equal to the stopping number simply contains no numbers.
+Lean has special syntax to construct ranges, in which each bound can be specified.
+A range is specified by placing three dots between its bounds, which may themselves be specified as either specific values or asterisks for infinite ranges.
+For example, the range from {anchorTerm ranges}`3` to {anchorTerm ranges}`10` is written {anchorTerm ranges}`3...10`.
+By default, ranges are left-closed right-open.
+This means that {anchorTerm ranges}`3...10` includes {anchorTerm ranges}`3` but does not include {anchorTerm ranges}`10`.
+These defaults can be overridden: {lit}`<` can be used to specify an open bound, and {lit}`=` to specify a closed bound.
+{anchorTerm ranges}`3<...=10` does not include {anchorTerm ranges}`3`, but it does include {anchorTerm ranges}`10`, while {anchorTerm ranges}`3...=10` includes both and {anchorTerm ranges}`3<...10` includes neither.
+
+Ranges are always in ascending order.
+If the lower bound of a range is greater than its upper bound, then it includes no values, rather than proceeding in reverse order.
+For example, {anchorTerm ranges}`10...3` is empty.
 
 Ranges can be used with {kw}`for` loops to draw numbers from the range.
-This program counts even numbers from four to eight:
+This program prints the even numbers from four to eight:
 
 ```anchor fourToEight
 def fourToEight : IO Unit := do
-  for i in [4:9:2] do
-    IO.println i
+  for i in 2...5 do
+    IO.println (i * 2)
 ```
 Running it yields:
 ```anchorInfo fourToEightOut
@@ -601,7 +584,7 @@ Behind the scenes, these mutable variables desugar to code that's equivalent to 
 Once again, functional programming is used to simulate imperative programming.
 
 A local mutable variable is introduced with {kw}`let mut` instead of plain {kw}`let`.
-The definition {anchorName two}`two`, which uses the identity monad {anchorName sameBlock}`Id` to enable {kw}`do`-syntax without introducing any effects, counts to {anchorTerm ranges}`2`:
+The definition {anchorName two}`two`, which uses the identity monad {anchorName sameBlock}`Id` to enable {kw}`do`-syntax without introducing any effects, counts to {anchorTerm two_spec}`2`:
 
 ```anchor two
 def two : Nat := Id.run do
@@ -669,7 +652,8 @@ def List.count (p : α → Bool) (xs : List α) : Nat := Id.run do
 ```
 yields the following error on the attempted mutation of {anchorName nonLocalMut}`found`:
 ```anchorError nonLocalMut
-`found` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intend to mutate but define `found`, consider using `let found` instead
+Variable `found` cannot be mutated. Only variables declared using `let mut` can be mutated.
+      If you did not intend to mutate but define `found`, consider using `let found` instead
 ```
 This is because the recursive function is written in the identity monad, and only the monad of the {kw}`do`-block in which the variable is introduced is transformed with {anchorName twoStateT}`StateT`.
 
@@ -703,7 +687,8 @@ example : Id Unit := do
   other
 ```
 ```anchorError letBodyNotBlock
-`x` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intend to mutate but define `x`, consider using `let x` instead
+Variable `x` cannot be mutated. Only variables declared using `let mut` can be mutated.
+      If you did not intend to mutate but define `x`, consider using `let x` instead
 ```
 However, a {kw}`do`-block that occurs under a {kw}`let`-statement that defines a name using {lit}`←` is considered part of the surrounding block.
 The following program is accepted:
@@ -726,7 +711,8 @@ example : Id Unit := do
     x := 5
 ```
 ```anchorError funArgNotBlock
-`x` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intend to mutate but define `x`, consider using `let x` instead
+Variable `x` cannot be mutated. Only variables declared using `let mut` can be mutated.
+      If you did not intend to mutate but define `x`, consider using `let x` instead
 ```
 
 If the {kw}`do` keyword is completely redundant, then it does not introduce a new block.

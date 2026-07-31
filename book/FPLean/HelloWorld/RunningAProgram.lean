@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 
@@ -142,7 +143,7 @@ def main : IO Unit := do
 
   stdout.putStrLn "How would you like to be addressed?"
   let input ← stdin.getLine
-  let name := input.dropRightWhile Char.isWhitespace
+  let name := input.dropEndWhile Char.isWhitespace
 
   stdout.putStrLn s!"Hello, {name}!"
 ```
@@ -199,11 +200,11 @@ The next part of the {moduleTerm}`do` block is responsible for asking the user f
 ```module (anchor:=question)
   stdout.putStrLn "How would you like to be addressed?"
   let input ← stdin.getLine
-  let name := input.dropRightWhile Char.isWhitespace
+  let name := input.dropEndWhile Char.isWhitespace
 ```
 
 The first line writes the question to {moduleTerm (anchor := setup)}`stdout`, the second line requests input from {moduleTerm (anchor := setup)}`stdin`, and the third line removes the trailing newline (plus any other trailing whitespace) from the input line.
-The definition of {moduleTerm (anchor := question)}`name` uses {lit}`:=`, rather than {lit}`←`, because {moduleTerm}`String.dropRightWhile` is an ordinary function on strings, rather than an {moduleTerm (anchor := sig)}`IO` action.
+The definition of {moduleTerm (anchor := question)}`name` uses {lit}`:=`, rather than {lit}`←`, because {moduleTerm}`String.dropEndWhile` is an ordinary function on strings, rather than an {moduleTerm (anchor := sig)}`IO` action.
 
 Finally, the last line in the program is:
 ```module (anchor:=answer)

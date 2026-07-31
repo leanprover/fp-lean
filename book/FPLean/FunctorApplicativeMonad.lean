@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 import FPLean.FunctorApplicativeMonad.Inheritance
 import FPLean.FunctorApplicativeMonad.Applicative

@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 open Verso.Genre Manual
@@ -177,6 +178,7 @@ OptionT.mk do
   | some x => f x
 ={
 /-- Desugaring `do`-notation -/
+by simp only [bind_pure, pure_bind]
 }=
 OptionT.mk
   (pure (some v) >>= fun y =>

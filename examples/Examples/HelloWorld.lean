@@ -19,7 +19,7 @@ stop discarding
 -/
 #check_msgs in
 -- ANCHOR: dropBang
-#eval "Hello!!!".dropRightWhile (· == '!')
+#eval ("Hello!!!".dropEndWhile (· == '!')).copy
 -- ANCHOR_END: dropBang
 
 /-- info:
@@ -27,7 +27,7 @@ stop discarding
 -/
 #check_msgs in
 -- ANCHOR: dropNonLetter
-#eval "Hello...   ".dropRightWhile (fun c => not (c.isAlphanum))
+#eval ("Hello...   ".dropEndWhile (fun c => not (c.isAlphanum))).copy
 -- ANCHOR_END: dropNonLetter
 
 

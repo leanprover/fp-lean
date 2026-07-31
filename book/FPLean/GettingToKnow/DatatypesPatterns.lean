@@ -1,5 +1,8 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
+
+
 
 open Verso.Genre Manual
 open Verso Code External
@@ -398,7 +401,7 @@ with errors
 failed to infer structural recursion:
 Not considering parameter k of div:
   it is unchanged in the recursive calls
-Cannot use parameter k:
+Cannot use parameter n:
   failed to eliminate recursive application
     div (n - k) k
 

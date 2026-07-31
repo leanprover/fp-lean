@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 open Verso.Genre Manual
@@ -371,7 +372,7 @@ theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
 ```
 ```anchorError le_succ_of_le3
 unsolved goals
-case refl.a
+case refl
 n m : Nat
 ⊢ n.le n
 ```
@@ -402,7 +403,7 @@ theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
 ```
 ```anchorError le_succ_of_le5
 unsolved goals
-case step.a
+case step
 n m m✝ : Nat
 a✝ : n.le m✝
 ih : n ≤ m✝ + 1
@@ -672,7 +673,7 @@ termination_by xs.length
 ```
 The warning is located on the name {anchorName mergeSortSorry}`mergeSort`:
 ```anchorWarning mergeSortSorry
-declaration uses 'sorry'
+declaration uses `sorry`
 ```
 Because there are no errors, the proposed propositions are enough to establish termination.
 
@@ -695,8 +696,7 @@ termination_by xs.length
 Both proofs fail, because {anchorName mergeSortNeedsGte}`splitList_shorter_fst` and {anchorName mergeSortNeedsGte}`splitList_shorter_snd` both require a proof that {anchorTerm mergeSortGteStarted}`xs.length ≥ 2`:
 ```anchorError mergeSortNeedsGte
 unsolved goals
-case h
-α : Type ?u.80367
+α : Type ?u.3
 inst✝ : Ord α
 xs : List α
 h : ¬xs.length < 2
@@ -724,7 +724,7 @@ termination_by xs.length
 ```
 Once again, there is only a warning.
 ```anchorWarning mergeSortGteStarted
-declaration uses 'sorry'
+declaration uses `sorry`
 ```
 
 There is one promising assumption available: {lit}`h : ¬List.length xs < 2`, which comes from the {kw}`if`.
@@ -790,7 +790,7 @@ with errors
 failed to infer structural recursion:
 Not considering parameter k of div:
   it is unchanged in the recursive calls
-Cannot use parameter k:
+Cannot use parameter n:
   failed to eliminate recursive application
     div (n - k) k
 

@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 open Verso.Genre Manual
@@ -85,10 +86,10 @@ instance {t : NestedPairs} : BEq t.asType where
   beq x y := x == y
 ```
 ```anchorError beqNoCases
-failed to synthesize
+failed to synthesize instance of type class
   BEq t.asType
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ```
 The {anchorName beqNoCases}`t` in the error message stands for an unknown value of type {anchorName beqNoCases}`NestedPairs`.
 

@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 
@@ -126,7 +127,7 @@ which runs {moduleName (module := Examples.Cat)}`getNumB` regardless of whether 
 To prevent this confusion, nested actions are not allowed in an {kw}`if` that is not itself a line in the {moduleTerm (module := Examples.Cat)}`do`, and the following error message results:
 
 ```anchorError testEffects (module := Examples.Cat)
-invalid use of `(<- ...)`, must be nested inside a 'do' expression
+Nested action `← getNumB` must be nested inside a `do` expression.
 ```
 
 

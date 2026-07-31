@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 open Verso.Genre Manual
@@ -181,13 +182,13 @@ def perhapsPerhapsPerhapsNat : Option (Option (Option Nat)) :=
   392
 ```
 ```anchorError ofNatBeforeCoe
-failed to synthesize
+failed to synthesize instance of type class
   OfNat (Option (Option (Option Nat))) 392
 numerals are polymorphic in Lean, but the numeral `392` cannot be used in a context where the expected type is
   Option (Option (Option Nat))
 due to the absence of the instance above
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ```
 :::
 
@@ -520,13 +521,13 @@ def perhapsPerhapsPerhapsNat : Option (Option (Option Nat)) :=
   392
 ```
 ```anchorError ofNatBeforeCoe
-failed to synthesize
+failed to synthesize instance of type class
   OfNat (Option (Option (Option Nat))) 392
 numerals are polymorphic in Lean, but the numeral `392` cannot be used in a context where the expected type is
   Option (Option (Option Nat))
 due to the absence of the instance above
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ```
 
 # Design Considerations

@@ -1,9 +1,11 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 import FPLean.GettingToKnow.Evaluating
 import FPLean.GettingToKnow.Types
 import FPLean.GettingToKnow.FunctionsDefinitions
 import FPLean.GettingToKnow.Structures
+import FPLean.GettingToKnow.Strings
 import FPLean.GettingToKnow.DatatypesPatterns
 import FPLean.GettingToKnow.Polymorphism
 import FPLean.GettingToKnow.Conveniences
@@ -45,6 +47,8 @@ examples, and see what happens!
 {include 1 FPLean.GettingToKnow.FunctionsDefinitions}
 
 {include 1 FPLean.GettingToKnow.Structures}
+
+{include 1 FPLean.GettingToKnow.Strings}
 
 {include 1 FPLean.GettingToKnow.DatatypesPatterns}
 

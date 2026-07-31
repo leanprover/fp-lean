@@ -28,10 +28,19 @@ input_dir examples where
   text := true
   filter := .extension "lean"
 
-input_dir exampleBinaries where
-  path := examplePath / ".lake" / "build" / "bin"
-  text := false
+private def exampleBinPath : System.FilePath := examplePath / ".lake" / "build" / "bin"
 
+/--
+The compiled example binaries.
+
+Yields an empty array when the examples have yet to be built, so that the build that produces
+them can run.
+-/
+target exampleBinaries : Array FilePath := do
+  if (← exampleBinPath.pathExists) then
+    inputDir exampleBinPath (text := false) (filter := fun _ => true)
+  else
+    return .pure #[]
 
 target buildExamples (pkg) : Unit := do
   let exs ← examples.fetch
@@ -40,6 +49,8 @@ target buildExamples (pkg) : Unit := do
   let toolchain ← IO.FS.readFile toolchainFile
   let toolchain := toolchain.trimAscii |>.dropPrefix "leanprover/lean4:" |>.dropPrefix "v" |>.copy
   addPureTrace toolchain
+  -- The manifest is part of the trace, because the versions it pins determine the extracted output
+  addTrace (← computeTrace <| TextFilePath.mk <| examplePath / "lake-manifest.json")
   exBins.bindM fun binFiles => do
     for file in binFiles do
       if file.extension.isNone || file.extension.isEqSome System.FilePath.exeExtension then
@@ -68,8 +79,12 @@ target buildExamples (pkg) : Unit := do
         IO.FS.createDirAll pkg.buildDir
         IO.FS.writeFile (pkg.buildDir / "examples-built") (list ++ "--- Output ---\n" ++ out)
 
-target syncBuildExamples : Unit := do
-  .pure <$> (← buildExamples.fetch).await
+/--
+Forces the examples to be built, carrying their trace so that a change to an example reaches
+everything that elaborates against it.
+-/
+target syncBuildExamples : Unit :=
+  buildExamples.fetch
 
 target pty.o pkg : System.FilePath := do
   let src ← inputTextFile <| pkg.dir / "expect" / "native" / "pty.c"

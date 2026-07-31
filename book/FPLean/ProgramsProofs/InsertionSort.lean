@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 open Verso.Genre Manual
@@ -223,7 +224,7 @@ def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
 termination_by arr.size - i
 ```
 ```anchorWarning insertionSortLoopSorry
-declaration uses 'sorry'
+declaration uses `sorry`
 ```
 
 Because {anchorName insertionSortLoop}`insertSorted` is structurally recursive on the index of the element being inserted, the proof should be by induction on the index.
@@ -593,7 +594,7 @@ def getLines : IO (Array String) := do
   let mut currLine ← stdin.getLine
   while !currLine.isEmpty do
      -- Drop trailing newline:
-    lines := lines.push (currLine.dropRight 1)
+    lines := lines.push (currLine.dropEnd 1).copy
     currLine ← stdin.getLine
   pure lines
 ```
