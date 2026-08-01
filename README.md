@@ -15,7 +15,6 @@ To build the book, make sure that Lean and expect are installed, and
 ```bash
 cd examples    # pre-build examples first
 lake build
-lake build subverso-extract-mod
 cd ../book     # now the book can be built
 lake exe fp-lean
 ```
