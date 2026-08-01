@@ -154,14 +154,21 @@ Just as SQL can be thought of as a special-purpose language for interacting with
 
 This program can be run in the same manner as the prior program:
 
-{command helloName "hello-name" "expect -f ./run" (show := "lean --run HelloName.lean")}
+{commandLine}`lean --run HelloName.lean`
 
 If the user responds with {lit}`David`, a session of interaction with the program reads:
 
-```commandOut helloName "expect -f ./run"
-How would you like to be addressed?
-David
-Hello, David!
+```interaction helloName "hello-name" -showCommand
+{ command := "lean", args := #["--run", "HelloName.lean"],
+  script := #[
+    .expect "How would you like to be addressed?",
+    .send "David",
+    .expect "Hello, David!",
+    .exitCode 0] }
+---
+< How would you like to be addressed?
+> David
+< Hello, David!
 ```
 
 The type signature line is just like the one for {lit}`Hello.lean`:

@@ -23,7 +23,7 @@ open Lean (quote) in
 def versionString : RoleExpander
   | #[], #[] => do
     let version ← IO.FS.readFile "../examples/lean-toolchain"
-    let version := version.stripPrefix "leanprover/lean4:" |>.trim
+    let version := version.trimAscii.dropPrefix "leanprover/lean4:" |>.copy
     pure #[← ``(Verso.Doc.Inline.code $(quote version))]
   | _, _ => throwError "Unexpected arguments"
 
@@ -35,7 +35,7 @@ authors := ["David Thrane Christiansen"]
 %%%
 
 
-_Copyright Microsoft Corporation 2023 and Lean FRO, LLC 2023–2025_
+_Copyright Microsoft Corporation 2023 and Lean FRO, LLC 2023–2026_
 
 
 

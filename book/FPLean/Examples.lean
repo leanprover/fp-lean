@@ -3,6 +3,7 @@ import Lean.Data.NameMap
 import Lean.DocString.Syntax
 import VersoManual
 import FPLean.Examples.Commands
+import FPLean.Examples.Interaction
 import FPLean.Examples.OtherLanguages
 
 open Lean (NameMap MessageSeverity)
@@ -163,7 +164,7 @@ block_extension Block.leanEvalSteps (steps : Array Highlighted) via withHighligh
     some <| fun _ _ _ data _ => do
       match FromJson.fromJson? data with
       | .error err =>
-        HtmlT.logError <| "Couldn't deserialize Lean code block while rendering HTML: " ++ err
+        reportError <| "Couldn't deserialize Lean code block while rendering HTML: " ++ err
         pure .empty
       | .ok (steps : Array Highlighted) =>
         let i := steps.map (·.indentation) |>.toList |>.min? |>.getD 0
@@ -263,7 +264,7 @@ block_extension Block.leanOutput (severity : MessageSeverity) (message : String)
     some <| fun _ _ _ data _ => do
       match FromJson.fromJson? data with
       | .error err =>
-        HtmlT.logError <| "Couldn't deserialize Lean code while rendering HTML: " ++ err
+        reportError <| "Couldn't deserialize Lean code while rendering HTML: " ++ err
         pure .empty
       | .ok ((sev, txt, summarize) : MessageSeverity × String × Bool) =>
         let wrap html :=
@@ -590,7 +591,7 @@ inline_extension Inline.shellCommand (command : String) where
   toTeX := none
   toHtml := some fun _ _ data _ => do
     let .str command := data
-      | HtmlT.logError s!"Failed to deserialize commands:\n{data}"
+      | reportError s!"Failed to deserialize commands:\n{data}"
         return .empty
     let piece := {{ <code class="command">{{command}}</code> }}
     pure {{
@@ -618,7 +619,7 @@ block_extension Block.shellCommand (command : String) (prompt : Option String) w
   toTeX := none
   toHtml := some fun _ _ _ data _ => do
     let .arr #[.str command, prompt?] := data
-      | HtmlT.logError s!"Failed to deserialize commands:\n{data}"
+      | reportError s!"Failed to deserialize commands:\n{data}"
         return .empty
     let prompt? :=
       match prompt? with
@@ -662,6 +663,17 @@ def command : RoleExpander
     unless output.stderr.isEmpty do
       logSilentInfo <| "Stderr:\n" ++ output.stderr
     let out := «show».getD cmd |>.getString
+    return #[← ``(Inline.other (Inline.shellCommand $(quote out)) #[Inline.code $(quote out)])]
+
+/--
+A command invocation.
+-/
+@[role_expander commandLine]
+def commandLine : RoleExpander
+  | args, inls => do
+    ArgParse.done.run args
+    let cmd ← oneCodeStr inls
+    let out := cmd.getString
     return #[← ``(Inline.other (Inline.shellCommand $(quote out)) #[Inline.code $(quote out)])]
 
 structure CommandBlockConfig extends CommandConfig where
@@ -730,7 +742,7 @@ block_extension Block.shellCommands (segments : Array (String × Bool)) where
   toTeX := none
   toHtml := some fun _ _ _ data _ => do
     let .ok (segments : Array (String × Bool)) := fromJson? data
-      | HtmlT.logError s!"Failed to deserialize commands:\n{data}"
+      | reportError s!"Failed to deserialize commands:\n{data}"
         return .empty
     let pieces := segments.map fun (s, cmd) =>
       {{ <code class={{if cmd then "command" else "output"}}>{{s}}</code> }}
@@ -783,7 +795,7 @@ def commands : CodeBlockExpander
         quoted := false
         if line.contains '#' then
           let cmd := line.takeWhile (· ≠ '#')
-          let rest := (line.drop (cmd.positions.count + 1)).trimAscii.copy
+          let rest := (line.drop (cmd.positions.length + 1)).trimAscii.copy
           commands := commands.push (.run cmd.trimAscii.copy (some rest))
         else
           commands := commands.push (.run line.copy none)

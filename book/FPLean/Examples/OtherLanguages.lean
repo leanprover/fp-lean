@@ -1,8 +1,13 @@
+module
 import SubVerso.Examples
 import Lean.Data.NameMap
 import Std.Data.HashMap
 import VersoManual
 import Lean.DocString.Syntax
+public import Verso.Doc.Elab.Monad
+public meta import Verso.ExpectString
+
+public section
 
 open Lean (NameMap MessageSeverity)
 open Lean.Doc.Syntax
@@ -18,12 +23,12 @@ open Lean
 -- TODO syntax highlighting for C#, TypeScript, Python etc (use the same technique as C in the manual)
 
 @[code_block_expander CSharp]
-def CSharp : CodeBlockExpander
+meta def CSharp : CodeBlockExpander
   | _args, code => do
     return #[← ``(Block.code $(quote code.getString))]
 
 @[role_expander CSharp]
-def inlineCSharp : RoleExpander
+meta def inlineCSharp : RoleExpander
   | _args, code => do
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
@@ -32,12 +37,12 @@ def inlineCSharp : RoleExpander
     return #[← ``(Inline.code $(quote code.getString))]
 
 @[code_block_expander Kotlin]
-def Kotlin : CodeBlockExpander
+meta def Kotlin : CodeBlockExpander
   | _args, code => do
     return #[← ``(Block.code $(quote code.getString))]
 
 @[role_expander Kotlin]
-def inlineKotlin : RoleExpander
+meta def inlineKotlin : RoleExpander
   | _args, code => do
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
@@ -46,12 +51,12 @@ def inlineKotlin : RoleExpander
     return #[← ``(Inline.code $(quote code.getString))]
 
 @[code_block_expander cpp]
-def cpp : CodeBlockExpander
+meta def cpp : CodeBlockExpander
   | _args, code => do
     return #[← ``(Block.code $(quote code.getString))]
 
 @[role_expander cpp]
-def inlineCpp : RoleExpander
+meta def inlineCpp : RoleExpander
   | _args, code => do
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
@@ -61,12 +66,12 @@ def inlineCpp : RoleExpander
 
 
 @[code_block_expander typescript]
-def typescript : CodeBlockExpander
+meta def typescript : CodeBlockExpander
   | _args, code => do
     return #[← ``(Block.code $(quote code.getString))]
 
 @[role_expander typescript]
-def inlineTypescript : RoleExpander
+meta def inlineTypescript : RoleExpander
   | _args, code => do
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
@@ -75,7 +80,7 @@ def inlineTypescript : RoleExpander
     return #[← ``(Inline.code $(quote code.getString))]
 
 @[role_expander c]
-def c : RoleExpander
+meta def c : RoleExpander
   | _args, code => do
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
@@ -84,7 +89,7 @@ def c : RoleExpander
     return #[← ``(Inline.code $(quote code.getString))]
 
 @[role_expander java]
-def java : RoleExpander
+meta def java : RoleExpander
   | _args, code => do
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
@@ -93,7 +98,7 @@ def java : RoleExpander
     return #[← ``(Inline.code $(quote code.getString))]
 
 @[role_expander rust]
-def rust : RoleExpander
+meta def rust : RoleExpander
   | _args, code => do
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
@@ -102,12 +107,12 @@ def rust : RoleExpander
     return #[← ``(Inline.code $(quote code.getString))]
 
 @[code_block_expander python]
-def python : CodeBlockExpander
+meta def python : CodeBlockExpander
   | _args, code => do
     return #[← ``(Block.code $(quote code.getString))]
 
 @[role_expander python]
-def inlinePython : RoleExpander
+meta def inlinePython : RoleExpander
   | _args, code => do
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
@@ -116,12 +121,12 @@ def inlinePython : RoleExpander
     return #[← ``(Inline.code $(quote code.getString))]
 
 @[code_block_expander fsharp]
-def fsharp : CodeBlockExpander
+meta def fsharp : CodeBlockExpander
   | _args, code => do
     return #[← ``(Block.code $(quote code.getString))]
 
 @[role_expander fsharp]
-def fsharpInline : RoleExpander
+meta def fsharpInline : RoleExpander
   | _args, code => do
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
@@ -131,7 +136,7 @@ def fsharpInline : RoleExpander
 
 
 @[code_block_expander fsharpError]
-def fsharpError : CodeBlockExpander
+meta def fsharpError : CodeBlockExpander
   | _args, code => do
     return #[← ``(Block.code $(quote code.getString))]
 
@@ -140,12 +145,12 @@ section
 
 variable [Monad m] [MonadError m]
 
-structure IncludePythonConfig where
+meta structure IncludePythonConfig where
   file : String
   anchor? : Option Ident
 
-instance : FromArgs IncludePythonConfig m where
-  fromArgs :=   IncludePythonConfig.mk <$> .positional' `file <*> .named' `anchor true
+meta instance : FromArgs IncludePythonConfig m where
+  fromArgs := IncludePythonConfig.mk <$> .positional' `file <*> .named' `anchor true
 
 end
 
@@ -156,7 +161,7 @@ and `false` for an end.
 An anchor consists of a line that contains `ANCHOR:` or `ANCHOR_END:` followed by the name
 of the anchor.
 -/
-def anchor? (line : String) : Except String (String × Bool) := do
+meta def anchor? (line : String) : Except String (String × Bool) := do
   let mut line := line.trimAscii
   line := line.dropWhile (· ≠ 'A')
   if line.startsWith "ANCHOR:" then
@@ -169,7 +174,7 @@ def anchor? (line : String) : Except String (String × Bool) := do
     if line.isEmpty then throw "Expected name after `ANCHOR_END: `" else return (line.copy, false)
   else throw s!"Expected `ANCHOR:` or `ANCHOR_END:`, got {line}"
 
-private def stringAnchors (s : String) : Except String (String × HashMap String String) := do
+private meta def stringAnchors (s : String) : Except String (String × HashMap String String) := do
   let mut out := ""
   let mut anchors : HashMap String String := {}
   let mut openAnchors : HashMap String String := {}
@@ -193,7 +198,7 @@ private def stringAnchors (s : String) : Except String (String × HashMap String
   return (out, anchors)
 
 @[code_block_expander includePython]
-def includePython : CodeBlockExpander
+meta def includePython : CodeBlockExpander
   | args, code => do
     let {file, anchor?} ← parseThe IncludePythonConfig args
     let s ← IO.FS.readFile file

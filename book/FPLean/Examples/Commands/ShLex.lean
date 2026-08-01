@@ -1,3 +1,5 @@
+module
+
 namespace FPLean.Commands.Shell
 
 private inductive State where
@@ -6,7 +8,7 @@ private inductive State where
   | inDouble
   | escaped (st : State)
 
-def shlex (cmd : String) : Except String (Array String) := do
+public def shlex (cmd : String) : Except String (Array String) := do
   let mut state : State := .normal
   let mut iter := cmd.startPos
   let mut out : Array String := #[]
