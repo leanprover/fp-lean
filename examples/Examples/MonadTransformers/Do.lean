@@ -305,15 +305,15 @@ def countToThree (n : Nat) : IO Unit := do
 
 -- ANCHOR: parallelLoop
 def parallelLoop := do
-  for x in ["currant", "gooseberry", "rowan"], y in [4:8] do
+  for x in ["currant", "gooseberry", "rowan"], y in 'a'...'e' do
     IO.println (x, y)
 -- ANCHOR_END: parallelLoop
 
 
-/-- info:
-(currant, 4)
-(gooseberry, 5)
-(rowan, 6)
+/--
+info: (currant, a)
+(gooseberry, b)
+(rowan, c)
 -/
 #check_msgs in
 -- ANCHOR: parallelLoopOut
@@ -471,14 +471,34 @@ def fourToEight : IO Unit := do
 #eval fourToEight
 -- ANCHOR_END: fourToEightOut
 
+/-- info: 26 -/
+#check_msgs in
+-- ANCHOR: countLetters
+#eval show Id Nat from do
+  let mut count := 0
+  for x in 'a'...='z' do
+    count := count + 1
+  return count
+-- ANCHOR_END: countLetters
+
+
 end Ranges
 
+discarding
 -- ANCHOR: printArray
 def printArray [ToString α] (xs : Array α) : IO Unit := do
-  for h : i in [0:xs.size] do
+  for h : i in 0...xs.size do
     IO.println s!"{i}:\t{xs[i]}"
 -- ANCHOR_END: printArray
+stop discarding
 
+-- ANCHOR: printArrayEv
+def printArray [ToString α] (xs : Array α) : IO Unit := do
+  for h : i in 0...xs.size do
+    let h' := (h : i ∈ 0...xs.size)
+    have : i < xs.size := by get_elem_tactic
+    IO.println s!"{i}:\t{xs[i]}"
+-- ANCHOR_END: printArrayEv
 
 namespace SameDo
 
@@ -575,7 +595,7 @@ example : Id Unit := do
 -- ANCHOR: doForSame
 example : Id Unit := do
   let mut x := 0
-  for y in [1:5] do
+  for y in 1...5 do
    x := x + y
 -- ANCHOR_END: doForSame
 

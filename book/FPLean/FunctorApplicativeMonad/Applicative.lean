@@ -337,11 +337,11 @@ While this function's type signature makes it suitable to be used as {anchorName
 They are described {ref "additional-stipulations"}[in the section that describes the {anchorName ApplicativeExcept}`Applicative` contract].
 
 To check that the birth year is a number, a built-in function called {anchorTerm CheckedInputEx}`String.toNat? : String → Option Nat` is useful.
-It's most user-friendly to eliminate leading and trailing whitespace first using {anchorName CheckedInputEx}`String.trim`:
+It's most user-friendly to eliminate leading and trailing whitespace first using {anchorName CheckedInputEx}`String.trimAscii`:
 
 ```anchor checkYearIsNat
 def checkYearIsNat (year : String) : Validate (Field × String) Nat :=
-  match year.trim.toNat? with
+  match year.trimAscii.toNat? with
   | none => reportError "birth year" "Must be digits"
   | some n => pure n
 ```

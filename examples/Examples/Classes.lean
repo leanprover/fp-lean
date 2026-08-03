@@ -14,7 +14,7 @@ example := ToString Nat
 example := @List.sum
 example := @Ord.compare
 example := String.intercalate
-example := String.trim
+example := String.trimAscii
 example := "Hello!"
 example := [HAdd]
 example := Unit.unit
@@ -222,7 +222,7 @@ def fileDumper : IO Unit := do
   let stdout ← IO.getStdout
   stdout.putStr "Which file? "
   stdout.flush
-  let f := (← stdin.getLine).trim
+  let f := (← stdin.getLine).trimAscii.copy
   stdout.putStrLn s!"'The file {f}' contains:"
   stdout.putStrLn (← IO.FS.readFile f)
 -- ANCHOR_END: fileDumper
@@ -1669,8 +1669,8 @@ def String.separate (sep : String) (strings : List String) : String :=
 -- ANCHOR: dropDecimals
 def dropDecimals (numString : String) : String :=
   if numString.contains '.' then
-    let noTrailingZeros := numString.dropRightWhile (· == '0')
-    noTrailingZeros.dropRightWhile (· == '.')
+    let noTrailingZeros := numString.dropEndWhile (· == '0')
+    (noTrailingZeros.dropEndWhile (· == '.')).copy
   else numString
 -- ANCHOR_END: dropDecimals
 

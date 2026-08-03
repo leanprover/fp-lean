@@ -56,15 +56,15 @@ This function can also be called using the {ref "behind-the-scenes"}[dot notatio
 tag := "string-slices"
 %%%
 
-In Lean, are represented by their UTF-8 encoding as an array of bytes paired with a cached character count.
-This means that removing even a single character a string can result in copying the remaining characters to a new string.
+Strings are represented by their UTF-8 encoding as an array of bytes paired with a cached character count.
+This means that removing even a single character from a string can result in copying the remaining characters to a new string.
 
-To allow string-processing code to be written from small, composable pieces, many string operations return {tech}_string slices_, which are regions of some other string, instead of returning new strings.
+To allow string-processing code to be written from small, composable pieces, many string operations return {deftech}_string slices_, which are regions of some other string, instead of returning new strings.
 String slices have the type {anchorName names}`String.Slice`.
 A slice contains a reference to a string along with the start and end positions of the slice, and multiple slices can share the same string.
 Operations such as dropping prefixes of strings return slices rather than allocating new strings, and large parts of the string API are also implemented for slices.
 
-Operations that return slices include {anchorName names}`String.trimAscii`, which returns a slice that drops leading and trailing space, tab, newline, and carriage return characters from the start and end of a string; {anchorName names}`String.drop`, which drops the specified number of characters from the start of a string; and {anchorName names}`String.dropWhile` and {anchorName names}`String.dropEndWhile`, which removes all the characters that match a pattern from one end of the string.
+Operations that return slices include {anchorName names}`String.trimAscii`, which returns a slice that drops leading and trailing space, tab, newline, and carriage return characters from the start and end of a string; {anchorName names}`String.drop`, which drops the specified number of characters from the start of a string; and {anchorName names}`String.dropWhile` and {anchorName names}`String.dropEndWhile`, which remove all the characters that match a pattern from one end of the string.
 String slices include all the slice-producing string functions as well, which makes it possible to write string manipulations as a series of incremental steps without risking intermediate string copying.
 
 The function {anchorName names}`String.Slice.copy` returns a copy of the region of the underlying string that the slice indicates.
@@ -78,14 +78,14 @@ The final call to {anchorName copy}`copy` creates a string once more.
 ```
 
 Unlike strings, slices do not cache a character count.
-Because UTF-8 characters may occupy multiple byes, there's no efficient way to check the length of a string slice.
+Because UTF-8 characters may occupy multiple bytes, there's no efficient way to check the length of a string slice.
 However, checking whether it is empty can be accomplished with {anchorName names}`String.Slice.isEmpty`.
 
 
 
-# Messages You Many Meet
+# Messages You May Meet
 %%%
-tag := "string-messages-you-many-meet"
+tag := "string-messages-you-may-meet"
 %%%
 
 :::paragraph
@@ -115,7 +115,7 @@ The pattern may also be a predicate that characters should satisfy:
 ```
 :::
 
-These overloaded functions are implemented using features that are explained later in the book, namely {ref "type-classes"}[type classes] and {ref "dependent-types"}[dependent types].
+These overloaded functions are implemented using features that are explained later in the book, namely {ref "implicit-parameters"}[implicit parameters] {ref "type-classes"}[type classes] and {ref "dependent-types"}[dependent types].
 There are two error messages in particular that are useful to learn to read before learning about those features of Lean.
 
 :::paragraph

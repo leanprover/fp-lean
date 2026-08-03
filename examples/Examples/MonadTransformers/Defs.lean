@@ -191,10 +191,10 @@ instance [Monad m] : Alternative (OptionT m) where
 -- ANCHOR: getSomeInput
 def getSomeInput : OptionT IO String := do
   let input ← (← IO.getStdin).getLine
-  let trimmed := input.trim
-  if trimmed == "" then
+  let trimmed := input.trimAscii
+  if trimmed.isEmpty then
     failure
-  else pure trimmed
+  else pure trimmed.copy
 -- ANCHOR_END: getSomeInput
 
 

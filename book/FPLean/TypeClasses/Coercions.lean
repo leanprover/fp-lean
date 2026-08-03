@@ -42,11 +42,11 @@ def fileDumper : IO Unit := do
   let stdout ← IO.getStdout
   stdout.putStr "Which file? "
   stdout.flush
-  let f := (← stdin.getLine).trim
+  let f := (← stdin.getLine).trimAscii.copy
   stdout.putStrLn s!"'The file {f}' contains:"
   stdout.putStrLn (← IO.FS.readFile f)
 ```
-{moduleName}`String.trim` removes leading and trailing whitespace from a string.
+{moduleName}`String.trimAscii` removes leading and trailing whitespace from a string.
 On the last line of {anchorName fileDumper}`fileDumper`, the coercion from {moduleName}`String` to {moduleName}`FilePath` automatically converts {anchorName fileDumper}`f`, so it is not necessary to write {lit}`IO.FS.readFile ⟨f⟩`.
 
 # Positive Numbers
@@ -459,8 +459,8 @@ The solution is to write a little function that cleans up the presentation by dr
 ```anchor dropDecimals
 def dropDecimals (numString : String) : String :=
   if numString.contains '.' then
-    let noTrailingZeros := numString.dropRightWhile (· == '0')
-    noTrailingZeros.dropRightWhile (· == '.')
+    let noTrailingZeros := numString.dropEndWhile (· == '0')
+    (noTrailingZeros.dropEndWhile (· == '.')).copy
   else numString
 ```
 With this definition, {anchorTerm dropDecimalExample}`dropDecimals (5 : Float).toString` yields {anchorTerm dropDecimalExample}`5`, and {anchorTerm dropDecimalExample2}`dropDecimals (5.2 : Float).toString` yields {anchorTerm dropDecimalExample2}`5.2`.

@@ -1097,7 +1097,7 @@ structure CheckedInput (thisYear : Nat) : Type where
 example := CheckedInput 2019
 example := CheckedInput 2020
 example := (String.toNat? : String → Option Nat)
-example := String.trim
+example := String.trimAscii
 -- ANCHOR_END: CheckedInputEx
 
 -- ANCHOR: Field
@@ -1121,7 +1121,7 @@ def checkName (name : String) :
 
 -- ANCHOR: checkYearIsNat
 def checkYearIsNat (year : String) : Validate (Field × String) Nat :=
-  match year.trim.toNat? with
+  match year.trimAscii.toNat? with
   | none => reportError "birth year" "Must be digits"
   | some n => pure n
 -- ANCHOR_END: checkYearIsNat

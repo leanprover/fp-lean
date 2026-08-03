@@ -468,16 +468,15 @@ Testing it reveals that it works just like the prior version:
 3
 ```
 
+:::paragraph
 The {kw}`for`{lit}` ...`{kw}`in`{lit}` ...`{kw}`do`{lit}` ...` syntax desugars to the use of a type class called {anchorName ForInIOAllLessThan}`ForIn`, which is a somewhat more complicated version of {anchorName ForM}`ForM` that keeps track of state and early termination.
 The standard library provides an adapter that converts a {anchorName ForM}`ForM` instance into a {anchorName ForInIOAllLessThan}`ForIn` instance, called {anchorName ForInIOAllLessThan}`ForM.forIn`.
 To enable {kw}`for` loops based on a {anchorName ForM}`ForM` instance, add something like the following, with appropriate replacements for {anchorName AllLessThan}`AllLessThan` and {anchorName AllLessThan}`Nat`:
-
 ```anchor ForInIOAllLessThan
 instance [Monad m] : ForIn m AllLessThan Nat where
   forIn := ForM.forIn
 ```
-Note, however, that this adapter only works for {anchorName ForM}`ForM` instances that keep the monad unconstrained, as most of them do.
-This is because the adapter uses {anchorName SomeMonads (module:=Examples.MonadTransformers.Defs)}`StateT` and {anchorName SomeMonads (module:=Examples.MonadTransformers.Defs)}`ExceptT`, rather than the underlying monad.
+:::
 
 Early return is supported in {kw}`for` loops.
 The translation of {kw}`do` blocks with early return into a use of an exception monad transformer applies equally well underneath {anchorName ForM}`ForM` as the earlier use of {anchorName OptionTExec}`OptionT` to halt iteration does.
@@ -507,7 +506,7 @@ Either bound may be omitted, in which case the range extends infinitely in the c
 
 :::paragraph
 Ranges are represented by a collection of types with a naming convention that describes their bounds.
-Each type's name beings with {lit}`R`, and the next two letters determine the bound:
+Each type's name begins with {lit}`R`, and the next two letters determine the lower and upper bounds, respectively:
 
 * {lit}`o` represents an open range, where the bound value is not included
 * {lit}`c` represents a closed range, where the bound value is included
@@ -529,9 +528,9 @@ Ranges are always in ascending order.
 If the lower bound of a range is greater than its upper bound, then it includes no values, rather than proceeding in reverse order.
 For example, {anchorTerm ranges}`10...3` is empty.
 
-Ranges can be used with {kw}`for` loops to draw numbers from the range.
+:::paragraph
+Ranges can be used with {kw}`for` loops to draw values from the range when instances for the appropriate type classes exist.
 This program prints the even numbers from four to eight:
-
 ```anchor fourToEight
 def fourToEight : IO Unit := do
   for i in 2...5 do
@@ -543,6 +542,18 @@ Running it yields:
 6
 8
 ```
+This program counts the letters of the English alphabet:
+```anchor countLetters
+#eval show Id Nat from do
+  let mut count := 0
+  for x in 'a'...='z' do
+    count := count + 1
+  return count
+```
+```anchorInfo countLetters
+26
+```
+:::
 
 
 Finally, {kw}`for` loops support iterating over multiple collections in parallel, by separating the {kw}`in` clauses with commas.
@@ -550,7 +561,7 @@ Looping halts when the first collection runs out of elements, so the declaration
 
 ```anchor parallelLoop
 def parallelLoop := do
-  for x in ["currant", "gooseberry", "rowan"], y in [4:8] do
+  for x in ["currant", "gooseberry", "rowan"], y in 'a'...'e' do
     IO.println (x, y)
 ```
 produces three lines of output:
@@ -558,9 +569,9 @@ produces three lines of output:
 #eval parallelLoop
 ```
 ```anchorInfo parallelLoopOut
-(currant, 4)
-(gooseberry, 5)
-(rowan, 6)
+(currant, a)
+(gooseberry, b)
+(rowan, c)
 ```
 
 Many data structures implement an enhanced version of the {anchorName ForInIOAllLessThan}`ForIn` type class that adds evidence that the element was drawn from the collection to the loop body.
@@ -569,10 +580,10 @@ This function prints all the elements of an array together with their indices, a
 
 ```anchor printArray
 def printArray [ToString α] (xs : Array α) : IO Unit := do
-  for h : i in [0:xs.size] do
+  for h : i in 0...xs.size do
     IO.println s!"{i}:\t{xs[i]}"
 ```
-In this example, {anchorName printArray}`h` is evidence that {lit}`i ∈ [0:xs.size]`, and the tactic that checks whether {anchorTerm printArray}`xs[i]` is safe is able to transform this into evidence that {lit}`i < xs.size`.
+In this example, {anchorName printArray}`h` is evidence that {anchorTerm printArrayEv}`i ∈ 0...xs.size`, and the tactic that checks whether {anchorTerm printArrayEv}`xs[i]` is safe is able to transform this into evidence that {anchorTerm printArrayEv}`i < xs.size`.
 
 # Mutable Variables
 %%%
@@ -764,7 +775,7 @@ These programs are also accepted:
 ```anchor doForSame
 example : Id Unit := do
   let mut x := 0
-  for y in [1:5] do
+  for y in 1...5 do
    x := x + y
 ```
 

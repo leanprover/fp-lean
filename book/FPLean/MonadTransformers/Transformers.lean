@@ -50,10 +50,10 @@ If the resulting trimmed input is non-empty, then it is returned, but the functi
 ```anchor getSomeInput
 def getSomeInput : OptionT IO String := do
   let input ← (← IO.getStdin).getLine
-  let trimmed := input.trim
-  if trimmed == "" then
+  let trimmed := input.trimAscii
+  if trimmed.isEmpty then
     failure
-  else pure trimmed
+  else pure trimmed.copy
 ```
 This particular application tracks users with their name and their favorite species of beetle:
 
