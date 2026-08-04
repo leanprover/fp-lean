@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 open Verso.Genre Manual
@@ -33,13 +34,13 @@ For example, numeric literals are rejected:
 def seven : Pos := 7
 ```
 ```anchorError sevenOops
-failed to synthesize
+failed to synthesize instance of type class
   OfNat Pos 7
 numerals are polymorphic in Lean, but the numeral `7` cannot be used in a context where the expected type is
   Pos
 due to the absence of the instance above
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ```
 Instead, the constructors must be used directly:
 ```anchor seven
@@ -52,19 +53,19 @@ Similarly, addition and multiplication are not easy to use:
 def fourteen : Pos := seven + seven
 ```
 ```anchorError fourteenOops
-failed to synthesize
+failed to synthesize instance of type class
   HAdd Pos Pos ?m.3
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ```
 ```anchor fortyNineOops
 def fortyNine : Pos := seven * seven
 ```
 ```anchorError fortyNineOops
-failed to synthesize
+failed to synthesize instance of type class
   HMul Pos Pos ?m.3
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ```
 
 Each of these error messages begins with {lit}`failed to synthesize`.
@@ -148,10 +149,10 @@ Because there is not yet an instance of {anchorTerm PlusFloat}`Plus Float`, atte
 #eval plus 5.2 917.25861
 ```
 ```anchorError plusFloatFail
-failed to synthesize
+failed to synthesize instance of type class
   Plus Float
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ```
 These errors mean that Lean was unable to find an instance for a given type class.
 
@@ -361,13 +362,13 @@ On the other hand, out-of-bounds literals are still not allowed:
 #eval (4 : LT4)
 ```
 ```anchorError LT4four
-failed to synthesize
+failed to synthesize instance of type class
   OfNat LT4 4
 numerals are polymorphic in Lean, but the numeral `4` cannot be used in a context where the expected type is
   LT4
 due to the absence of the instance above
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ```
 
 For {anchorName PosMul}`Pos`, the {anchorTerm OfNat}`OfNat` instance should work for _any_ {anchorTerm chapterIntro}`Nat` other than {anchorName PosStuff}`Nat.zero`.
@@ -393,13 +394,13 @@ def eight : Pos := 8
 def zero : Pos := 0
 ```
 ```anchorError zeroBad
-failed to synthesize
+failed to synthesize instance of type class
   OfNat Pos 0
 numerals are polymorphic in Lean, but the numeral `0` cannot be used in a context where the expected type is
   Pos
 due to the absence of the instance above
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ```
 
 # Exercises

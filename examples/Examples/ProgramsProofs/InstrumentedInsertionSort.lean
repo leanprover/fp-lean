@@ -51,7 +51,7 @@ def getLines : IO (Array String) := do
   let mut currLine ← stdin.getLine
   while !currLine.isEmpty do
      -- Drop trailing newline:
-    lines := lines.push (currLine.dropRight 1)
+    lines := lines.push (currLine.dropEnd 1).copy
     currLine ← stdin.getLine
   pure lines
 -- ANCHOR_END: getLines

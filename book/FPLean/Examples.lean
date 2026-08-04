@@ -1,10 +1,15 @@
+module
+public import Lean.Elab.Term.TermElabM
 import SubVerso.Examples
+import SubVerso.Examples.Env
 import Lean.Data.NameMap
 import Lean.DocString.Syntax
-import VersoManual
-import FPLean.Examples.Commands
-import FPLean.Examples.Interaction
-import FPLean.Examples.OtherLanguages
+public import VersoManual
+public meta import FPLean.Examples.Commands
+public import FPLean.Examples.Interaction
+public import FPLean.Examples.OtherLanguages
+
+public section
 
 open Lean (NameMap MessageSeverity)
 open Lean.Doc.Syntax
@@ -22,14 +27,14 @@ open InlineLean (FileType)
 
 
 
-private def oneCodeStr [Monad m] [MonadError m] (inlines : Array (TSyntax `inline)) : m StrLit := do
+private meta def oneCodeStr [Monad m] [MonadError m] (inlines : Array (TSyntax `inline)) : m StrLit := do
   let #[code] := inlines
     | (if inlines.size == 0 then (throwError ·) else (throwErrorAt (mkNullNode inlines) ·)) "Expected one code element"
   let `(inline|code($code)) := code
     | throwErrorAt code "Expected a code element"
   return code
 
-private def oneCodeStr? [Monad m] [MonadError m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
+private meta def oneCodeStr? [Monad m] [MonadError m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
     (inlines : Array (TSyntax `inline)) : m (Option StrLit) := do
   let #[code] := inlines
     | if inlines.size == 0 then
@@ -43,7 +48,7 @@ private def oneCodeStr? [Monad m] [MonadError m] [MonadLog m] [AddMessageContext
   return some code
 
 
-private def oneCodeName [Monad m] [MonadError m] (inlines : Array (TSyntax `inline)) : m Ident := do
+private meta def oneCodeName [Monad m] [MonadError m] (inlines : Array (TSyntax `inline)) : m Ident := do
   let code ← oneCodeStr inlines
   let str := code.getString
   let name := if str.contains '.' then str.toName else Name.str .anonymous str
@@ -127,7 +132,7 @@ block_extension Block.creativeCommons where
       }}
 
 @[block_command]
-def creativeCommons : BlockCommandOf Unit
+meta def creativeCommons : BlockCommandOf Unit
   | () => do
     ``(Block.other (Block.creativeCommons) #[])
 
@@ -273,7 +278,7 @@ block_extension Block.leanOutput (severity : MessageSeverity) (message : String)
         pure <| wrap {{<div class={{getClass sev}}><pre>{{txt}}</pre></div>}}
 
 @[role_expander kw]
-def kw : RoleExpander
+meta def kw : RoleExpander
   | args, inls => do
     ArgParse.done.run args
     let kw ← oneCodeStr inls
@@ -303,31 +308,31 @@ private inductive SplitCtxF where
   | tactics : Array (Highlighted.Goal Highlighted) → Nat → Nat → SplitCtxF
   | span : Array Highlighted.Message → SplitCtxF
 
-private def SplitCtxF.wrap (hl : Highlighted) : SplitCtxF → Highlighted
+private meta def SplitCtxF.wrap (hl : Highlighted) : SplitCtxF → Highlighted
   | .tactics g s e => .tactics g s e hl
   | .span xs => .span (xs.map (fun m => (m.1, m.2))) hl
 
-private structure SplitCtx where
+private meta structure SplitCtx where
   contents : Array (Highlighted × SplitCtxF) := #[]
 deriving Inhabited
 
-private def SplitCtx.push (ctx : SplitCtx) (current : Highlighted) (info : SplitCtxF) : SplitCtx where
+private meta def SplitCtx.push (ctx : SplitCtx) (current : Highlighted) (info : SplitCtxF) : SplitCtx where
   contents := ctx.contents.push (current, info)
 
-private def SplitCtx.pop (ctx : SplitCtx) : SplitCtx where
+private meta def SplitCtx.pop (ctx : SplitCtx) : SplitCtx where
   contents := ctx.contents.pop
 
-private def SplitCtx.close (ctx : SplitCtx) (current : Highlighted) : Highlighted × SplitCtx :=
+private meta def SplitCtx.close (ctx : SplitCtx) (current : Highlighted) : Highlighted × SplitCtx :=
   match ctx.contents.back? with
   | none => panic! s!"Popping empty context around '{current.toString}'"
   | some (left, f) => (left ++ f.wrap current, ctx.pop)
 
-private def SplitCtx.split (ctx : SplitCtx) (current : Highlighted) : Highlighted × SplitCtx where
+private meta def SplitCtx.split (ctx : SplitCtx) (current : Highlighted) : Highlighted × SplitCtx where
   fst := ctx.contents.foldr (init := current) fun (left, f) curr => left ++ f.wrap curr
   snd := { contents := ctx.contents.map (.empty, ·.2) }
 
 
-def splitHighlighted (p : String → Bool) (hl : Highlighted) : Array Highlighted := Id.run do
+meta def splitHighlighted (p : String → Bool) (hl : Highlighted) : Array Highlighted := Id.run do
   let mut todo := [some hl]
   let mut out := #[]
   let mut ctx : SplitCtx := {}
@@ -370,17 +375,17 @@ def splitHighlighted (p : String → Bool) (hl : Highlighted) : Array Highlighte
 structure EvalStepContext extends CodeContext where
   step : WithSyntax Nat
 
-instance [Monad m] [MonadOptions m] [MonadError m] [MonadLiftT CoreM m] : FromArgs EvalStepContext m where
+meta instance [Monad m] [MonadOptions m] [MonadError m] [MonadLiftT CoreM m] : FromArgs EvalStepContext m where
   fromArgs := (fun x y => EvalStepContext.mk y x) <$> .positional' `step <*> fromArgs
 
-private def replicateString (n : Nat) (c : Char) : String :=
+private meta def replicateString (n : Nat) (c : Char) : String :=
   n.fold (init := "") fun _ _ s => s.push c
 
 private theorem replicateString_length {n c} : (replicateString n c).length = n := by
   simp [replicateString]
-  induction n <;> simp [Nat.fold, *]
+  induction n <;> simp [*]
 
-private def quoteCode (str : String) : String := Id.run do
+private meta def quoteCode (str : String) : String := Id.run do
   let str := if str.startsWith "`" || str.endsWith "`" then " " ++ str ++ " " else str
   let mut n := 1
   let mut run := none
@@ -398,7 +403,7 @@ private def quoteCode (str : String) : String := Id.run do
   return delim ++ str ++ delim
 
 @[role_expander moduleEvalStep]
-def moduleEvalStep : RoleExpander
+meta def moduleEvalStep : RoleExpander
   | args, inls => do
     let {project, module := moduleName, anchor?, step, showProofStates := _, defSite := _} ← parseThe EvalStepContext args
     let code? ← oneCodeStr? inls
@@ -454,7 +459,7 @@ macro_rules
   | `(inline|role{anchorEvalStep $a:arg_val $n:arg_val $arg*}[$i*]) =>
     `(inline|role{moduleEvalStep $n:arg_val $arg* anchor := $a }[$i*])
 
-private def editCodeBlock [Monad m] [MonadFileMap m] (stx : Syntax) (newContents : String) : m (Option String) := do
+private meta def editCodeBlock [Monad m] [MonadFileMap m] (stx : Syntax) (newContents : String) : m (Option String) := do
   let txt ← getFileMap
   let some rng := stx.getRange?
     | pure none
@@ -482,7 +487,7 @@ where
     n.fold (fun _ _ s => s.push '`') ""
 
 @[code_block_expander moduleEvalStep]
-def moduleEvalStepBlock : CodeBlockExpander
+meta def moduleEvalStepBlock : CodeBlockExpander
   | args, code => do
     let {project, module := moduleName, anchor?, step, showProofStates := _, defSite := _} ← parseThe EvalStepContext args
 
@@ -504,7 +509,7 @@ macro_rules
 
 
 @[code_block_expander moduleEvalSteps]
-def moduleEvalSteps : CodeBlockExpander
+meta def moduleEvalSteps : CodeBlockExpander
   | args, str => do
     let {project, module := moduleName, anchor?, showProofStates := _, defSite := _} ← parseThe CodeContext args
 
@@ -521,7 +526,7 @@ macro_rules
 
 
 @[code_block_expander moduleEqSteps]
-def moduleEqSteps : CodeBlockExpander
+meta def moduleEqSteps : CodeBlockExpander
   | args, str => do
     let {project, module := moduleName, anchor?, showProofStates := _, defSite := _} ← parseThe CodeContext args
 
@@ -557,7 +562,7 @@ macro_rules
   | `(block|```%$t1 anchorEqSteps $a:arg_val $arg* | $s ```%$t2) =>
     `(block|```%$t1 moduleEqSteps $arg* anchor := $a | $s ```%$t2)
 
-def withNl (s : String) : String := if s.endsWith "\n" then s else s ++ "\n"
+meta def withNl (s : String) : String := if s.endsWith "\n" then s else s ++ "\n"
 
 structure ContainerConfig where
   container : Ident
@@ -574,13 +579,13 @@ section
 
 variable [Monad m] [MonadError m] [MonadLiftT CoreM m]
 
-instance : FromArgs ContainerConfig m where
+meta instance : FromArgs ContainerConfig m where
   fromArgs := ContainerConfig.mk <$> .positional `container .ident <*> .positional `dir .strLit
 
-instance : FromArgs CommandConfig m where
+meta instance : FromArgs CommandConfig m where
   fromArgs := CommandConfig.mk <$> fromArgs <*> .named `show .strLit true <*> .namedD `shell .bool false
 
-instance : FromArgs CommandsConfig m where
+meta instance : FromArgs CommandsConfig m where
   fromArgs := CommandsConfig.mk <$> fromArgs <*> .namedD `show .bool true
 
 end
@@ -653,7 +658,7 @@ div.paragraph > .shell-command:not(:last-child) {
   ]
 
 @[role_expander command]
-def command : RoleExpander
+meta def command : RoleExpander
   | args, inls => do
     let { container, dir, «show», viaShell } ← parseThe CommandConfig args
     let cmd ← oneCodeStr inls
@@ -669,7 +674,7 @@ def command : RoleExpander
 A command invocation.
 -/
 @[role_expander commandLine]
-def commandLine : RoleExpander
+meta def commandLine : RoleExpander
   | args, inls => do
     ArgParse.done.run args
     let cmd ← oneCodeStr inls
@@ -683,7 +688,7 @@ structure CommandBlockConfig extends CommandConfig where
 section
 variable [Monad m] [MonadError m] [MonadLiftT CoreM m]
 
-def CommandBlockConfig.parse  : ArgParse m CommandBlockConfig :=
+meta def CommandBlockConfig.parse  : ArgParse m CommandBlockConfig :=
   (fun container dir command «show» prompt viaShell => {container, dir, command, «show», prompt, viaShell}) <$>
     .positional `container .ident <*>
     .positional `dir .strLit <*>
@@ -692,13 +697,13 @@ def CommandBlockConfig.parse  : ArgParse m CommandBlockConfig :=
     .named `prompt .strLit true <*>
     .namedD `shell .bool false
 
-instance : FromArgs CommandBlockConfig m where
+meta instance : FromArgs CommandBlockConfig m where
   fromArgs := CommandBlockConfig.parse
 
 end
 
 @[block_command command]
-def commandBlock : BlockCommandOf CommandBlockConfig
+meta def commandBlock : BlockCommandOf CommandBlockConfig
   | { container, dir, command, «show», prompt, viaShell } => do
     let output ← Commands.command container dir.getString command (viaShell := viaShell)
     unless output.stdout.isEmpty do
@@ -715,7 +720,7 @@ macro_rules
   | `(block|```command $args* | $s```) => `(block|command{command $args* $s})
 
 @[role_expander commandOut]
-def commandOut : RoleExpander
+meta def commandOut : RoleExpander
   | args, inls => do
     let container ← ArgParse.run (.positional `container .ident) args
     let cmd ← oneCodeStr inls
@@ -724,7 +729,7 @@ def commandOut : RoleExpander
     return #[← ``(Inline.code $(quote output.trimAscii.copy))]
 
 @[code_block_expander commandOut]
-def commandOutCodeBlock : CodeBlockExpander
+meta def commandOutCodeBlock : CodeBlockExpander
   | args, outStr => do
     let (container, command) ← ArgParse.run ((·, ·) <$> .positional `container .ident <*> .positional `command .strLit) args
     let output ← Commands.commandOut container command
@@ -780,7 +785,7 @@ private inductive CommandSpec where
   | out (text : String)
 
 @[code_block_expander commands]
-def commands : CodeBlockExpander
+meta def commands : CodeBlockExpander
   | args, str => do
     let {container, dir, «show»} ← parseThe CommandsConfig args
     let specStr := str.getString
@@ -834,7 +839,7 @@ def commands : CodeBlockExpander
 
 
 @[code_block_expander file]
-def file : CodeBlockExpander
+meta def file : CodeBlockExpander
   | args, expectedContentsStr => do
     let (container, file, show?) ← ArgParse.run ((·, ·, ·) <$> .positional `container .ident <*> .positional `file .strLit <*> (some <$> .positional `show .strLit <|> pure none)) args
     let show? := show?.map (·.getString)
@@ -845,16 +850,16 @@ def file : CodeBlockExpander
     logSilentInfo contents
     return #[← ``(Block.other (InlineLean.Block.exampleFile (FileType.other $(quote (show?.getD (fn.fileName.getD fn.toString))))) #[Block.code $(quote contents)])]
 
-structure PlainFileConfig where
+meta structure PlainFileConfig where
   project : StrLit
   file : StrLit
   show? : Option StrLit
 
-instance [Monad m] [MonadOptions m] [MonadError m] : FromArgs PlainFileConfig m where
+meta instance [Monad m] [MonadOptions m] [MonadError m] : FromArgs PlainFileConfig m where
   fromArgs := PlainFileConfig.mk <$> projectOrDefault <*> .positional' `file <*> (some <$> .positional `show .strLit <|> pure none)
 
 @[code_block_expander plainFile]
-def plainFile : CodeBlockExpander
+meta def plainFile : CodeBlockExpander
   | args, expectedContentsStr => do
     let {project := projectDir, file, show?} ← parseThe PlainFileConfig args
     let show? := show?.map (·.getString)
@@ -869,21 +874,23 @@ def plainFile : CodeBlockExpander
     return #[← ``(Block.other (InlineLean.Block.exampleFile (FileType.other $(quote (show?.getD (fn.fileName.getD fn.toString))))) #[Block.code $(quote contents)])]
 
 
-private def severityName {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadOptions m] [MonadLog m] [AddMessageContext m] : MessageSeverity → m String
+private meta def severityName {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadOptions m] [MonadLog m] [AddMessageContext m] : MessageSeverity → m String
   | .error => unresolveNameGlobal ``MessageSeverity.error <&> (·.toString)
   | .warning => unresolveNameGlobal ``MessageSeverity.warning <&> (·.toString)
   | .information => unresolveNameGlobal ``MessageSeverity.information <&> (·.toString)
 
+meta section
 deriving instance Repr for MessageSeverity
+end
 
-private def severityHint (wanted : String) (stx : Syntax) : DocElabM MessageData := do
+private meta def severityHint (wanted : String) (stx : Syntax) : DocElabM MessageData := do
   if stx.getHeadInfo matches .original .. then
     MessageData.hint m!"Use '{wanted}'" #[wanted] (ref? := some stx)
   else pure m!""
 
 open Lean.Meta.Hint in
 @[role_expander moduleOutText]
-def moduleOutText : RoleExpander
+meta def moduleOutText : RoleExpander
   | args, inls => withTraceNode `Elab.Verso (fun _ => pure m!"moduleOutText") <| do
     let str? ← oneCodeStr? inls
 

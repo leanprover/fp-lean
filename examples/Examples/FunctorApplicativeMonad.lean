@@ -951,9 +951,9 @@ instance : LawfulApplicative (Validate ε) where
   seqRight_eq x y := by
     cases x <;> cases y <;> simp [SeqRight.seqRight, Functor.map, Seq.seq]
   pure_seq g x := by
-    simp [Functor.map, Seq.seq]
+    simp [Functor.map, Seq.seq, pure]
   seq_pure g x := by
-    cases g <;> simp [Seq.seq, Functor.map]
+    cases g <;> simp [Seq.seq, Functor.map, pure]
   seq_assoc x y z := by
     cases x <;> cases y <;> cases z <;> simp [Seq.seq, Functor.map, NonEmptyList.append_assoc]
 
@@ -983,7 +983,7 @@ instance : LawfulMonad (Validate ε) where
     cases f <;> cases x <;>
     simp [Functor.map, bind, Seq.seq]
   pure_bind x f := by
-    simp [bind]
+    simp [pure, bind]
   bind_assoc x f g := by
     cases x <;>
     simp [bind]
@@ -1097,7 +1097,8 @@ structure CheckedInput (thisYear : Nat) : Type where
 example := CheckedInput 2019
 example := CheckedInput 2020
 example := (String.toNat? : String → Option Nat)
-example := String.trim
+example := (String.Slice.toNat? : String.Slice → Option Nat)
+example := String.trimAscii
 -- ANCHOR_END: CheckedInputEx
 
 -- ANCHOR: Field
@@ -1121,7 +1122,7 @@ def checkName (name : String) :
 
 -- ANCHOR: checkYearIsNat
 def checkYearIsNat (year : String) : Validate (Field × String) Nat :=
-  match year.trim.toNat? with
+  match year.trimAscii.toNat? with
   | none => reportError "birth year" "Must be digits"
   | some n => pure n
 -- ANCHOR_END: checkYearIsNat

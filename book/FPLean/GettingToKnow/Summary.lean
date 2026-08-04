@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 open Verso.Genre Manual
@@ -87,6 +88,17 @@ Typically, {kw}`structure` is used to introduce a product type (that is, a type 
 Datatypes defined with {kw}`structure` are provided with one accessor function for each field.
 Both structures and inductive datatypes may be consumed with pattern matching, which exposes the values stored inside of constructors using a subset of the syntax used to call said constructors.
 Pattern matching means that knowing how to create a value implies knowing how to consume it.
+
+# Strings and Slices
+%%%
+tag := none
+%%%
+
+Strings are sequences of characters, which are themselves Unicode code points.
+Their run-time representation consists of an array of bytes in the UTF-8 encoding and a cached character count field.
+Because Lean is a pure functional language, operations such as trimming whitespace from strings would normally need to copy them.
+This is avoided by having many functions on strings return {tech}[string slices], which pair a reference to a string with starting and ending positions.
+Slices can be manipulated by updating these starting and ending positions, avoiding copying.
 
 # Recursion
 %%%

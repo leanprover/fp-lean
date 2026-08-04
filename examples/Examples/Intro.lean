@@ -56,7 +56,7 @@ String.append "it is " "no"
 end evaluation steps
 
 /--
-error: could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type
+error: Could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type
   String → String
 -/
 #check_msgs in
@@ -225,7 +225,7 @@ info: add1 sorry : Nat
 #check add1 "seven"
 -- ANCHOR_END: add1_string
 
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration uses `sorry` -/
 #check_msgs in
 -- ANCHOR: add1_warn
 def foo := add1 sorry
@@ -352,13 +352,13 @@ open SubVerso.Examples in
 discarding
 open SubVerso.Examples in
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   OfNat NaturalNumber 38
 numerals are polymorphic in Lean, but the numeral `38` cannot be used in a context where the expected type is
   NaturalNumber
 due to the absence of the instance above
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #check_msgs in
 -- ANCHOR: thirtyEight
@@ -991,7 +991,7 @@ with errors
 failed to infer structural recursion:
 Not considering parameter k of div:
   it is unchanged in the recursive calls
-Cannot use parameter k:
+Cannot use parameter n:
   failed to eliminate recursive application
     div (n - k) k
 
@@ -1740,7 +1740,7 @@ def allTools : List WoodSplittingTool := [
 -- ANCHOR_END: allTools
 
 /--
-error: could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type
+error: Could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type
   List WoodSplittingTool
 -/
 #check_msgs in
@@ -2270,10 +2270,10 @@ open NewNamespace in
 -- ANCHOR_END: interpolation
 
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   ToString (Nat → Nat)
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ---
 info: toString "three fives is " ++ sorry : String
 -/

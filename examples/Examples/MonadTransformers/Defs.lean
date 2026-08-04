@@ -29,22 +29,17 @@ but is expected to have type
 in the application
   pure (some x)
 ---
-error: failed to synthesize
+error: failed to synthesize instance of type class
   Pure (OptionT m)
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ---
 error: Type mismatch
   none
 has type
-  Option ?m.24
+  Option ?m.18
 but is expected to have type
   α✝
----
-error: failed to synthesize
-  Bind (OptionT m)
-
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #check_msgs in
 -- ANCHOR: firstMonadOptionT
@@ -133,6 +128,7 @@ OptionT.mk do
   | some x => f x
 ={
 /-- Desugaring `do`-notation -/
+by simp only [bind_pure, pure_bind]
 }=
 OptionT.mk
   (pure (some v) >>= fun y =>
@@ -195,10 +191,10 @@ instance [Monad m] : Alternative (OptionT m) where
 -- ANCHOR: getSomeInput
 def getSomeInput : OptionT IO String := do
   let input ← (← IO.getStdin).getLine
-  let trimmed := input.trim
-  if trimmed == "" then
+  let trimmed := input.trimAscii
+  if trimmed.isEmpty then
     failure
-  else pure trimmed
+  else pure trimmed.copy
 -- ANCHOR_END: getSomeInput
 
 
@@ -248,25 +244,32 @@ def ExceptT.mk (x : m (Except ε α)) : ExceptT ε m α := x
 
 /--
 error: stuck at solving universe constraint
-  max ?u.10268 ?u.10269 =?= u
-while trying to unify
-  ExceptT ε m α✝ : Type v
-with
-  ExceptT.{max ?u.10269 ?u.10268, v} ε m α✝ : Type v
----
-error: stuck at solving universe constraint
-  max ?u.10439 ?u.10440 =?= u
+  max ?u.26 ?u.27 =?= u
 while trying to unify
   ExceptT ε m β✝ : Type v
 with
-  ExceptT.{max ?u.10440 ?u.10439, v} ε m β✝ : Type v
+  ExceptT.{max ?u.27 ?u.26, v} ε m β✝ : Type v
 ---
 error: stuck at solving universe constraint
-  max ?u.10268 ?u.10269 =?= u
+  max ?u.17 ?u.18 =?= u
 while trying to unify
   ExceptT ε m α✝ : Type v
 with
-  ExceptT.{max ?u.10269 ?u.10268, v} ε m α✝ : Type v
+  ExceptT.{max ?u.18 ?u.17, v} ε m α✝ : Type v
+---
+error: stuck at solving universe constraint
+  max ?u.26 ?u.27 =?= u
+while trying to unify
+  ExceptT ε m β✝ : Type v
+with
+  ExceptT.{max ?u.27 ?u.26, v} ε m β✝ : Type v
+---
+error: stuck at solving universe constraint
+  max ?u.17 ?u.18 =?= u
+while trying to unify
+  ExceptT ε m α✝ : Type v
+with
+  ExceptT.{max ?u.18 ?u.17, v} ε m α✝ : Type v
 -/
 #check_msgs in
 -- ANCHOR: MonadMissingUni

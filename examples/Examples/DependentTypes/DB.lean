@@ -23,10 +23,10 @@ abbrev DBType.asType : DBType → Type
 
 discarding
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   BEq t.asType
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #check_msgs in
 -- ANCHOR: dbEqNoSplit
@@ -229,7 +229,6 @@ example : Subschema travelDiary peak :=
       (.cons (.there (.there (.there .here))) .nil))
 -- ANCHOR_END: peakDiarySub
 
-
 -- ANCHOR: emptySub
 example : Subschema [] peak := by constructor
 -- ANCHOR_END: emptySub
@@ -249,9 +248,9 @@ example : Subschema [⟨"location", .string⟩] peak := by constructor
 -- ANCHOR_END: notDone
 
 
-/-- error:
-unsolved goals
-case a.a
+/--
+error: unsolved goals
+case a
 ⊢ HasCol
     [{ name := "location", contains := DBType.string }, { name := "elevation", contains := DBType.int },
       { name := "lastVisited", contains := DBType.int }]
@@ -585,10 +584,9 @@ waterfalls : Query (List.map (fun c => { name := "waterfall" ++ "." ++ c.name, c
     true
 ---
 error: unsolved goals
-case a.a.a.a.a.a.a
 mountains : Query (List.map (fun c => { name := "mountain" ++ "." ++ c.name, contains := c.contains }) peak) := ⋯
 waterfalls : Query (List.map (fun c => { name := "waterfall" ++ "." ++ c.name, contains := c.contains }) waterfall) := ⋯
-⊢ HasCol (List.map (fun c => { name := "waterfall" ++ "." ++ c.name, contains := c.contains }) []) "location" ?m.62066
+⊢ HasCol (List.map (fun c => { name := "waterfall" ++ "." ++ c.name, contains := c.contains }) []) "location" ?m.31
 -/
 #check_msgs in
 -- ANCHOR: QueryOops1
@@ -609,19 +607,17 @@ error: Tactic `decide` proved that the proposition
 is false
 ---
 error: unsolved goals
-case a.a.a.a.a.a.a
 mountains : Query peak := ⋯
 waterfalls : Query waterfall := ⋯
 ⊢ HasCol [] "mountain.location" ?m.29
 ---
 error: unsolved goals
-case a.a.a.a.a.a.a
 mountains : Query peak := ⋯
 waterfalls : Query waterfall := ⋯
 ⊢ HasCol [] "waterfall.location" ?m.29
 ---
 error: unsolved goals
-case a.a.a.a.a.a.a.a
+case a
 mountains : Query peak := ⋯
 waterfalls : Query waterfall := ⋯
 ⊢ HasCol [] "mountain.name" DBType.string
@@ -648,7 +644,7 @@ end Ooops
 #eval (by repeat constructor : List Nat)
 #eval (by repeat constructor : Vect Nat 4)
 #eval (by repeat constructor : Row [⟨"price", .int⟩])
-#eval (by repeat constructor : Row peak)
+--#eval (by repeat constructor : Row peak)
 deriving instance Repr for HasCol
 #eval (by repeat constructor : HasCol [⟨"price", .int⟩, ⟨"price", .int⟩] "price" .int)
 

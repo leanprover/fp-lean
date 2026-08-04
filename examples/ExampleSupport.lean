@@ -292,8 +292,8 @@ open Tactic.GuardMsgs in
 def elabCheckMsgs : CommandElab
   | `(command| $[$dc?:docComment]? #check_msgs%$tk $(spec?)? in $cmd) => do
     let expected : String := (← dc?.mapM (getDocStringText ·)).getD ""
-        |>.trim |> removeTrailingWhitespaceMarker
-    let {whitespace, ordering, filterFn, reportPositions := _} ← parseGuardMsgsSpec spec?
+        |>.trimAscii.copy |> removeTrailingWhitespaceMarker
+    let { whitespace, ordering, filterFn, reportPositions := _, substring := _ } ← parseGuardMsgsSpec spec?
     let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
     -- do not forward snapshot as we don't want messages assigned to it to leak outside
     withReader ({ · with snap? := none }) do
@@ -313,7 +313,7 @@ def elabCheckMsgs : CommandElab
       | .pass => toPassthrough := toPassthrough.add msg
     let strings ← toCheck.toList.mapM (messageToStringWithoutPos ·)
     let strings := ordering.apply strings
-    let res := "---\n".intercalate strings |>.trim
+    let res := "---\n".intercalate strings |>.trimAscii.copy
     if messagesMatch (whitespace.apply expected) (whitespace.apply res) then
       -- Passed. Put messages back on the log, downgrading errors to warnings while recording their original status
       modify fun st => { st with messages := initMsgs ++ SubVerso.Highlighting.Messages.errorsToWarnings msgs }
@@ -470,11 +470,11 @@ def Steps.forM [Monad m] (todo : Steps) (forStep : Term × TSyntax ``docComment 
     forM (.cons e2 txt2 why2 more) forStep
 
 open Lean Elab Parser Command in
-instance : ForM m Steps (Term × TSyntax ``docComment × Option Term × Term) where
+instance [Monad m] : ForM m Steps (Term × TSyntax ``docComment × Option Term × Term) where
   forM := Steps.forM
 
 open Lean Elab Parser Command in
-instance : ForIn m Steps (Term × TSyntax ``docComment × Option Term × Term) where
+instance [Monad m] : ForIn m Steps (Term × TSyntax ``docComment × Option Term × Term) where
   forIn := ForM.forIn
 
 partial def getSteps [Monad m] [MonadError m] [MonadQuotation m] : Lean.Syntax → m Steps

@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 open Verso.Genre Manual
@@ -262,8 +263,8 @@ def List.zip : List α → List β → List (α × β)
 ```
 ```anchorError zipMissing
 Missing cases:
-(List.cons _ _), []
 [], (List.cons _ _)
+(List.cons _ _), []
 ```
 :::
 

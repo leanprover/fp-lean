@@ -412,7 +412,7 @@ stop discarding
 discarding
 /--
 error: unsolved goals
-case refl.a
+case refl
 n m : Nat
 ⊢ n.le n
 ---
@@ -453,9 +453,9 @@ theorem Nat.le_succ_of_le : n ≤ m → n ≤ m + 1 := by
 stop discarding
 
 discarding
-/-- error:
-unsolved goals
-case step.a
+/--
+error: unsolved goals
+case step
 n m m✝ : Nat
 a✝ : n.le m✝
 ih : n ≤ m✝ + 1
@@ -672,21 +672,11 @@ theorem splitList_shorter_snd (lst : List α) (h : lst.length ≥ 2) :
 
 discarding
 /--
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 ---
-warning: declaration uses 'sorry'
----
-warning: declaration uses 'sorry'
----
-warning: declaration uses 'sorry'
----
-warning: declaration uses 'sorry'
----
-warning: declaration uses 'sorry'
----
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #check_msgs in
 --ANCHOR: mergeSortSorry
@@ -709,8 +699,7 @@ stop discarding
 discarding
 /--
 error: unsolved goals
-case h
-α : Type ?u.72443
+α : Type ?u.3
 inst✝ : Ord α
 xs : List α
 h : ¬xs.length < 2
@@ -718,8 +707,7 @@ halves : List α × List α := ⋯
 ⊢ xs.length ≥ 2
 ---
 error: unsolved goals
-case h
-α : Type ?u.72443
+α : Type ?u.3
 inst✝ : Ord α
 xs : List α
 h : ¬xs.length < 2
@@ -747,15 +735,11 @@ stop discarding
 
 discarding
 /--
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 ---
-warning: declaration uses 'sorry'
----
-warning: declaration uses 'sorry'
----
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #check_msgs in
 -- ANCHOR: mergeSortGteStarted
