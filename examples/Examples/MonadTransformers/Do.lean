@@ -177,7 +177,7 @@ namespace Fake
 -- ANCHOR: ForM
 class ForM (m : Type u → Type v) (γ : Type w₁)
     (α : outParam (Type w₂)) where
-  forM [Monad m] : γ → (α → m PUnit) → m PUnit
+  forM (coll : γ) (f : α → m PUnit) : m PUnit
 -- ANCHOR_END: ForM
 
 
@@ -189,7 +189,7 @@ def List.forM [Monad m] : List α → (α → m PUnit) → m PUnit
     action x
     forM xs action
 
-instance : ForM m (List α) α where
+instance [Monad m] : ForM m (List α) α where
   forM := List.forM
 -- ANCHOR_END: ListForM
 
@@ -434,11 +434,21 @@ namespace Ranges
 --- ANCHOR: ranges
 #check *...10
 
+#check *...5
+
+#guard (*...5).toList == [0, 1, 2, 3, 4]
+
+#check 3...*
+
+#check (3...10 : Std.Rco Nat)
+
+#check (3...=10 : Std.Rcc Nat)
+
 #check 3...10
 
-#check 3...=10
+#check (3<...10 : Std.Roo Nat)
 
-#check 3<...=10
+#check (3<...=10 : Std.Roc Nat)
 
 #check 3...=10
 
@@ -471,16 +481,19 @@ def fourToEight : IO Unit := do
 #eval fourToEight
 -- ANCHOR_END: fourToEightOut
 
-/-- info: 26 -/
+/--
+info: l
+m
+n
+o
+p
+-/
 #check_msgs in
--- ANCHOR: countLetters
-#eval show Id Nat from do
-  let mut count := 0
-  for x in 'a'...='z' do
-    count := count + 1
-  return count
--- ANCHOR_END: countLetters
-
+-- ANCHOR: showLetters
+#eval do
+  for letter in 'l'...='p' do
+    IO.println letter
+-- ANCHOR_END: showLetters
 
 end Ranges
 

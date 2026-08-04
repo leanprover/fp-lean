@@ -11,6 +11,7 @@ example := String.trimAsciiStart
 example := String.trimAsciiEnd
 example := [String, Char, String.Slice]
 example := String.Slice.isEmpty
+example := [true, false]
 --ANCHOR_END: names
 
 --ANCHOR: helloWorld
@@ -51,6 +52,10 @@ example := String.Slice.isEmpty
 --ANCHOR: dropWhileString
 #eval "the the butterfly".dropWhile "the "
 --ANCHOR_END: dropWhileString
+
+--ANCHOR: dropWhileString2
+#eval ("a gray grayling".drop 2).dropWhile "gray "
+--ANCHOR_END: dropWhileString2
 
 --ANCHOR: copy
 #eval (("small tortoiseshell".drop 6).dropEnd 5).copy

@@ -1097,6 +1097,7 @@ structure CheckedInput (thisYear : Nat) : Type where
 example := CheckedInput 2019
 example := CheckedInput 2020
 example := (String.toNat? : String → Option Nat)
+example := (String.Slice.toNat? : String.Slice → Option Nat)
 example := String.trimAscii
 -- ANCHOR_END: CheckedInputEx
 

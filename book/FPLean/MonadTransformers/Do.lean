@@ -265,18 +265,18 @@ If the loop terminates without having returned, the answer is {anchorName findHu
 tag := "looping-with-forM"
 %%%
 
-Lean includes a type class that describes looping over a container type in some monad.
+Lean includes a type class that describes looping over a container type.
 This class is called {anchorName ForM}`ForM`:
 
 ```anchor ForM
 class ForM (m : Type u → Type v) (γ : Type w₁)
     (α : outParam (Type w₂)) where
-  forM [Monad m] : γ → (α → m PUnit) → m PUnit
+  forM (coll : γ) (f : α → m PUnit) : m PUnit
 ```
 This class is quite general.
-The parameter {anchorName ForM}`m` is a monad with some desired effects, {anchorName ForM}`γ` is the collection to be looped over, and {anchorName ForM}`α` is the type of elements from the collection.
-Typically, {anchorName ForM}`m` is allowed to be any monad, but it is possible to have a data structure that e.g. only supports looping in {anchorName printArray}`IO`.
-The method {anchorName ForM}`forM` takes a collection, a monadic action to be run for its effects on each element from the collection, and is then responsible for running the actions.
+The parameter {anchorName ForM}`m` allows some desired effects and is typically a monad, {anchorName ForM}`γ` is the collection to be looped over, and {anchorName ForM}`α` is the type of elements from the collection.
+Usually, {anchorName ForM}`m` is allowed to be any monad, but it is possible to have a data structure that e.g. only supports looping in {anchorName printArray}`IO`.
+The method {anchorName ForM}`forM` takes a collection and an action to be run for its effects on each element from the collection, and is then responsible for running the actions.
 
 The instance for {anchorName ListForM}`List` allows {anchorName ListForM}`m` to be any monad, it sets {anchorName ForM}`γ` to be {anchorTerm ListForM}`List α`, and sets the class's {anchorName ForM}`α` to be the same {anchorName ListForM}`α` found in the list:
 
@@ -287,11 +287,10 @@ def List.forM [Monad m] : List α → (α → m PUnit) → m PUnit
     action x
     forM xs action
 
-instance : ForM m (List α) α where
+instance [Monad m] : ForM m (List α) α where
   forM := List.forM
 ```
 The {ref "reader-io-implementation"}[function {anchorName doList (module := DirTree)}`doList` from {lit}`doug`] is {anchorName ForM}`forM` for lists.
-Because {anchorName countLettersForM}`forM` is intended to be used in {kw}`do`-blocks, it uses {anchorName ForM}`Monad` rather than {anchorName OptionTExec}`Applicative`.
 {anchorName ForM}`forM` can be used to make {anchorName countLettersForM}`countLetters` much shorter:
 
 ```anchor countLettersForM
@@ -370,7 +369,7 @@ partial def LinesOf.forM
 instance : ForM IO LinesOf String where
   forM := LinesOf.forM
 ```
-The definition of {anchorName ForM}`ForM` is marked {kw}`partial` because there is no guarantee that the stream is finite.
+The definition of {anchorName LinesOf (module := ForMIO)}`LinesOf.forM` is marked {kw}`partial` because there is no guarantee that the stream is finite.
 In this case, {anchorName names}`IO.FS.Stream.getLine` works only in the {anchorName countToThree}`IO` monad, so no other monad can be used for looping.
 
 This example program uses this looping construct to filter out lines that don't contain letters:
@@ -471,6 +470,7 @@ Testing it reveals that it works just like the prior version:
 :::paragraph
 The {kw}`for`{lit}` ...`{kw}`in`{lit}` ...`{kw}`do`{lit}` ...` syntax desugars to the use of a type class called {anchorName ForInIOAllLessThan}`ForIn`, which is a somewhat more complicated version of {anchorName ForM}`ForM` that keeps track of state and early termination.
 The standard library provides an adapter that converts a {anchorName ForM}`ForM` instance into a {anchorName ForInIOAllLessThan}`ForIn` instance, called {anchorName ForInIOAllLessThan}`ForM.forIn`.
+This adapter requires that the {anchorName ForM}`ForM` instance to be adapted can be used with monads built from monad transformers, rather than just one specific monad.
 To enable {kw}`for` loops based on a {anchorName ForM}`ForM` instance, add something like the following, with appropriate replacements for {anchorName AllLessThan}`AllLessThan` and {anchorName AllLessThan}`Nat`:
 ```anchor ForInIOAllLessThan
 instance [Monad m] : ForIn m AllLessThan Nat where
@@ -501,28 +501,30 @@ def List.find? (p : α → Bool) (xs : List α) : Option α := do
 ```
 
 A {deftech}_range_ represents a series of consecutive elements of some type, from a lower bound to an upper bound.
-The bounds may be {deftech}_open_, in which case the bound is not included in the range, or {deftech}_closed_, in which case the bound is included in the range.
-Either bound may be omitted, in which case the range extends infinitely in the corresponding direction.
+The bounds may be _open_, in which case the bound is not included in the range, or _closed_, in which case the bound is included in the range.
+Ranges may also be unbounded, continuing either infinitely or until they reach the least or greatest value in the type.
 
 :::paragraph
 Ranges are represented by a collection of types with a naming convention that describes their bounds.
 Each type's name begins with {lit}`R`, and the next two letters determine the lower and upper bounds, respectively:
 
-* {lit}`o` represents an open range, where the bound value is not included
-* {lit}`c` represents a closed range, where the bound value is included
-* {lit}`i` represents an infinite range that is unbounded in the given direction
+* {lit}`o` represents an open bound, where the bound value is not included.
+* {lit}`c` represents a closed bound, where the bound value is included.
+* {lit}`i` represents an infinite bound that does not restrict its range.
 
 For example, the type {anchorTerm names}`Std.Rco Nat` represents left-closed right-open sequences of {anchorName names}`Nat`s that include their lower bound but omit their upper bound, and {anchorTerm names}`Std.Roi Nat` represents infinite sequences of {anchorName names}`Nat`s that begin just above their lower bound.
 Even though {anchorTerm names}`Std.Rio Nat` has no lower bound, the sequence is finite because {anchorName names}`Nat` itself has an inherent lower bound of {anchorTerm names}`0`.
 :::
 
 Lean has special syntax to construct ranges, in which each bound can be specified.
-A range is specified by placing three dots between its bounds, which may themselves be specified as either specific values or asterisks for infinite ranges.
-For example, the range from {anchorTerm ranges}`3` to {anchorTerm ranges}`10` is written {anchorTerm ranges}`3...10`.
+A range is specified by placing three dots between its bounds, which may themselves be specified as either specific values or asterisks for unbounded ranges.
+For example, the range from {anchorTerm ranges}`3` to {anchorTerm ranges}`10` is written {anchorTerm ranges}`3...10` and has type {anchorTerm ranges}`Std.Rco Nat`.
 By default, ranges are left-closed right-open.
 This means that {anchorTerm ranges}`3...10` includes {anchorTerm ranges}`3` but does not include {anchorTerm ranges}`10`.
-These defaults can be overridden: {lit}`<` can be used to specify an open bound, and {lit}`=` to specify a closed bound.
+These defaults can be overridden: {lit}`<` can be used to specify an open upper or lower bound, and {lit}`=` can be used to specify a closed upper bound.
 {anchorTerm ranges}`3<...=10` does not include {anchorTerm ranges}`3`, but it does include {anchorTerm ranges}`10`, while {anchorTerm ranges}`3...=10` includes both and {anchorTerm ranges}`3<...10` includes neither.
+{anchorTerm ranges}`3<...=10` has type {anchorTerm ranges}`Std.Roc Nat`, and {anchorTerm ranges}`3<...10` has type {anchorTerm ranges}`Std.Roo Nat`.
+The range {anchorTerm ranges}`*...5` contains the numbers {anchorTerm ranges}`0`, {anchorTerm ranges}`1`, {anchorTerm ranges}`2`, {anchorTerm ranges}`3`, and {anchorTerm ranges}`4`, while {anchorTerm ranges}`3...*` contains all natural numbers that are greater than or equal to {anchorTerm ranges}`3`.
 
 Ranges are always in ascending order.
 If the lower bound of a range is greater than its upper bound, then it includes no values, rather than proceeding in reverse order.
@@ -542,16 +544,18 @@ Running it yields:
 6
 8
 ```
-This program counts the letters of the English alphabet:
-```anchor countLetters
-#eval show Id Nat from do
-  let mut count := 0
-  for x in 'a'...='z' do
-    count := count + 1
-  return count
+This displays the letters from {anchorTerm showLetters}`'l'` to {anchorTerm showLetters}`'p'`:
+```anchor showLetters
+#eval do
+  for letter in 'l'...='p' do
+    IO.println letter
 ```
-```anchorInfo countLetters
-26
+```anchorInfo showLetters
+l
+m
+n
+o
+p
 ```
 :::
 

@@ -15,6 +15,7 @@ example := @List.sum
 example := @Ord.compare
 example := String.intercalate
 example := String.trimAscii
+example := String.Slice.copy
 example := "Hello!"
 example := [HAdd]
 example := Unit.unit

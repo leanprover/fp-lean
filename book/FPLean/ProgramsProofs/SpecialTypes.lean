@@ -30,17 +30,19 @@ After all, addition should not take time linear in the size of the addends.
 
 The fact that some types have special representations also means that care is needed when working with them.
 Most of these types consist of a {kw}`structure` that is treated specially by the compiler.
-With these structures, using the constructor or the field accessors directly can trigger an expensive conversion from an efficient representation to a slow one that is convenient for proofs.
-For example, {anchorName all}`String` is defined as a structure that contains a list of characters, but the run-time representation of strings uses UTF-8, not linked lists of pointers to characters.
-Applying the constructor to a list of characters creates a byte array that encodes them in UTF-8, and accessing the field of the structure takes time linear in the length of the string to decode the UTF-8 representation and allocate a linked list.
-Arrays are represented similarly.
-From the logical perspective, arrays are structures that contain a list of array elements, but the run-time representation is a dynamically-sized array.
-At run time, the constructor translates the list into an array, and the field accessor allocates a linked list from the array.
-The various array operations are replaced with efficient versions by the compiler that mutate the array when possible instead of allocating a new one.
+With these structures, using the constructor or the field accessors directly can trigger expensive conversions between efficient representations and representations designed for use in proofs.
+
+For example, {anchorName all}`String` is defined as a structure that contains an array of bytes together with a proof that the bytes are valid UTF-8, but the run-time representation contains the string's length.
+Applying the constructor to a byte array can only be done when the byte array is valid, but the cached length is computed in linear time.
+Many of the basic operations on strings are replaced by the compiler with efficient versions that mutate the run-time version of the string when possible instead of allocating a new one.
+Similarly, arrays are defined as structures that wrap linked lists.
+Their run-time representations are as efficient dynamic arrays, and applying the constructor {moduleName}`Array.mk` to a list converts the list to an array, which takes linear time.
+The field accessor {anchorName sequences}`toList` converts the array back to a linked list, which also takes linear time.
+This definition exists entirely to make it easier to prove things about arrays, and these conversions should be avoided in code that is intended to be run.
 
 Both types themselves and proofs of propositions are completely erased from compiled code.
 In other words, they take up no space, and any computations that might have been performed as part of a proof are similarly erased.
-This means that proofs can take advantage of the convenient interface to strings and arrays as inductively-defined lists, including using induction to prove things about them, without imposing slow conversion steps while the program is running.
+This means that proofs can take advantage of the convenient interface to arrays as inductively-defined lists, including using induction to prove things about them, without imposing slow conversion steps while the program is running.
 For these built-in types, a convenient logical representation of the data does not imply that the program must be slow.
 
 If a structure type has only a single non-type non-proof field, then the constructor itself disappears at run time, being replaced with its single argument.
@@ -90,8 +92,8 @@ The following types have special representations:
 
 *
   * {anchorName all}`String`
-  * A structure that contains a {anchorTerm all}`List Char` in a field called {anchorTerm StringDetail}`data`
-  * UTF-8-encoded string
+  * A structure that contains a {anchorTerm StringDetail}`ByteArray` in a field called {anchorTerm StringDetail}`toByteArray`, along with a proof that the array is valid UTF-8
+  * UTF-8-encoded string and cached length
 
 *
   * {anchorTerm sequences}`Array α`

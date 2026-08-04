@@ -14,20 +14,18 @@ stop discarding
 
 -- ANCHOR_END: MainTypes
 
-/-- info:
-"Hello"
--/
+/-- info: Hello -/
 #check_msgs in
 -- ANCHOR: dropBang
-#eval ("Hello!!!".dropEndWhile (· == '!')).copy
+#eval "Hello!!!".dropEndWhile (· == '!')
 -- ANCHOR_END: dropBang
 
 /-- info:
-"Hello"
+Hello
 -/
 #check_msgs in
 -- ANCHOR: dropNonLetter
-#eval ("Hello...   ".dropEndWhile (fun c => not (c.isAlphanum))).copy
+#eval "Hello...   ".dropEndWhile (fun c => not (c.isAlphanum))
 -- ANCHOR_END: dropNonLetter
 
 

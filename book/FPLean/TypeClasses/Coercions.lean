@@ -46,7 +46,7 @@ def fileDumper : IO Unit := do
   stdout.putStrLn s!"'The file {f}' contains:"
   stdout.putStrLn (← IO.FS.readFile f)
 ```
-{moduleName}`String.trimAscii` removes leading and trailing whitespace from a string.
+{moduleName}`String.trimAscii` removes leading and trailing whitespace from a string, returning a {tech}[string slice] that is converted back to a string using {moduleName}`String.Slice.copy`.
 On the last line of {anchorName fileDumper}`fileDumper`, the coercion from {moduleName}`String` to {moduleName}`FilePath` automatically converts {anchorName fileDumper}`f`, so it is not necessary to write {lit}`IO.FS.readFile ⟨f⟩`.
 
 # Positive Numbers
