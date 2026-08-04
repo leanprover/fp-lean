@@ -470,7 +470,7 @@ Testing it reveals that it works just like the prior version:
 :::paragraph
 The {kw}`for`{lit}` ...`{kw}`in`{lit}` ...`{kw}`do`{lit}` ...` syntax desugars to the use of a type class called {anchorName ForInIOAllLessThan}`ForIn`, which is a somewhat more complicated version of {anchorName ForM}`ForM` that keeps track of state and early termination.
 The standard library provides an adapter that converts a {anchorName ForM}`ForM` instance into a {anchorName ForInIOAllLessThan}`ForIn` instance, called {anchorName ForInIOAllLessThan}`ForM.forIn`.
-This adapter requires that the {anchorName ForM}`ForM` instance to be adapted can be used with monads built from monad transformers, rather than just one specific monad.
+This adapter uses {anchorName countLettersForM}`StateT` and {anchorName runCatch}`ExceptT` internally, so it requires that the {anchorName ForM}`ForM` instance can be used with monads built from monad transformers, rather than just one specific monad.
 To enable {kw}`for` loops based on a {anchorName ForM}`ForM` instance, add something like the following, with appropriate replacements for {anchorName AllLessThan}`AllLessThan` and {anchorName AllLessThan}`Nat`:
 ```anchor ForInIOAllLessThan
 instance [Monad m] : ForIn m AllLessThan Nat where
@@ -513,7 +513,7 @@ Each type's name begins with {lit}`R`, and the next two letters determine the lo
 * {lit}`i` represents an infinite bound that does not restrict its range.
 
 For example, the type {anchorTerm names}`Std.Rco Nat` represents left-closed right-open sequences of {anchorName names}`Nat`s that include their lower bound but omit their upper bound, and {anchorTerm names}`Std.Roi Nat` represents infinite sequences of {anchorName names}`Nat`s that begin just above their lower bound.
-Even though {anchorTerm names}`Std.Rio Nat` has no lower bound, the sequence is finite because {anchorName names}`Nat` itself has an inherent lower bound of {anchorTerm names}`0`.
+Infinite bounds do not always result in infinite ranges; for example, even though a {anchorTerm names}`Std.Rio Nat` has no lower bound, the sequence is finite because {anchorName names}`Nat` itself has an inherent lower bound of {anchorTerm names}`0`.
 :::
 
 Lean has special syntax to construct ranges, in which each bound can be specified.

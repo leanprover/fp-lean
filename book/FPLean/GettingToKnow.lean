@@ -48,11 +48,11 @@ examples, and see what happens!
 
 {include 1 FPLean.GettingToKnow.Structures}
 
-{include 1 FPLean.GettingToKnow.Strings}
-
 {include 1 FPLean.GettingToKnow.DatatypesPatterns}
 
 {include 1 FPLean.GettingToKnow.Polymorphism}
+
+{include 1 FPLean.GettingToKnow.Strings}
 
 {include 1 FPLean.GettingToKnow.Conveniences}
 

@@ -41,7 +41,7 @@ A character can be added to the end of a string using {anchorName pushExplicit}`
 "Hello!"
 ```
 
-This function can also be called using the {ref "behind-the-scenes"}[dot notation] that is also used with structure accessors:
+This function can also be called using the {ref "behind-the-scenes"}[dot notation] that is used with structure accessors:
 ```anchor push
 #eval "Hello".push '!'
 ```
@@ -64,7 +64,8 @@ String slices have the type {anchorName names}`String.Slice`.
 A slice contains a reference to a string along with the start and end positions of the slice, and multiple slices can share the same string.
 Operations such as dropping prefixes of strings return slices rather than allocating new strings, and large parts of the string API are also implemented for slices.
 
-Operations that return slices include {anchorName names}`String.trimAscii`, which returns a slice that drops leading and trailing space, tab, newline, and carriage return characters from a string; {anchorName names}`String.drop`, which drops the specified number of characters from the start of a string; and {anchorName names}`String.dropWhile` and {anchorName names}`String.dropEndWhile`, which respectively remove all the characters that match a pattern from the beginning or end of a string.
+Operations that return slices include {anchorName names}`String.trimAscii`, which returns a slice that drops leading and trailing space, tab, newline, and carriage return characters from a string; {anchorName names}`String.drop` and {anchorName names}`String.dropEnd`, which drop the specified number of characters from the start or end of a string; and {anchorName names}`String.dropWhile` and {anchorName names}`String.dropEndWhile`, which respectively remove all the characters that match a pattern from the beginning or end of a string.
+The patterns used to search in strings are distinct from those used for {ref "pattern-matching"}[pattern matching]; in the string API, they are function arguments that specify characters or specific substrings to match.
 The string slice API includes all the slice-producing string functions as well, which makes it possible to write string manipulations as a series of incremental steps without risking intermediate string copying.
 
 :::paragraph
@@ -133,7 +134,7 @@ The slice is converted to a string in order to illustrate that the trailing spac
 tag := "string-messages-you-may-meet"
 %%%
 
-The overloaded string-matching functions are implemented using features that are explained later in the book, namely {ref "implicit-parameters"}[implicit parameters], {ref "type-classes"}[type classes], and {ref "dependent-types"}[dependent types].
+The overloaded string-matching functions are implemented using features that are explained later in the book, namely {ref "type-classes"}[type classes] and {ref "dependent-types"}[dependent types].
 There are two error messages in particular that are useful to learn to read before learning about those features of Lean.
 
 :::paragraph

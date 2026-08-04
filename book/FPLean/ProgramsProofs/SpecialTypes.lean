@@ -32,13 +32,15 @@ The fact that some types have special representations also means that care is ne
 Most of these types consist of a {kw}`structure` that is treated specially by the compiler.
 With these structures, using the constructor or the field accessors directly can trigger expensive conversions between efficient representations and representations designed for use in proofs.
 
-For example, {anchorName all}`String` is defined as a structure that contains an array of bytes together with a proof that the bytes are valid UTF-8, but the run-time representation contains the string's length.
-Applying the constructor to a byte array can only be done when the byte array is valid, but the cached length is computed in linear time.
-Many of the basic operations on strings are replaced by the compiler with efficient versions that mutate the run-time version of the string when possible instead of allocating a new one.
-Similarly, arrays are defined as structures that wrap linked lists.
-Their run-time representations are as efficient dynamic arrays, and applying the constructor {moduleName}`Array.mk` to a list converts the list to an array, which takes linear time.
+For example, arrays are defined as structures that wrap linked lists.
+In compiled code, they are represented as efficient dynamic arrays, and applying the constructor {moduleName}`Array.mk` to a list converts the list to such an efficient array, which takes linear time.
 The field accessor {anchorName sequences}`toList` converts the array back to a linked list, which also takes linear time.
-This definition exists entirely to make it easier to prove things about arrays, and these conversions should be avoided in code that is intended to be run.
+This definition of {anchorName sequences}`Array` exists entirely to make it easier to prove things about arrays, and these conversions should be avoided in code that is intended to be run.
+Similarly, {anchorName all}`String` is defined as a structure that contains an array of bytes together with a proof that the bytes are valid UTF-8, but the run-time representation additionally includes a field that caches the number of characters in the string.
+Applying the constructor to a byte array can only be done when the byte array is valid, so there's no need to check that the bytes are in fact a UTF-8 sequence, but the character count is computed in linear time.
+The accessor {anchorName StringDetail}`toByteArray` allocates a new byte array object and copies the underlying bytes, taking linear time and space.
+Many of the basic operations on strings are replaced by the compiler with efficient versions that mutate the run-time version of the string when possible instead of allocating a new one.
+
 
 Both types themselves and proofs of propositions are completely erased from compiled code.
 In other words, they take up no space, and any computations that might have been performed as part of a proof are similarly erased.
@@ -93,7 +95,7 @@ The following types have special representations:
 *
   * {anchorName all}`String`
   * A structure that contains a {anchorTerm StringDetail}`ByteArray` in a field called {anchorTerm StringDetail}`toByteArray`, along with a proof that the array is valid UTF-8
-  * UTF-8-encoded string and cached length
+  * UTF-8-encoded string and character count
 
 *
   * {anchorTerm sequences}`Array α`

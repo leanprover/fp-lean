@@ -3,6 +3,7 @@ import ExampleSupport
 --ANCHOR: names
 example := String.Slice.copy
 example := String.drop
+example := String.dropEnd
 example : String → Char → String.Slice := fun s c => String.dropWhile s c
 example : String → Char → String.Slice := fun s c => String.dropEndWhile s c
 example : String.Slice → Nat → String.Slice := fun s n => String.Slice.dropEnd s n
