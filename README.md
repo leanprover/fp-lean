@@ -8,6 +8,12 @@ Generally speaking, the code in this repository is not intended to work on all c
 
 To build the book, change to the [`book`](book/) directory and run `lake exe fp-lean`. After this, `book/_out/html-multi` contains a multi-page Web version of the book.
 
+To read the book locally, serve that directory over HTTP and open the address that the server prints:
+
+```
+python3 -m http.server --directory book/_out/html-multi
+```
+
 ## Publishing
 
 The book is published by pushing a tag whose name starts with `release-`. CI builds the tagged commit and deploys it to the production site. Publication happens on `release-` tags alone.
