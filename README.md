@@ -8,3 +8,11 @@ Generally speaking, the code in this repository is not intended to work on all c
 
 To build the book, change to the [`book`](book/) directory and run `lake exe fp-lean`. After this, `book/out/html-multi` contains a multi-page Web version of the book.
 
+## Publishing
+
+The book is published by pushing a tag whose name starts with `release-`. CI builds the tagged commit and deploys it to the production site. Publication happens on `release-` tags alone.
+
+Every other build gets a preview deploy instead: pushes to `master`, pull requests (including those from forks), and manual runs. The preview URL appears as a `netlify/deploy` status on the commit that was built.
+
+The build runs in [`ci.yml`](.github/workflows/ci.yml) and hands the HTML to [`deploy.yml`](.github/workflows/deploy.yml) as an artifact. The credentials live in the deploy workflow, which is what lets a pull request from a fork build and preview.
+

@@ -1,5 +1,3 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI
 
 # Controls when the workflow will run
@@ -12,137 +10,116 @@ on:
     tags:
       - '*'
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+# This workflow builds pull request code, including code from forks, so it holds
+# no secrets and only reads. The book HTML leaves here as an artifact, and
+# deploy.yml picks it up and publishes it.
+permissions:
+  contents: read
+
 jobs:
-  Build:
+  build:
+    name: Build book
     runs-on: ubuntu-latest
     steps:
+      - name: Install a C compiler
+        run: sudo apt-get install -y build-essential
 
-    - name: Install a C compiler
-      run: sudo apt-get install -y build-essential
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-    - name: Checkout
-      uses: actions/checkout@v2
+      # The book runs a Python interpreter during the build and shows its
+      # output, so the version is pinned to keep that output stable.
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: 3.10.4
 
-    - name: Setup Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: 3.10.4
+      - name: Setup elan toolchain on this build
+        run: |
+          curl -O --location https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh
+          chmod u+x elan-init.sh
+          ./elan-init.sh -y --default-toolchain none
 
-    - name: Setup elan toolchain on this build
-      run: |
-        curl -O --location https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh
-        chmod u+x elan-init.sh
-        ./elan-init.sh -y --default-toolchain none
+      - name: Set elan paths
+        run: |
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
 
-    - name: Set elan paths
-      run: |
-        echo "$HOME/.elan/bin" >> $GITHUB_PATH
+      - name: Install lean toolchain for examples
+        run: |
+          cd examples
+          lean --version
 
-    - name: Install lean toolchain for examples
-      run: |
-        cd examples
-        lean --version
+      - name: Install lean toolchain for text
+        run: |
+          cd book
+          lean --version
 
-    - name: Install lean toolchain for text
-      run: |
-        cd book
-        lean --version
+      - name: Cache examples/.lake
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: examples/.lake
+          # The SHA is in the key to get the most recent cache possible, rather than just saving a single one for each Lean/deps version and not touching it.
+          key: ${{ runner.os }}-${{ hashFiles('examples/lake-manifest.json') }}-${{ hashFiles('examples/lean-toolchain') }}-${{ github.sha }}
+          # Try to restore cache for same OS/Lean/deps, but don't get less specific, because Lake isn't always happy to get build product version mismatches
+          restore-keys: |
+            ${{ runner.os }}-${{ hashFiles('examples/lake-manifest.json') }}-${{ hashFiles('examples/lean-toolchain') }}-
 
-    - name: Cache examples/.lake
-      uses: actions/cache@v4
-      with:
-        path: examples/.lake
-        # The SHA is in the key to get the most recent cache possible, rather than just saving a single one for each Lean/deps version and not touching it.
-        key: ${{ runner.os }}-${{ hashFiles('examples/lake-manifest.json') }}-${{ hashFiles('examples/lean-toolchain') }}-${{ steps.shortSHA.outputs.short_sha }}
-        # Try to restore cache for same OS/Lean/deps, but don't get less specific, because Lake isn't always happy to get build product version mismatches
-        restore-keys: |
-          ${{ runner.os }}-${{ hashFiles('examples/lake-manifest.json') }}-${{ hashFiles('examples/lean-toolchain') }}-
+      - name: Cache book/.lake
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: book/.lake
+          # The SHA is in the key to get the most recent cache possible, rather than just saving a single one for each Lean/deps version and not touching it.
+          key: ${{ runner.os }}-${{ hashFiles('book/lake-manifest.json') }}-${{ hashFiles('book/lean-toolchain') }}-${{ github.sha }}
+          # Try to restore cache for same OS/Lean/deps, but don't get less specific, because Lake isn't always happy to get build product version mismatches
+          restore-keys: |
+            ${{ runner.os }}-${{ hashFiles('book/lake-manifest.json') }}-${{ hashFiles('book/lean-toolchain') }}-
 
-    - name: Cache book/.lake
-      uses: actions/cache@v4
-      with:
-        path: book/.lake
-        # The SHA is in the key to get the most recent cache possible, rather than just saving a single one for each Lean/deps version and not touching it.
-        key: ${{ runner.os }}-${{ hashFiles('book/lake-manifest.json') }}-${{ hashFiles('book/lean-toolchain') }}-${{ steps.shortSHA.outputs.short_sha }}
-        # Try to restore cache for same OS/Lean/deps, but don't get less specific, because Lake isn't always happy to get build product version mismatches
-        restore-keys: |
-          ${{ runner.os }}-${{ hashFiles('book/lake-manifest.json') }}-${{ hashFiles('book/lean-toolchain') }}-
+      - name: Build example code
+        run: |
+          pushd examples
+          lake build
+          lake build subverso-extract-mod
+          popd
 
-    - name: Build example code
-      run: |
-        pushd examples
-        lake build
-        lake build subverso-extract-mod
-        popd
+      - name: Save examples/.lake
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: examples/.lake
+          # The SHA is in the key to get the most recent cache possible, rather than just saving a single one for each Lean/deps version and not touching it.
+          key: ${{ runner.os }}-${{ hashFiles('examples/lake-manifest.json') }}-${{ hashFiles('examples/lean-toolchain') }}-${{ github.sha }}
 
-    - name: Save examples/.lake
-      uses: actions/cache/save@v4
-      with:
-        path: examples/.lake
-        # The SHA is in the key to get the most recent cache possible, rather than just saving a single one for each Lean/deps version and not touching it.
-        key: ${{ runner.os }}-${{ hashFiles('examples/lake-manifest.json') }}-${{ hashFiles('examples/lean-toolchain') }}-${{ steps.shortSHA.outputs.short_sha }}
+      - name: Build book
+        run: |
+          pushd book
+          lake exe fp-lean --depth 2 --without-html-single --verbose
+          popd
 
-    - name: Build book
-      run: |
-        pushd book
-        lake exe fp-lean --depth 2 --without-html-single --verbose
-        popd
+      - name: Save book/.lake
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: book/.lake
+          # The SHA is in the key to get the most recent cache possible, rather than just saving a single one for each Lean/deps version and not touching it.
+          key: ${{ runner.os }}-${{ hashFiles('book/lake-manifest.json') }}-${{ hashFiles('book/lean-toolchain') }}-${{ github.sha }}
 
-    - name: Save book/.lake
-      uses: actions/cache/save@v4
-      with:
-        path: book/.lake
-        # The SHA is in the key to get the most recent cache possible, rather than just saving a single one for each Lean/deps version and not touching it.
-        key: ${{ runner.os }}-${{ hashFiles('book/lake-manifest.json') }}-${{ hashFiles('book/lean-toolchain') }}-${{ steps.shortSHA.outputs.short_sha }}
+      # This is to get the cached highlight JSON files
+      - name: Save examples/.lake again
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: examples/.lake
+          # The SHA is in the key to get the most recent cache possible, rather than just saving a single one for each Lean/deps version and not touching it.
+          key: ${{ runner.os }}-${{ hashFiles('examples/lake-manifest.json') }}-${{ hashFiles('examples/lean-toolchain') }}-${{ github.sha }}
 
-    # This is to get the cached highlight JSON files
-    - name: Save examples/.lake again
-      uses: actions/cache/save@v4
-      with:
-        path: examples/.lake
-        # The SHA is in the key to get the most recent cache possible, rather than just saving a single one for each Lean/deps version and not touching it.
-        key: ${{ runner.os }}-${{ hashFiles('examples/lake-manifest.json') }}-${{ hashFiles('examples/lean-toolchain') }}-${{ steps.shortSHA.outputs.short_sha }}
-
-
-    - name: Zip html contents
-      run: |
-        pushd book/_out
-        cp -r html-multi html
-        zip -rq html.zip html/
-        popd
-
-    - id: deploy-info
-      name: Compute Deployment Metadata
-      run: |
-        set -e
-        python3 -c 'import base64; print("alias="+base64.urlsafe_b64encode(bytes.fromhex("${{github.sha}}")).decode("utf-8").rstrip("="))' >> "$GITHUB_OUTPUT"
-        echo "message=`git log -1 --pretty=format:"%s"`" >> "$GITHUB_OUTPUT"
-
-    - name: Release preview zip if a new tag is pushed
-      uses: softprops/action-gh-release@v1
-      if: ${{ startsWith(github.ref, 'refs/tags/pre-') }}
-      with:
-        files: book/_out/html.zip
-        token: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Deploy to Netlify hosting
-      uses: nwtgck/actions-netlify@v2.0
-      with:
-        publish-dir: book/_out/html-multi/
-        production-branch: master
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        deploy-message: |
-          ${{ github.event_name == 'pull_request' && format('pr#{0}: {1}', github.event.number, github.event.pull_request.title) || format('ref/{0}: {1}', github.ref_name, steps.deploy-info.outputs.message) }}
-        alias: ${{ steps.deploy-info.outputs.alias }}
-        enable-commit-comment: false
-        enable-pull-request-comment: false
-        github-deployment-environment: "lean-lang.org/functional_programming_lean"
-        fails-without-credentials: true
-      env:
-        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        NETLIFY_SITE_ID: "4e471a74-81e0-42f2-b27c-ca8c80a34f7c"
+      - name: Upload book HTML
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: book-html
+          path: book/_out/html-multi
+          retention-days: 7
+          if-no-files-found: error
