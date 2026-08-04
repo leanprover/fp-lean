@@ -11,8 +11,8 @@ def main (argv : List String) : IO UInt32 := do
   stdout.putStrLn "How would you like to be addressed?"
   stdout.flush
 
-  let name := (← stdin.getLine).trim
-  if name == "" then
+  let name := (← stdin.getLine).trimAscii
+  if name.isEmpty then
     stderr.putStrLn s!"No name provided"
     return 1
 
@@ -35,8 +35,8 @@ def main (argv : List String) : IO UInt32 := do
     stdout.putStrLn "How would you like to be addressed?"
     stdout.flush
 
-    let name := (← stdin.getLine).trim
-    if name == "" then
+    let name := (← stdin.getLine).trimAscii
+    if name.isEmpty then
       stderr.putStrLn s!"No name provided"
       pure 1
     else
@@ -46,6 +46,4 @@ def main (argv : List String) : IO UInt32 := do
 end Nested
 
 theorem mains_match : main = Nested.main := by
-  funext argv
-  simp [main, Nested.main]
-  congr
+  grind [main, Nested.main]

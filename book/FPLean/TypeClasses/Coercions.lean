@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 open Verso.Genre Manual
@@ -32,7 +33,7 @@ tag := "string-path-coercion"
 %%%
 
 In the {ref "handling-input"}[source code to {lit}`feline`], a {moduleName}`String` is converted to a {moduleName}`FilePath` using the anonymous constructor syntax.
-In fact, this was not necessary: Lean defines a coercion from {moduleName}`String` to {moduleName}`FilePath`, so a string can be used in an position where a path is expected.
+In fact, this was not necessary: Lean defines a coercion from {moduleName}`String` to {moduleName}`FilePath`, so a string can be used in a position where a path is expected.
 Even though the function {anchorTerm readFile}`IO.FS.readFile` has type {anchorTerm readFile}`System.FilePath → IO String`, the following code is accepted by Lean:
 
 ```anchor fileDumper
@@ -41,11 +42,11 @@ def fileDumper : IO Unit := do
   let stdout ← IO.getStdout
   stdout.putStr "Which file? "
   stdout.flush
-  let f := (← stdin.getLine).trim
+  let f := (← stdin.getLine).trimAscii.copy
   stdout.putStrLn s!"'The file {f}' contains:"
   stdout.putStrLn (← IO.FS.readFile f)
 ```
-{moduleName}`String.trim` removes leading and trailing whitespace from a string.
+{moduleName}`String.trimAscii` removes leading and trailing whitespace from a string, returning a {tech}[string slice] that is converted back to a string using {moduleName}`String.Slice.copy`.
 On the last line of {anchorName fileDumper}`fileDumper`, the coercion from {moduleName}`String` to {moduleName}`FilePath` automatically converts {anchorName fileDumper}`f`, so it is not necessary to write {lit}`IO.FS.readFile ⟨f⟩`.
 
 # Positive Numbers
@@ -181,13 +182,13 @@ def perhapsPerhapsPerhapsNat : Option (Option (Option Nat)) :=
   392
 ```
 ```anchorError ofNatBeforeCoe
-failed to synthesize
+failed to synthesize instance of type class
   OfNat (Option (Option (Option Nat))) 392
 numerals are polymorphic in Lean, but the numeral `392` cannot be used in a context where the expected type is
   Option (Option (Option Nat))
 due to the absence of the instance above
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ```
 :::
 
@@ -458,8 +459,8 @@ The solution is to write a little function that cleans up the presentation by dr
 ```anchor dropDecimals
 def dropDecimals (numString : String) : String :=
   if numString.contains '.' then
-    let noTrailingZeros := numString.dropRightWhile (· == '0')
-    noTrailingZeros.dropRightWhile (· == '.')
+    let noTrailingZeros := numString.dropEndWhile (· == '0')
+    (noTrailingZeros.dropEndWhile (· == '.')).copy
   else numString
 ```
 With this definition, {anchorTerm dropDecimalExample}`dropDecimals (5 : Float).toString` yields {anchorTerm dropDecimalExample}`5`, and {anchorTerm dropDecimalExample2}`dropDecimals (5.2 : Float).toString` yields {anchorTerm dropDecimalExample2}`5.2`.
@@ -520,13 +521,13 @@ def perhapsPerhapsPerhapsNat : Option (Option (Option Nat)) :=
   392
 ```
 ```anchorError ofNatBeforeCoe
-failed to synthesize
+failed to synthesize instance of type class
   OfNat (Option (Option (Option Nat))) 392
 numerals are polymorphic in Lean, but the numeral `392` cannot be used in a context where the expected type is
   Option (Option (Option Nat))
 due to the absence of the instance above
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ```
 
 # Design Considerations

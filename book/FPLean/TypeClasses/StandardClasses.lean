@@ -1,5 +1,8 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
+
+
 
 open Verso.Genre Manual
 open Verso Code External
@@ -27,7 +30,7 @@ tag := "arithmetic-classes"
 %%%
 
 Most arithmetic operators are available in a heterogeneous form, where the arguments may have different type and an output parameter decides the type of the resulting expression.
-For each heterogeneous operator, there is a corresponding homogeneous version that can found by removing the letter {lit}`h`, so that {moduleName}`HAdd.hAdd` becomes {moduleName}`Add.add`.
+For each heterogeneous operator, there is a corresponding homogeneous version that can be found by removing the letter {lit}`h`, so that {moduleName}`HAdd.hAdd` becomes {moduleName}`Add.add`.
 The following arithmetic operators are overloaded:
 
 :::table +header
@@ -129,10 +132,10 @@ For example, {anchorTerm boolEqTrue}`"Octopus" ==  "Cuttlefish"` evaluates to {a
 Some values, such as functions, cannot be checked for equality.
 For example, {anchorTerm functionEq}`(fun (x : Nat) => 1 + x) == (Nat.succ ·)` yields the error:
 ```anchorError functionEq
-failed to synthesize
+failed to synthesize instance of type class
   BEq (Nat → Nat)
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ```
 As this message indicates, {lit}`==` is overloaded using a type class.
 The expression {anchorTerm beqDesugar}`x == y` is actually shorthand for {anchorTerm beqDesugar}`BEq.beq x y`.
@@ -169,10 +172,10 @@ More specifically, decidable propositions have an instance of the {anchorName De
 Trying to use a proposition that isn't decidable as if it were a {anchorName CoeBoolProp}`Bool` results in a failure to find the {anchorName DecLTLEPos}`Decidable` instance.
 For example, {anchorTerm funEqDec}`if (fun (x : Nat) => 1 + x) = (Nat.succ ·) then "yes" else "no"` results in:
 ```anchorError funEqDec
-failed to synthesize
+failed to synthesize instance of type class
   Decidable ((fun x => 1 + x) = fun x => x.succ)
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ```
 
 The following propositions, that are usually decidable, are overloaded with type classes:
@@ -214,24 +217,25 @@ instance : LE Pos where
   le x y := LE.le x.toNat y.toNat
 ```
 These propositions are not decidable by default because Lean doesn't unfold the definitions of propositions while synthesizing an instance.
-This can be bridged using the {anchorName DecLTLEPos}`inferInstanceAs` operator, which finds an instance for a given class if it exists:
+This can be bridged using the {anchorName DecLTLEPos}`inferInstance` operator, which finds an instance if it exists.
+The type annotations direct {anchorName DecLTLEPos}`inferInstance` to infer instances of {anchorTerm DecLTLEPos}`Decidable (x.toNat < y.toNat)` and {anchorTerm DecLTLEPos}`Decidable (x.toNat ≤ y.toNat)`, which are the unfolded versions:
 
 ```anchor DecLTLEPos
 instance {x : Pos} {y : Pos} : Decidable (x < y) :=
-  inferInstanceAs (Decidable (x.toNat < y.toNat))
+  (inferInstance : Decidable (x.toNat < y.toNat))
 
 instance {x : Pos} {y : Pos} : Decidable (x ≤ y) :=
-  inferInstanceAs (Decidable (x.toNat ≤ y.toNat))
+  (inferInstance : Decidable (x.toNat ≤ y.toNat))
 ```
 The type checker confirms that the definitions of the propositions match.
 Confusing them results in an error:
 ```anchor LTLEMismatch
 instance {x : Pos} {y : Pos} : Decidable (x ≤ y) :=
-  inferInstanceAs (Decidable (x.toNat < y.toNat))
+  (inferInstance : Decidable (x.toNat < y.toNat))
 ```
 ```anchorError LTLEMismatch
 Type mismatch
-  inferInstanceAs (Decidable (x.toNat < y.toNat))
+  inferInstance
 has type
   Decidable (x.toNat < y.toNat)
 but is expected to have type

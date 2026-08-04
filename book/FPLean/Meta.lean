@@ -1,3 +1,4 @@
-import VersoManual
+module
+public import VersoManual
 
 namespace FPLean

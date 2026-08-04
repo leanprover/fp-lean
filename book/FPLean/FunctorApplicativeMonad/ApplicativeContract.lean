@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 open Verso.Genre Manual
@@ -114,7 +115,7 @@ Thinking about the meanings of the operations while reading these arguments can 
 Replacing {kw}`do`-notation with explicit uses of {lit}`>>=` makes it easier to apply the {anchorName MonadSeqDesugar}`Monad` rules:
 
 ```anchor MonadSeqDesugar
-def seq [Monad m] (f : m (α → β)) (x : Unit → m α) : m β := do
+def seq [Monad m] (f : m (α → β)) (x : Unit → m α) : m β :=
   f >>= fun g =>
   x () >>= fun y =>
   pure (g y)

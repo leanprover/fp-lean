@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 open Verso.Genre Manual
@@ -335,12 +336,12 @@ def Validate.andThen (val : Validate ε α)
 While this function's type signature makes it suitable to be used as {anchorName bindType}`bind` in a {anchorTerm bindType}`Monad` instance, there are good reasons not to do so.
 They are described {ref "additional-stipulations"}[in the section that describes the {anchorName ApplicativeExcept}`Applicative` contract].
 
-To check that the birth year is a number, a built-in function called {anchorTerm CheckedInputEx}`String.toNat? : String → Option Nat` is useful.
-It's most user-friendly to eliminate leading and trailing whitespace first using {anchorName CheckedInputEx}`String.trim`:
+To check that the birth year is a number, a built-in function called {anchorTerm CheckedInputEx}`String.Slice.toNat? : String.Slice → Option Nat` is useful.
+It's most user-friendly to eliminate leading and trailing whitespace first using {anchorName CheckedInputEx}`String.trimAscii`:
 
 ```anchor checkYearIsNat
 def checkYearIsNat (year : String) : Validate (Field × String) Nat :=
-  match year.trim.toNat? with
+  match year.trimAscii.toNat? with
   | none => reportError "birth year" "Must be digits"
   | some n => pure n
 ```

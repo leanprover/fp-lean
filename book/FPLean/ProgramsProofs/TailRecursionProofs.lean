@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 open Verso.Genre Manual
@@ -49,7 +50,6 @@ theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
 ```
 ```anchorError sumEq1
 unsolved goals
-case h
 xs : List Nat
 ⊢ NonTail.sum xs = Tail.sum xs
 ```
@@ -67,12 +67,12 @@ theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
 ```
 ```anchorError sumEq2a
 unsolved goals
-case h.nil
+case nil
 ⊢ NonTail.sum [] = Tail.sum []
 ```
 ```anchorError sumEq2b
 unsolved goals
-case h.cons
+case cons
 y : Nat
 ys : List Nat
 ih : NonTail.sum ys = Tail.sum ys
@@ -99,7 +99,7 @@ theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
 ```
 ```anchorError sumEq4
 unsolved goals
-case h.cons
+case cons
 y : Nat
 ys : List Nat
 ih : NonTail.sum ys = Tail.sum ys
@@ -117,7 +117,7 @@ theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
 In the resulting goal, {anchorName TailSum}`sumHelper` has taken a step of computation and added {anchorName sumEq5}`y` to the accumulator:
 ```anchorError sumEq5
 unsolved goals
-case h.cons
+case cons
 y : Nat
 ys : List Nat
 ih : NonTail.sum ys = Tail.sum ys
@@ -135,7 +135,7 @@ theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
 ```
 ```anchorError sumEq6
 unsolved goals
-case h.cons
+case cons
 y : Nat
 ys : List Nat
 ih : NonTail.sum ys = Tail.sum ys
@@ -429,7 +429,6 @@ theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
 ```
 ```anchorError nonTailEqReal0
 unsolved goals
-case h
 xs : List Nat
 ⊢ NonTail.sum xs = Tail.sum xs
 ```
@@ -441,7 +440,6 @@ theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
 ```
 ```anchorError nonTailEqReal1
 unsolved goals
-case h
 xs : List Nat
 ⊢ NonTail.sum xs = Tail.sumHelper 0 xs
 ```
@@ -458,7 +456,6 @@ theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
 ```
 ```anchorError nonTailEqReal2
 unsolved goals
-case h
 xs : List Nat
 ⊢ 0 + NonTail.sum xs = Tail.sumHelper 0 xs
 ```
@@ -596,7 +593,6 @@ theorem non_tail_reverse_eq_tail_reverse :
 This results in a suitable goal:
 ```anchorError reverseEqStart
 unsolved goals
-case h.h
 α : Type u_1
 xs : List α
 ⊢ NonTail.reverse xs = Tail.reverse xs

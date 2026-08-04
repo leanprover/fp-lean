@@ -382,15 +382,13 @@ stop discarding
 
 discarding
 /--
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 ---
-warning: declaration uses 'sorry'
----
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #check_msgs in
 --ANCHOR: insertionSortLoopSorry
@@ -462,7 +460,7 @@ section
 variable (arr : Array α)
 example := Fin arr.size
 example := OfNat
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration uses `sorry` -/
 #guard_msgs in
 theorem ohNoNotReallyTrue : 3 < 2 := by sorry
 end

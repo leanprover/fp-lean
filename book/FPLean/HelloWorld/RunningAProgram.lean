@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 
@@ -142,7 +143,7 @@ def main : IO Unit := do
 
   stdout.putStrLn "How would you like to be addressed?"
   let input ← stdin.getLine
-  let name := input.dropRightWhile Char.isWhitespace
+  let name := input.dropEndWhile Char.isWhitespace
 
   stdout.putStrLn s!"Hello, {name}!"
 ```
@@ -154,14 +155,21 @@ Just as SQL can be thought of as a special-purpose language for interacting with
 
 This program can be run in the same manner as the prior program:
 
-{command helloName "hello-name" "expect -f ./run" (show := "lean --run HelloName.lean")}
+{commandLine}`lean --run HelloName.lean`
 
 If the user responds with {lit}`David`, a session of interaction with the program reads:
 
-```commandOut helloName "expect -f ./run"
-How would you like to be addressed?
-David
-Hello, David!
+```interaction helloName "hello-name" -showCommand
+{ command := "lean", args := #["--run", "HelloName.lean"],
+  script := #[
+    .expect "How would you like to be addressed?",
+    .send "David",
+    .expect "Hello, David!",
+    .exitCode 0] }
+---
+< How would you like to be addressed?
+> David
+< Hello, David!
 ```
 
 The type signature line is just like the one for {lit}`Hello.lean`:
@@ -192,11 +200,11 @@ The next part of the {moduleTerm}`do` block is responsible for asking the user f
 ```module (anchor:=question)
   stdout.putStrLn "How would you like to be addressed?"
   let input ← stdin.getLine
-  let name := input.dropRightWhile Char.isWhitespace
+  let name := input.dropEndWhile Char.isWhitespace
 ```
 
 The first line writes the question to {moduleTerm (anchor := setup)}`stdout`, the second line requests input from {moduleTerm (anchor := setup)}`stdin`, and the third line removes the trailing newline (plus any other trailing whitespace) from the input line.
-The definition of {moduleTerm (anchor := question)}`name` uses {lit}`:=`, rather than {lit}`←`, because {moduleTerm}`String.dropRightWhile` is an ordinary function on strings, rather than an {moduleTerm (anchor := sig)}`IO` action.
+The definition of {moduleTerm (anchor := question)}`name` uses {lit}`:=`, rather than {lit}`←`, because {moduleTerm}`String.dropEndWhile` is an ordinary function on strings, rather than an {moduleTerm (anchor := sig)}`IO` action.
 
 Finally, the last line in the program is:
 ```module (anchor:=answer)

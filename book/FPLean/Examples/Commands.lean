@@ -1,7 +1,11 @@
-import FPLean.Examples.Commands.Env
-import FPLean.Examples.Commands.ShLex
-import Lean.Elab
-import Verso.FS
+module
+public import FPLean.Examples.Commands.Env
+public import FPLean.Examples.Commands.ShLex
+public import Lean.Environment
+public import Lean.Exception
+public import Verso.FS
+
+public section
 
 namespace FPLean.Commands
 open Lean
@@ -15,7 +19,12 @@ def ensureContainer (container : Ident) : m Container := do
   let c : Container := ⟨tmp, {}⟩
   let projectRoot : System.FilePath := ".."
   let copyErrors : IO.Ref (Array String) ← IO.mkRef #[]
-  Verso.FS.copyRecursively (fun s => copyErrors.modify (·.push s)) projectRoot tmp shouldCopy
+  let logger : Verso.Logger IO := {
+    log := fun _ text _ => copyErrors.modify (·.push text)
+    errors := do return (← copyErrors.get).map ({severity := .error, text := ·, loc := none})
+    warnings := pure #[]
+  }
+  ReaderT.run (Verso.FS.copyRecursively projectRoot tmp shouldCopy) logger
   let errs ← (copyErrors.get : IO _)
   unless errs.isEmpty do
     throwErrorAt container "Errors copying project to container {name}: {indentD <| MessageData.joinSep (errs.toList.map toMessageData) Format.line}"
@@ -46,6 +55,29 @@ private def fixPath (path : String) :=
     |>.toList
     |> System.SearchPath.separator.toString.intercalate
 
+private def examplesBinDir : IO String := do
+  return ((← IO.currentDir) / ".." / "examples" / ".lake" / "build" / "bin").toString
+
+private def inheritedPath : IO String := do
+  return (← IO.getEnv "PATH").map (System.SearchPath.separator.toString ++ ·) |>.getD ""
+
+/--
+The environment for commands run in a container.
+
+The binaries built from the examples come first on the `PATH`, and the variables that Lake sets
+for the book's own build are removed.
+-/
+def containerEnv : IO (Array (String × Option String)) := do
+  let path := (← examplesBinDir) ++ fixPath (← inheritedPath)
+  return #[("PATH", some path)] ++ lakeVars.map (·, none) ++ localeVars.map (·, some "C.UTF-8")
+
+/-- The environment from `containerEnv`, as `"NAME=VALUE"` entries to add and names to remove. -/
+def containerEnvEntries : IO (Array String × Array String) := do
+  let env ← containerEnv
+  return (
+    env.filterMap fun (name, value?) => value?.map fun value => s!"{name}={value}",
+    env.filterMap fun (name, value?) => if value?.isNone then some name else none)
+
 
 def command (container : Ident) (dir : System.FilePath) (command : StrLit) (viaShell := false) : m IO.Process.Output := do
   let c ← ensureContainer container
@@ -54,14 +86,11 @@ def command (container : Ident) (dir : System.FilePath) (command : StrLit) (viaS
   let dir := c.workingDirectory / "examples" / dir
   IO.FS.createDirAll dir
   let (cmd, args) ← if viaShell then pure ("bash", #["-c", command.getString]) else cmdAndArgs
-  let extraPath := (← IO.currentDir) / ".." / "examples" / ".lake" / "build" / "bin" |>.toString
-  let extraPath := if extraPath.contains ' ' || extraPath.contains '"' || extraPath.contains '\'' then extraPath.quote else extraPath
-  let path := (← IO.getEnv "PATH").map (System.SearchPath.separator.toString ++ ·) |>.getD ""
   let out ← IO.Process.output {
     cmd := cmd,
     args := args,
     cwd := dir,
-    env := #[("PATH", some (extraPath ++ fixPath path))] ++ lakeVars.map (·, none) ++ localeVars.map (·, some "C.UTF-8")
+    env := ← containerEnv
   }
   if out.exitCode != 0 then
     let stdout := m!"Stdout: {indentD out.stdout}"
