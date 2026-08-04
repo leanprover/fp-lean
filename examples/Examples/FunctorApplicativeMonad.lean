@@ -599,7 +599,7 @@ end MonadApplicative
 
 namespace MonadApplicativeDesugar
 -- ANCHOR: MonadSeqDesugar
-def seq [Monad m] (f : m (α → β)) (x : Unit → m α) : m β := do
+def seq [Monad m] (f : m (α → β)) (x : Unit → m α) : m β :=
   f >>= fun g =>
   x () >>= fun y =>
   pure (g y)
