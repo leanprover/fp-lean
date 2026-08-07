@@ -395,10 +395,10 @@ Indeed, it is enough to define {anchorName showFileAndDir}`showFileName` and {an
 
 ```anchor showFileAndDir
 def showFileName (file : String) : ConfigIO Unit := do
-  IO.println s!"{(← read).currentPrefix} {file}"
+  IO.println ((← read).fileName file)
 
 def showDirName (dir : String) : ConfigIO Unit := do
-  IO.println s!"{(← read).currentPrefix} {dir}/"
+  IO.println ((← read).dirName dir)
 ```
 
 One final operation from the original {anchorName ConfigIO}`ConfigIO` remains to be translated to a use of {anchorName MyReaderT}`ReaderT`: {anchorName locally}`locally`.
