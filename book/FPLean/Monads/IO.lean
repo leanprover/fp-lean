@@ -43,27 +43,27 @@ Nat.zero : Nat
 Nat.succ : Nat → Nat
 ```
 and
-```anchor printCharIsAlpha
-#print Char.isAlpha
+```anchor printStringToLower
+#print String.toLower
 ```
 results in
-```anchorInfo printCharIsAlpha
-def Char.isAlpha : Char → Bool :=
-fun c => c.isUpper || c.isLower
+```anchorInfo printStringToLower
+def String.toLower : String → String :=
+fun s => String.map Char.toLower s
 ```
 
 Sometimes, the output of {kw}`#print` includes Lean features that have not yet been presented in this book.
 For example,
-```anchor printListIsEmpty
-#print List.isEmpty
+```anchor printListHeadHuh
+#print List.head?
 ```
 produces
-```anchorInfo printListIsEmpty
-def List.isEmpty.{u} : {α : Type u} → List α → Bool :=
+```anchorInfo printListHeadHuh
+def List.head?.{u} : {α : Type u} → List α → Option α :=
 fun {α} x =>
   match x with
-  | [] => true
-  | head :: tail => false
+  | [] => none
+  | a :: tail => some a
 ```
 which includes a {lit}`.{u}` after the definition's name, and annotates types as {anchorTerm names}`Type u` rather than just {anchorTerm names}`Type`.
 This can be safely ignored for now.
