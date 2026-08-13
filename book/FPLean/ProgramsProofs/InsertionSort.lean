@@ -85,12 +85,10 @@ def insertSorted [Ord α] (arr : Array α) (i : Fin arr.size) : Array α :=
   match i with
   | ⟨0, _⟩ => arr
   | ⟨i' + 1, _⟩ =>
-    have : i' < arr.size := by
-      grind
     match Ord.compare arr[i'] arr[i] with
     | .lt | .eq => arr
     | .gt =>
-      insertSorted (arr.swap i' i) ⟨i', by simp [*]⟩
+      insertSorted (arr.swap i' i) ⟨i', by grind⟩
 ```
 If the index {anchorName insertSorted}`i` is {anchorTerm insertSorted}`0`, then the element being inserted into the sorted region has reached the beginning of the region and is the smallest.
 If the index is {anchorTerm insertSorted}`i' + 1`, then the element at {anchorName insertSorted}`i'` should be compared to the element at {anchorName insertSorted}`i`.
@@ -103,19 +101,8 @@ If the element to the left is greater than the element being inserted, then the 
 {anchorName names}`Array.swap` takes both of its indices as {anchorName names}`Nat`s, using the same tactics as array indexing behind the scenes to ensure that they are in bounds.
 
 Nonetheless, the {anchorName names}`Fin` used for the recursive call needs a proof that {anchorName insertSorted}`i'` is in bounds for the result of swapping two elements.
-The {anchorTerm insertSorted}`simp` tactic's database contains the fact that swapping two elements of an array doesn't change its size, and the {anchorTerm insertSorted}`[*]` argument instructs it to additionally use the assumption introduced by {kw}`have`.
-Omitting the {kw}`have`-expression with the proof that {anchorTerm insertSorted}`i' < arr.size` reveals the following goal:
-```anchorError insertSortedNoProof
-unsolved goals
-α : Type ?u.7
-inst✝ : Ord α
-arr : Array α
-i : Fin arr.size
-i' : Nat
-isLt✝ : i' + 1 < arr.size
-⊢ i' < arr.size
-```
-
+The {anchorTerm insertSorted}`grind` tactic's database contains the fact that swapping two elements of an array doesn't change its size.
+Combining this with the fact that {anchorTerm insertSorted}`i' + 1` is in bounds for the original array, {anchorTerm insertSorted}`grind` can conclude that {anchorName insertSorted}`i'` is in bounds after the swap.
 
 
 # The Outer Loop
@@ -385,10 +372,10 @@ theorem insert_sorted_size_eq [Ord α]
     (arr : Array α) (i : Fin arr.size) :
     (insertSorted arr i).size = arr.size := by
   fun_induction insertSorted with
-  | case1 arr isLt => skip
-  | case2 arr i isLt this isLt => skip
-  | case3 arr i isLt this isEq => skip
-  | case4 arr i isLt this isGt ih => skip
+  | case1 arr => skip
+  | case2 arr i this isLt => skip
+  | case3 arr i this isEq => skip
+  | case4 arr i this isGt ih => skip
 ```
 The first goal is the case for index {anchorTerm insertSorted}`0`.
 Here, the array is not modified, so proving that its size is unmodified will not require any complicated steps:
@@ -398,7 +385,7 @@ case case1
 α : Type u_1
 inst✝ : Ord α
 arr✝ arr : Array α
-isLt : 0 < arr.size
+isLt✝ : 0 < arr.size
 ⊢ arr.size = arr.size
 ```
 The next two goals are the same, and cover the {anchorName insertSorted}`.lt` and {anchorName insertSorted}`.eq` cases for the element comparison.
@@ -410,13 +397,12 @@ case case2
 inst✝ : Ord α
 arr✝ arr : Array α
 i : Nat
-isLt✝ : i + 1 < arr.size
-this : i < arr.size
-isLt : compare arr[i] arr[⟨i.succ, isLt✝⟩] = Ordering.lt
-⊢ (match compare arr[i] arr[⟨i.succ, isLt✝⟩] with
+this : i + 1 < arr.size
+isLt : compare arr[i] arr[⟨i.succ, this⟩] = Ordering.lt
+⊢ (match compare arr[i] arr[⟨i.succ, this⟩] with
     | Ordering.lt => arr
     | Ordering.eq => arr
-    | Ordering.gt => insertSorted (arr.swap i (↑⟨i.succ, isLt✝⟩) this ⋯) ⟨i, ⋯⟩).size =
+    | Ordering.gt => insertSorted (arr.swap i ↑⟨i.succ, this⟩ ⋯ ⋯) ⟨i, ⋯⟩).size =
   arr.size
 ```
 ```anchorError insert_sorted_size_eq_funInd1
@@ -426,13 +412,12 @@ case case3
 inst✝ : Ord α
 arr✝ arr : Array α
 i : Nat
-isLt : i + 1 < arr.size
-this : i < arr.size
-isEq : compare arr[i] arr[⟨i.succ, isLt⟩] = Ordering.eq
-⊢ (match compare arr[i] arr[⟨i.succ, isLt⟩] with
+this : i + 1 < arr.size
+isEq : compare arr[i] arr[⟨i.succ, this⟩] = Ordering.eq
+⊢ (match compare arr[i] arr[⟨i.succ, this⟩] with
     | Ordering.lt => arr
     | Ordering.eq => arr
-    | Ordering.gt => insertSorted (arr.swap i (↑⟨i.succ, isLt⟩) this ⋯) ⟨i, ⋯⟩).size =
+    | Ordering.gt => insertSorted (arr.swap i ↑⟨i.succ, this⟩ ⋯ ⋯) ⟨i, ⋯⟩).size =
   arr.size
 ```
 In the final case, once the {anchorTerm insertSorted}`match` is reduced, there will be some work left to do to prove that the next step of the insertion preserves the size of the array.
@@ -444,26 +429,24 @@ case case4
 inst✝ : Ord α
 arr✝ arr : Array α
 i : Nat
-isLt : i + 1 < arr.size
-this : i < arr.size
-isGt : compare arr[i] arr[⟨i.succ, isLt⟩] = Ordering.gt
-ih : (insertSorted (arr.swap i (↑⟨i.succ, isLt⟩) this ⋯) ⟨i, ⋯⟩).size = (arr.swap i (↑⟨i.succ, isLt⟩) this ⋯).size
-⊢ (match compare arr[i] arr[⟨i.succ, isLt⟩] with
+this : i + 1 < arr.size
+isGt : compare arr[i] arr[⟨i.succ, this⟩] = Ordering.gt
+ih : (insertSorted (arr.swap i ↑⟨i.succ, this⟩ ⋯ ⋯) ⟨i, ⋯⟩).size = (arr.swap i ↑⟨i.succ, this⟩ ⋯ ⋯).size
+⊢ (match compare arr[i] arr[⟨i.succ, this⟩] with
     | Ordering.lt => arr
     | Ordering.eq => arr
-    | Ordering.gt => insertSorted (arr.swap i (↑⟨i.succ, isLt⟩) this ⋯) ⟨i, ⋯⟩).size =
+    | Ordering.gt => insertSorted (arr.swap i ↑⟨i.succ, this⟩ ⋯ ⋯) ⟨i, ⋯⟩).size =
   arr.size
 ```
 :::
 
 :::paragraph
-The Lean library includes the theorem {anchorName insert_sorted_size_eq_funInd}`Array.size_swap`, which states that swapping two elements of an array doesn't change its size.
-By default, {tactic}`grind` doesn't use this fact, but once instructed to do so, it can take care of all four cases:
+The {tactic}`grind` tactic can take care of all four cases:
 ```anchor insert_sorted_size_eq_funInd
 theorem insert_sorted_size_eq [Ord α]
     (arr : Array α) (i : Fin arr.size) :
     (insertSorted arr i).size = arr.size := by
-  fun_induction insertSorted <;> grind [Array.size_swap]
+  fun_induction insertSorted <;> grind
 ```
 :::
 
@@ -533,7 +516,7 @@ Adding calls to {anchorName dbgTraceIfSharedSig}`dbgTraceIfShared` at each point
 Insertion sort has precisely one place that is at risk of copying rather than mutating: the call to {anchorName names}`Array.swap`.
 Replacing {anchorTerm insertSorted}`arr.swap i' i` with {anchorTerm InstrumentedInsertionSort (module := Examples.ProgramsProofs.InstrumentedInsertionSort)}`(dbgTraceIfShared "array to swap" arr).swap i' i` causes the program to emit {lit}`shared RC array to swap` whenever it is unable to mutate the array.
 However, this change to the program changes the proofs as well, because now there's a call to an additional function.
-Adding a local assumption that {anchorName dbgTraceIfSharedSig}`dbgTraceIfShared` preserves the length of its argument and adding it to some calls to {anchorTerm InstrumentedInsertionSort (module:=Examples.ProgramsProofs.InstrumentedInsertionSort)}`simp` is enough to fix the program and proofs.
+Adding a local assumption that {anchorName dbgTraceIfSharedSig}`dbgTraceIfShared` preserves the length of its argument and adding it to some calls to {anchorTerm InstrumentedInsertionSort (module:=Examples.ProgramsProofs.InstrumentedInsertionSort)}`grind` is enough to fix the program and proofs.
 
 The complete instrumented code for insertion sort is:
 ```anchor InstrumentedInsertionSort (module := Examples.ProgramsProofs.InstrumentedInsertionSort)
@@ -542,33 +525,25 @@ def insertSorted [Ord α] (arr : Array α) (i : Fin arr.size) : Array α :=
   | ⟨0, _⟩ => arr
   | ⟨i' + 1, _⟩ =>
     have : i' < arr.size := by
-      omega
+      grind
     match Ord.compare arr[i'] arr[i] with
     | .lt | .eq => arr
     | .gt =>
       have : (dbgTraceIfShared "array to swap" arr).size = arr.size := by
-        simp [dbgTraceIfShared]
+        grind [dbgTraceIfShared]
       insertSorted
         ((dbgTraceIfShared "array to swap" arr).swap i' i)
-        ⟨i', by simp [*]⟩
+        ⟨i', by grind [dbgTraceIfShared]⟩
 
-theorem insert_sorted_size_eq [Ord α] (len : Nat) (i : Nat) :
-    (arr : Array α) → (isLt : i < arr.size) → (arr.size = len) →
-    (insertSorted arr ⟨i, isLt⟩).size = len := by
-  induction i with
-  | zero =>
-    intro arr isLt hLen
-    simp [insertSorted, *]
-  | succ i' ih =>
-    intro arr isLt hLen
-    simp [insertSorted, dbgTraceIfShared]
-    split <;> simp [*]
+theorem insert_sorted_size_eq [Ord α]
+    (arr : Array α) (i : Fin arr.size) :
+    (insertSorted arr i).size = arr.size := by
+  fun_induction insertSorted <;> grind [dbgTraceIfShared]
 
 def insertionSortLoop [Ord α] (arr : Array α) (i : Nat) : Array α :=
   if h : i < arr.size then
     have : (insertSorted arr ⟨i, h⟩).size - (i + 1) < arr.size - i := by
-      rw [insert_sorted_size_eq arr.size i arr h rfl]
-      omega
+      grind [insert_sorted_size_eq]
     insertionSortLoop (insertSorted arr ⟨i, h⟩) (i + 1)
   else
     arr
@@ -631,7 +606,7 @@ def main (args : List String) : IO UInt32 := do
   | ["--shared"] => mainShared; pure 0
   | ["--unique"] => mainUnique; pure 0
   | _ =>
-    IO.println "Expected single argument, either \"--shared\" or \"--unique\""
+    IO.println "Expected either \"--shared\" or \"--unique\""
     pure 1
 ```
 
@@ -639,11 +614,11 @@ Running it with no arguments produces the expected usage information:
 ```interaction «sort-sharing» "sort-demo"
 { command := "sort",
   script := #[
-    .expect "Expected single argument, either \"--shared\" or \"--unique\"",
+    .expect "Expected either \"--shared\" or \"--unique\"",
     .exitCode 1] }
 ---
 $ sort
-< Expected single argument, either "--shared" or "--unique"
+< Expected either "--shared" or "--unique"
 ```
 
 The file {lit}`test-data` contains the following rocks:

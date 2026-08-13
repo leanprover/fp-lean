@@ -50,12 +50,10 @@ def insertSorted [Ord α] (arr : Array α) (i : Fin arr.size) : Array α :=
   match i with
   | ⟨0, _⟩ => arr
   | ⟨i' + 1, _⟩ =>
-    have : i' < arr.size := by
-      grind
     match Ord.compare arr[i'] arr[i] with
     | .lt | .eq => arr
     | .gt =>
-      insertSorted (arr.swap i' i) ⟨i', by simp [*]⟩
+      insertSorted (arr.swap i' i) ⟨i', by grind⟩
 -- ANCHOR_END: insertSorted
 
 -- theorem insert_sorted_size_eq' [Ord α] (len : Nat) (i : Nat) :
@@ -220,7 +218,7 @@ case case1
 α : Type u_1
 inst✝ : Ord α
 arr✝ arr : Array α
-isLt : 0 < arr.size
+isLt✝ : 0 < arr.size
 ⊢ arr.size = arr.size
 ---
 error: unsolved goals
@@ -229,13 +227,12 @@ case case2
 inst✝ : Ord α
 arr✝ arr : Array α
 i : Nat
-isLt✝ : i + 1 < arr.size
-this : i < arr.size
-isLt : compare arr[i] arr[⟨i.succ, isLt✝⟩] = Ordering.lt
-⊢ (match compare arr[i] arr[⟨i.succ, isLt✝⟩] with
+this : i + 1 < arr.size
+isLt : compare arr[i] arr[⟨i.succ, this⟩] = Ordering.lt
+⊢ (match compare arr[i] arr[⟨i.succ, this⟩] with
       | Ordering.lt => arr
       | Ordering.eq => arr
-      | Ordering.gt => insertSorted (arr.swap i (↑⟨i.succ, isLt✝⟩) this ⋯) ⟨i, ⋯⟩).size =
+      | Ordering.gt => insertSorted (arr.swap i ↑⟨i.succ, this⟩ ⋯ ⋯) ⟨i, ⋯⟩).size =
     arr.size
 ---
 error: unsolved goals
@@ -244,13 +241,12 @@ case case3
 inst✝ : Ord α
 arr✝ arr : Array α
 i : Nat
-isLt : i + 1 < arr.size
-this : i < arr.size
-isEq : compare arr[i] arr[⟨i.succ, isLt⟩] = Ordering.eq
-⊢ (match compare arr[i] arr[⟨i.succ, isLt⟩] with
+this : i + 1 < arr.size
+isEq : compare arr[i] arr[⟨i.succ, this⟩] = Ordering.eq
+⊢ (match compare arr[i] arr[⟨i.succ, this⟩] with
       | Ordering.lt => arr
       | Ordering.eq => arr
-      | Ordering.gt => insertSorted (arr.swap i (↑⟨i.succ, isLt⟩) this ⋯) ⟨i, ⋯⟩).size =
+      | Ordering.gt => insertSorted (arr.swap i ↑⟨i.succ, this⟩ ⋯ ⋯) ⟨i, ⋯⟩).size =
     arr.size
 ---
 error: unsolved goals
@@ -259,14 +255,13 @@ case case4
 inst✝ : Ord α
 arr✝ arr : Array α
 i : Nat
-isLt : i + 1 < arr.size
-this : i < arr.size
-isGt : compare arr[i] arr[⟨i.succ, isLt⟩] = Ordering.gt
-ih : (insertSorted (arr.swap i (↑⟨i.succ, isLt⟩) this ⋯) ⟨i, ⋯⟩).size = (arr.swap i (↑⟨i.succ, isLt⟩) this ⋯).size
-⊢ (match compare arr[i] arr[⟨i.succ, isLt⟩] with
+this : i + 1 < arr.size
+isGt : compare arr[i] arr[⟨i.succ, this⟩] = Ordering.gt
+ih : (insertSorted (arr.swap i ↑⟨i.succ, this⟩ ⋯ ⋯) ⟨i, ⋯⟩).size = (arr.swap i ↑⟨i.succ, this⟩ ⋯ ⋯).size
+⊢ (match compare arr[i] arr[⟨i.succ, this⟩] with
       | Ordering.lt => arr
       | Ordering.eq => arr
-      | Ordering.gt => insertSorted (arr.swap i (↑⟨i.succ, isLt⟩) this ⋯) ⟨i, ⋯⟩).size =
+      | Ordering.gt => insertSorted (arr.swap i ↑⟨i.succ, this⟩ ⋯ ⋯) ⟨i, ⋯⟩).size =
     arr.size
 -/
 #check_msgs in
@@ -275,10 +270,10 @@ theorem insert_sorted_size_eq [Ord α]
     (arr : Array α) (i : Fin arr.size) :
     (insertSorted arr i).size = arr.size := by
   fun_induction insertSorted with
-  | case1 arr isLt => skip
-  | case2 arr i isLt this isLt => skip
-  | case3 arr i isLt this isEq => skip
-  | case4 arr i isLt this isGt ih => skip
+  | case1 arr => skip
+  | case2 arr i this isLt => skip
+  | case3 arr i this isEq => skip
+  | case4 arr i this isGt ih => skip
 -- ANCHOR_END: insert_sorted_size_eq_funInd1
 stop discarding
 
@@ -287,7 +282,7 @@ stop discarding
 theorem insert_sorted_size_eq [Ord α]
     (arr : Array α) (i : Fin arr.size) :
     (insertSorted arr i).size = arr.size := by
-  fun_induction insertSorted <;> grind [Array.size_swap]
+  fun_induction insertSorted <;> grind
 -- ANCHOR_END: insert_sorted_size_eq_funInd
 
 discarding
@@ -311,7 +306,7 @@ Could not find a decreasing measure.
 The basic measures relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
             arr i #1
-1) 324:4-55   ? ?  ?
+1) 319:4-55   ? ?  ?
 
 #1: arr.size - i
 

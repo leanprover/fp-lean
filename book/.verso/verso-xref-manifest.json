@@ -1,8 +1,7 @@
 {"version": 0,
  "sources":
  {"manual":
-  {"updated": "2026-08-04:14:48:20.312161000",
-   "updateFrequency": "manual",
+  {"updateFrequency": "manual",
    "shortName": "ref",
    "root": "https://lean-lang.org/doc/reference/4.26.0/",
    "longName": "Lean Language Reference"}},

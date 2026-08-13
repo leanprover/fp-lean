@@ -11,7 +11,7 @@ To build the book, change to the [`book`](book/) directory and run `lake exe fp-
 To read the book locally, serve that directory over HTTP and open the address that the server prints:
 
 ```
-python3 -m http.server --directory book/_out/html-multi
+lake exe verso-serve
 ```
 
 ## Publishing
