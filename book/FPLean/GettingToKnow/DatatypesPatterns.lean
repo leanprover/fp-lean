@@ -131,7 +131,7 @@ An example of a function that uses pattern matching is {anchorName isZero}`isZer
 def isZero (n : Nat) : Bool :=
   match n with
   | Nat.zero => true
-  | Nat.succ k => false
+  | Nat.succ _ => false
 ```
 
 The {kw}`match` expression is provided the function's argument {anchorName isZero}`n` for destructuring.
@@ -146,7 +146,7 @@ isZero Nat.zero
 ===>
 match Nat.zero with
 | Nat.zero => true
-| Nat.succ k => false
+| Nat.succ _ => false
 ===>
 true
 ```
@@ -162,16 +162,16 @@ isZero (Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ Nat.zero)))))
 ===>
 match Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ Nat.zero)))) with
 | Nat.zero => true
-| Nat.succ k => false
+| Nat.succ _ => false
 ===>
 false
 ```
 :::
 
-The {anchorName isZero}`k` in the second branch of the pattern in {anchorName isZero}`isZero` is not decorative.
-It makes the {anchorName isZero}`Nat` that is the argument to {anchorName isZero}`Nat.succ` visible, with the provided name.
-That smaller number can then be used to compute the final result of the expression.
-
+The {anchorName isZero}`_` in the second branch of the pattern in {anchorName isZero}`isZero` is a placeholder.
+It represents the {anchorName isZero}`Nat` that is the argument to {anchorName isZero}`Nat.succ`. 
+As we don't need to compute using this value we use {anchorName isZero}`_` here.
+If we wanted to compute a value with this argument, we could give it a name such as `k`.
 
 :::paragraph
 Just as the successor of some number $`n` is one greater than $`n` (that is, $`n + 1`), the predecessor of a number is one less than it.
