@@ -276,7 +276,7 @@ Secondly, the need to call the function explicitly would make programs that use 
 Having a trade-off between precise types and convenient APIs means that the precise types become less useful.
 
 There are three type classes that are used to overload numeric literals: {anchorName Zero}`Zero`, {anchorName One}`One`, and {anchorName OfNat}`OfNat`.
-Because many types have values that are naturally written with {anchorTerm nats}`0`, the {anchorName Zero}`Zero` class allow these specific values to be overridden.
+Because many types have values that are naturally written with {anchorTerm nats}`0`, the {anchorName Zero}`Zero` class allows these specific values to be overridden.
 It is defined as follows:
 
 ```anchor Zero
