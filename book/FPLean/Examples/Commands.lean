@@ -4,11 +4,12 @@ public import FPLean.Examples.Commands.ShLex
 public import Lean.Environment
 public import Lean.Exception
 public import Verso.FS
+public import Verso.Literal
 
 public section
 
 namespace FPLean.Commands
-open Lean
+open Lean Verso
 
 variable {m : _} [Monad m] [MonadEnv m] [MonadLiftT IO m] [MonadLiftT BaseIO m] [MonadError m]
 
@@ -79,13 +80,13 @@ def containerEnvEntries : IO (Array String × Array String) := do
     env.filterMap fun (name, value?) => if value?.isNone then some name else none)
 
 
-def command (container : Ident) (dir : System.FilePath) (command : StrLit) (viaShell := false) : m IO.Process.Output := do
+def command [Literal k] (container : Ident) (dir : System.FilePath) (command : TSyntax k) (viaShell := false) : m IO.Process.Output := do
   let c ← ensureContainer container
   unless dir.isRelative do
     throwError "Relative directory expected, got '{dir}'"
   let dir := c.workingDirectory / "examples" / dir
   IO.FS.createDirAll dir
-  let (cmd, args) ← if viaShell then pure ("bash", #["-c", command.getString]) else cmdAndArgs
+  let (cmd, args) ← if viaShell then pure ("bash", #["-c", (Literal.decode command)]) else cmdAndArgs
   let out ← IO.Process.output {
     cmd := cmd,
     args := args,
@@ -95,13 +96,13 @@ def command (container : Ident) (dir : System.FilePath) (command : StrLit) (viaS
   if out.exitCode != 0 then
     let stdout := m!"Stdout: {indentD out.stdout}"
     let stderr := m!"Stderr: {indentD out.stderr}"
-    throwErrorAt command "Non-zero exit code from '{command.getString}' ({out.exitCode}).\n{indentD stdout}\n{indentD stderr}"
-  modifyEnv (containersExt.modifyState · (·.insert container.getId { c with outputs := c.outputs.insert command.getString.trimAscii.copy out.stdout }))
+    throwErrorAt command "Non-zero exit code from '{(Literal.decode command)}' ({out.exitCode}).\n{indentD stdout}\n{indentD stderr}"
+  modifyEnv (containersExt.modifyState · (·.insert container.getId { c with outputs := c.outputs.insert (Literal.decode command).trimAscii.copy out.stdout }))
   return out
 
 where
   cmdAndArgs : m (String × Array String) := do
-    match Shell.shlex command.getString with
+    match Shell.shlex (Literal.decode command) with
     | .error e => throwErrorAt command e
     | .ok components =>
       if h : components.size = 0 then
@@ -110,9 +111,9 @@ where
         return (components[0], components.extract 1)
 
 
-def commandOut (container : Ident) (command : StrLit) : m String := do
+def commandOut [Literal k] (container : Ident) (command : TSyntax k) : m String := do
   let c ← requireContainer container
-  if let some out := c.outputs[command.getString.trimAscii.copy]? then
+  if let some out := c.outputs[(Literal.decode command).trimAscii.copy]? then
     return out
   else throwErrorAt command "Output not found: {indentD command}"
 

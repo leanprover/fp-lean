@@ -1,18 +1,19 @@
 module
 public import Lean.Elab.Term.TermElabM
 import SubVerso.Examples
-import SubVerso.Examples.Env
 import Lean.Data.NameMap
-import Lean.DocString.Syntax
+import Lean.DocString.View
 public import VersoManual
 public meta import FPLean.Examples.Commands
 public import FPLean.Examples.Interaction
 public import FPLean.Examples.OtherLanguages
+public meta import FPLean.Examples.RoleMacro
 
 public section
 
 open Lean (NameMap MessageSeverity)
-open Lean.Doc.Syntax
+open Lean.Doc (ArgView CodeBlockView CodeView RoleView VersoCode VersoInline)
+open Lean.Doc.Parser (arg codeBlockFence argVal versoCodeBlock)
 
 namespace FPLean
 
@@ -27,30 +28,30 @@ open InlineLean (FileType)
 
 
 
-private meta def oneCodeStr [Monad m] [MonadError m] (inlines : Array (TSyntax `inline)) : m StrLit := do
+private meta def oneCodeStr [Monad m] [MonadError m] (inlines : Array VersoInline) : m VersoCode := do
   let #[code] := inlines
     | (if inlines.size == 0 then (throwError ·) else (throwErrorAt (mkNullNode inlines) ·)) "Expected one code element"
-  let `(inline|code($code)) := code
+  let some { content := code, .. } := CodeView.of code
     | throwErrorAt code "Expected a code element"
   return code
 
 private meta def oneCodeStr? [Monad m] [MonadError m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
-    (inlines : Array (TSyntax `inline)) : m (Option StrLit) := do
+    (inlines : Array VersoInline) : m (Option VersoCode) := do
   let #[code] := inlines
     | if inlines.size == 0 then
         logError "Expected a code element"
       else
         logErrorAt (mkNullNode inlines) "Expected one code element"
       return none
-  let `(inline|code($code)) := code
+  let some { content := code, .. } := CodeView.of code
     | logErrorAt code "Expected a code element"
       return none
   return some code
 
 
-private meta def oneCodeName [Monad m] [MonadError m] (inlines : Array (TSyntax `inline)) : m Ident := do
+private meta def oneCodeName [Monad m] [MonadError m] (inlines : Array VersoInline) : m Ident := do
   let code ← oneCodeStr inlines
-  let str := code.getString
+  let str := code.getVersoCode
   let name := if str.contains '.' then str.toName else Name.str .anonymous str
   return mkIdentFrom code name
 
@@ -118,18 +119,16 @@ block_extension Block.creativeCommons where
   traverse _ _ _ := pure none
   toTeX := none
   toHtml :=
-    open Verso.Output.Html in
     some <| fun _ _ _ _ _ =>
-      pure {{
+      pure html%{
         <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
           <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" />
         </a>
         <br />
-        "This work is licensed under a "
-        <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
-          "Creative Commons Attribution 4.0 International License"
-        </a>"."
-      }}
+        This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+          Creative Commons Attribution 4.0 International License
+        </a>.
+      }
 
 @[block_command]
 meta def creativeCommons : BlockCommandOf Unit
@@ -165,7 +164,6 @@ block_extension Block.leanEvalSteps (steps : Array Highlighted) via withHighligh
   toTeX := none
   extraCss := [evalStepsStyle]
   toHtml :=
-    open Verso.Output.Html in
     some <| fun _ _ _ data _ => do
       match FromJson.fromJson? data with
       | .error err =>
@@ -173,23 +171,22 @@ block_extension Block.leanEvalSteps (steps : Array Highlighted) via withHighligh
         pure .empty
       | .ok (steps : Array Highlighted) =>
         let i := steps.map (·.indentation) |>.toList |>.min? |>.getD 0
-        return {{
+        return html%{
           <div class="eval-steps">
-            {{← steps.mapM (·.deIndent i |>.blockHtml "examples" (g := Verso.Genre.Manual))}}
+            {← steps.mapM (·.deIndent i |>.blockHtml "examples" (g := Verso.Genre.Manual))}
           </div>
-        }}
+        }
 
 block_extension Block.leanEqReason where
   traverse _ _ _ := pure none
   toTeX := none
   toHtml :=
-    open Verso.Output.Html in
     some <| fun _ goB _ _ contents => do
-      return {{
+      return html%{
         <div class="reason">
-          {{ ← contents.mapM goB }}
+          {← contents.mapM goB}
         </div>
-      }}
+      }
   extraCss := [
   r#"
 .eq-steps .hl.lean.block {
@@ -242,13 +239,12 @@ block_extension Block.leanEqSteps where
   toTeX := none
   extraCss := [eqStepsStyle]
   toHtml :=
-    open Verso.Output.Html in
     some <| fun _ goB _ _ contents => do
-      return {{
+      return html%{
         <div class="eq-steps">
-          {{ ← contents.mapM goB }}
+          {← contents.mapM goB}
         </div>
-      }}
+      }
 
 
 private def getClass : MessageSeverity → String
@@ -265,7 +261,6 @@ block_extension Block.leanOutput (severity : MessageSeverity) (message : String)
       pure <| .seq <| ← content.mapM fun b => do
         pure <| .seq #[← go b, .raw "\n"]
   toHtml :=
-    open Verso.Output.Html in
     some <| fun _ _ _ data _ => do
       match FromJson.fromJson? data with
       | .error err =>
@@ -273,17 +268,17 @@ block_extension Block.leanOutput (severity : MessageSeverity) (message : String)
         pure .empty
       | .ok ((sev, txt, summarize) : MessageSeverity × String × Bool) =>
         let wrap html :=
-          if summarize then {{<details><summary>"Expand..."</summary>{{html}}</details>}}
+          if summarize then html%{<details><summary>Expand...</summary>{html}</details>}
           else html
-        pure <| wrap {{<div class={{getClass sev}}><pre>{{txt}}</pre></div>}}
+        pure <| wrap html%{<div class={getClass sev}><pre>{txt}</pre></div>}
 
 @[role_expander kw]
 meta def kw : RoleExpander
   | args, inls => do
     ArgParse.done.run args
     let kw ← oneCodeStr inls
-    let hl : Highlighted := .token ⟨.keyword none none none, kw.getString⟩ -- TODO kw xref
-    return #[← ``(Inline.other (Inline.lean $(quote hl) {}) #[Inline.code $(quote kw.getString)])]
+    let hl : Highlighted := .token ⟨.keyword none none none, kw.getVersoCode⟩ -- TODO kw xref
+    return #[← ``(Inline.other (Inline.lean $(quote hl) {}) #[Inline.code $(quote kw.getVersoCode)])]
 
 structure OutputInlineConfig where
   module : Ident
@@ -441,7 +436,7 @@ meta def moduleEvalStep : RoleExpander
       else
         let stepStr := step.toString
         Lean.logError m!"No expected term provided for `{stepStr}`."
-        if let `(inline|role{$_ $_*} [%$tok1 $contents* ]%$tok2) := (← getRef) then
+        if let some { brackets := some (tok1, tok2), content := contents, .. } := RoleView.of ⟨← getRef⟩ then
           let stx :=
             if tok1.getHeadInfo matches .original .. && tok2.getHeadInfo matches .original .. then
               mkNullNode #[tok1, tok2]
@@ -455,9 +450,6 @@ meta def moduleEvalStep : RoleExpander
       logErrorAt step.syntax m!"Step not found - only {steps.size} are available{h}"
       return #[← ``(sorryAx _ true)]
 
-macro_rules
-  | `(inline|role{anchorEvalStep $a:arg_val $n:arg_val $arg*}[$i*]) =>
-    `(inline|role{moduleEvalStep $n:arg_val $arg* anchor := $a }[$i*])
 
 private meta def editCodeBlock [Monad m] [MonadFileMap m] (stx : Syntax) (newContents : String) : m (Option String) := do
   let txt ← getFileMap
@@ -503,9 +495,6 @@ meta def moduleEvalStepBlock : CodeBlockExpander
         logErrorAt step.syntax m!"Step not found - only {steps.size} are available{h}"
         return #[← ``(sorryAx _ true)]
 
-macro_rules
-  | `(block|```%$t1 anchorEvalStep $a:arg_val $n:arg_val $arg* | $s ```%$t2) =>
-    `(block|```%$t1 moduleEvalStep $n:arg_val $arg* anchor := $a | $s ```%$t2)
 
 
 @[code_block_expander moduleEvalSteps]
@@ -520,9 +509,6 @@ meta def moduleEvalSteps : CodeBlockExpander
 
       return #[← ``(Block.other (Block.leanEvalSteps $(quote steps)) #[])]
 
-macro_rules
-  | `(block|```%$t1 anchorEvalSteps $a:arg_val $arg* | $s ```%$t2) =>
-    `(block|```%$t1 moduleEvalSteps $arg* anchor := $a | $s ```%$t2)
 
 
 @[code_block_expander moduleEqSteps]
@@ -558,9 +544,6 @@ meta def moduleEqSteps : CodeBlockExpander
       let steps : Array Term := steps.map quote
       return #[← ``(Block.other Block.leanEqSteps #[$steps,*])]
 
-macro_rules
-  | `(block|```%$t1 anchorEqSteps $a:arg_val $arg* | $s ```%$t2) =>
-    `(block|```%$t1 moduleEqSteps $arg* anchor := $a | $s ```%$t2)
 
 meta def withNl (s : String) : String := if s.endsWith "\n" then s else s ++ "\n"
 
@@ -572,7 +555,7 @@ structure CommandsConfig extends ContainerConfig where
   «show» : Bool
 
 structure CommandConfig extends ContainerConfig where
-  «show» : Option StrLit := none
+  «show» : Option String := none
   viaShell : Bool := false
 
 section
@@ -583,7 +566,7 @@ meta instance : FromArgs ContainerConfig m where
   fromArgs := ContainerConfig.mk <$> .positional `container .ident <*> .positional `dir .strLit
 
 meta instance : FromArgs CommandConfig m where
-  fromArgs := CommandConfig.mk <$> fromArgs <*> .named `show .strLit true <*> .namedD `shell .bool false
+  fromArgs := CommandConfig.mk <$> fromArgs <*> .named `show .string true <*> .namedD `shell .bool false
 
 meta instance : FromArgs CommandsConfig m where
   fromArgs := CommandsConfig.mk <$> fromArgs <*> .namedD `show .bool true
@@ -598,10 +581,10 @@ inline_extension Inline.shellCommand (command : String) where
     let .str command := data
       | reportError s!"Failed to deserialize commands:\n{data}"
         return .empty
-    let piece := {{ <code class="command">{{command}}</code> }}
-    pure {{
-      <span class="shell-command inline">{{piece}}</span>
-    }}
+    let piece := html%{<code class="command">{command}</code>}
+    pure html%{
+      <span class="shell-command inline">{piece}</span>
+    }
   extraCss := [
     r#"
 .shell-command {
@@ -630,10 +613,10 @@ block_extension Block.shellCommand (command : String) (prompt : Option String) w
       match prompt? with
       | .str p => some p
       | _ => none
-    let piece := {{ <code class="command"><code class="prompt">{{prompt?.getD "$ "}}</code>{{command}}</code> }}
-    pure {{
-      <div class="shell-command block">{{piece}}</div>
-    }}
+    let piece := html%{<code class="command"><code class="prompt">{prompt?.getD "$ "}</code>{command}</code>}
+    pure html%{
+      <div class="shell-command block">{piece}</div>
+    }
   extraCss := [
     r#"
 .shell-command {
@@ -667,7 +650,7 @@ meta def command : RoleExpander
       logSilentInfo <| "Stdout:\n" ++ output.stdout
     unless output.stderr.isEmpty do
       logSilentInfo <| "Stderr:\n" ++ output.stderr
-    let out := «show».getD cmd |>.getString
+    let out := «show».getD cmd.getVersoCode
     return #[← ``(Inline.other (Inline.shellCommand $(quote out)) #[Inline.code $(quote out)])]
 
 /--
@@ -678,7 +661,7 @@ meta def commandLine : RoleExpander
   | args, inls => do
     ArgParse.done.run args
     let cmd ← oneCodeStr inls
-    let out := cmd.getString
+    let out := cmd.getVersoCode
     return #[← ``(Inline.other (Inline.shellCommand $(quote out)) #[Inline.code $(quote out)])]
 
 structure CommandBlockConfig extends CommandConfig where
@@ -693,7 +676,7 @@ meta def CommandBlockConfig.parse  : ArgParse m CommandBlockConfig :=
     .positional `container .ident <*>
     .positional `dir .strLit <*>
     .positional `command .strLit <*>
-    .named `show .strLit true <*>
+    .named `show .string true <*>
     .named `prompt .strLit true <*>
     .namedD `shell .bool false
 
@@ -710,14 +693,15 @@ meta def commandBlock : BlockCommandOf CommandBlockConfig
       logSilentInfo <| "Stdout:\n" ++ output.stdout
     unless output.stderr.isEmpty do
       logSilentInfo <| "Stderr:\n" ++ output.stderr
-    let out := «show».getD command |>.getString
+    let out := «show».getD command.getString
     ``(Block.other (Block.shellCommand $(quote out) $(quote <| prompt.map (·.getString))) #[Block.code $(quote out)])
 
-instance : Coe StrLit (TSyntax `doc_arg) where
-  coe stx := ⟨mkNode ``Lean.Doc.Syntax.anon #[mkNode ``Lean.Doc.Syntax.arg_str #[stx.raw]]⟩
-
+open Lean.Doc in
 macro_rules
-  | `(block|```command $args* | $s```) => `(block|command{command $args* $s})
+  | `(Parser.Block.codeblock| $_:codeBlockFence command $args* $s:versoCodeBlock $_:codeBlockFence) => do
+    let str : StrLit := Syntax.mkStrLit s.getVersoCodeBlock (info := s.raw.getHeadInfo)
+    let arg : TSyntax ``arg := ⟨mkNode ``Parser.Arg.anon #[mkNode ``Parser.ArgVal.str #[str.raw]]⟩
+    `(Parser.Block.command| {command $args* $arg})
 
 @[role_expander commandOut]
 meta def commandOut : RoleExpander
@@ -750,10 +734,10 @@ block_extension Block.shellCommands (segments : Array (String × Bool)) where
       | reportError s!"Failed to deserialize commands:\n{data}"
         return .empty
     let pieces := segments.map fun (s, cmd) =>
-      {{ <code class={{if cmd then "command" else "output"}}>{{s}}</code> }}
-    pure {{
-      <div class="shell-commands">{{pieces}}</div>
-    }}
+      html%{<code class={if cmd then "command" else "output"}>{s}</code>}
+    pure html%{
+      <div class="shell-commands">{pieces}</div>
+    }
   extraCss := [
     r#"
 .shell-commands {
@@ -788,7 +772,7 @@ private inductive CommandSpec where
 meta def commands : CodeBlockExpander
   | args, str => do
     let {container, dir, «show»} ← parseThe CommandsConfig args
-    let specStr := str.getString
+    let specStr := str.getVersoCodeBlock
     let mut commands : Array CommandSpec := #[]
     let mut quoted := false
     for line in specStr.splitOn "\n" do
@@ -831,7 +815,7 @@ meta def commands : CodeBlockExpander
       | .out txt =>
         out := out.push (txt, false)
         outStr := outStr ++ withNl txt
-    unless str.getString.trimAscii.isEmpty && outStr.trimAscii.isEmpty do
+    unless str.getVersoCodeBlock.trimAscii.isEmpty && outStr.trimAscii.isEmpty do
       _ ← ExpectString.expectString "commands" str outStr (preEq := (·.trimAscii.copy))
     if «show» then
       pure #[← ``(Block.other (Block.shellCommands $(quote out)) #[])]
@@ -904,7 +888,7 @@ meta def moduleOutText : RoleExpander
         for (msg, _) in infos do
           let s := msg.toString (expandTraces := expandTraces)
           strings := strings.push s
-          if messagesMatch s str.getString then
+          if messagesMatch s str.getVersoCode then
             if msg.severity.toSeverity == severity.1 then
               return #[← ``(Inline.text $(quote s))]
             else
@@ -912,7 +896,8 @@ meta def moduleOutText : RoleExpander
               throwError "Mismatched severity. Expected '{repr severity.1}', got '{wanted}'.{← severityHint wanted severity.2}"
 
         let ref :=
-          if let `(inline|role{ $_ $_* }[ $x ]) := (← getRef) then x.raw else str
+          if let some { content := #[x], brackets := some _, .. } := RoleView.of ⟨← getRef⟩ then x.raw
+          else str.raw
 
         let suggs : Array Suggestion := strings.map fun msg => {
           suggestion := quoteCode msg.trimAscii.copy
@@ -923,12 +908,12 @@ meta def moduleOutText : RoleExpander
 
         let err :=
           m!"Expected one of:{indentD (m!"\n".joinSep <| infos.toList.map (·.1.toString))}" ++
-          m!"\nbut got:{indentD str.getString}\n" ++ h
+          m!"\nbut got:{indentD str.getVersoCode}\n" ++ h
         logErrorAt str err
       else
         let err := m!"Expected one of:{indentD (m!"\n".joinSep <| infos.toList.map (·.1.toString))}"
         Lean.logError m!"No expected term provided. {err}"
-        if let `(inline|role{$_ $_*} [%$tok1 $contents* ]%$tok2) := (← getRef) then
+        if let some { brackets := some (tok1, tok2), content := contents, .. } := RoleView.of ⟨← getRef⟩ then
           let stx :=
             if tok1.getHeadInfo matches .original .. && tok2.getHeadInfo matches .original .. then
               mkNullNode #[tok1, tok2]
@@ -957,16 +942,73 @@ where
     let delim := replicateString n '`'
     return delim ++ str ++ delim
 
-macro_rules
-  | `(inline|role{%$rs moduleInfoText $arg*}%$re [%$s $str* ]%$e) =>
-    `(inline|role{%$rs moduleOutText MessageSeverity.information $arg*}%$re [%$s $str* ]%$e)
-  | `(inline|role{%$rs moduleErrorText $arg*}%$re [%$s $str* ]%$e) =>
-    `(inline|role{%$rs moduleOutText MessageSeverity.error $arg*}%$re [%$s $str* ]%$e)
-  | `(inline|role{%$rs moduleWarningText $arg*}%$re [%$s $str* ]%$e) =>
-    `(inline|role{%$rs moduleOutText MessageSeverity.warning $arg*}%$re [%$s $str* ]%$e)
-  | `(inline|role{%$rs anchorInfoText $a:arg_val $arg*}%$re [%$s $str* ]%$e) =>
-    `(inline|role{%$rs moduleOutText MessageSeverity.information anchor:=$a $arg*}%$re [%$s $str* ]%$e)
-  | `(inline|role{%$rs anchorErrorText $a:arg_val $arg*}%$re [%$s $str* ]%$e) =>
-    `(inline|role{%$rs moduleOutText MessageSeverity.error anchor:=$a $arg*}%$re [%$s $str* ]%$e)
-  | `(inline|role{%$rs anchorWarningText $a:arg_val $arg*}%$re [%$s $str* ]%$e) =>
-    `(inline|role{%$rs moduleOutText MessageSeverity.warning anchor:=$a $arg*}%$re [%$s $str* ]%$e)
+section
+open Lean.Doc
+
+/-- An argument `anchor := a`, where `a` is the value of the positional argument `arg`. -/
+private meta def anchorArg (arg : TSyntax ``arg) :
+    MacroM (TSyntax ``arg) := do
+  let some (.anon _ a) := ArgView.of arg
+    | Macro.throwErrorAt arg "Expected the anchor as a positional argument"
+  return ⟨(← `(Parser.Arg.named_no_paren| $(mkIdent `anchor):ident := $a)).raw⟩
+
+/-- Moves the anchor at the start of `args` into the named argument `anchor`. -/
+private meta def nameAnchor (ref : Syntax) (args : TSyntaxArray ``arg) :
+    MacroM (TSyntaxArray ``arg) := do
+  let some a := args[0]? | Macro.throwErrorAt ref "Expected the anchor as the first argument"
+  return (args.extract 1).push (← anchorArg a)
+
+/-- A positional argument that names a message severity. -/
+private meta def severityArg (severity : Name) : MacroM (TSyntax ``arg) :=
+  return ⟨(← `(Parser.Arg.anon| $(mkIdent (`Lean.MessageSeverity ++ severity)):ident)).raw⟩
+
+/--
+Syntax for the same role as `v`, renamed to `moduleOutText` with the message severity `severity`.
+
+When `anchored` is `true`, the first positional argument is the anchor.
+-/
+private meta def outText (severity : Name) (anchored : Bool) (v : RoleView) : MacroM Syntax := do
+  let args ← if anchored then nameAnchor v.stx v.args else pure v.args
+  v.withNameArgs `moduleOutText (#[← severityArg severity] ++ args)
+
+@[role_macro anchorEvalStep]
+meta def anchorEvalStep (v : RoleView) : MacroM Syntax := do
+  v.withNameArgs `moduleEvalStep (← nameAnchor v.stx v.args)
+
+@[role_macro moduleInfoText]
+meta def moduleInfoText : RoleView → MacroM Syntax := outText `information false
+
+@[role_macro moduleErrorText]
+meta def moduleErrorText : RoleView → MacroM Syntax := outText `error false
+
+@[role_macro moduleWarningText]
+meta def moduleWarningText : RoleView → MacroM Syntax := outText `warning false
+
+@[role_macro anchorInfoText]
+meta def anchorInfoText : RoleView → MacroM Syntax := outText `information true
+
+@[role_macro anchorErrorText]
+meta def anchorErrorText : RoleView → MacroM Syntax := outText `error true
+
+@[role_macro anchorWarningText]
+meta def anchorWarningText : RoleView → MacroM Syntax := outText `warning true
+
+/-- The code block that a code block alias stands for, which takes the anchor as a named argument. -/
+private meta def codeBlockAlias : Name → Option Name
+  | `anchorEvalStep => some `moduleEvalStep
+  | `anchorEvalSteps => some `moduleEvalSteps
+  | `anchorEqSteps => some `moduleEqSteps
+  | _ => none
+
+/-- Expands a code block alias to the code block that it stands for. -/
+@[macro Lean.Doc.Parser.Block.codeblock]
+meta def expandCodeBlockAlias : Macro := fun stx => do
+  let some v := CodeBlockView.of ⟨stx⟩ | Macro.throwUnsupported
+  let some x := v.name? | Macro.throwUnsupported
+  let some name := codeBlockAlias x.getId | Macro.throwUnsupported
+  let name := mkIdentFrom x name
+  let args ← nameAnchor v.stx v.args
+  let (o, s, c) := (v.openFence, v.content, v.closeFence)
+  `(Parser.Block.codeblock| $o:codeBlockFence $name:ident $args* $s:versoCodeBlock $c:codeBlockFence)
+
+end

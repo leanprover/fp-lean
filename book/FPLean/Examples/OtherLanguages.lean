@@ -3,14 +3,14 @@ import SubVerso.Examples
 import Lean.Data.NameMap
 import Std.Data.HashMap
 import VersoManual
-import Lean.DocString.Syntax
+import Lean.DocString.View
 public import Verso.Doc.Elab.Monad
 public meta import Verso.ExpectString
 
 public section
 
 open Lean (NameMap MessageSeverity)
-open Lean.Doc.Syntax
+open Lean.Doc (CodeView)
 open Std
 
 namespace FPLean
@@ -25,120 +25,120 @@ open Lean
 @[code_block_expander CSharp]
 meta def CSharp : CodeBlockExpander
   | _args, code => do
-    return #[← ``(Block.code $(quote code.getString))]
+    return #[← ``(Block.code $(quote code.getVersoCodeBlock))]
 
 @[role_expander CSharp]
 meta def inlineCSharp : RoleExpander
   | _args, code => do
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
-    let `(inline|code($code)) := code
+    let some { content := code, .. } := CodeView.of code
       | throwErrorAt code "Expected code"
-    return #[← ``(Inline.code $(quote code.getString))]
+    return #[← ``(Inline.code $(quote code.getVersoCode))]
 
 @[code_block_expander Kotlin]
 meta def Kotlin : CodeBlockExpander
   | _args, code => do
-    return #[← ``(Block.code $(quote code.getString))]
+    return #[← ``(Block.code $(quote code.getVersoCodeBlock))]
 
 @[role_expander Kotlin]
 meta def inlineKotlin : RoleExpander
   | _args, code => do
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
-    let `(inline|code($code)) := code
+    let some { content := code, .. } := CodeView.of code
       | throwErrorAt code "Expected code"
-    return #[← ``(Inline.code $(quote code.getString))]
+    return #[← ``(Inline.code $(quote code.getVersoCode))]
 
 @[code_block_expander cpp]
 meta def cpp : CodeBlockExpander
   | _args, code => do
-    return #[← ``(Block.code $(quote code.getString))]
+    return #[← ``(Block.code $(quote code.getVersoCodeBlock))]
 
 @[role_expander cpp]
 meta def inlineCpp : RoleExpander
   | _args, code => do
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
-    let `(inline|code($code)) := code
+    let some { content := code, .. } := CodeView.of code
       | throwErrorAt code "Expected code"
-    return #[← ``(Inline.code $(quote code.getString))]
+    return #[← ``(Inline.code $(quote code.getVersoCode))]
 
 
 @[code_block_expander typescript]
 meta def typescript : CodeBlockExpander
   | _args, code => do
-    return #[← ``(Block.code $(quote code.getString))]
+    return #[← ``(Block.code $(quote code.getVersoCodeBlock))]
 
 @[role_expander typescript]
 meta def inlineTypescript : RoleExpander
   | _args, code => do
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
-    let `(inline|code($code)) := code
+    let some { content := code, .. } := CodeView.of code
       | throwErrorAt code "Expected code"
-    return #[← ``(Inline.code $(quote code.getString))]
+    return #[← ``(Inline.code $(quote code.getVersoCode))]
 
 @[role_expander c]
 meta def c : RoleExpander
   | _args, code => do
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
-    let `(inline|code($code)) := code
+    let some { content := code, .. } := CodeView.of code
       | throwErrorAt code "Expected code"
-    return #[← ``(Inline.code $(quote code.getString))]
+    return #[← ``(Inline.code $(quote code.getVersoCode))]
 
 @[role_expander java]
 meta def java : RoleExpander
   | _args, code => do
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
-    let `(inline|code($code)) := code
+    let some { content := code, .. } := CodeView.of code
       | throwErrorAt code "Expected code"
-    return #[← ``(Inline.code $(quote code.getString))]
+    return #[← ``(Inline.code $(quote code.getVersoCode))]
 
 @[role_expander rust]
 meta def rust : RoleExpander
   | _args, code => do
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
-    let `(inline|code($code)) := code
+    let some { content := code, .. } := CodeView.of code
       | throwErrorAt code "Expected code"
-    return #[← ``(Inline.code $(quote code.getString))]
+    return #[← ``(Inline.code $(quote code.getVersoCode))]
 
 @[code_block_expander python]
 meta def python : CodeBlockExpander
   | _args, code => do
-    return #[← ``(Block.code $(quote code.getString))]
+    return #[← ``(Block.code $(quote code.getVersoCodeBlock))]
 
 @[role_expander python]
 meta def inlinePython : RoleExpander
   | _args, code => do
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
-    let `(inline|code($code)) := code
+    let some { content := code, .. } := CodeView.of code
       | throwErrorAt code "Expected code"
-    return #[← ``(Inline.code $(quote code.getString))]
+    return #[← ``(Inline.code $(quote code.getVersoCode))]
 
 @[code_block_expander fsharp]
 meta def fsharp : CodeBlockExpander
   | _args, code => do
-    return #[← ``(Block.code $(quote code.getString))]
+    return #[← ``(Block.code $(quote code.getVersoCodeBlock))]
 
 @[role_expander fsharp]
 meta def fsharpInline : RoleExpander
   | _args, code => do
     let #[code] := code
       | throwErrorAt (mkNullNode code) "Expected exactly one code argument"
-    let `(inline|code($code)) := code
+    let some { content := code, .. } := CodeView.of code
       | throwErrorAt code "Expected code"
-    return #[← ``(Inline.code $(quote code.getString))]
+    return #[← ``(Inline.code $(quote code.getVersoCode))]
 
 
 @[code_block_expander fsharpError]
 meta def fsharpError : CodeBlockExpander
   | _args, code => do
-    return #[← ``(Block.code $(quote code.getString))]
+    return #[← ``(Block.code $(quote code.getVersoCodeBlock))]
 
 
 section
@@ -212,4 +212,4 @@ meta def includePython : CodeBlockExpander
       else
         pure s
     _ ← ExpectString.expectString "file" code txt
-    return #[← ``(Block.code $(quote code.getString))]
+    return #[← ``(Block.code $(quote code.getVersoCodeBlock))]
