@@ -4,10 +4,9 @@ import FPLean
 open Verso.Genre Manual
 open Verso Code External
 
-open Verso.Output.Html in
-def plausible := {{
+def plausible := html%{
     <script defer="defer" data-domain="lean-lang.org" src="https://plausible.io/js/script.outbound-links.js"></script>
-  }}
+  }
 
 
 def config : RenderConfig where
