@@ -1,0 +1,21 @@
+name: Ruff format
+
+on:
+    pull_request:
+    merge_group:
+
+permissions:
+    contents: read
+
+jobs:
+    ruff-format:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v7.0.1
+              with:
+                  persist-credentials: false
+
+            - uses: astral-sh/setup-uv@v10.3.3
+
+            - name: Check Python formatting with ruff
+              run: uvx ruff format --check .

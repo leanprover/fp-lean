@@ -1,0 +1,4 @@
+# The book shows the Python files of the examples to readers, so their layout is part of
+# the text and ruff leaves it as it is.
+[format]
+exclude = ["*.py"]
