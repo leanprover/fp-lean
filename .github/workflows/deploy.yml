@@ -15,12 +15,13 @@ jobs:
     name: Deploy to Netlify
     if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    # Publications serialize against each other, previews against their own ref.
+    # This concurrency group setting ensures that there's no races between jobs
+    # for production or a given PR's preview
     concurrency:
       group: >-
         deploy-${{ (github.event.workflow_run.event == 'push' &&
         startsWith(github.event.workflow_run.head_branch, 'release-'))
-        && 'production' || github.event.workflow_run.head_branch }}
+        && 'production' || format('preview-{0}', github.event.workflow_run.head_sha) }}
       cancel-in-progress: false
     permissions:
       actions: read # download the artifact belonging to the CI run
@@ -36,7 +37,7 @@ jobs:
       ENVIRONMENT: lean-lang.org/functional_programming_lean
     steps:
       - name: Download book HTML
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        uses: actions/download-artifact@v8.0.2
         with:
           name: book-html
           path: html-multi
