@@ -58,7 +58,7 @@ Writing proofs by induction as recursive functions that use helpers such as {anc
 While recursive functions indeed have the structure of induction, they should probably be viewed as an _encoding_ of a proof.
 Furthermore, Lean's tactic system provides a number of opportunities to automate the construction of a proof that are not available when writing the recursive function explicitly.
 Lean provides an induction _tactic_ that can carry out an entire proof by induction in a single tactic block.
-Behind the scenes, Lean constructs the recursive function that corresponds the use of induction.
+Behind the scenes, Lean constructs the recursive function that corresponds to the use of induction.
 
 To prove {anchorName plusR_zero_left_done (module:=Examples.DependentTypes.Pitfalls)}`plusR_zero_left` with the {kw}`induction` tactic, begin by writing its signature (using {kw}`theorem`, because this really is a proof).
 Then, use {anchorTerm plusR_ind_zero_left_1}`by induction k` as the body of the definition:

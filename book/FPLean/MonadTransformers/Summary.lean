@@ -41,7 +41,7 @@ A common design pattern is to implement a particular effect by defining a monad 
 This allows programs to be written that merely specify which effects they need, so the caller can provide any monad that has the right effects.
 
 Sometimes, auxiliary type information (e.g. the state's type in a monad that provides state, or the exception's type in a monad that provides exceptions) is an output parameter, and sometimes it is not.
-The output parameter is most useful for simple programs that use each kind of effect only once, but it risks having the type checker commit to a the wrong type too early when multiple instances of the same effect are used in a given program.
+The output parameter is most useful for simple programs that use each kind of effect only once, but it risks having the type checker commit to the wrong type too early when multiple instances of the same effect are used in a given program.
 Thus, both versions are typically provided, with the ordinary-parameter version of the type class having a name that ends in {lit}`-Of`.
 
 # Monad Transformers Don't Commute

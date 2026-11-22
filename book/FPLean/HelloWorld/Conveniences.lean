@@ -210,7 +210,7 @@ Blast off!
 This is the output produced by running the {moduleName (module := Examples.HelloWorld)}`IO` action, rather than some opaque representation of the action itself.
 In other words, for {moduleName (module := Examples.HelloWorld)}`IO` actions, {moduleTerm (module := Examples.HelloWorld)}`#eval` both _evaluates_ the provided expression and _executes_ the resulting action value.
 
-Quickly testing {moduleName (module := Examples.HelloWorld)}`IO` actions with {moduleTerm (module := Examples.HelloWorld)}`#eval` can be much more convenient that compiling and running whole programs.
+Quickly testing {moduleName (module := Examples.HelloWorld)}`IO` actions with {moduleTerm (module := Examples.HelloWorld)}`#eval` can be much more convenient than compiling and running whole programs.
 However, there are some limitations.
 For instance, reading from standard input simply returns empty input.
 Additionally, the {moduleName (module := Examples.HelloWorld)}`IO` action is re-executed whenever Lean needs to update the diagnostic information that it provides to users, and this can happen at unpredictable times.

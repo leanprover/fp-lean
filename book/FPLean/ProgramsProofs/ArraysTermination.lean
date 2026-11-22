@@ -260,7 +260,7 @@ inductive Nat.le (n : Nat) : Nat → Prop
 The parameter {anchorName NatLe}`n` is the number that should be smaller, while the index is the number that should be greater than or equal to {anchorName NatLe}`n`.
 The {anchorName NatLe}`refl` constructor is used when both numbers are equal, while the {anchorName NatLe}`step` constructor is used when the index is greater than {anchorName NatLe}`n`.
 
-From the perspective of evidence, a proof that $`n \leq k` consists of finding some number $`d` such that $`n + d = m`.
+From the perspective of evidence, a proof that $`n \leq m` consists of finding some number $`d` such that $`n + d = m`.
 In Lean, the proof then consists of a {anchorName leNames}`Nat.le.refl` constructor wrapped by $`d` instances of {anchorName leNames}`Nat.le.step`.
 Each {anchorName NatLe}`step` constructor adds one to its index argument, so $`d` {anchorName NatLe}`step` constructors adds $`d` to the larger number.
 For example, evidence that four is less than or equal to seven consists of three {anchorName NatLe}`step`s around a {anchorName NatLe}`refl`:
@@ -403,7 +403,7 @@ Try this:
   [apply] termination_by arr.size - i
 ```
 
-Not all termination arguments are as quite as simple as this one.
+Not all termination arguments are quite as simple as this one.
 However, the basic structure of identifying some expression based on the function's arguments that will decrease in each call occurs in all termination proofs.
 Sometimes, creativity can be required in order to figure out just why a function terminates, and sometimes Lean requires additional proofs in order to accept that the measure in fact decreases.
 

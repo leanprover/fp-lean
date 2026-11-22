@@ -217,7 +217,7 @@ declaration uses `sorry`
 Because {anchorName insertionSortLoop}`insertSorted` is structurally recursive on the index of the element being inserted, the proof should be by induction on the index.
 In the base case, the array is returned unchanged, so its length certainly does not change.
 For the inductive step, the induction hypothesis is that a recursive call on the next smaller index will not change the length of the array.
-There are two cases two consider: either the element has been fully inserted into the sorted region and the array is returned unchanged, in which case the length is also unchanged, or the element is swapped with the next one before the recursive call.
+There are two cases to consider: either the element has been fully inserted into the sorted region and the array is returned unchanged, in which case the length is also unchanged, or the element is swapped with the next one before the recursive call.
 However, swapping two elements in an array doesn't change the size of it, and the induction hypothesis states that the recursive call with the next index returns an array that's the same size as its argument.
 Thus, the size remains unchanged.
 
@@ -634,7 +634,7 @@ marble
 flint
 ```
 
-Using the instrumented insertion sort on these rocks results them being printed in alphabetical order:
+Using the instrumented insertion sort on these rocks results in them being printed in alphabetical order:
 ```commands «sort-sharing» "sort-demo"
 $ sort --unique < test-data
 diorite
