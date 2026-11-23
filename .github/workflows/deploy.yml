@@ -34,7 +34,7 @@ jobs:
       HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
       HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
       TRIGGERING_EVENT: ${{ github.event.workflow_run.event }}
-      ENVIRONMENT: lean-lang.org/functional_programming_lean
+      ENVIRONMENT: lean-lang.org/functional_programming_in_lean
     steps:
       - name: Download book HTML
         uses: actions/download-artifact@v8.0.2
@@ -99,45 +99,58 @@ jobs:
               --header "Authorization: Bearer $NETLIFY_AUTH_TOKEN" "$@"
           }
 
-          (cd html-multi && zip --quiet --recurse-paths ../site.zip .)
-
-          # A draft deploy leaves the published book in place, and its branch
-          # is the alias that serves it.
-          query=(--url-query title@deploy-message.txt)
-          if [ "$PRODUCTION" != true ]; then
-            query+=(--url-query draft=true --url-query "branch=$ALIAS")
-          fi
-          call_netlify "${query[@]}" \
-            --header "Content-Type: application/zip" \
-            --data-binary @site.zip \
-            "$api/sites/$NETLIFY_SITE_ID/deploys" > deploy.json
-          id=$(jq --raw-output .id deploy.json)
-
-          # Netlify publishes every deploy that is not a draft, so a preview
-          # that Netlify does not report as a draft is cancelled.
-          if [ "$PRODUCTION" != true ] && ! jq --exit-status '.draft == true' deploy.json > /dev/null; then
-            call_netlify --request POST "$api/deploys/$id/cancel" > /dev/null
-            echo "::error::Netlify did not create the preview as a draft deploy"
-            exit 1
-          fi
-
-          # Netlify processes the uploaded archive after it answers.
-          state=$(jq --raw-output .state deploy.json)
-          for _ in $(seq 120); do
-            case "$state" in
-              ready) break ;;
-              error)
+          # Polls the deploy until it reaches one of the states in $1, and
+          # leaves Netlify's description of it in deploy.json.
+          await_deploy() {
+            local state
+            for _ in $(seq 600); do
+              call_netlify "$api/sites/$NETLIFY_SITE_ID/deploys/$id" > deploy.json
+              state=$(jq --raw-output .state deploy.json)
+              case " $1 " in *" $state "*) return ;; esac
+              if [ "$state" = error ]; then
                 echo "::error::Netlify deploy failed: $(jq --raw-output .error_message deploy.json)"
-                exit 1 ;;
-            esac
-            sleep 5
-            call_netlify "$api/deploys/$id" > deploy.json
-            state=$(jq --raw-output .state deploy.json)
-          done
-          if [ "$state" != ready ]; then
+                exit 1
+              fi
+              sleep 2
+            done
             echo "::error::Netlify deploy $id is still in state $state"
             exit 1
+          }
+
+          # Deploy a preview to a branch named after its alias. Netlify serves
+          # it under that name and leaves the published book in place.
+          if [ "$PRODUCTION" = true ]; then
+            target='{"draft": false}'
+          else
+            target=$(jq --null-input --arg alias "$ALIAS" '{draft: false, branch: $alias}')
           fi
+          id=$(call_netlify --url-query title@deploy-message.txt --json "$target" \
+            "$api/sites/$NETLIFY_SITE_ID/deploys" | jq --raw-output .id)
+
+          # Send the SHA-1 digest of every file. Netlify answers with the
+          # digests of the files that it lacks.
+          (cd html-multi && find . -type f -exec sha1sum {} +) |
+            jq --raw-input --null-input --argjson target "$target" '
+              [ inputs
+                | capture("^(?<sha>[0-9a-f]{40})  \\.(?<path>/[^#?]*)$") // error("unusable file: \(.)")
+                | {key: .path, value: .sha} ]
+              | $target + {async: true, files: from_entries}' > manifest.json
+          call_netlify --request PUT --json @manifest.json \
+            "$api/sites/$NETLIFY_SITE_ID/deploys/$id" > /dev/null
+          await_deploy "prepared uploading uploaded ready"
+
+          jq --raw-output --slurpfile manifest manifest.json --arg base "$api/deploys/$id/files" '
+            ($manifest[0].files | to_entries | map({key: .value, value: .key}) | from_entries) as $path
+            | (.required // []) | unique[] | $path[.]
+            | "upload-file = \("html-multi" + . | @json)",
+              "url = \($base + (split("/") | map(@uri) | join("/")) | @json)",
+              "output = \"/dev/null\""' deploy.json > uploads.txt
+          echo "Netlify lacks $(grep --count '^url' uploads.txt || true) files"
+          if [ -s uploads.txt ]; then
+            call_netlify --config uploads.txt --parallel --parallel-max 5 --fail-early --retry 5 \
+              --header "Content-Type: application/octet-stream"
+          fi
+          await_deploy ready
 
           if [ "$PRODUCTION" = true ]; then
             url=$(jq --raw-output '.ssl_url // .url' deploy.json)
