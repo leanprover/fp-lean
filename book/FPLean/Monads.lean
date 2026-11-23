@@ -392,7 +392,7 @@ def sumAndFindEvens : List Int → List Int × Int
 This function is a simplified example of a common pattern.
 Many programs need to traverse a data structure once, while both computing a main result and accumulating some kind of tertiary extra result.
 One example of this is logging: a program that is an {moduleName}`IO` action can always log to a file on disk, but because the disk is outside of the mathematical world of Lean functions, it becomes much more difficult to prove things about logs based on {moduleName}`IO`.
-Another example is a function that computes the sum of all the nodes in a tree with an inorder traversal, while simultaneously recording each nodes visited:
+Another example is a function that computes the sum of all the nodes in a tree with an inorder traversal, while simultaneously recording each node visited:
 
 ```anchor inorderSum
 def inorderSum : BinTree Int → List Int × Int
@@ -551,7 +551,7 @@ def number(tree):
 
     return helper(tree)
 ```
-The numbering of the Python equivalent of {anchorName aTree}`aTree` is:
+The Python equivalent of {anchorName aTree}`aTree` is:
 ```includePython "../examples/inorder_python/inordernumbering.py" (anchor := a_tree)
 a_tree = Branch("d",
                 left=Branch("c",

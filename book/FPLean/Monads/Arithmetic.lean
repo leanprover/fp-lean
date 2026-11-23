@@ -596,7 +596,7 @@ By convention, the Greek letter {anchorName Reader}`ρ`, which is pronounced “
 :::
 
 :::paragraph
-The fact that constants in arithmetic expressions evaluate to constant functions suggests that the appropriate definition of {anchorName IdMonad}`pure` for {anchorName Reader}`Reader` is a a constant function:
+The fact that constants in arithmetic expressions evaluate to constant functions suggests that the appropriate definition of {anchorName IdMonad}`pure` for {anchorName Reader}`Reader` is a constant function:
 
 ```anchor ReaderPure
 def Reader.pure (x : α) : Reader ρ α := fun _ => x

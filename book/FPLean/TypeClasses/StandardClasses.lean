@@ -123,7 +123,7 @@ tag := "equality-and-ordering"
 
 Testing equality of two values typically uses the {moduleName}`BEq` class, which is short for “Boolean equality”.
 Due to Lean's use as a theorem prover, there are really two kinds of equality operators in Lean:
- * {deftech}_Boolean equality_ is the same kind of equality that is found in other programming languages. It is a function that takes two values and returns a {anchorName CoeBoolProp}`Bool`. Boolean equality is written with two equals signs, just as in Python and C#. Because Lean is a pure functional language, there's no separate notions of reference vs value equality—pointers cannot be observed directly.
+ * {deftech}_Boolean equality_ is the same kind of equality that is found in other programming languages. It is a function that takes two values and returns a {anchorName CoeBoolProp}`Bool`. Boolean equality is written with two equals signs, just as in Python and C#. Because Lean is a pure functional language, there's no separate notion of reference vs value equality—pointers cannot be observed directly.
  * {deftech}_Propositional equality_ is the mathematical statement that two things are equal. Propositional equality is not a function; rather, it is a mathematical statement that admits proof. It is written with a single equals sign. A statement of propositional equality is like a type that classifies evidence of this equality.
 
 Both notions of equality are important, and used for different purposes.
