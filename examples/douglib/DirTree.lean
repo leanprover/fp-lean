@@ -258,10 +258,10 @@ instance : MonadLift m (ReaderT ρ m) where
 
 -- ANCHOR: showFileAndDir
 def showFileName (file : String) : ConfigIO Unit := do
-  IO.println s!"{(← read).currentPrefix} {file}"
+  IO.println ((← read).fileName file)
 
 def showDirName (dir : String) : ConfigIO Unit := do
-  IO.println s!"{(← read).currentPrefix} {dir}/"
+  IO.println ((← read).dirName dir)
 -- ANCHOR_END: showFileAndDir
 
 
