@@ -162,7 +162,7 @@ For instance, the function {anchorName lastHuh}`List.last?` that finds the last 
 def List.last? : List α → Option α
   | [] => none
   | [x] => x
-  | _ :: x :: xs => last? (x :: xs)
+  | _ :: xs => last? xs
 ```
 Instance search finds the coercion, and inserts a call to {anchorName Coe}`coe`, which wraps the argument in {anchorName CoeOption}`some`.
 These coercions can be chained, so that nested uses of {anchorName CoeOption}`Option` don't require nested {anchorName CoeOption}`some` constructors:
