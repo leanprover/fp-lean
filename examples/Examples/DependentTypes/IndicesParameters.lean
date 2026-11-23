@@ -79,9 +79,9 @@ inductive WithIndex : Type u → Type (u + 1) where
 error: Invalid universe level in constructor `ParamAfterIndex.test1`: Parameter `γ` has type
   Type u
 at universe level
-  u+2
+  u + 2
 which is not less than or equal to the inductive type's resulting universe level
-  u+1
+  u + 1
 -/
 #check_msgs in
 -- ANCHOR: ParamAfterIndex

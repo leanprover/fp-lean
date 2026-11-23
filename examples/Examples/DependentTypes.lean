@@ -296,8 +296,8 @@ namespace Other
 
 /--
 error: Missing cases:
-(List.cons _ _), []
 [], (List.cons _ _)
+(List.cons _ _), []
 -/
 #check_msgs in
 -- ANCHOR: zipMissing

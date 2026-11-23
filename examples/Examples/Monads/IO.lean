@@ -32,27 +32,27 @@ Nat.succ : Nat → Nat
 -- ANCHOR_END: printNat
 
 
-/-- info:
-def Char.isAlpha : Char → Bool :=
-fun c => c.isUpper || c.isLower
+/--
+info: def String.toLower : String → String :=
+fun s => String.map Char.toLower s
 -/
 #check_msgs in
--- ANCHOR: printCharIsAlpha
-#print Char.isAlpha
--- ANCHOR_END: printCharIsAlpha
+-- ANCHOR: printStringToLower
+#print String.toLower
+-- ANCHOR_END: printStringToLower
 
 
-/-- info:
-def List.isEmpty.{u} : {α : Type u} → List α → Bool :=
+/--
+info: def List.head?.{u} : {α : Type u} → List α → Option α :=
 fun {α} x =>
   match x with
-  | [] => true
-  | head :: tail => false
+  | [] => none
+  | a :: tail => some a
 -/
 #check_msgs in
--- ANCHOR: printListIsEmpty
-#print List.isEmpty
--- ANCHOR_END: printListIsEmpty
+-- ANCHOR: printListHeadHuh
+#print List.head?
+-- ANCHOR_END: printListHeadHuh
 
 
 

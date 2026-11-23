@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 
@@ -28,7 +29,7 @@ Start with the program from the prior section:
   let stdout ← IO.getStdout
   stdout.putStrLn "How would you like to be addressed?"
   let input ← stdin.getLine
-  let name := input.dropRightWhile Char.isWhitespace
+  let name := input.dropEndWhile Char.isWhitespace
   stdout.putStrLn s!"Hello, {name}!"
 ```
 :::
@@ -44,7 +45,7 @@ The first line is {anchor line1}`let stdin ← IO.getStdin`, while the remainder
   let stdout ← IO.getStdout
   stdout.putStrLn "How would you like to be addressed?"
   let input ← stdin.getLine
-  let name := input.dropRightWhile Char.isWhitespace
+  let name := input.dropEndWhile Char.isWhitespace
   stdout.putStrLn s!"Hello, {name}!"
 ```
 :::
@@ -70,7 +71,7 @@ Now that {anchorTerm line1}`stdin` and {anchorTerm line2}`stdout` have been foun
 ```anchor block3
   stdout.putStrLn "How would you like to be addressed?"
   let input ← stdin.getLine
-  let name := input.dropRightWhile Char.isWhitespace
+  let name := input.dropEndWhile Char.isWhitespace
   stdout.putStrLn s!"Hello, {name}!"
 ```
 :::
@@ -93,41 +94,41 @@ Assume the user writes “{lit}`David`”.
 The resulting line ({lit}`"David\n"`) is associated with {anchorTerm block5}`input`, where the escape sequence {lit}`\n` denotes the newline character.
 
 ```anchor block5
-  let name := input.dropRightWhile Char.isWhitespace
+  let name := input.dropEndWhile Char.isWhitespace
   stdout.putStrLn s!"Hello, {name}!"
 ```
 
 :::paragraph
-The next line, {anchor line5}`let name := input.dropRightWhile Char.isWhitespace`, is a {kw}`let` statement.
+The next line, {anchor line5}`let name := input.dropEndWhile Char.isWhitespace`, is a {kw}`let` statement.
 Unlike the other {kw}`let` statements in this program, it uses {anchorTerm block5}`:=` instead of {anchorTerm line4}`←`.
 This means that the expression will be evaluated, but the resulting value need not be an {moduleTerm}`IO` action and will not be executed.
-In this case, {moduleTerm}`String.dropRightWhile` takes a string and a predicate over characters and returns a new string from which all the characters at the end of the string that satisfy the predicate have been removed.
+In this case, {moduleName}`String.dropEndWhile` takes a string and a {ref "string-matching"}[pattern] and returns a {tech}[string slice] from which all substrings at the end of the string that match the pattern have been removed.
 For example,
 
 ```anchorTerm dropBang (module := Examples.HelloWorld)
-#eval "Hello!!!".dropRightWhile (· == '!')
+#eval "Hello!!!".dropEndWhile (· == '!')
 ```
 
 yields
 
 ```anchorInfo dropBang (module := Examples.HelloWorld)
-"Hello"
+Hello
 ```
 
 and
 
 ```anchorTerm dropNonLetter (module := Examples.HelloWorld)
-#eval "Hello...   ".dropRightWhile (fun c => not (c.isAlphanum))
+#eval "Hello...   ".dropEndWhile (fun c => not (c.isAlphanum))
 ```
 
 yields
 
 ```anchorInfo dropNonLetter (module := Examples.HelloWorld)
-"Hello"
+Hello
 ```
 
 in which all non-alphanumeric characters have been removed from the right side of the string.
-In the current line of the program, whitespace characters (including the newline) are removed from the right side of the input string, resulting in {moduleTerm (module := Examples.HelloWorld)}`"David"`, which is associated with {anchorTerm block5}`name` for the remainder of the block.
+In the current line of the program, whitespace characters (including the newline) are removed from the right side of the input string, resulting in {lit}`David`, which is associated with {anchorTerm block5}`name` for the remainder of the block.
 :::
 
 # Greeting the User

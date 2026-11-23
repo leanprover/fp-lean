@@ -10,7 +10,7 @@ def main : IO Unit := do
   -- ANCHOR: question
   stdout.putStrLn "How would you like to be addressed?"
   let input ← stdin.getLine
-  let name := input.dropRightWhile Char.isWhitespace
+  let name := input.dropEndWhile Char.isWhitespace
   -- ANCHOR_END: question
 
   -- ANCHOR: answer
@@ -38,7 +38,7 @@ def mainSplit : IO Unit := do
   -- ANCHOR_END: line4
   -- ANCHOR: block5
   -- ANCHOR: line5
-  let name := input.dropRightWhile Char.isWhitespace
+  let name := input.dropEndWhile Char.isWhitespace
   -- ANCHOR_END: line5
   -- ANCHOR: block6
   -- ANCHOR: line6
@@ -54,7 +54,7 @@ def mainSplit : IO Unit := do
 -- Keep checking that they're identical
 example : main = mainSplit := by rfl
 
-example := String.dropRightWhile
+example : String → (Char → Bool) → String.Slice := fun s c => String.dropEndWhile s c
 example {α : Type} := IO α
 example : String → IO Unit := IO.println
 example := Bool

@@ -14,7 +14,8 @@ example := ToString Nat
 example := @List.sum
 example := @Ord.compare
 example := String.intercalate
-example := String.trim
+example := String.trimAscii
+example := String.Slice.copy
 example := "Hello!"
 example := [HAdd]
 example := Unit.unit
@@ -96,10 +97,10 @@ example : {α : Type} → [Plus α] → α → α → α := @Plus.plus
 -- ANCHOR_END: plusType
 
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   Plus Float
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #check_msgs in
 -- ANCHOR: plusFloatFail
@@ -131,13 +132,13 @@ example := Nat.zero
 
 discarding
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   OfNat Pos 7
 numerals are polymorphic in Lean, but the numeral `7` cannot be used in a context where the expected type is
   Pos
 due to the absence of the instance above
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #check_msgs in
 -- ANCHOR: sevenOops
@@ -152,10 +153,10 @@ def seven : Pos :=
 
 discarding
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   HAdd Pos Pos ?m.3
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #check_msgs in
 -- ANCHOR: fourteenOops
@@ -164,10 +165,10 @@ def fourteen : Pos := seven + seven
 stop discarding
 
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   HMul Pos Pos ?m.3
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #check_msgs in
 -- ANCHOR: fortyNineOops
@@ -222,7 +223,7 @@ def fileDumper : IO Unit := do
   let stdout ← IO.getStdout
   stdout.putStr "Which file? "
   stdout.flush
-  let f := (← stdin.getLine).trim
+  let f := (← stdin.getLine).trimAscii.copy
   stdout.putStrLn s!"'The file {f}' contains:"
   stdout.putStrLn (← IO.FS.readFile f)
 -- ANCHOR_END: fileDumper
@@ -395,13 +396,13 @@ LT4.zero
 -- ANCHOR_END: LT4zero
 
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   OfNat LT4 4
 numerals are polymorphic in Lean, but the numeral `4` cannot be used in a context where the expected type is
   LT4
 due to the absence of the instance above
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #check_msgs in
 -- ANCHOR: LT4four
@@ -436,13 +437,13 @@ def eight : Pos := 8
 
 
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   OfNat Pos 0
 numerals are polymorphic in Lean, but the numeral `0` cannot be used in a context where the expected type is
   Pos
 due to the absence of the instance above
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #check_msgs in
 -- ANCHOR: zeroBad
@@ -514,10 +515,10 @@ def fourPos : List Pos := [1, 2, 3, 4]
 
 
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   Zero Pos
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #check_msgs in
 -- ANCHOR: fourPosSum
@@ -1102,10 +1103,10 @@ example : ("Octopodes" ==  "Octo".append "podes") = true := rfl
 -- ANCHOR_END: boolEqFalse
 
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   BEq (Nat → Nat)
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #check_msgs in
 -- ANCHOR: functionEq
@@ -1129,15 +1130,15 @@ instance : LE Pos where
 
 -- ANCHOR: DecLTLEPos
 instance {x : Pos} {y : Pos} : Decidable (x < y) :=
-  inferInstanceAs (Decidable (x.toNat < y.toNat))
+  (inferInstance : Decidable (x.toNat < y.toNat))
 
 instance {x : Pos} {y : Pos} : Decidable (x ≤ y) :=
-  inferInstanceAs (Decidable (x.toNat ≤ y.toNat))
+  (inferInstance : Decidable (x.toNat ≤ y.toNat))
 -- ANCHOR_END: DecLTLEPos
 
 /--
 error: Type mismatch
-  inferInstanceAs (Decidable (x.toNat < y.toNat))
+  inferInstance
 has type
   Decidable (x.toNat < y.toNat)
 but is expected to have type
@@ -1146,7 +1147,7 @@ but is expected to have type
 #check_msgs in
 -- ANCHOR: LTLEMismatch
 instance {x : Pos} {y : Pos} : Decidable (x ≤ y) :=
-  inferInstanceAs (Decidable (x.toNat < y.toNat))
+  (inferInstance : Decidable (x.toNat < y.toNat))
 -- ANCHOR_END: LTLEMismatch
 
 #eval (5 : Pos) < (3 : Pos)
@@ -1174,10 +1175,10 @@ class HTTP (m : Method) where
 -- ANCHOR_END: twoLessFour
 
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   Decidable ((fun x => 1 + x) = fun x => x.succ)
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #check_msgs in
 -- ANCHOR: funEqDec
@@ -1547,13 +1548,13 @@ def perhapsPerhapsPerhaps : Option (Option (Option String)) :=
 
 discarding
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   OfNat (Option (Option (Option Nat))) 392
 numerals are polymorphic in Lean, but the numeral `392` cannot be used in a context where the expected type is
   Option (Option (Option Nat))
 due to the absence of the instance above
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #check_msgs in
 -- ANCHOR: ofNatBeforeCoe
@@ -1669,8 +1670,8 @@ def String.separate (sep : String) (strings : List String) : String :=
 -- ANCHOR: dropDecimals
 def dropDecimals (numString : String) : String :=
   if numString.contains '.' then
-    let noTrailingZeros := numString.dropRightWhile (· == '0')
-    noTrailingZeros.dropRightWhile (· == '.')
+    let noTrailingZeros := numString.dropEndWhile (· == '0')
+    (noTrailingZeros.dropEndWhile (· == '.')).copy
   else numString
 -- ANCHOR_END: dropDecimals
 
@@ -1893,10 +1894,9 @@ def lastSpider :=
 
 discarding
 /--
-error: Invalid field `getLast?`: The environment does not contain `NonEmptyList.getLast?`
+error: Invalid field `getLast?`: The environment does not contain `NonEmptyList.getLast?`, so it is not possible to project the field `getLast?` from an expression
   idahoSpiders
-has type
-  NonEmptyList String
+of type `NonEmptyList String`
 -/
 #check_msgs in
 -- ANCHOR: lastSpiderC

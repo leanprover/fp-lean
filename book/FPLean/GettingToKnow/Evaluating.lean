@@ -1,5 +1,8 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
+
+
 
 open Verso.Genre Manual
 open Verso Code External
@@ -158,7 +161,7 @@ In particular, the example
 yields a quite long error message:
 
 ```anchorError stringAppendReprFunction
-could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type
+Could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type
   String → String
 ```
 

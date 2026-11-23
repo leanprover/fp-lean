@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 open Verso.Genre Manual
@@ -189,13 +190,13 @@ def thirtyEight : NaturalNumber := 38
 results in the following error:
 
 ```anchorError thirtyEight
-failed to synthesize
+failed to synthesize instance of type class
   OfNat NaturalNumber 38
 numerals are polymorphic in Lean, but the numeral `38` cannot be used in a context where the expected type is
   NaturalNumber
 due to the absence of the instance above
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ```
 
 :::

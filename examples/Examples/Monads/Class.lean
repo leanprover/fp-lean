@@ -891,20 +891,28 @@ instance : LawfulMonad (Reader ρ) where
   map_const := by
     simp [Functor.mapConst, Function.comp, Functor.map]
   id_map x := by
-    simp [Functor.map]
+    funext
+    simp [Functor.map, id, Function.comp]
   seqLeft_eq x _ := by
-    simp [SeqLeft.seqLeft, Seq.seq, Functor.map]
+    funext
+    simp [SeqLeft.seqLeft, Seq.seq, Functor.map, Function.comp]
   seqRight_eq _ y := by
-    simp [SeqRight.seqRight, Seq.seq, Functor.map]
+    funext
+    simp [SeqRight.seqRight, Seq.seq, Functor.map, Function.comp]
   pure_seq g x := by
-    simp [Seq.seq, Functor.map, pure]
+    funext
+    simp [Seq.seq, Functor.map, pure, Function.comp]
   bind_pure_comp f x := by
-    simp [Functor.map, bind, pure]
+    funext
+    simp [Functor.map, bind, pure, Function.comp]
   bind_map f x := by
-    simp [Seq.seq, bind, Functor.map]
+    funext
+    simp [Seq.seq, bind, Functor.map, Function.comp]
   pure_bind x f := by
+    funext
     simp [pure, bind]
   bind_assoc x f g := by
+    funext
     simp [bind]
 
 

@@ -299,9 +299,8 @@ theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
 stop discarding
 
 discarding
-/-- error:
-unsolved goals
-case h
+/--
+error: unsolved goals
 xs : List Nat
 ⊢ NonTail.sum xs = Tail.sum xs
 -/
@@ -315,11 +314,11 @@ stop discarding
 discarding
 /--
 error: unsolved goals
-case h.nil
+case nil
 ⊢ NonTail.sum [] = Tail.sum []
 ---
 error: unsolved goals
-case h.cons
+case cons
 y : Nat
 ys : List Nat
 ih : NonTail.sum ys = Tail.sum ys
@@ -338,11 +337,11 @@ stop discarding
 discarding
 /--
 error: unsolved goals
-case h.nil
+case nil
 ⊢ NonTail.sum [] = Tail.sum []
 ---
 error: unsolved goals
-case h.cons
+case cons
 y : Nat
 ys : List Nat
 ih : NonTail.sum ys = Tail.sum ys
@@ -359,9 +358,9 @@ theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
 stop discarding
 
 discarding
-/-- error:
-unsolved goals
-case h.cons
+/--
+error: unsolved goals
+case cons
 y : Nat
 ys : List Nat
 ih : NonTail.sum ys = Tail.sum ys
@@ -378,9 +377,9 @@ theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
 stop discarding
 
 discarding
-/-- error:
-unsolved goals
-case h.cons
+/--
+error: unsolved goals
+case cons
 y : Nat
 ys : List Nat
 ih : NonTail.sum ys = Tail.sum ys
@@ -398,9 +397,9 @@ theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
 stop discarding
 
 discarding
-/-- error:
-unsolved goals
-case h.cons
+/--
+error: unsolved goals
+case cons
 y : Nat
 ys : List Nat
 ih : NonTail.sum ys = Tail.sum ys
@@ -418,9 +417,9 @@ theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
 stop discarding
 
 discarding
-/-- error:
-unsolved goals
-case h.cons
+/--
+error: unsolved goals
+case cons
 y : Nat
 ys : List Nat
 ih : NonTail.sum ys = Tail.sum ys
@@ -738,9 +737,8 @@ example : (n m : Nat) → n + m = m + n := Nat.add_comm
 
 
 discarding
-/-- error:
-unsolved goals
-case h
+/--
+error: unsolved goals
 xs : List Nat
 ⊢ NonTail.sum xs = Tail.sum xs
 -/
@@ -752,9 +750,8 @@ theorem non_tail_sum_eq_tail_sum : NonTail.sum = Tail.sum := by
 stop discarding
 
 discarding
-/-- error:
-unsolved goals
-case h
+/--
+error: unsolved goals
 xs : List Nat
 ⊢ NonTail.sum xs = Tail.sumHelper 0 xs
 -/
@@ -779,9 +776,8 @@ example : 0 + NonTail.sum xs = NonTail.sum xs := Nat.zero_add (NonTail.sum xs)
 end Wak
 
 discarding
-/-- error:
-unsolved goals
-case h
+/--
+error: unsolved goals
 xs : List Nat
 ⊢ 0 + NonTail.sum xs = Tail.sumHelper 0 xs
 -/
@@ -811,9 +807,8 @@ theorem reverse_helper (xs : List α) : (ys : List α) → NonTail.reverse xs ++
     simp [NonTail.reverse, Tail.reverseHelper, ← ih]
 
 discarding
-/-- error:
-unsolved goals
-case h.h
+/--
+error: unsolved goals
 α : Type u_1
 xs : List α
 ⊢ NonTail.reverse xs = Tail.reverse xs

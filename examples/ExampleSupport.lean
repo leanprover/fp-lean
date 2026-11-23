@@ -1,35 +1,47 @@
 import Lean.Message
 import Lean.Data.PersistentArray
 
+import SubVerso.Compat
 import SubVerso.Examples
+import SubVerso.Highlighting.Messages
 
 open SubVerso.Examples Messages
 
 open Lean Elab Command
 
+/--
+Resolves a name, so that the highlighted code of the module has information about it.
+
+The part after `as` is ignored.
+-/
+syntax "%show_name" ident (&"as" ident)? : command
+
+elab_rules : command
+  | `(%show_name $x $[as $_]?) =>
+    discard <| liftTermElabM <| SubVerso.Compat.realizeNameNoOverloads x
+
+/--
+Elaborates a term, so that the highlighted code of the module has information about it.
+
+The name and the kind are ignored.
+-/
+syntax "%show_term " ("(" &"kind" " := " ident ")")? ident (":" term)? " := " term : command
+
+elab_rules : command
+  | `(%show_term $[(kind := $_)]? $_ $[: $ty]? := $tm) => liftTermElabM do
+    let ty ← ty.mapM Term.elabType
+    discard <| Term.elabTerm tm ty
+    Term.synthesizeSyntheticMVarsNoPostponing
+
+/-!
+In the commands below, the name between `{{{` and `}}}` identifies the example to a reader of the
+source and is otherwise ignored. The book refers to code through anchors.
+-/
+
 syntax withPosition("book" "declaration" "{{{" ws ident ws "}}}" command+ "stop" "book" "declaration") : command
 
-open Lean in
-def mkExampleStx (kind : Name) (name : Ident) (lastHeaderToken : Syntax) (commands : Array Command) : MacroM Command := do
-  if h : commands.size ≥ 1 then
-    `(%example (kind := $(mkIdent <| `FPLean ++ kind)) $(mkIdentFrom lastHeaderToken name.getId true):ident
-        $(commands[0])
-        $(commands.extract 1 commands.size)*
-      %end)
-  else
-    Macro.throwError "Expected at least one command"
-
-open Lean in
-def wrapExampleStx (kind : Name) (name : Ident) (lastHeaderToken : Syntax) (commands : MacroM Command) : MacroM Command := do
-  let cmd ← commands
-  `(%example +embeddedOnly (kind := $(mkIdent <| `FPLean ++ kind)) $(mkIdentFrom lastHeaderToken name.getId true):ident
-      $cmd
-    %end)
-
-
 macro_rules
-  | `(book declaration {{{ $name:ident }}}%$tok $decls* stop book declaration) =>
-    mkExampleStx `decl name tok decls
+  | `(book declaration {{{ $_ }}} $decls* stop book declaration) => return mkNullNode decls
 
 book declaration {{{ foo }}}
   def twentyFive : Nat := 25
@@ -51,20 +63,17 @@ stop book declaration
 
 syntax withPosition("bookExample" "{{{" ws ident ws "}}}" colGt term:10 colGt "===>" colGt term:10 "end" "bookExample") : command
 
-
 macro_rules
-  | `(bookExample {{{ $name:ident }}}%$tok $x:term ===> $y:term end bookExample) =>
-    wrapExampleStx `inputOutput name tok
-      `(#guard_msgs (drop info) in
-        #check (rfl : %ex{$(Lean.mkIdent `in)}{$x} = %ex{$(Lean.mkIdent `out)}{$y}))
+  | `(bookExample {{{ $_ }}} $x:term ===> $y:term end bookExample) =>
+    `(#guard_msgs (drop info) in
+      #check (rfl : $x = $y))
 
 syntax withPosition("bookExample" ":" term "{{{" ws ident ws "}}}" colGt term:10 colGt "===>" colGt term:10 "end" "bookExample") : command
 
 macro_rules
-  | `(bookExample : $type:term {{{ $name:ident }}}%$tok $x:term ===> $y:term end bookExample) =>
-    wrapExampleStx `inputOutput name tok
+  | `(bookExample : $type:term {{{ $_ }}} $x:term ===> $y:term end bookExample) =>
     `(#guard_msgs (drop info) in
-      #check (rfl : (%ex{$(Lean.mkIdent `in)}{$x} : $type) = %ex{$(Lean.mkIdent `out)}{$y}))
+      #check (rfl : ($x : $type) = $y))
 
 bookExample {{{ one }}}
   1
@@ -81,9 +90,8 @@ end bookExample
 syntax withPosition("bookExample" "type" "{{{" ws ident ws "}}}" colGt term:1 colGt "===>" colGt term:1 "end" "bookExample") : command
 
 macro_rules
-  | `(bookExample type {{{ $name:ident }}}%$tok $x:term ===> $y:term end bookExample) =>
-    wrapExampleStx `inputOutput name tok
-    `(noncomputable example : %ex{$(Lean.mkIdent `out)}{$y} := %ex{$(Lean.mkIdent `in)}{$x})
+  | `(bookExample type {{{ $_ }}} $x:term ===> $y:term end bookExample) =>
+    `(noncomputable example : $y := $x)
 
 bookExample type {{{ three }}}
   2 + 1
@@ -100,9 +108,8 @@ end bookExample
 syntax withPosition("bookExample" "type" "{{{" ws ident ws "}}}" colGt term:10 colGt "<===" colGt term:0 "end" "bookExample") : command
 
 macro_rules
-  | `(bookExample type {{{ $name:ident }}}%$tok $x:term <=== $y:term end bookExample) =>
-    wrapExampleStx `inputOutput name tok
-    `(noncomputable example : %ex{$(Lean.mkIdent `out)}{$y} := %ex{$(Lean.mkIdent `in)}{$x})
+  | `(bookExample type {{{ $_ }}} $x:term <=== $y:term end bookExample) =>
+    `(noncomputable example : $y := $x)
 
 def nats : (min : Nat) -> (howMany : Nat) -> List Nat
   | n, Nat.zero => [n]
@@ -134,14 +141,13 @@ def withEmptyMessageLog
   withSavedState forgetMessages
 
 elab_rules : command
-  | `(expect error {{{ $name:ident }}} $expr:term message $msg:str end expect) =>
+  | `(expect error {{{ $_ }}} $expr:term message $msg:str end expect) =>
     open Lean.Elab.Command in
     open Lean in
     open Lean.Meta in do
-    let hls ←
-      withEmptyMessageLog do
+    withEmptyMessageLog do
         let desiredError := msg.getString
-        let cmd ← `(command|%show_term (kind := FPLean.forMessage) $name:ident := $expr)
+        let cmd ← `(command|noncomputable example := $expr)
         elabCommand cmd
         let afterState <- get
         let newMessages := afterState.messages.toList
@@ -151,19 +157,15 @@ elab_rules : command
           let desired := errStrings.map (· |> repr |>.pretty |>.replace "\\n" "\n")
           let desired := Std.Format.joinSep desired .line
           throwErrorAt msg "The desired error {desiredError} was not found in:\n{desired}"
-        pure <| highlighted.getState (← getEnv)
-    modifyEnv (highlighted.setState · hls)
 
 
 elab_rules : command
-  | `(expect error {{{ $name:ident }}}%$tok $cmd:command message $msg:str end expect) =>
+  | `(expect error {{{ $_ }}} $cmd:command message $msg:str end expect) =>
     open Lean.Elab.Command in
     open Lean in
     open Lean.Meta in do
-    let hls ←
-      withEmptyMessageLog do
+    withEmptyMessageLog do
         let desiredError := msg.getString
-        let cmd ← Lean.Elab.liftMacroM <| mkExampleStx `forMessage name tok #[cmd]
         elabCommand cmd
         let afterState <- get
         let newMessages := afterState.messages.toList
@@ -173,8 +175,6 @@ elab_rules : command
           let desired := errStrings.map (· |> repr |>.pretty |>.replace "\\n" "\n")
           let desired := Std.Format.joinSep desired .line
           throwErrorAt msg "The desired error {desiredError} was not found in:\n{desired}"
-        pure <| highlighted.getState (← getEnv)
-    modifyEnv (highlighted.setState · hls)
 
 
 expect error {{{ errorEx1 }}}
@@ -192,14 +192,12 @@ end expect
 syntax withPosition("expect" "info" "{{{" ws ident ws "}}}" colGt command "message" str "end" "expect") : command
 
 elab_rules : command
-  | `(expect info {{{ $name:ident }}}%$tok $cmd:command message $msg:str end expect) =>
+  | `(expect info {{{ $_ }}} $cmd:command message $msg:str end expect) =>
   open Lean.Elab.Command in
   open Lean in
   open Lean.Meta in do
-    let hls ←
-      withEmptyMessageLog do
+    withEmptyMessageLog do
         let desiredInfo := msg.getString
-        let cmd ← Lean.Elab.liftMacroM <| mkExampleStx `forMessage name tok #[cmd]
         elabCommand cmd
         let afterState <- get
         let newMessages := afterState.messages.toList
@@ -209,8 +207,6 @@ elab_rules : command
           let desired := errStrings.map (· |> repr |>.pretty |>.replace "\\n" "\n")
           let desired := Std.Format.joinSep desired .line
           throwErrorAt msg "The desired info {repr desiredInfo} was not found in\n{desired}"
-        pure <| highlighted.getState afterState.env
-    modifyEnv (highlighted.setState · hls)
 
 expect info {{{ infoEx1 }}}
   #check 1 + 2
@@ -223,13 +219,12 @@ syntax withPosition("expect" "warning" "{{{" ws ident ws "}}}" colGt command "me
 syntax withPosition("expect" "warning" "{{{" ws ident ws "}}}" colGt term "message" str "end" "expect") : command
 
 elab_rules : command
-  | `(expect warning {{{ $name }}}%$tok $cmd:command message $msg:str end expect) =>
+  | `(expect warning {{{ $_ }}} $cmd:command message $msg:str end expect) =>
     open Lean.Elab Command in
     open Lean in
     open Lean.Meta in do
-      let hls ← withEmptyMessageLog do
+      withEmptyMessageLog do
         let desiredWarning := msg.getString
-        let cmd ← liftMacroM <| mkExampleStx `forMessage name tok #[cmd]
         elabCommand cmd
         let afterState <- get
         let newMessages := afterState.messages.toList
@@ -239,17 +234,15 @@ elab_rules : command
           let desired := errStrings.map (· |> repr |>.pretty |>.replace "\\n" "\n")
           let desired := Std.Format.joinSep desired .line
           throwErrorAt msg "The desired warning {desiredWarning} was not found in\n{desired}"
-        pure <| highlighted.getState afterState.env
-      modifyEnv (highlighted.setState · hls)
 
 elab_rules : command
-  | `(expect warning {{{ $name }}} $expr:term message $msg:str end expect) =>
+  | `(expect warning {{{ $_ }}} $expr:term message $msg:str end expect) =>
     open Lean.Elab.Command in
     open Lean in
     open Lean.Meta in do
-      let hls ← withEmptyMessageLog do
+      withEmptyMessageLog do
         let desiredWarning := msg.getString
-        let cmd ← `(%show_term (kind := FPLean.forMessage) $name:ident := $expr)
+        let cmd ← `(command|noncomputable example := $expr)
         elabCommand cmd
         let afterState <- get
         let newMessages := afterState.messages.toList
@@ -259,8 +252,6 @@ elab_rules : command
           let desired := errStrings.map (· |> repr |>.pretty |>.replace "\\n" "\n")
           let desired := Std.Format.joinSep desired .line
           throwErrorAt msg "The desired warning {desiredWarning} was not found in\n{desired}"
-        pure <| highlighted.getState afterState.env
-      modifyEnv (highlighted.setState · hls)
 
 
 /--
@@ -292,8 +283,8 @@ open Tactic.GuardMsgs in
 def elabCheckMsgs : CommandElab
   | `(command| $[$dc?:docComment]? #check_msgs%$tk $(spec?)? in $cmd) => do
     let expected : String := (← dc?.mapM (getDocStringText ·)).getD ""
-        |>.trim |> removeTrailingWhitespaceMarker
-    let {whitespace, ordering, filterFn, reportPositions := _} ← parseGuardMsgsSpec spec?
+        |>.trimAscii.copy |> removeTrailingWhitespaceMarker
+    let { whitespace, ordering, filterFn, reportPositions := _, substring := _ } ← parseGuardMsgsSpec spec?
     let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
     -- do not forward snapshot as we don't want messages assigned to it to leak outside
     withReader ({ · with snap? := none }) do
@@ -313,7 +304,7 @@ def elabCheckMsgs : CommandElab
       | .pass => toPassthrough := toPassthrough.add msg
     let strings ← toCheck.toList.mapM (messageToStringWithoutPos ·)
     let strings := ordering.apply strings
-    let res := "---\n".intercalate strings |>.trim
+    let res := "---\n".intercalate strings |>.trimAscii.copy
     if messagesMatch (whitespace.apply expected) (whitespace.apply res) then
       -- Passed. Put messages back on the log, downgrading errors to warnings while recording their original status
       modify fun st => { st with messages := initMsgs ++ SubVerso.Highlighting.Messages.errorsToWarnings msgs }
@@ -337,13 +328,12 @@ attribute [command_code_action checkMsgsCmd] Tactic.GuardMsgs.guardMsgsCodeActio
 syntax withPosition("expect" "eval" "info" "{{{" ws ident ws "}}}" colGt term "message" str "end" "expect") : command
 
 elab_rules : command
-  | `(expect eval info {{{ $name:ident }}}%$tok $expr:term message $msg:str end expect) =>
+  | `(expect eval info {{{ $_ }}} $expr:term message $msg:str end expect) =>
     open Lean Elab Command in
     open Lean.Meta in do
-    let hls ←
-      withEmptyMessageLog do
+    withEmptyMessageLog do
         let desiredInfo := msg.getString
-        let cmd ← liftMacroM <| wrapExampleStx `evalInfo name tok `(#eval %ex{$(mkIdent `in)}{$expr})
+        let cmd ← `(#eval $expr)
         elabCommand cmd
         let afterState <- get
         let newMessages := afterState.messages.toList
@@ -353,8 +343,6 @@ elab_rules : command
           let desired := errStrings.map (· |> repr |>.pretty |>.replace "\\n" "\n")
           let desired := Std.Format.joinSep desired .line
           throwErrorAt msg "The desired info {repr desiredInfo} was not found in\n{desired}"
-        pure <| highlighted.getState afterState.env
-    modifyEnv (highlighted.setState · hls)
 
 expect eval info {{{ foo'' }}}
   IO.println "hej" >>= fun _ => IO.println "med dig"
@@ -365,26 +353,32 @@ end expect
 
 
 
+/--
+A name for the declaration that the steps of an example are elaborated in.
+
+Each name is new, so that the auxiliary definitions that elaborating the steps creates do not clash.
+-/
+def freshStepsDeclName [Monad m] [MonadQuotation m] : m Name :=
+  withFreshMacroScope <| MonadQuotation.addMacroScope `steps
+
 syntax withPosition("evaluation" "steps" "{{{" ws ident ws "}}}" sepBy1(colGe term, "===>") "end" "evaluation" "steps"): command
 
 elab_rules : command
-  | `(evaluation steps {{{ $name }}}%$tok $[ $exprs ]===>* end evaluation steps) =>
+  | `(evaluation steps {{{ $_ }}} $[ $exprs ]===>* end evaluation steps) =>
     open Lean Elab Command Term in
     open Lean.Meta in do
+      let declName ← freshStepsDeclName
       let mut current : Option Syntax := none
       for item in exprs do
         if let some v := current then
-          runTermElabM fun _ => withDeclName name.raw.getId do
+          runTermElabM fun _ => withDeclName declName do
             let x <- elabTerm item.raw none
             let y <- elabTerm v none
             synthesizeSyntheticMVarsNoPostponing
             unless (← isDefEq x y) do
               throwError "Example reduction step {y} ===> {x} is incorrect"
         current := some item.raw
-      let named : Array Term ← exprs.mapIdxM fun i e =>
-        `(%ex{$(mkIdent s!"step{i}".toName)}{$e})
-      let cmd ← liftMacroM <| wrapExampleStx `evalSteps name tok `(noncomputable example := [$named,*])
-      elabCommand cmd
+      elabCommand (← `(noncomputable example := [$exprs,*]))
 
 
 evaluation steps {{{ fooSteps }}}
@@ -398,45 +392,43 @@ end evaluation steps
 syntax withPosition("evaluation" "steps" "-" noWs &"check" "{{{" ws ident ws "}}}" sepBy1(colGe term, "===>") "end" "evaluation" "steps"): command
 
 elab_rules : command
-  | `(evaluation steps -check {{{ $name }}}%$tok $[ $exprs ]===>* end evaluation steps) =>
+  | `(evaluation steps -check {{{ $_ }}} $[ $exprs ]===>* end evaluation steps) =>
     open Lean Elab Command Term in
     open Lean.Meta in do
+      let declName ← freshStepsDeclName
       let mut current : Option Syntax := none
       for item in exprs do
         if let some v := current then
-          runTermElabM fun _ => withDeclName name.raw.getId do
+          runTermElabM fun _ => withDeclName declName do
             let _ <- elabTerm item.raw none
             let _ <- elabTerm v none
             synthesizeSyntheticMVarsNoPostponing
         current := some item.raw
-      let named : Array Term ← exprs.mapIdxM fun i e =>
-        `(%ex{$(mkIdent s!"step{i}".toName)}{$e})
-      let cmd ← liftMacroM <| wrapExampleStx `evalSteps name tok `(noncomputable example := [$named,*])
-      elabCommand cmd
+      elabCommand (← `(noncomputable example := [$exprs,*]))
 
 
 syntax withPosition("evaluation" "steps" ":" term "{{{" ws ident ws "}}}" sepBy1(colGe term, "===>") "end" "evaluation" "steps"): command
 elab_rules : command
-  | `(evaluation steps : $ty {{{ $name }}}%$tok $[ $exprs ]===>* end evaluation steps) =>
+  | `(evaluation steps : $ty {{{ $_ }}} $[ $exprs ]===>* end evaluation steps) =>
     open Lean Elab Command Term in
     open Lean.Meta in do
+    let declName ← freshStepsDeclName
     let cmd ← runTermElabM fun _ => do
-      let expected <- withDeclName name.raw.getId <|
+      let expected <- withDeclName declName <|
         elabType ty <* synthesizeSyntheticMVarsNoPostponing
 
       let mut current : Option Syntax := none
       for item in exprs do
         if let some v := current then
-          withDeclName name.raw.getId do
+          withDeclName declName do
             let x <- elabTerm item.raw (some expected)
             let y <- elabTerm v (some expected)
             synthesizeSyntheticMVarsNoPostponing
             unless (← isDefEq x y) do
               throwError "Example reduction step {y} ===> {x} is incorrect\n----------\n\t {(← whnf y)}\n ≠\n\t {(← whnf x)}\n----------\n\t {(← reduceAll y)}\n ≠\n\t {(← reduceAll x)}"
         current := some item.raw
-      let named : Array Term ← exprs.mapIdxM fun i e =>
-        `((%ex{$(mkIdent s!"step{i}".toName)}{$e} : $ty))
-      liftMacroM <| wrapExampleStx `evalSteps name tok `(noncomputable example := [$named,*])
+      let typed : Array Term ← exprs.mapM fun e => `(($e : $ty))
+      `(noncomputable example := [$typed,*])
     elabCommand cmd
 
 evaluation steps : IO Unit {{{ thingy }}}
@@ -470,11 +462,11 @@ def Steps.forM [Monad m] (todo : Steps) (forStep : Term × TSyntax ``docComment 
     forM (.cons e2 txt2 why2 more) forStep
 
 open Lean Elab Parser Command in
-instance : ForM m Steps (Term × TSyntax ``docComment × Option Term × Term) where
+instance [Monad m] : ForM m Steps (Term × TSyntax ``docComment × Option Term × Term) where
   forM := Steps.forM
 
 open Lean Elab Parser Command in
-instance : ForIn m Steps (Term × TSyntax ``docComment × Option Term × Term) where
+instance [Monad m] : ForIn m Steps (Term × TSyntax ``docComment × Option Term × Term) where
   forIn := ForM.forIn
 
 partial def getSteps [Monad m] [MonadError m] [MonadQuotation m] : Lean.Syntax → m Steps
@@ -487,40 +479,33 @@ partial def getSteps [Monad m] [MonadError m] [MonadQuotation m] : Lean.Syntax �
 
 
 
-open Internals in
 open Lean Elab Command in
 def Steps.asCmd [Monad m] [MonadQuotation m] (ty? : Option Term) (ss : Steps) : m Command := do
-  let tms ← go 0 ss
+  let tms := terms ss
   if let some ty := ty? then
     `(noncomputable example : List $ty := [$tms,*])
   else
     `(noncomputable example := [$tms,*])
 where
-  go (n : Nat) : Steps → m (Array Term)
-    | .cons e txt _ ss => do
-      let more ← go (n + 1) ss
-      let me ←
-        `(let _ : Unit := %ex{$(mkIdent s!"why{n}".toName)}{$txt:docComment ()};
-          %ex{$(mkIdent s!"step{n}".toName)}{$e})
-      pure <| more.push me
-    | .done e => do
-      let me ← `(%ex{$(mkIdent s!"step{n}".toName)}{$e})
-      pure #[me]
+  terms : Steps → Array Term
+    | .cons e _ _ ss => #[e] ++ terms ss
+    | .done e => #[e]
 
 open Lean in
-def elabEquationalSteps (name : TSyntax `ident) (tok : Syntax) (stepStx : TSyntax `eqSteps) (ty : Option (TSyntax `term)) :=
+def elabEquationalSteps (stepStx : TSyntax `eqSteps) (ty : Option (TSyntax `term)) :=
   open Lean Elab Command Term in
   open Lean.Meta in do
+  let declName ← freshStepsDeclName
   let cmd ← runTermElabM fun _ => do
     let expected ← match ty with
       | none => pure none
-      | some t => some <$> withDeclName name.raw.getId (elabType t)
+      | some t => some <$> withDeclName declName (elabType t)
     let exprs ← getSteps stepStx
-    if let .done e := exprs then withDeclName name.raw.getId do
+    if let .done e := exprs then withDeclName declName do
       let _ ← elabTerm e none
 
     for (e1, txt, why, e2) in exprs do
-      withDeclName name.raw.getId do
+      withDeclName declName do
         let x ← elabTermEnsuringType e1 expected
         let y ← elabTermEnsuringType e2 expected
         synthesizeSyntheticMVarsNoPostponing
@@ -538,15 +523,15 @@ def elabEquationalSteps (name : TSyntax `ident) (tok : Syntax) (stepStx : TSynta
           let eq ← elabTermEnsuringType stepTypeSyntax (some (mkSort Level.zero))
           let _ ← elabTermEnsuringType p (some eq)
           synthesizeSyntheticMVarsNoPostponing
-    liftMacroM <| wrapExampleStx `eqSteps name tok (exprs.asCmd ty)
+    exprs.asCmd ty
   elabCommand cmd
 
 
 elab_rules : command
-  | `(equational steps {{{ $name }}}%$tok $stepStx:eqSteps stop equational steps) =>
-    elabEquationalSteps name tok stepStx none
-  | `(equational steps : $ty {{{ $name }}}%$tok $stepStx:eqSteps stop equational steps) =>
-    elabEquationalSteps name tok stepStx (some ty)
+  | `(equational steps {{{ $_ }}} $stepStx:eqSteps stop equational steps) =>
+    elabEquationalSteps stepStx none
+  | `(equational steps : $ty {{{ $_ }}} $stepStx:eqSteps stop equational steps) =>
+    elabEquationalSteps stepStx (some ty)
 
 equational steps {{{ fooStepsEqs }}}
   1 + 1
@@ -607,12 +592,9 @@ syntax withPosition("discarding" (colGe command)* "stop " "discarding") : comman
 open Lean Elab Command in
 elab_rules : command
   | `(discarding $cmds* stop discarding) => do
-    let hls ←
-      withoutModifyingEnv do
-        for c in cmds do
-          elabCommand c
-        pure <| highlighted.getState (← getEnv)
-    modifyEnv (highlighted.setState · hls)
+    withoutModifyingEnv do
+      for c in cmds do
+        elabCommand c
 
 namespace Foo
   inductive List (α : Type) : Type where

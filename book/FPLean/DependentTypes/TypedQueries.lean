@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 open Verso.Genre Manual
@@ -56,10 +57,10 @@ def DBType.beq (t : DBType) (x y : t.asType) : Bool :=
   x == y
 ```
 ```anchorError dbEqNoSplit
-failed to synthesize
+failed to synthesize instance of type class
   BEq t.asType
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ```
 Just as in the nested pairs universe, type class search doesn't automatically check each possibility for {anchorName dbEqNoSplit}`t`'s value
 The solution is to use pattern matching to refine the types of {anchorTerm dbEq}`x` and {anchorName dbEq}`y`:
@@ -351,7 +352,7 @@ example : Subschema [⟨"location", .string⟩] peak := by
 ```
 ```anchorError notDone2
 unsolved goals
-case a.a
+case a
 ⊢ HasCol
   [{ name := "location", contains := DBType.string }, { name := "elevation", contains := DBType.int },
     { name := "lastVisited", contains := DBType.int }]
@@ -822,10 +823,9 @@ This is excellent feedback!
 On the other hand, the text of the error message is quite difficult to act on:
 ```anchorError QueryOops1
 unsolved goals
-case a.a.a.a.a.a.a
 mountains : Query (List.map (fun c => { name := "mountain" ++ "." ++ c.name, contains := c.contains }) peak) := ⋯
 waterfalls : Query (List.map (fun c => { name := "waterfall" ++ "." ++ c.name, contains := c.contains }) waterfall) := ⋯
-⊢ HasCol (List.map (fun c => { name := "waterfall" ++ "." ++ c.name, contains := c.contains }) []) "location" ?m.62066
+⊢ HasCol (List.map (fun c => { name := "waterfall" ++ "." ++ c.name, contains := c.contains }) []) "location" ?m.31
 ```
 
 Similarly, forgetting to add prefixes to the names of the two tables results in an error on {kw}`by decide`, which should provide evidence that the schemas are in fact disjoint:

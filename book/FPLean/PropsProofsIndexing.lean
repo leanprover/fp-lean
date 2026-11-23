@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 open Verso.Genre Manual
@@ -422,10 +423,10 @@ def unsafeThird (xs : List α) : α := xs[2]!
 
 
 ```anchorError unsafeThird
-failed to synthesize
+failed to synthesize instance of type class
   Inhabited α
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 ```
 
 This is due to a technical restriction that is part of keeping Lean usable as both a logic for proving theorems and a programming language.

@@ -1,0 +1,5 @@
+banner = "Functional Programming in Lean"
+
+[[mounts]]
+path = "/"
+dir = "_out/html-multi"

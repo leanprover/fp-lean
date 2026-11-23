@@ -8,7 +8,7 @@ with errors
 failed to infer structural recursion:
 Not considering parameter k of div:
   it is unchanged in the recursive calls
-Cannot use parameter k:
+Cannot use parameter n:
   failed to eliminate recursive application
     div (n - k) k
 

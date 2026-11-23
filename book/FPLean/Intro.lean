@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 open Verso.Genre Manual
@@ -99,7 +100,7 @@ in the application
 Warnings are formatted like this:
 
 ```anchorWarning add1_warn
-declaration uses 'sorry'
+declaration uses `sorry`
 ```
 
 # Unicode

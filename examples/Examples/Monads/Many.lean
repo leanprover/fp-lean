@@ -95,7 +95,7 @@ macro_rules
 -- ANCHOR: bindOne
 example : Many.bind v Many.one = v := by
   induction v
-  . simp [Many.bind, Many.one]
+  . simp [Many.bind]
   . simp [Many.bind, Many.one, *, Many.union]
 -- ANCHOR_END: bindOne
 
@@ -191,17 +191,16 @@ theorem Many_bind_pure (ys : Many α) : ys >>= pure = ys := by
   | none => simp [bind, Many.bind]
   | more y ys ih =>
     specialize ih ()
-    simp [bind, Many.bind, pure, Many.union] at ih
+    simp [bind, pure] at ih
     simp [bind, Many.bind, pure, Many.union, ih, Many.one]
 
 @[simp]
 theorem Many_bind_one (ys : Many α) : ys.bind Many.one = ys := by
   induction ys with
-  | none => simp [bind, Many.bind]
+  | none => simp [Many.bind]
   | more y ys ih =>
     specialize ih ()
-    simp only at ih
-    simp [bind, Many.bind, pure, Many.union, ih, Many.one]
+    simp [Many.bind, Many.union, ih, Many.one]
 
 @[simp]
 theorem Many_one_bind : (Many.one x).bind f = f x := by
@@ -215,19 +214,19 @@ instance : LawfulMonad Many where
   map_const := by
     simp [Functor.map, Functor.mapConst]
   id_map xs := by
-    induction xs <;> simp [Functor.map, Many.bind, Function.comp, Many.union]
+    induction xs <;> simp [Functor.map, Many.bind, Function.comp]
     case more x xs ih =>
       specialize ih ()
       simp [Functor.map] at ih
-      simp [ih, Many.one, Many.union]
+      simp [Many.one, Many.union]
   seqLeft_eq xs ys := by
-    induction xs <;> simp [SeqLeft.seqLeft, Seq.seq, Many.bind, Function.const, Functor.map, Many.union, Function.comp]
+    induction xs <;> simp [SeqLeft.seqLeft, Seq.seq, Many.bind, Functor.map, Function.comp]
     case more x xs ih =>
       specialize ih ()
       simp only [SeqLeft.seqLeft, Seq.seq, Functor.map] at ih
       simp only [ih]
       apply congrArg
-      simp [Many.union, Many_bind_pure, *]
+      simp [Many.union, *]
 
   seqRight_eq xs ys := by
       induction xs with
@@ -235,7 +234,7 @@ instance : LawfulMonad Many where
         simp [SeqRight.seqRight, Many.bind, Seq.seq, Functor.map]
       | more x xs ih =>
         simp [SeqRight.seqRight, Many.bind]
-        simp [SeqRight.seqRight, Many.bind] at ih
+        simp [SeqRight.seqRight] at ih
         rw [ih]
         simp [Seq.seq, Function.const, Functor.map, Many.bind, Function.comp, Many.one, Many.union]
 
@@ -245,12 +244,12 @@ instance : LawfulMonad Many where
   bind_pure_comp f xs := by
     rfl
   bind_map f xs := by
-    simp [bind, Many.bind, pure, Functor.map, Function.comp, Seq.seq]
+    simp [bind, Functor.map, Seq.seq]
   pure_bind x f := by
-    simp [bind, Many.bind, pure, Functor.map, Function.comp, Seq.seq]
+    simp [bind, pure]
   bind_assoc xs f g := by
     induction xs
-    case none => simp [bind, Many.bind, Many.union]
+    case none => simp [bind, Many.bind]
     case more x xs ih =>
       specialize ih ()
       simp only [bind] at ih

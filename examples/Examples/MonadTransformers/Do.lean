@@ -9,6 +9,37 @@ set_option linter.unusedVariables false
 namespace StEx
 namespace FancyDo
 
+-- ANCHOR: names
+
+example := IO.FS.Stream.getLine
+
+example := (0 : Nat)
+
+section
+
+example := Std.Rio Nat
+
+example := Std.Rco Nat
+
+example := Std.Roo Nat
+
+example := Std.Roi Nat
+
+example := Std.Rci Nat
+
+example := Std.Rii Nat
+
+example := Std.Ric Nat
+
+example := Std.Roc Nat
+
+example := Std.Rcc Nat
+
+end
+
+-- ANCHOR_END: names
+
+
 -- ANCHOR: countLettersNoElse
 def countLetters (str : String) : StateT LetterCounts (Except Err) Unit :=
   let rec loop (chars : List Char) := do
@@ -133,7 +164,7 @@ def Many.forM [Monad m] : Many α → (α → m PUnit) → m PUnit
     action first
     forM (rest ()) action
 
-instance : ForM m (Many α) α where
+instance [Monad m] : ForM m (Many α) α where
   forM := Many.forM
 -- ANCHOR_END: ManyForM
 
@@ -146,7 +177,7 @@ namespace Fake
 -- ANCHOR: ForM
 class ForM (m : Type u → Type v) (γ : Type w₁)
     (α : outParam (Type w₂)) where
-  forM [Monad m] : γ → (α → m PUnit) → m PUnit
+  forM (coll : γ) (f : α → m PUnit) : m PUnit
 -- ANCHOR_END: ForM
 
 
@@ -158,7 +189,7 @@ def List.forM [Monad m] : List α → (α → m PUnit) → m PUnit
     action x
     forM xs action
 
-instance : ForM m (List α) α where
+instance [Monad m] : ForM m (List α) α where
   forM := List.forM
 -- ANCHOR_END: ListForM
 
@@ -198,7 +229,7 @@ def AllLessThan.forM [Monad m]
       countdown n
   countdown coll.num
 
-instance : ForM m AllLessThan Nat where
+instance [Monad m] : ForM m AllLessThan Nat where
   forM := AllLessThan.forM
 -- ANCHOR_END: AllLessThanForM
 
@@ -217,7 +248,7 @@ instance : ForM m AllLessThan Nat where
 
 
 -- ANCHOR: ForInIOAllLessThan
-instance : ForIn m AllLessThan Nat where
+instance [Monad m] : ForIn m AllLessThan Nat where
   forIn := ForM.forIn
 -- ANCHOR_END: ForInIOAllLessThan
 
@@ -274,15 +305,15 @@ def countToThree (n : Nat) : IO Unit := do
 
 -- ANCHOR: parallelLoop
 def parallelLoop := do
-  for x in ["currant", "gooseberry", "rowan"], y in [4:8] do
+  for x in ["currant", "gooseberry", "rowan"], y in 'a'...'e' do
     IO.println (x, y)
 -- ANCHOR_END: parallelLoop
 
 
-/-- info:
-(currant, 4)
-(gooseberry, 5)
-(rowan, 6)
+/--
+info: (currant, a)
+(gooseberry, b)
+(rowan, c)
 -/
 #check_msgs in
 -- ANCHOR: parallelLoopOut
@@ -331,7 +362,9 @@ def two : Nat := Id.run do
   return x
 -- ANCHOR_END: two
 
+--ANCHOR: two_spec
 example : two = 2 := by rfl
+--ANCHOR_END: two_spec
 
 namespace St
 
@@ -370,8 +403,10 @@ def six : Nat := Id.run do
 example : six = 6 := by rfl
 
 
-/-- error:
-`found` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intend to mutate but define `found`, consider using `let found` instead
+/--
+error:
+Variable `found` cannot be mutated. Only variables declared using `let mut` can be mutated.
+      If you did not intend to mutate but define `found`, consider using `let found` instead
 -/
 #check_msgs in
 -- ANCHOR: nonLocalMut
@@ -392,100 +427,48 @@ similar datatypes ForM Loops.Fake.ForM
 
 namespace Ranges
 
-deriving instance Repr for Std.Range
-
 --NB in this section, using the typical bookExample macro fails
 --because `stop` has become a reserved word due to another macro.
 -- These tests are here in support of a table.
 
-def rangeToList (r : Std.Range) : List Nat := Id.run do
-  let mut out : List Nat := []
-  for i in r do
-    out := out ++ [i]
-  pure out
+--- ANCHOR: ranges
+#check *...10
 
-/-- info:
-{ start := 0, stop := 10, step := 1, step_pos := _ }
--/
-#check_msgs in
--- ANCHOR: rangeStop
-#eval [:10]
--- ANCHOR_END: rangeStop
+#check *...5
 
-/-- info:
-[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
--/
-#check_msgs in
--- ANCHOR: rangeStopContents
-#eval rangeToList [:10]
--- ANCHOR_END: rangeStopContents
+#guard (*...5).toList == [0, 1, 2, 3, 4]
 
+#check 3...*
 
-/-- info:
-{ start := 2, stop := 10, step := 1, step_pos := _ }
--/
-#check_msgs in
--- ANCHOR: rangeStartStop
-#eval [2:10]
--- ANCHOR_END: rangeStartStop
+#check (3...10 : Std.Rco Nat)
 
-/-- info:
-[2, 3, 4, 5, 6, 7, 8, 9]
--/
-#check_msgs in
--- ANCHOR: rangeStartStopContents
-#eval rangeToList [2:10]
--- ANCHOR_END: rangeStartStopContents
+#check (3...=10 : Std.Rcc Nat)
 
-/-- info:
-{ start := 0, stop := 10, step := 3, step_pos := _ }
--/
-#check_msgs in
--- ANCHOR: rangeStopStep
-#eval [:10:3]
--- ANCHOR_END: rangeStopStep
+#check 3...10
 
+#check (3<...10 : Std.Roo Nat)
 
--- ANCHOR: ranges
+#check (3<...=10 : Std.Roc Nat)
 
-example : Std.Range := [:10]
-example : Std.Range := [2:10]
-example : Std.Range := [:10:3]
-example : Std.Range := [2:10:3]
-example := [0, 10, 1, 2, 3]
-example := IO.FS.Stream.getLine
--- ANCHOR_END: ranges
+#check 3...=10
 
+#check 3<...10
 
-/-- info:
-[0, 3, 6, 9]
--/
-#check_msgs in
--- ANCHOR: rangeStopStepContents
-#eval rangeToList [:10:3]
--- ANCHOR_END: rangeStopStepContents
+#check 3...*
 
-/-- info:
-{ start := 2, stop := 10, step := 3, step_pos := _ }
--/
-#check_msgs in
--- ANCHOR: rangeStartStopStep
-#eval [2:10:3]
--- ANCHOR_END: rangeStartStopStep
+#check 10...3
 
-/-- info:
-[2, 5, 8]
--/
-#check_msgs in
--- ANCHOR: rangeStartStopStepContents
-#eval rangeToList [2:10:3]
--- ANCHOR_END: rangeStartStopStepContents
+#guard (10...3).size == 0
 
+#check (3<...10)
+
+#check 2
+---ANCHOR_END: ranges
 
 -- ANCHOR: fourToEight
 def fourToEight : IO Unit := do
-  for i in [4:9:2] do
-    IO.println i
+  for i in 2...5 do
+    IO.println (i * 2)
 -- ANCHOR_END: fourToEight
 
 /-- info:
@@ -498,14 +481,37 @@ def fourToEight : IO Unit := do
 #eval fourToEight
 -- ANCHOR_END: fourToEightOut
 
+/--
+info: l
+m
+n
+o
+p
+-/
+#check_msgs in
+-- ANCHOR: showLetters
+#eval do
+  for letter in 'l'...='p' do
+    IO.println letter
+-- ANCHOR_END: showLetters
+
 end Ranges
 
+discarding
 -- ANCHOR: printArray
 def printArray [ToString α] (xs : Array α) : IO Unit := do
-  for h : i in [0:xs.size] do
+  for h : i in 0...xs.size do
     IO.println s!"{i}:\t{xs[i]}"
 -- ANCHOR_END: printArray
+stop discarding
 
+-- ANCHOR: printArrayEv
+def printArray [ToString α] (xs : Array α) : IO Unit := do
+  for h : i in 0...xs.size do
+    let h' := (h : i ∈ 0...xs.size)
+    have : i < xs.size := by get_elem_tactic
+    IO.println s!"{i}:\t{xs[i]}"
+-- ANCHOR_END: printArrayEv
 
 namespace SameDo
 
@@ -525,8 +531,9 @@ example : Id Unit := do
 -- ANCHOR_END: collapsedBlock
 
 
-/-- error:
-`x` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intend to mutate but define `x`, consider using `let x` instead
+/--
+error: Variable `x` cannot be mutated. Only variables declared using `let mut` can be mutated.
+      If you did not intend to mutate but define `x`, consider using `let x` instead
 -/
 #check_msgs in
 -- ANCHOR: letBodyNotBlock
@@ -548,8 +555,9 @@ example : Id Unit := do
 -- ANCHOR_END: letBodyArrBlock
 
 
-/-- error:
-`x` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intend to mutate but define `x`, consider using `let x` instead
+/--
+error: Variable `x` cannot be mutated. Only variables declared using `let mut` can be mutated.
+      If you did not intend to mutate but define `x`, consider using `let x` instead
 -/
 #check_msgs in
 -- ANCHOR: funArgNotBlock
@@ -600,7 +608,7 @@ example : Id Unit := do
 -- ANCHOR: doForSame
 example : Id Unit := do
   let mut x := 0
-  for y in [1:5] do
+  for y in 1...5 do
    x := x + y
 -- ANCHOR_END: doForSame
 

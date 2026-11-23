@@ -18,6 +18,7 @@ end
 -- ANCHOR: sequences
 section
 example {α} := [List α, Array α]
+example : List α → Array α := Array.mk
 open Array
 example : Array α → List α := toList
 end
@@ -26,6 +27,7 @@ end
 -- ANCHOR: StringDetail
 section
 open String
-example : String → List Char := data
+example : String → ByteArray := toByteArray
+example : (self : String) → self.toByteArray.IsValidUTF8 := isValidUTF8
 end
 -- ANCHOR_END: StringDetail

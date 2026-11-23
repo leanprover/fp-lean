@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 open Verso.Genre Manual
@@ -123,9 +124,9 @@ inductive ParamAfterIndex : Nat → Type u → Type u where
 Invalid universe level in constructor `ParamAfterIndex.test1`: Parameter `γ` has type
   Type u
 at universe level
-  u+2
+  u + 2
 which is not less than or equal to the inductive type's resulting universe level
-  u+1
+  u + 1
 ```
 
 Parameters need not be types.

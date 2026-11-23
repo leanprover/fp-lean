@@ -44,11 +44,6 @@ lean_exe feline {
 }
 
 @[default_target]
-lean_exe examples {
-  root := `Main
-}
-
-@[default_target]
 lean_exe countdown {
   root := `Examples.HelloWorld
 }

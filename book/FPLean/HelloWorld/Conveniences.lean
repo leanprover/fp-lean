@@ -1,4 +1,5 @@
-import VersoManual
+module
+public import VersoManual
 import FPLean.Examples
 
 
@@ -126,7 +127,7 @@ which runs {moduleName (module := Examples.Cat)}`getNumB` regardless of whether 
 To prevent this confusion, nested actions are not allowed in an {kw}`if` that is not itself a line in the {moduleTerm (module := Examples.Cat)}`do`, and the following error message results:
 
 ```anchorError testEffects (module := Examples.Cat)
-invalid use of `(<- ...)`, must be nested inside a 'do' expression
+Nested action `← getNumB` must be nested inside a `do` expression.
 ```
 
 
@@ -150,7 +151,7 @@ def main : IO Unit := do
   let stdout ← IO.getStdout
 
   stdout.putStrLn "How would you like to be addressed?"
-  let name := (← stdin.getLine).trim
+  let name := (← stdin.getLine).trimAscii
   stdout.putStrLn s!"Hello, {name}!"
 ```
 
@@ -161,7 +162,7 @@ def main : IO Unit := do {
   let stdout ← IO.getStdout;
 
   stdout.putStrLn "How would you like to be addressed?";
-  let name := (← stdin.getLine).trim;
+  let name := (← stdin.getLine).trimAscii;
   stdout.putStrLn s!"Hello, {name}!"
 }
 ```
@@ -172,7 +173,7 @@ def main : IO Unit := do
   let stdin ← IO.getStdin; let stdout ← IO.getStdout
 
   stdout.putStrLn "How would you like to be addressed?"
-  let name := (← stdin.getLine).trim
+  let name := (← stdin.getLine).trimAscii
   stdout.putStrLn s!"Hello, {name}!"
 ```
 
