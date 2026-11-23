@@ -82,9 +82,6 @@ jobs:
         run: |
           printf '/*\n  X-Robots-Tag: noindex\n' > html-multi/_headers
 
-      - name: Install the Netlify CLI
-        run: npm install --global netlify-cli@27.0.3
-
       - id: netlify
         name: Deploy to Netlify hosting
         env:
@@ -95,32 +92,58 @@ jobs:
         run: |
           set -euo pipefail
 
-          args=(deploy --dir html-multi --no-build --json --message "$(cat deploy-message.txt)")
-          if [ "$PRODUCTION" = true ]; then
-            args+=(--prod)
-          else
-            args+=(--alias "$ALIAS")
-          fi
-          netlify "${args[@]}" > deploy.json
+          api=https://api.netlify.com/api/v1
+          call_netlify() {
+            curl --fail-with-body --silent --show-error \
+              --header "Authorization: Bearer $NETLIFY_AUTH_TOKEN" "$@"
+          }
 
-          # The Netlify CLI may precede its result with progress output, so the
-          # first object carrying the wanted key is the result.
-          python3 - >> "$GITHUB_OUTPUT" <<'PY'
-          import json, os, sys
-          key = "url" if os.environ["PRODUCTION"] == "true" else "deploy_url"
-          text = open("deploy.json").read()
-          decoder = json.JSONDecoder()
-          for start in (i for i, c in enumerate(text) if c == "{"):
-              try:
-                  deploy, _ = decoder.raw_decode(text[start:])
-              except ValueError:
-                  continue
-              if isinstance(deploy, dict) and key in deploy:
-                  print("url=" + deploy[key])
-                  break
-          else:
-              sys.exit(f"the Netlify CLI output carries no {key}")
-          PY
+          (cd html-multi && zip --quiet --recurse-paths ../site.zip .)
+
+          # A draft deploy leaves the published book in place, and its branch
+          # is the alias that serves it.
+          query=(--url-query title@deploy-message.txt)
+          if [ "$PRODUCTION" != true ]; then
+            query+=(--url-query draft=true --url-query "branch=$ALIAS")
+          fi
+          call_netlify "${query[@]}" \
+            --header "Content-Type: application/zip" \
+            --data-binary @site.zip \
+            "$api/sites/$NETLIFY_SITE_ID/deploys" > deploy.json
+          id=$(jq --raw-output .id deploy.json)
+
+          # Netlify publishes every deploy that is not a draft, so a preview
+          # that Netlify does not report as a draft is cancelled.
+          if [ "$PRODUCTION" != true ] && ! jq --exit-status '.draft == true' deploy.json > /dev/null; then
+            call_netlify --request POST "$api/deploys/$id/cancel" > /dev/null
+            echo "::error::Netlify did not create the preview as a draft deploy"
+            exit 1
+          fi
+
+          # Netlify processes the uploaded archive after it answers.
+          state=$(jq --raw-output .state deploy.json)
+          for _ in $(seq 120); do
+            case "$state" in
+              ready) break ;;
+              error)
+                echo "::error::Netlify deploy failed: $(jq --raw-output .error_message deploy.json)"
+                exit 1 ;;
+            esac
+            sleep 5
+            call_netlify "$api/deploys/$id" > deploy.json
+            state=$(jq --raw-output .state deploy.json)
+          done
+          if [ "$state" != ready ]; then
+            echo "::error::Netlify deploy $id is still in state $state"
+            exit 1
+          fi
+
+          if [ "$PRODUCTION" = true ]; then
+            url=$(jq --raw-output '.ssl_url // .url' deploy.json)
+          else
+            url=$(jq --raw-output '.deploy_ssl_url // .deploy_url' deploy.json)
+          fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
 
       - name: Record the deployment
         env:
