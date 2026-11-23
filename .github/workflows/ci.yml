@@ -30,16 +30,16 @@ jobs:
         run: sudo apt-get install -y build-essential
 
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
       # The book runs a Python interpreter during the build and shows its
       # output, so the version is pinned to keep that output stable.
       - name: Setup Python
-        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        uses: actions/setup-python@v7.1.0
         with:
-          python-version: 3.10.4
+          python-version: 3.15.0
 
       - name: Setup elan toolchain on this build
         run: |
@@ -62,7 +62,7 @@ jobs:
           lean --version
 
       - name: Cache examples/.lake
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache@v6.1.0
         with:
           path: examples/.lake
           # The SHA is in the key to get the most recent cache possible, rather than just saving a single one for each Lean/deps version and not touching it.
@@ -72,7 +72,7 @@ jobs:
             ${{ runner.os }}-${{ hashFiles('examples/lake-manifest.json') }}-${{ hashFiles('examples/lean-toolchain') }}-
 
       - name: Cache book/.lake
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache@v6.1.0
         with:
           path: book/.lake
           # The SHA is in the key to get the most recent cache possible, rather than just saving a single one for each Lean/deps version and not touching it.
@@ -89,7 +89,7 @@ jobs:
           popd
 
       - name: Save examples/.lake
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache/save@v6.1.0
         with:
           path: examples/.lake
           # The SHA is in the key to get the most recent cache possible, rather than just saving a single one for each Lean/deps version and not touching it.
@@ -102,7 +102,7 @@ jobs:
           popd
 
       - name: Save book/.lake
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache/save@v6.1.0
         with:
           path: book/.lake
           # The SHA is in the key to get the most recent cache possible, rather than just saving a single one for each Lean/deps version and not touching it.
@@ -110,14 +110,14 @@ jobs:
 
       # This is to get the cached highlight JSON files
       - name: Save examples/.lake again
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache/save@v6.1.0
         with:
           path: examples/.lake
           # The SHA is in the key to get the most recent cache possible, rather than just saving a single one for each Lean/deps version and not touching it.
           key: ${{ runner.os }}-${{ hashFiles('examples/lake-manifest.json') }}-${{ hashFiles('examples/lean-toolchain') }}-${{ github.sha }}
 
       - name: Upload book HTML
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: book-html
           path: book/_out/html-multi

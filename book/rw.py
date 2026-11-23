@@ -18,51 +18,49 @@ def apply_transformations(content):
     """Apply all regex transformations to the content."""
 
     # The overall structure needs to stop being Markdown
-    if content.startswith('# '):
+    if content.startswith("# "):
         module = "Examples.TODO"
-        maybe_mod = re.search(r'(Examples/.*?)\.lean', content)
+        maybe_mod = re.search(r"(Examples/.*?)\.lean", content)
         if maybe_mod is not None:
-            module = maybe_mod.group(1).replace('/', '.')
+            module = maybe_mod.group(1).replace("/", ".")
         content = re.sub(
-            r'^#\s+(.*?)\n',
-            r'import VersoManual\nimport FPLean.Examples\n\nopen Verso.Genre Manual\nopen Verso.Code.External\n\nopen FPLean\n\nset_option verso.exampleProject "../examples"\nset_option verso.exampleModule "' + module + r'"\n\n#doc (Manual) "\1" =>\n',
+            r"^#\s+(.*?)\n",
+            r'import VersoManual\nimport FPLean.Examples\n\nopen Verso.Genre Manual\nopen Verso.Code.External\n\nopen FPLean\n\nset_option verso.exampleProject "../examples"\nset_option verso.exampleModule "'
+            + module
+            + r'"\n\n#doc (Manual) "\1" =>\n',
             content,
-            count=1
+            count=1,
         )
-        content = re.sub(r'^#(#+[^#])', r'\1', content, flags=re.MULTILINE)
+        content = re.sub(r"^#(#+[^#])", r"\1", content, flags=re.MULTILINE)
+
+    content = re.sub(r"```leantac", r"```lean", content)
 
     content = re.sub(
-        r'```leantac',
-        r'```lean',
-        content
+        r"```lean\s*(\{\{#[^\n]+)\n+\{",
+        r"```lean\n\1\n```\n```lean\n{",
+        content,
+        flags=re.DOTALL,
     )
 
     content = re.sub(
-        r'```lean\s*(\{\{#[^\n]+)\n+\{',
-        r'```lean\n\1\n```\n```lean\n{',
+        r"```lean\s*\{\{#example_decl\s+[^\s]+\s+([^}]+)\}\}\s*```",
+        r"\n```anchor \1\n\n```",
         content,
-        flags=re.DOTALL
+        flags=re.DOTALL,
     )
 
     content = re.sub(
-        r'```lean\s*\{\{#example_decl\s+[^\s]+\s+([^}]+)\}\}\s*```',
-        r'\n```anchor \1\n\n```',
+        r"```lean\s*\{\{#example_in\s+[^\s]+\s+([^}]+)\}\}\s*```",
+        r"```anchor \1\n\n```",
         content,
-        flags=re.DOTALL
+        flags=re.DOTALL,
     )
 
     content = re.sub(
-        r'```lean\s*\{\{#example_in\s+[^\s]+\s+([^}]+)\}\}\s*```',
-        r'```anchor \1\n\n```',
+        r"```lean\s*\{\{#example_out\s+[^\s]+\s+([^}]+)\}\}\s*```",
+        r"```anchor \1\n\n```",
         content,
-        flags=re.DOTALL
-    )
-
-    content = re.sub(
-        r'```lean\s*\{\{#example_out\s+[^\s]+\s+([^}]+)\}\}\s*```',
-        r'```anchor \1\n\n```',
-        content,
-        flags=re.DOTALL
+        flags=re.DOTALL,
     )
 
     # content = re.sub(
@@ -73,19 +71,18 @@ def apply_transformations(content):
     # )
 
     content = re.sub(
-        r'```lean\s*\{\{#example_eval\s+[^\s]+\s+([^}]+)\}\}\s*```',
-        r'```anchorEvalSteps \1\n\n```',
+        r"```lean\s*\{\{#example_eval\s+[^\s]+\s+([^}]+)\}\}\s*```",
+        r"```anchorEvalSteps \1\n\n```",
         content,
-        flags=re.DOTALL
+        flags=re.DOTALL,
     )
 
     content = re.sub(
-        r'`\{\{#command\s+\{([^}]+)\}\s+\{([^}]+)\}\s+\{([^}]+)\}\s*\}\}`',
+        r"`\{\{#command\s+\{([^}]+)\}\s+\{([^}]+)\}\s+\{([^}]+)\}\s*\}\}`",
         r'{command \2 "\1"}`\3`',
         content,
-        flags=re.DOTALL
+        flags=re.DOTALL,
     )
-
 
     # content = re.sub(
     #     r'`\{\{#command_out\s+\{([^}]+)\}\s+\{([^}]+)\}\s*\}\}`',
@@ -94,35 +91,33 @@ def apply_transformations(content):
     #     flags=re.DOTALL
     # )
 
-
     content = re.sub(
-        r'```\s*\{\{#command\s+\{([^}]+)\}\s+\{([^}]+)\}\s+\{([^}]+)\}\s*\}\}\s*```',
+        r"```\s*\{\{#command\s+\{([^}]+)\}\s+\{([^}]+)\}\s+\{([^}]+)\}\s*\}\}\s*```",
         r'```command \2 "\1" "\3"\n```\n',
         content,
-        flags=re.DOTALL
+        flags=re.DOTALL,
     )
 
     content = re.sub(
-        r'```\s*\{\{#command\s+\{([^}]+)\}\s+\{([^}]+)\}\s+\{([^}]+)\}\s*\{([^?]+)\}\}\}\s*```',
+        r"```\s*\{\{#command\s+\{([^}]+)\}\s+\{([^}]+)\}\s+\{([^}]+)\}\s*\{([^?]+)\}\}\}\s*```",
         r'```command \2 "\1" "\3" "\4"\n\n```\n',
         content,
-        flags=re.DOTALL
+        flags=re.DOTALL,
     )
 
     content = re.sub(
-        r'```\s*\{\{#command_out\s+\{([^}]+)\}\s+\{([^}]+)\}\s*\}\}\s*```',
+        r"```\s*\{\{#command_out\s+\{([^}]+)\}\s+\{([^}]+)\}\s*\}\}\s*```",
         r'```commandOut \1 "\2"\n```\n',
         content,
-        flags=re.DOTALL
+        flags=re.DOTALL,
     )
 
     content = re.sub(
-        r'```\s*\{\{#command_out\s+\{([^}]+)\}\s+\{([^}]+)\}\s*\{[^}]+\}\s*\}\}\s*```',
+        r"```\s*\{\{#command_out\s+\{([^}]+)\}\s+\{([^}]+)\}\s*\{[^}]+\}\s*\}\}\s*```",
         r'```commandOut \1 "\2"\n```\n',
         content,
-        flags=re.DOTALL
+        flags=re.DOTALL,
     )
-
 
     # content = re.sub(
     #     r'```lean\s*\{\{#file_contents\s+\{([^}]+)\}\s+\{([^}]+)}\s*\{[^}]+\}\s*\}\}\s*```',
@@ -145,20 +140,18 @@ def apply_transformations(content):
     #     flags=re.DOTALL
     # )
 
-
     content = re.sub(
-        r'```output\s+error\s*\{\{#example_out\s+[^\s]+\s+([^}]+)\}\}\s*```',
-        r'```anchorError \1\n\n```',
+        r"```output\s+error\s*\{\{#example_out\s+[^\s]+\s+([^}]+)\}\}\s*```",
+        r"```anchorError \1\n\n```",
         content,
-        flags=re.DOTALL
+        flags=re.DOTALL,
     )
 
-
     content = re.sub(
-        r'```output\s+info\s*\{\{#example_out\s+[^\s]+\s+([^}]+)\}\}\s*```',
-        r'```anchorInfo \1\n\n```',
+        r"```output\s+info\s*\{\{#example_out\s+[^\s]+\s+([^}]+)\}\}\s*```",
+        r"```anchorInfo \1\n\n```",
         content,
-        flags=re.DOTALL
+        flags=re.DOTALL,
     )
 
     # content = re.sub(
@@ -167,24 +160,18 @@ def apply_transformations(content):
     #     content
     # )
 
-
-
     content = re.sub(
-        r'`\{\{#example_eval\s+[^\s]+\s+([^\s]+)\s+(\d+)\}\}`',
-        r'{anchorEvalStep \1 \2}` `',
-        content
+        r"`\{\{#example_eval\s+[^\s]+\s+([^\s]+)\s+(\d+)\}\}`",
+        r"{anchorEvalStep \1 \2}` `",
+        content,
     )
 
     content = re.sub(
-        r'`\{\{#example_in\s+[^\s]+\s+([^\s]+)\}\}`',
-        r'{anchorTerm \1}`TODO`',
-        content
+        r"`\{\{#example_in\s+[^\s]+\s+([^\s]+)\}\}`", r"{anchorTerm \1}`TODO`", content
     )
 
     content = re.sub(
-        r'`\{\{#example_out\s+[^\s]+\s+([^\s]+)\}\}`',
-        r'{anchorTerm \1}`TODO`',
-        content
+        r"`\{\{#example_out\s+[^\s]+\s+([^\s]+)\}\}`", r"{anchorTerm \1}`TODO`", content
     )
 
     # content = re.sub(
@@ -193,15 +180,37 @@ def apply_transformations(content):
     #     content
     # )
 
+    content = content.replace(r"\\( ", "$`")
+    content = content.replace(r" \\)", "`")
 
-    content = content.replace(r'\\( ', '$`')
-    content = content.replace(r' \\)', '`')
+    content = content.replace(r"\\[ ", "$$`")
+    content = content.replace(r" \\]", "`")
 
-    content = content.replace(r'\\[ ', '$$`')
-    content = content.replace(r' \\]', '`')
-
-    for kw in ['def', 'theorem', 'by', 'let', 'fun', 'match', 'if', 'let', 'if let', 'then', 'else', 'match', 'structure', 'inductive', 'infixl', 'infixr', 'infix', '#print' '#eval', '#check', 'where', 'example', 'do']:
-        content = re.sub(r'(?<!{kw})`' + kw + '`', r'{kw}`' + kw + '`', content)
+    for kw in [
+        "def",
+        "theorem",
+        "by",
+        "let",
+        "fun",
+        "match",
+        "if",
+        "let",
+        "if let",
+        "then",
+        "else",
+        "match",
+        "structure",
+        "inductive",
+        "infixl",
+        "infixr",
+        "infix",
+        "#print#eval",
+        "#check",
+        "where",
+        "example",
+        "do",
+    ]:
+        content = re.sub(r"(?<!{kw})`" + kw + "`", r"{kw}`" + kw + "`", content)
 
     return content
 
@@ -212,7 +221,7 @@ def process_file(input_path, output_path=None):
     If output_path is None, overwrites the input file.
     """
     # Read the input file
-    with open(input_path, 'r', encoding='utf-8') as file:
+    with open(input_path, "r", encoding="utf-8") as file:
         content = file.read()
 
     # Apply transformations
@@ -222,7 +231,7 @@ def process_file(input_path, output_path=None):
     final_output_path = output_path if output_path else input_path
 
     # Write the output
-    with open(final_output_path, 'w', encoding='utf-8') as file:
+    with open(final_output_path, "w", encoding="utf-8") as file:
         file.write(transformed_content)
 
     print(f"Processed {input_path} -> {final_output_path}")
@@ -230,9 +239,13 @@ def process_file(input_path, output_path=None):
 
 def main():
     """Parse arguments and process the file."""
-    parser = argparse.ArgumentParser(description='Rewrite files based on regex patterns.')
-    parser.add_argument('input_file', help='Path to the input file')
-    parser.add_argument('output_file', nargs='?', help='Path to the output file (optional)')
+    parser = argparse.ArgumentParser(
+        description="Rewrite files based on regex patterns."
+    )
+    parser.add_argument("input_file", help="Path to the input file")
+    parser.add_argument(
+        "output_file", nargs="?", help="Path to the output file (optional)"
+    )
 
     args = parser.parse_args()
 

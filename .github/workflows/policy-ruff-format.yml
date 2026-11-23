@@ -1,0 +1,22 @@
+name: Ruff format
+
+on:
+    pull_request:
+    merge_group:
+
+permissions:
+    contents: read
+
+jobs:
+    ruff-format:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v7.0.1
+              with:
+                  persist-credentials: false
+
+            - uses: astral-sh/setup-uv@v10.3.3
+
+            # The version is the one that ruff.toml requires.
+            - name: Check Python formatting with ruff
+              run: uvx ruff@0.17.6 format --check .
